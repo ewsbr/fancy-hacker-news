@@ -84,6 +84,8 @@ function toggleCollapse() {
 
 <style scoped lang="scss">
 .comment-node {
+  position: relative;
+
   &--root {
     margin-top: 0.5rem;
   }
@@ -96,16 +98,35 @@ function toggleCollapse() {
   scroll-margin-top: 50px;
 
   &:target {
-    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
-    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
-    transition: background 0.6s ease, box-shadow 0.6s ease;
+    animation: highlight-fade 1.5s forwards;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      left: -10px;
+      width: 10px;
+      background: inherit;
+      border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+      animation: highlight-line-fade 1.5s forwards;
+    }
   }
 
   &--highlight {
-    // Legacy JS highlight - keeping for now to avoid breaking transition if still referenced
-    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
-    box-shadow: inset 3px 0 0 var(--color-accent);
-    transition: background 0.4s ease, box-shadow 0.4s ease;
+    animation: highlight-fade 1.5s forwards;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      left: -10px;
+      width: 10px;
+      background: inherit;
+      border-left: 2px solid var(--color-accent);
+      animation: highlight-line-fade 1.5s forwards;
+    }
   }
 
   &--collapsed {
@@ -226,6 +247,26 @@ function toggleCollapse() {
     min-width: 0;
     display: flex;
     flex-direction: column;
+  }
+}
+
+@keyframes highlight-fade {
+  0%, 60% {
+    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+@keyframes highlight-line-fade {
+  0%, 60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 </style>

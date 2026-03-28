@@ -80,7 +80,7 @@ function closeNav() {
   gap: 1.5rem;
   max-width: 1024px;
   margin: 0 auto;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
 }
 
 .site-header__mobile-row {
@@ -190,7 +190,7 @@ function closeNav() {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
-    padding: 0.5rem 0.6rem;
+    padding: 0.5rem 0.5rem;
   }
 
   .site-header__mobile-row {

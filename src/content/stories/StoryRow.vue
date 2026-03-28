@@ -18,12 +18,12 @@ defineProps<{ story: Story }>();
           :href="story.url ?? `item?id=${story.id}`"
           class="story-row__title"
         >{{ story.title }}</a>
-        <Badge v-if="story.isDead" variant="dead" label="Dead" />
-        <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
-        <Badge v-if="story.isJob" variant="job" label="Job" />
         <span v-if="story.site" class="story-row__site">
           (<a :href="`from?site=${story.site}`">{{ story.site }}</a>)
         </span>
+        <Badge v-if="story.isDead" variant="dead" label="Dead" />
+        <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
+        <Badge v-if="story.isJob" variant="job" label="Job" />
       </div>
       <StoryMeta :story="story" />
     </div>

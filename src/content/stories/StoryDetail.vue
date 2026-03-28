@@ -27,11 +27,11 @@ defineProps<{
           >
             {{ item.title }}
           </component>
-          <Badge v-if="item.isDead" variant="dead" label="Dead" />
-          <Badge v-if="item.isFlagged" variant="flagged" label="Flagged" />
           <span v-if="item.site" class="story-detail__site">
             (<a :href="`from?site=${item.site}`">{{ item.site }}</a>)
           </span>
+          <Badge v-if="item.isDead" variant="dead" label="Dead" />
+          <Badge v-if="item.isFlagged" variant="flagged" label="Flagged" />
         </div>
 
         <div class="story-detail__meta">
