@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
-import { ChevronUp, ChevronDown } from 'lucide-vue-next';
+import { Triangle } from 'lucide-vue-next';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -38,18 +38,23 @@ function toggleCollapse() {
                 v-if="node.voteUp || node.voteUn" 
                 :href="node.voteUn || node.voteUp || undefined" 
                 class="comment-node__vote-action"
-                :class="{ 'comment-node__vote-action--active': node.voteUn }"
+                :class="{ 
+                  'comment-node__vote-action--up': true, 
+                  'comment-node__vote-action--active': node.voteUn 
+                }"
                 :title="node.voteUn ? 'unvote' : 'upvote'"
               >
-                <ChevronUp :size="16" :stroke-width="node.voteUn ? 3 : 2.5" />
+                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+                <span>{{ node.voteUn ? 'unvote' : 'upvote' }}</span>
               </a>
               <a 
                 v-if="node.voteDown" 
                 :href="node.voteDown" 
-                class="comment-node__vote-action"
+                class="comment-node__vote-action comment-node__vote-action--down"
                 title="downvote"
               >
-                <ChevronDown :size="16" :stroke-width="2.5" />
+                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+                <span>downvote</span>
               </a>
             </div>
 
@@ -128,7 +133,7 @@ function toggleCollapse() {
     margin-top: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-muted);
@@ -137,27 +142,37 @@ function toggleCollapse() {
   &__votes {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.7rem;
+    margin-right: 0.1rem;
   }
 
   &__vote-action {
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: inherit;
-    transition: color 0.15s ease, transform 0.15s ease;
+    gap: 0.25rem;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: lowercase;
 
     &:hover {
       color: var(--color-accent);
-      transform: translateY(-1px);
+      text-decoration: none;
     }
 
-    &[title="downvote"]:hover {
-      transform: translateY(1px);
+    &--up {
+      color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text-muted));
     }
 
     &--active {
       color: var(--color-accent);
+    }
+
+    &--down {
+      .lucide {
+        transform: rotate(180deg);
+      }
     }
   }
 
@@ -165,7 +180,6 @@ function toggleCollapse() {
     color: var(--color-border);
     opacity: 0.5;
     user-select: none;
-    margin: 0 0.1rem;
   }
 
   &__action-link {

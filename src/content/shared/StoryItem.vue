@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { Triangle } from 'lucide-vue-next';
 
 export interface HNItem {
   id: number;
@@ -50,7 +51,7 @@ const domainUrl = computed(() => props.story.domainUrl ?? (props.story.domain ? 
 
       <div class="story-item__meta">
         <div class="story-item__vote">
-          <span class="story-item__vote-arrow" aria-hidden="true"></span>
+          <Triangle :size="12" fill="currentColor" :stroke-width="0" class="story-item__vote-arrow" />
           <span class="story-item__vote-count">{{ story.score }}</span>
         </div>
         <span class="story-item__divider">•</span>
@@ -166,16 +167,13 @@ const domainUrl = computed(() => props.story.domainUrl ?? (props.story.domain ? 
 }
 
 .story-item__vote-arrow {
-  width: 0;
-  height: 0;
-  margin-bottom: 0.1rem;
-  border-right: 6px solid transparent;
-  border-bottom: 10px solid var(--color-text-muted);
-  border-left: 6px solid transparent;
-  cursor: pointer;
+  color: var(--color-text-muted);
+  margin-top: 0.3rem;
+  transition: color 0.1s ease;
+  align-self: flex-start;
 
   &:hover {
-    border-bottom-color: var(--color-accent);
+    color: var(--color-accent);
   }
 }
 

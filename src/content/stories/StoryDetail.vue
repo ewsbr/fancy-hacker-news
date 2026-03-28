@@ -2,6 +2,7 @@
 import type { ItemDetail } from '@/parsers/item';
 import RichText from '@/content/shared/RichText.vue';
 import Badge from '@/content/shared/Badge.vue';
+import { Triangle } from 'lucide-vue-next';
 
 defineProps<{
   item: ItemDetail;
@@ -12,10 +13,8 @@ defineProps<{
   <div class="story-detail">
     <div class="story-detail__layout">
       <div class="story-detail__vote" v-if="item.voteUp">
-        <a :href="item.voteUp" class="story-detail__vote-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-          </svg>
+        <a :href="item.voteUp" class="story-detail__vote-btn" title="upvote">
+          <Triangle :size="12" fill="currentColor" :stroke-width="0" />
         </a>
       </div>
       
@@ -101,12 +100,16 @@ defineProps<{
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 0.25rem;
+    padding-top: 0.45rem;
   }
 
   &__vote-btn {
-    color: var(--color-muted);
+    color: var(--color-text-muted);
     cursor: pointer;
+    transition: color 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     &:hover {
       color: var(--color-accent);

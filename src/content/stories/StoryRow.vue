@@ -36,7 +36,7 @@ defineProps<{ story: Story }>();
   grid-template-columns: 1.75rem 1.25rem 1fr;
   align-items: start;
   gap: 0 0.4rem;
-  padding: 0.7rem 0.6rem;
+  padding: 0.5rem 0.6rem 0.5rem 0;
 
   &:hover {
     background: color-mix(in srgb, var(--color-surface) 95%, var(--color-text) 5%);
@@ -94,7 +94,7 @@ defineProps<{ story: Story }>();
   .story-row {
     grid-template-columns: 1.5rem 1.1rem 1fr;
     gap: 0 0.3rem;
-    padding: 0.6rem 0.4rem;
+    padding: 0.5rem 0.6rem 0.5rem 0;
   }
 }
 </style>

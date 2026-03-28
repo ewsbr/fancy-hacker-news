@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronUp } from 'lucide-vue-next';
+import { Triangle } from 'lucide-vue-next';
 
 defineProps<{ href: string | null }>();
 </script>
@@ -12,10 +12,10 @@ defineProps<{ href: string | null }>();
     title="upvote"
     aria-label="upvote"
   >
-    <ChevronUp :size="15" :stroke-width="2.5" />
+    <Triangle :size="12" fill="currentColor" :stroke-width="0" />
   </a>
   <span v-else class="vote-btn vote-btn--inactive" aria-hidden="true">
-    <ChevronUp :size="15" :stroke-width="2.5" />
+    <Triangle :size="12" fill="currentColor" :stroke-width="0" />
   </span>
 </template>
 
@@ -23,9 +23,9 @@ defineProps<{ href: string | null }>();
 .vote-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.1rem;
   color: var(--color-text-muted);
+  transition: color 0.15s ease;
+  margin-top: 6px;
 
   &:hover {
     color: var(--color-accent);
