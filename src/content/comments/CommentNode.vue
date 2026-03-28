@@ -90,10 +90,6 @@ function toggleCollapse() {
     margin-top: 0.5rem;
   }
 
-  &--nested {
-    margin-top: 0.2rem;
-  }
-
   // Handle sticky header offset for fragment navigation
   scroll-margin-top: 50px;
 
@@ -247,6 +243,7 @@ function toggleCollapse() {
     min-width: 0;
     display: flex;
     flex-direction: column;
+    gap: 0.75rem;
   }
 }
 

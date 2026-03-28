@@ -32,7 +32,6 @@ defineProps<{
   letter-spacing: 0.05em;
   border-radius: 2px;
   white-space: nowrap;
-  margin-left: 0.35rem;
   border: 1px solid transparent;
 
   &--default {

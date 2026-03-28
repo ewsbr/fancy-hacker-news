@@ -100,13 +100,14 @@ const downvoteOpacity = computed(() => {
     display: flex;
     align-items: center;
     gap: 0.2rem;
+    align-self: center;
   }
 
   &__divider {
-    color: var(--color-border);
+    color: var(--color-text-muted);
     font-size: 0.75rem;
     user-select: none;
-    opacity: 0.8;
+    opacity: 0.6;
   }
 
   &__age {
@@ -166,6 +167,10 @@ const downvoteOpacity = computed(() => {
 
     &:hover {
       opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      display: none;
     }
   }
 
