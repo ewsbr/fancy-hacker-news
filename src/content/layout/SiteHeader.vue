@@ -15,41 +15,42 @@ function closeNav() {
 
 <template>
   <header class="site-header">
-    <div class="header-container">
-      <div class="header-mobile-row">
-        <a href="/" class="brand">
-          <span class="logo">Y</span>
+    <div class="site-header__container">
+      <div class="site-header__mobile-row">
+        <a href="/" class="site-header__brand">
+          <span class="site-header__logo">Y</span>
           <span>Hacker News</span>
         </a>
 
         <button
           type="button"
-          class="mobile-nav-toggle"
+          class="site-header__nav-toggle"
           @click="navOpen = !navOpen"
         >
           Menu ▾
         </button>
       </div>
 
-      <nav class="nav-links" :class="{ open: navOpen }">
+      <nav class="site-header__nav" :class="{ 'site-header__nav--open': navOpen }">
         <a
           v-for="link in navLinks"
           :key="link.href"
           :href="link.href"
-          :class="{ 'is-active': link.active }"
+          class="site-header__nav-link"
+          :class="{ 'site-header__nav-link--active': link.active }"
           @click="closeNav"
         >{{ link.label }}</a>
       </nav>
 
-      <div class="header-controls">
-        <div class="user-controls">
+      <div class="site-header__controls">
+        <div class="site-header__user-controls">
           <template v-if="header.user">
             <strong>
               <a :href="`user?id=${header.user.name}`">{{ header.user.name }}</a>
             </strong>
             <span>({{ header.user.karma }})</span>
             <template v-if="header.logoutUrl">
-              <span class="meta-divide">|</span>
+              <span class="site-header__divider">|</span>
               <a :href="header.logoutUrl">logout</a>
             </template>
           </template>
@@ -61,3 +62,187 @@ function closeNav() {
     </div>
   </header>
 </template>
+
+<style scoped lang="scss">
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-top: 3px solid var(--color-accent);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.site-header__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+}
+
+.site-header__mobile-row {
+  display: contents;
+}
+
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  color: var(--color-text);
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.site-header__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.site-header__nav-toggle {
+  display: none;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  user-select: none;
+
+  &:hover {
+    background: var(--color-code-bg);
+    color: var(--color-text);
+  }
+}
+
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+  flex-wrap: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+}
+
+.site-header__nav-link {
+  white-space: nowrap;
+  color: var(--color-text-muted);
+
+  &:hover,
+  &--active {
+    color: var(--color-text);
+  }
+}
+
+.site-header__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.site-header__user-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-muted);
+
+  strong,
+  a {
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.site-header__divider {
+  color: var(--color-border);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .site-header__container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .site-header__mobile-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .site-header__nav-toggle {
+    display: block;
+  }
+
+  .site-header__nav {
+    display: none;
+    position: absolute;
+    top: 3.25rem;
+    right: 1rem;
+    z-index: 100;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 160px;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-elevation);
+
+    &--open {
+      display: flex;
+    }
+
+  }
+
+  .site-header__nav-link {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &:hover {
+      background: var(--color-bg);
+      text-decoration: none;
+    }
+  }
+
+  .site-header__controls {
+    justify-content: space-between;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+  }
+}
+</style>

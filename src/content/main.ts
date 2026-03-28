@@ -12,13 +12,16 @@ import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
 import { parseLoginPage } from '@/parsers/login';
 import { parseStaticPage } from '@/parsers/static';
+import { parseStoryList } from '@/parsers/storyList';
+import { parseItemPage } from '@/parsers/item';
 import App from './App.vue';
-import mainCss from '@/styles/main.css?inline';
+import mainCss from '@/styles/main.scss?inline';
+import componentCss from 'virtual:component-styles';
 
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
-  // 'stories' and 'item' will get their own parsers; avoid the static parse cost.
-  if (page === 'stories' || page === 'item') return null;
+  if (page === 'stories') return parseStoryList(doc);
+  if (page === 'item') return parseItemPage(doc);
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);
@@ -46,7 +49,7 @@ try {
 
   // Inject styles into shadow root
   const style = document.createElement('style');
-  style.textContent = mainCss;
+  style.textContent = [mainCss, componentCss].filter(Boolean).join('\n');
   shadow.appendChild(style);
 
   const mountPoint = document.createElement('div');
@@ -63,9 +66,10 @@ try {
   app.provide('renderTime', renderTime);
   app.mount(mountPoint);
 } catch (e) {
-  // On failure, restore original HN page
+  // On failure, restore original HN page.
+  // Explicitly set display:block to override the fouc.css rule (body > center { display:none }).
   console.error('[HN Modern] Failed to render:', e);
   for (const child of Array.from(document.body.children)) {
-    (child as HTMLElement).style.display = '';
+    (child as HTMLElement).style.display = 'block';
   }
 }

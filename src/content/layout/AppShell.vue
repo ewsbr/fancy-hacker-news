@@ -6,9 +6,28 @@ import SiteFooter from './SiteFooter.vue';
 <template>
   <div class="app-shell">
     <SiteHeader />
-    <main class="main-content">
+    <main class="app-shell__main">
       <slot />
     </main>
     <SiteFooter />
   </div>
 </template>
+
+<style scoped lang="scss">
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app-shell__main {
+  flex: 1;
+  width: 100%;
+  max-width: 1024px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+</style>

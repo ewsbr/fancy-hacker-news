@@ -31,17 +31,17 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 
 ## Phase 2 — Story Lists
 
-- [ ] **2.1** Create `src/parsers/storyList.ts` — `parseStoryList(doc: Document): ParsedStoryList` with all selectors (see [03-parsers.md](03-parsers.md))
-- [ ] **2.2** Create `src/content/shared/VoteButton.vue` — upvote/downvote arrows using Lucide, native GET link
-- [ ] **2.3** Create `src/content/shared/Pagination.vue` — "More" link component
-- [ ] **2.4** Create story components:
+- [x] **2.1** Create `src/parsers/storyList.ts` — `parseStoryList(doc: Document): ParsedStoryList` with all selectors (see [03-parsers.md](03-parsers.md))
+- [x] **2.2** Create `src/content/shared/VoteButton.vue` — upvote arrow using Lucide `ChevronUp`, native GET link
+- [x] **2.3** Create `src/content/shared/Pagination.vue` — "More" link component
+- [x] **2.4** Create story components:
   - `src/content/stories/StoryRank.vue` — rank number display
   - `src/content/stories/StoryMeta.vue` — score, author, age, comments link, hide link
   - `src/content/stories/StoryRow.vue` — single story row composing Rank + Vote + Title + Meta
-- [ ] **2.5** Create `src/content/pages/StoriesPage.vue` — renders story list with StoryRow + Pagination
-- [ ] **2.6** Wire StoriesPage into App.vue for `stories` route
-- [ ] **2.7** Test on `/news`, `/newest`, `/front`, `/ask`, `/show`, `/jobs` — verify all story types render correctly
-- [ ] **2.8** Handle edge cases: job posts (no score/author/comments), "discuss" label, `[pdf]` in title, new-user green author
+- [x] **2.5** Refactor `src/content/pages/StoriesPage.vue` — now uses real parsed data via `inject('pageData')`, renders `StoryRow` + `Pagination` (old mock-data + `StoryItem.vue` removed)
+- [x] **2.6** Wire StoriesPage into App.vue for `stories` route — already done; `main.ts` now calls `parseStoryList` for stories pages
+- [x] **2.7** Test on `/news`, `/newest`, `/front`, `/ask`, `/show`, `/jobs` — verify all story types render correctly
+- [x] **2.8** Handle edge cases: job posts (no score/author/comments), "discuss" label, `[pdf]` in title, new-user green author
 
 ---
 

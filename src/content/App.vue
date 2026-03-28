@@ -3,7 +3,7 @@ import { inject, computed, type Component } from 'vue';
 import type { RouteDescriptor } from '@/router';
 import AppShell from './layout/AppShell.vue';
 import StoriesPage from './pages/StoriesPage.vue';
-import CommentsPage from './pages/CommentsPage.vue';
+import ItemPage from './pages/ItemPage.vue';
 import LoginPage from './pages/LoginPage.vue';
 import StaticPage from './pages/StaticPage.vue';
 
@@ -11,7 +11,7 @@ const route = inject<RouteDescriptor>('route')!;
 
 const PAGE_MAP: Record<string, Component> = {
   stories: StoriesPage,
-  item: CommentsPage,
+  item: ItemPage,
   login: LoginPage,
   static: StaticPage,
 };

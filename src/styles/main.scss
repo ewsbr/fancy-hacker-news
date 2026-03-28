@@ -1,0 +1,116 @@
+@import url("@fontsource-variable/atkinson-hyperlegible-next");
+@import url("@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css");
+@import url("@fontsource-variable/manrope");
+@import url("@fontsource-variable/jetbrains-mono");
+
+:host {
+  --font-body: "Atkinson Hyperlegible Next Variable", system-ui, sans-serif;
+  --font-title: "Manrope Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "Fira Mono", Consolas, monospace;
+
+  --color-bg: #f6f6ef;
+  --color-surface: #ffffff;
+  --color-accent: #ff6600;
+  --color-text: #111111;
+  --color-text-muted: #555555;
+  --color-border: #cccccc;
+  --color-code-bg: #ebebeb;
+  --color-quote-border: #ff6600;
+  --color-downvoted: #b0b0b0;
+  --color-new-user: #3c963c;
+  --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+}
+
+:host([data-theme="dark"]) {
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-accent: #ff6600;
+  --color-text: #f3f4f6;
+  --color-text-muted: #9ca3af;
+  --color-border: #333333;
+  --color-code-bg: #2d2d2d;
+  --color-quote-border: #ff6600;
+  --color-downvoted: #666666;
+  --color-new-user: #5cb85c;
+  --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+:host([data-theme="nord"]) {
+  --color-bg: #2e3440;
+  --color-surface: #3b4252;
+  --color-accent: #88c0d0;
+  --color-text: #eceff4;
+  --color-text-muted: #b4bfd0;
+  --color-border: #56617a;
+  --color-code-bg: #434c5e;
+  --color-quote-border: #88c0d0;
+  --color-downvoted: #616e88;
+  --color-new-user: #a3be8c;
+  --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+}
+
+:host([data-theme="amoled"]) {
+  --color-bg: #000000;
+  --color-surface: #111111;
+  --color-accent: #ff6600;
+  --color-text: #e0e0e0;
+  --color-text-muted: #888888;
+  --color-border: #333333;
+  --color-code-bg: #1a1a1a;
+  --color-quote-border: #ff6600;
+  --color-downvoted: #555555;
+  --color-new-user: #5cb85c;
+  --shadow-elevation: 0 4px 6px -1px rgba(255, 255, 255, 0.02), 0 2px 4px -2px rgba(255, 255, 255, 0.01);
+}
+
+:host {
+  all: initial;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: block;
+  overflow-y: auto;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}

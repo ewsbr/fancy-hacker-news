@@ -57,3 +57,11 @@ export function findMoreLink(doc: Document): string | null {
   const more = doc.querySelector('a.morelink[href]') ?? doc.querySelector('a[rel="next"][href]');
   return more ? hrefOf(more) : null;
 }
+
+/** Extracts gray-level class (c00, c5a, etc.) from an element. */
+export function parseGrayLevel(el: Element | null | undefined): string | null {
+  if (!el) return null;
+  const classes = Array.from(el.classList);
+  const grayClass = classes.find(c => /^c[0-9a-fA-F]{2}$/.test(c));
+  return grayClass || null;
+}

@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import tailwindcss from '@tailwindcss/vite';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'path';
+
+const COMPONENT_STYLE_PLACEHOLDER = '__HN_COMPONENT_STYLES__';
 
 /**
  * Each entry (content script, background) is built as a standalone IIFE so it
@@ -33,11 +35,68 @@ const entries = {
 
 const cfg = entries[TARGET];
 
+function escapeForTemplateLiteral(value) {
+  return value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('`', '\\`')
+    .replaceAll('${', '\\${');
+}
+
+function inlineComponentStyles() {
+  return {
+    name: 'inline-component-styles',
+    enforce: 'post',
+
+    resolveId(id) {
+      if (id === 'virtual:component-styles') {
+        return '\0virtual:component-styles';
+      }
+    },
+
+    load(id) {
+      if (id === '\0virtual:component-styles') {
+        return `export default ${JSON.stringify(COMPONENT_STYLE_PLACEHOLDER)};`;
+      }
+    },
+
+    writeBundle(options, bundle) {
+      if (TARGET !== 'content') {
+        return;
+      }
+
+      const outDir = options.dir ?? cfg.outDir;
+      const cssAssets = Object.values(bundle).filter((output) => {
+        return output.type === 'asset' && output.fileName.endsWith('.css');
+      });
+
+      const combinedCss = cssAssets
+        .map((asset) => readFileSync(resolve(outDir, asset.fileName), 'utf8'))
+        .join('\n');
+
+      for (const output of Object.values(bundle)) {
+        if (output.type === 'chunk' && output.fileName.endsWith('.js')) {
+          const filePath = resolve(outDir, output.fileName);
+          const code = readFileSync(filePath, 'utf8').replaceAll(
+            COMPONENT_STYLE_PLACEHOLDER,
+            escapeForTemplateLiteral(combinedCss),
+          );
+
+          writeFileSync(filePath, code);
+        }
+      }
+
+      for (const asset of cssAssets) {
+        rmSync(resolve(outDir, asset.fileName), { force: true });
+      }
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const isFirefox = mode === 'firefox';
 
   return {
-    plugins: [vue(), tailwindcss()],
+    plugins: [vue(), inlineComponentStyles()],
 
     define: {
       // Replace Node.js globals so the IIFE bundle works in browser extensions.

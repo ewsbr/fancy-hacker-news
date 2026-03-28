@@ -9,6 +9,11 @@
   "content_scripts": [
     {
       "matches": ["*://news.ycombinator.com/*"],
+      "js": ["src/content/anti-fouc.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://news.ycombinator.com/*"],
       "js": ["dist/content/content.js"],
       "run_at": "document_end"
     }
