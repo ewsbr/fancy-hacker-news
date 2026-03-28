@@ -35,6 +35,7 @@ hackernews/
 │   │   └── background.js
 │   ├── content/
 │   │   ├── main.ts
+│   │   ├── anti-fouc.js
 │   │   ├── App.vue
 │   │   ├── layout/
 │   │   │   ├── AppShell.vue
@@ -42,20 +43,43 @@ hackernews/
 │   │   │   └── SiteFooter.vue
 │   │   ├── pages/
 │   │   │   ├── StoriesPage.vue
-│   │   │   ├── CommentsPage.vue
+│   │   │   ├── ItemPage.vue
 │   │   │   ├── LoginPage.vue
 │   │   │   └── StaticPage.vue
+│   │   ├── stories/
+│   │   │   ├── StoryRow.vue
+│   │   │   ├── StoryRank.vue
+│   │   │   ├── StoryMeta.vue
+│   │   │   └── StoryDetail.vue
+│   │   ├── comments/
+│   │   │   ├── CommentTree.vue
+│   │   │   ├── CommentNode.vue
+│   │   │   ├── CommentHeader.vue
+│   │   │   ├── CommentBody.vue
+│   │   │   └── CommentForm.vue
 │   │   └── shared/
-│   │       ├── StoryItem.vue
-│   │       └── ThemeToggle.vue
+│   │       ├── Badge.vue
+│   │       ├── Pagination.vue
+│   │       ├── RichText.vue
+│   │       ├── ThemeToggle.vue
+│   │       └── VoteButton.vue
 │   ├── parsers/
+│   │   ├── utils.ts
+│   │   ├── header.ts
+│   │   ├── storyList.ts
+│   │   ├── item.ts
+│   │   ├── login.ts
+│   │   └── static.ts
 │   ├── router/
+│   │   └── index.ts
 │   ├── state/
+│   │   └── theme.ts
 │   ├── styles/
 │   │   └── main.scss
 │   └── env.d.ts
 ├── icons/
 ├── test/
+│   └── fixtures/
 └── vite.config.js
 ```
 

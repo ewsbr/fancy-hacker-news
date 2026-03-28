@@ -48,6 +48,7 @@ If anything throws, the original HN page is left visible (graceful fallback).
 src/
 ├── content/
 │   ├── main.ts              # entry point (parse → hide → shadow → mount)
+│   ├── anti-fouc.js         # injected before parse to suppress FOUC
 │   ├── App.vue              # root: injects route, picks page component
 │   ├── layout/
 │   │   ├── AppShell.vue     # header + <slot> + footer wrapper
@@ -55,16 +56,34 @@ src/
 │   │   └── SiteFooter.vue   # yclinks, Algolia search link
 │   ├── pages/
 │   │   ├── StoriesPage.vue  # /news, /newest, /ask, /show, /jobs, etc.
-│   │   ├── CommentsPage.vue # /item?id=...
-│   │   ├── LoginPage.vue    # /login, /changepw, /forgot
+│   │   ├── ItemPage.vue     # /item?id=… — story detail + comment tree
+│   │   ├── LoginPage.vue    # /login, /changepw, /forgot, /comment
 │   │   └── StaticPage.vue   # /newsfaq, /newsguidelines, catch-all
+│   ├── stories/
+│   │   ├── StoryRow.vue     # single story: rank + vote + title + meta + badges
+│   │   ├── StoryRank.vue    # rank number display
+│   │   ├── StoryMeta.vue    # score, author, age, comments, hide/fav links
+│   │   └── StoryDetail.vue  # full story header for item page
+│   ├── comments/
+│   │   ├── CommentTree.vue  # top-level comment list renderer
+│   │   ├── CommentNode.vue  # recursive node with collapse/expand
+│   │   ├── CommentHeader.vue # author, age, badges, nav links, toggle
+│   │   ├── CommentBody.vue  # comment HTML with gray-level styling
+│   │   └── CommentForm.vue  # reply form with hidden CSRF fields
 │   └── shared/
-│       ├── StoryItem.vue    # story row used by StoriesPage
-│       └── ThemeToggle.vue  # theme swatches
+│       ├── Badge.vue        # status badges: new, dead, flagged, downvoted, job
+│       ├── Pagination.vue   # "More" pagination link
+│       ├── RichText.vue     # HTML renderer with code/quote/link styles
+│       ├── ThemeToggle.vue  # theme swatches
+│       └── VoteButton.vue   # upvote chevron button
 ├── parsers/
 │   ├── utils.ts             # textOf, attrOf, hrefOf, parseScore, parseAge, …
 │   ├── header.ts            # parseHeader(doc) → ParsedHeader
-│   └── (storyList|item|user|threads|newComments|submit|reply).ts  # in progress
+│   ├── storyList.ts         # parseStoryList(doc) → ParsedStoryList
+│   ├── item.ts              # parseItemPage(doc) → ParsedItemPage
+│   ├── login.ts             # parseLoginPage(doc) → ParsedLoginPage
+│   ├── static.ts            # parseStaticPage(doc) → ParsedStaticPage
+│   └── (user|threads|newComments|submit|reply).ts  # planned
 ├── router/
 │   └── index.ts             # resolveRoute(location) → RouteDescriptor (pure fn)
 ├── state/
@@ -97,7 +116,7 @@ Four themes toggled via `data-theme` attribute on `#hn-modern-root`: `light` (de
 
 ---
 
-## Parsers (in progress)
+## Parsers
 
 Each parser is a pure function `(doc: Document) → TypedModel`. Implemented so far:
 
@@ -105,11 +124,13 @@ Each parser is a pure function `(doc: Document) → TypedModel`. Implemented so 
 |------|----------|--------|
 | `utils.ts` | shared helpers | ✅ done |
 | `header.ts` | `parseHeader` | ✅ done |
-| `storyList.ts` | `parseStoryList` | 🔲 planned |
-| `item.ts` | `parseItemPage` | 🔲 planned |
-| `newComments.ts` | `parseNewComments` | 🔲 planned |
+| `storyList.ts` | `parseStoryList` | ✅ done |
+| `item.ts` | `parseItemPage` | ✅ done |
+| `login.ts` | `parseLoginPage` | ✅ done |
+| `static.ts` | `parseStaticPage` | ✅ done |
 | `user.ts` | `parseUserPage` | 🔲 planned |
 | `threads.ts` | `parseThreadsPage` | 🔲 planned |
+| `newComments.ts` | `parseNewComments` | 🔲 planned |
 | `submit.ts` | `parseSubmitPage` | 🔲 planned |
 | `reply.ts` | `parseReplyPage` | 🔲 planned |
 
@@ -126,4 +147,5 @@ HTML snapshots of real HN pages live in `test/fixtures/`. Use these when buildin
 ## Files to Ignore
 
 - `cohesive.tsx` — unrelated React prototype, not part of the extension build.
+- `src/content/shared/StoryItem.vue` — legacy component, superseded by `stories/StoryRow.vue`.
 - `dist/` — build output, not committed.
