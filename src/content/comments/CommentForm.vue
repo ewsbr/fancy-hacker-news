@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ReplyForm } from '@/parsers/item';
+import { Send } from 'lucide-vue-next';
 
 defineProps<{
   form: ReplyForm;
@@ -16,23 +17,22 @@ defineProps<{
     <div class="comment-form__field">
       <textarea 
         name="text" 
-        rows="6"
+        rows="5"
         :autofocus="autofocus"
         class="comment-form__input"
+        placeholder="Add your comment..."
       ></textarea>
     </div>
     
-    <div class="comment-form__actions">
+    <div class="comment-form__footer">
       <button 
         type="submit" 
         class="comment-form__submit"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="comment-form__icon">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
+        <Send :size="13" class="comment-form__icon" />
         {{ form.submitLabel }}
       </button>
+      <span class="comment-form__sep">&middot;</span>
       <a href="formatdoc" class="comment-form__help" target="_blank" rel="noopener noreferrer">formatting help</a>
     </div>
   </form>
@@ -40,42 +40,45 @@ defineProps<{
 
 <style scoped lang="scss">
 .comment-form {
-  margin-top: 1rem;
-  max-width: 42rem; // 2xl
+  max-width: 48rem;
 
   &__field {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   &__input {
     width: 100%;
     border-radius: 4px;
     border: 1px solid var(--color-border);
-    background: var(--color-code-bg);
-    padding: 0.75rem;
+    background: var(--color-surface);
+    padding: 0.6rem 0.75rem;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     color: var(--color-text);
     resize: vertical;
-    transition: all 0.15s ease;
+    transition: all 0.1s ease;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.5;
+    }
 
     &:hover {
-      background: var(--color-surface);
-      border-color: color-mix(in srgb, var(--color-border) 60%, var(--color-text) 40%);
+      border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-text) 60%);
     }
 
     &:focus {
       border-color: var(--color-accent);
-      background: var(--color-surface);
       outline: none;
-      box-shadow: 0 0 0 1px var(--color-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
     }
   }
 
-  &__actions {
+  &__footer {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   &__submit {
@@ -83,34 +86,57 @@ defineProps<{
     border-radius: 4px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    padding: 0.375rem 1rem;
+    padding: 0.35rem 1rem;
     font-weight: 700;
+    font-family: var(--font-title);
+    font-size: 0.82rem;
     color: var(--color-text);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    transition: all 0.1s ease;
 
     &:hover {
-      background: var(--color-bg);
-      color: var(--color-accent);
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+      
+      .comment-form__icon {
+        color: white;
+      }
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     &:focus {
       border-color: var(--color-accent);
       outline: none;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
     }
   }
 
   &__icon {
     color: var(--color-accent);
+    transition: color 0.1s ease;
+  }
+
+  &__sep {
+    color: var(--color-border);
+    font-weight: 900;
+    font-size: 1.1rem;
+    user-select: none;
   }
 
   &__help {
-    font-size: 0.8rem;
-    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
     text-decoration: none;
 
     &:hover {
+      color: var(--color-text);
       text-decoration: underline;
     }
   }

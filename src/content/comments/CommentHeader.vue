@@ -77,8 +77,7 @@ const downvoteOpacity = computed(() => {
 .comment-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  padding-top: 0.1rem;
+  align-items: center;
   column-gap: 0.35rem;
   row-gap: 0.2rem;
   font-size: 0.8rem;
@@ -129,7 +128,7 @@ const downvoteOpacity = computed(() => {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--color-border);
+    color: var(--color-text-muted);
     transition: color 0.15s ease;
 
     &:hover, &:focus {

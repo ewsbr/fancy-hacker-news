@@ -172,6 +172,16 @@ function toggleCollapse() {
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: lowercase;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+    }
 
     &:hover {
       color: var(--color-accent);

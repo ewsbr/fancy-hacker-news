@@ -64,14 +64,10 @@ defineProps<{ story: Story }>();
   font-family: var(--font-title);
   font-size: 1.02rem;
   font-weight: 600;
+  text-decoration: none;
 
   &:visited {
     color: var(--color-text-muted);
-  }
-
-  &:hover {
-    color: color-mix(in srgb, var(--color-text) 55%, var(--color-accent) 45%);
-    text-decoration: none;
   }
 }
 

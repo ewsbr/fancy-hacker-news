@@ -21,11 +21,22 @@ defineProps<{ href: string | null }>();
 
 <style scoped lang="scss">
 .vote-btn {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   color: var(--color-text-muted);
-  transition: color 0.15s ease;
+  transition: color 0.1s ease;
   margin-top: 6px;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+  }
 
   &:hover {
     color: var(--color-accent);
