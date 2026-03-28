@@ -3,7 +3,7 @@
 @import url("@fontsource-variable/manrope");
 @import url("@fontsource-variable/jetbrains-mono");
 
-:host {
+#hn-modern-root {
   --font-body: "Atkinson Hyperlegible Next Variable", system-ui, sans-serif;
   --font-title: "Manrope Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "Fira Mono", Consolas, monospace;
@@ -21,7 +21,7 @@
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
 }
 
-:host([data-theme="dark"]) {
+#hn-modern-root[data-theme="dark"] {
   --color-bg: #121212;
   --color-surface: #1e1e1e;
   --color-accent: #ff6600;
@@ -35,7 +35,7 @@
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
 }
 
-:host([data-theme="nord"]) {
+#hn-modern-root[data-theme="nord"] {
   --color-bg: #2e3440;
   --color-surface: #3b4252;
   --color-accent: #88c0d0;
@@ -49,7 +49,7 @@
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
 }
 
-:host([data-theme="amoled"]) {
+#hn-modern-root[data-theme="amoled"] {
   --color-bg: #000000;
   --color-surface: #111111;
   --color-accent: #ff6600;
@@ -63,13 +63,13 @@
   --shadow-elevation: 0 4px 6px -1px rgba(255, 255, 255, 0.02), 0 2px 4px -2px rgba(255, 255, 255, 0.01);
 }
 
-:host {
-  all: initial;
+#hn-modern-root {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
   display: block;
   overflow-y: auto;
+  scroll-behavior: smooth;
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);

@@ -1,37 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue';
 import SiteHeader from './SiteHeader.vue';
 import SiteFooter from './SiteFooter.vue';
-
-function handleHashLink(e: MouseEvent) {
-  const target = e.target as HTMLElement;
-  const link = target.closest('a');
-  if (!link) return;
-
-  const href = link.getAttribute('href');
-  if (href && href.startsWith('#')) {
-    const id = href.substring(1);
-    const root = link.getRootNode() as ShadowRoot | Document;
-    if (!(root instanceof ShadowRoot)) return;
-
-    const el = root.getElementById(id);
-    if (el) {
-      e.preventDefault();
-      // Update fragment for :target support
-      window.history.replaceState(null, '', `#${id}`);
-      // Standard scrollIntoView() respects scroll-margin-top
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('click', handleHashLink);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('click', handleHashLink);
-});
 </script>
 
 <template>

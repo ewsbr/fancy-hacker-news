@@ -73,20 +73,20 @@ function toggleCollapse() {
 <style scoped lang="scss">
 .comment-node {
   &--root {
-    margin-top: 1.25rem;
+    margin-top: 0.5rem;
   }
 
   &--nested {
-    margin-top: 0.75rem;
+    margin-top: 0.2rem;
   }
 
   // Handle sticky header offset for fragment navigation
-  scroll-margin-top: 70px;
+  scroll-margin-top: 50px;
 
   &:target {
-    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
-    box-shadow: inset 3px 0 0 var(--color-accent);
-    // No JS needed, works with standard #id fragments
+    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
+    box-shadow: inset 2px 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
+    transition: background 0.6s ease, box-shadow 0.6s ease;
   }
 
   &--highlight {
@@ -152,7 +152,7 @@ function toggleCollapse() {
   }
 
   &__body-wrapper {
-    margin-top: 0.5rem;
+    margin-top: 0.2rem;
   }
 
   &__actions {
@@ -177,7 +177,7 @@ function toggleCollapse() {
 
   &__thread {
     display: flex;
-    margin-top: 0.5rem;
+    margin-top: 0.35rem;
   }
 
   &__line {
@@ -192,9 +192,9 @@ function toggleCollapse() {
 
     &::after {
       content: "";
-      width: 1px;
+      width: 2px;
       background-color: var(--color-border);
-      opacity: 0.15;
+      opacity: 0.5;
       transition: background-color 0.2s, opacity 0.2s;
     }
 
@@ -209,7 +209,7 @@ function toggleCollapse() {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    padding-left: 0.5rem;
+    padding-left: 1rem;
   }
 }
 </style>

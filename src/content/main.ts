@@ -40,20 +40,31 @@ try {
     (child as HTMLElement).style.display = 'none';
   }
 
-  // 3. Create shadow DOM host
+  // Strip IDs from hidden HN elements to prevent fragment navigation conflicts.
+  // HN comment <tr>s use the same numeric IDs as our Vue-rendered comment nodes;
+  // document.getElementById and native hash navigation would find the hidden HN
+  // element first without this step.
+  for (const child of Array.from(document.body.children)) {
+    if ((child as HTMLElement).id !== 'hn-anti-fouc') {
+      child.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      (child as HTMLElement).removeAttribute('id');
+    }
+  }
+
+  // 3. Strip HN's stylesheets to prevent bleed-in
+  document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)').forEach(el => el.remove());
+
+  // Inject styles into document.head
+  const style = document.createElement('style');
+  style.textContent = [mainCss, componentCss].filter(Boolean).join('\n');
+  document.head.appendChild(style);
+
+  // Create mount host
   const host = document.createElement('div');
   host.id = 'hn-modern-root';
   document.body.appendChild(host);
 
-  const shadow = host.attachShadow({ mode: 'open' });
-
-  // Inject styles into shadow root
-  const style = document.createElement('style');
-  style.textContent = [mainCss, componentCss].filter(Boolean).join('\n');
-  shadow.appendChild(style);
-
-  const mountPoint = document.createElement('div');
-  shadow.appendChild(mountPoint);
+  const mountPoint = host;
 
   // 4. Mount Vue app with parsed data
   const renderTime = Math.round(performance.now() - t0);
