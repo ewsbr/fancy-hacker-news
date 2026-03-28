@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
+import { ChevronUp, ChevronDown } from 'lucide-vue-next';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -25,33 +26,39 @@ function toggleCollapse() {
     :id="node.id"
   >
     <div class="comment-node__content-wrap">
-      <div 
-        class="comment-node__vote" 
-        :class="{ 'comment-node__vote--hidden': isCollapsed }"
-      >
-        <template v-if="node.voteUp || node.voteDown || node.voteUn">
-          <a v-if="node.voteUp" :href="node.voteUp" class="comment-node__vote-btn comment-node__vote-btn--up">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
-          </a>
-          <a v-if="node.voteDown" :href="node.voteDown" class="comment-node__vote-btn comment-node__vote-btn--down">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </a>
-        </template>
-      </div>
-      
       <div class="comment-node__main">
         <CommentHeader :node="{...node, isCollapsed}" @toggle="toggleCollapse" />
         
         <div v-show="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
           
-          <div class="comment-node__actions" v-if="node.replyLink || node.flagUrl">
+          <div class="comment-node__actions">
+            <div class="comment-node__votes">
+              <a 
+                v-if="node.voteUp || node.voteUn" 
+                :href="node.voteUn || node.voteUp || undefined" 
+                class="comment-node__vote-action"
+                :class="{ 'comment-node__vote-action--active': node.voteUn }"
+                :title="node.voteUn ? 'unvote' : 'upvote'"
+              >
+                <ChevronUp :size="16" :stroke-width="node.voteUn ? 3 : 2.5" />
+              </a>
+              <a 
+                v-if="node.voteDown" 
+                :href="node.voteDown" 
+                class="comment-node__vote-action"
+                title="downvote"
+              >
+                <ChevronDown :size="16" :stroke-width="2.5" />
+              </a>
+            </div>
+
+            <span class="comment-node__action-dot">&middot;</span>
             <a v-if="node.replyLink" :href="node.replyLink" class="comment-node__action-link">reply</a>
-            <a v-if="node.flagUrl" :href="node.flagUrl" class="comment-node__action-link">flag</a>
+            <template v-if="node.flagUrl">
+              <span class="comment-node__action-dot">&middot;</span>
+              <a :href="node.flagUrl" class="comment-node__action-link">flag</a>
+            </template>
           </div>
         </div>
       </div>
@@ -104,47 +111,9 @@ function toggleCollapse() {
 
   &__content-wrap {
     display: flex;
-    gap: 0.5rem;
+    align-items: flex-start;
   }
 
-  &__vote {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 24px;
-    flex-shrink: 0;
-    padding-top: 0.125rem;
-
-    &--hidden {
-      visibility: hidden;
-    }
-  }
-
-  &__vote-btn {
-    color: var(--color-muted);
-    cursor: pointer;
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent);
-    }
-
-    svg {
-      transition: transform 0.2s ease;
-    }
-
-    &--up:hover svg {
-      transform: translateY(-2px);
-    }
-    
-    &--down {
-      margin-top: 0.25rem;
-      
-      &:hover svg {
-        transform: translateY(2px);
-      }
-    }
-  }
 
   &__main {
     flex: 1;
@@ -159,10 +128,44 @@ function toggleCollapse() {
     margin-top: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-muted);
+  }
+
+  &__votes {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__vote-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    transition: color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+      color: var(--color-accent);
+      transform: translateY(-1px);
+    }
+
+    &[title="downvote"]:hover {
+      transform: translateY(1px);
+    }
+
+    &--active {
+      color: var(--color-accent);
+    }
+  }
+
+  &__action-dot {
+    color: var(--color-border);
+    opacity: 0.5;
+    user-select: none;
+    margin: 0 0.1rem;
   }
 
   &__action-link {
@@ -181,7 +184,7 @@ function toggleCollapse() {
   }
 
   &__line {
-    width: 24px;
+    width: 20px;
     flex-shrink: 0;
     cursor: pointer;
     background: none;
@@ -209,7 +212,6 @@ function toggleCollapse() {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    padding-left: 1rem;
   }
 }
 </style>

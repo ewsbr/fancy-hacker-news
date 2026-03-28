@@ -110,7 +110,7 @@ const pageData = inject<ParsedItemPage>('pageData');
   }
 
   &__form-wrapper {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 }
 </style>

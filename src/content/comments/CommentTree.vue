@@ -19,7 +19,7 @@ defineProps<{
 
 <style scoped lang="scss">
 .comment-tree {
-  margin-top: 2rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;

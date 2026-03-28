@@ -51,25 +51,27 @@ defineProps<{
 
           <a :href="item.ageLink" class="story-detail__age" :title="item.ageTimestamp">{{ item.age }}</a>
 
+          <span class="story-detail__dot">&middot;</span>
+          <div class="story-detail__actions">
           <template v-if="item.hideUrl">
-            <span class="story-detail__separator">|</span>
-            <a :href="item.hideUrl" class="story-detail__meta-link">hide</a>
+            <a :href="item.hideUrl" class="story-detail__action">hide</a>
           </template>
 
           <template v-if="item.pastUrl">
-            <span class="story-detail__separator">|</span>
-            <a :href="item.pastUrl" class="story-detail__meta-link">past</a>
+            <span v-if="item.hideUrl" class="story-detail__dot">&middot;</span>
+            <a :href="item.pastUrl" class="story-detail__action">past</a>
           </template>
 
           <template v-if="item.favoriteUrl">
-            <span class="story-detail__separator">|</span>
-            <a :href="item.favoriteUrl" class="story-detail__meta-link">favorite</a>
+            <span v-if="item.hideUrl || item.pastUrl" class="story-detail__dot">&middot;</span>
+            <a :href="item.favoriteUrl" class="story-detail__action">favorite</a>
           </template>
 
           <template v-if="item.flagUrl">
-            <span class="story-detail__separator">|</span>
-            <a :href="item.flagUrl" class="story-detail__meta-link">flag</a>
+            <span v-if="item.hideUrl || item.pastUrl || item.favoriteUrl" class="story-detail__dot">&middot;</span>
+            <a :href="item.flagUrl" class="story-detail__action">flag</a>
           </template>
+        </div>
         </div>
 
         <div v-if="item.bodyHtml" class="story-detail__body">
@@ -187,15 +189,26 @@ defineProps<{
     }
   }
 
-  &__separator {
-    color: var(--color-border);
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
   }
 
-  &__meta-link {
+  &__dot {
+    color: var(--color-border);
+    font-weight: 700;
+  }
+
+  &__action {
     color: inherit;
     text-decoration: none;
+    font-weight: 500;
 
     &:hover {
+      color: var(--color-accent);
       text-decoration: underline;
     }
   }

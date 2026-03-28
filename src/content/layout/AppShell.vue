@@ -27,7 +27,7 @@ import SiteFooter from './SiteFooter.vue';
   flex: 1;
   width: 100%;
   max-width: 1024px;
-  margin: 1.5rem auto 0;
-  padding: 0 1rem;
+  margin: 0.5rem auto 0;
+  padding: 0 0.5rem;
 }
 </style>

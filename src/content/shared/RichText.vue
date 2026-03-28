@@ -60,14 +60,21 @@ const processedHtml = computed(() => {
   }
   
   :deep(.rich-text__pre) {
-    background: var(--color-surface);
+    background: var(--color-code-bg);
     border: 1px solid var(--color-border);
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
     border-radius: 4px;
     overflow-x: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    margin-top: 0.75rem;
+    overflow-y: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.825rem;
+    line-height: 1.45;
+    max-width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+    display: block;
   }
   
   :deep(.rich-text__link) {

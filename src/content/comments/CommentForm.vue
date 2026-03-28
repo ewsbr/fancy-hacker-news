@@ -51,12 +51,18 @@ defineProps<{
     width: 100%;
     border-radius: 4px;
     border: 1px solid var(--color-border);
-    background: var(--color-bg);
+    background: var(--color-code-bg);
     padding: 0.75rem;
     font-family: inherit;
     font-size: 0.95rem;
     color: var(--color-text);
     resize: vertical;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: var(--color-surface);
+      border-color: color-mix(in srgb, var(--color-border) 60%, var(--color-text) 40%);
+    }
 
     &:focus {
       border-color: var(--color-accent);

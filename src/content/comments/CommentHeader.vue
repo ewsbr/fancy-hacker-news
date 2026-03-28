@@ -31,48 +31,45 @@ const downvoteOpacity = computed(() => {
 
 <template>
   <div class="comment-header">
-    <a 
-      :href="`user?id=${node.author}`" 
-      class="comment-header__author"
-      :class="{ 'comment-header__author--new': node.authorIsNew }"
+    <button 
+      @click="emit('toggle')"
+      class="comment-header__toggle"
+      :class="{ 'comment-header__toggle--collapsed': node.isCollapsed }"
     >
-      {{ node.author }}
-    </a>
-    
-    <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">
-      {{ node.age }}
-    </a>
+      {{ node.isCollapsed ? `[+${node.collapsedCount}]` : '[–]' }}
+    </button>
 
-    <Badge v-if="node.authorIsNew" variant="new" label="New" title="New user" />
-    <Badge v-if="node.isDead" variant="dead" label="Dead" />
-    <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
-    <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
-
-    <template v-if="node.isCollapsed">
-      <button 
-        @click="emit('toggle')"
-        class="comment-header__toggle comment-header__toggle--collapsed"
+    <div class="comment-header__info">
+      <a 
+        :href="`user?id=${node.author}`" 
+        class="comment-header__author"
+        :class="{ 'comment-header__author--new': node.authorIsNew }"
       >
-        [{{ node.collapsedCount }} more]
-      </button>
-    </template>
-    <template v-else>
-      <button 
-        @click="emit('toggle')"
-        class="comment-header__toggle comment-header__toggle--expanded"
-      >
-        [–]
-      </button>
+        {{ node.author }}
+      </a>
 
-      <span v-if="node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context" class="comment-header__nav">
-        |
-        <a v-if="node.navLinks.root" :href="node.navLinks.root ?? undefined" class="comment-header__nav-link">root</a>
-        <a v-if="node.navLinks.parent" :href="node.navLinks.parent ?? undefined" class="comment-header__nav-link">parent</a>
-        <a v-if="node.navLinks.prev" :href="node.navLinks.prev ?? undefined" class="comment-header__nav-link">prev</a>
-        <a v-if="node.navLinks.next" :href="node.navLinks.next ?? undefined" class="comment-header__nav-link">next</a>
-        <a v-if="node.navLinks.context" :href="node.navLinks.context ?? undefined" class="comment-header__nav-link">context</a>
-      </span>
-    </template>
+      <div class="comment-header__badges" v-if="node.authorIsNew || node.isDead || node.isFlagged || downvoteOpacity">
+        <Badge v-if="node.authorIsNew" variant="new" label="New" title="New user" />
+        <Badge v-if="node.isDead" variant="dead" label="Dead" />
+        <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
+        <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
+      </div>
+
+      <span class="comment-header__divider">•</span>
+
+      <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">
+        {{ node.age }}
+      </a>
+
+      <div v-if="!node.isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
+        <span class="comment-header__divider">•</span>
+        <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
+        <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
+        <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-header__nav-link" title="Previous">prev</a>
+        <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-header__nav-link" title="Next">next</a>
+        <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-header__nav-link" title="Context">context</a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -80,15 +77,16 @@ const downvoteOpacity = computed(() => {
 .comment-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  column-gap: 0.5rem;
-  row-gap: 0.25rem;
+  align-items: flex-start;
+  padding-top: 0.1rem;
+  column-gap: 0.35rem;
+  row-gap: 0.2rem;
   font-size: 0.8rem;
   color: var(--color-text-muted);
 
   &__author {
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 0.825rem;
     color: var(--color-text);
     text-decoration: none;
 
@@ -98,9 +96,23 @@ const downvoteOpacity = computed(() => {
     }
   }
 
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  &__divider {
+    color: var(--color-border);
+    font-size: 0.75rem;
+    user-select: none;
+    opacity: 0.8;
+  }
+
   &__age {
     text-decoration: none;
     color: inherit;
+    font-weight: 500;
 
     &:hover {
       text-decoration: underline;
@@ -108,42 +120,53 @@ const downvoteOpacity = computed(() => {
   }
 
   &__toggle {
-    margin-left: 0.25rem;
+    margin-right: 0.15rem;
     cursor: pointer;
     background: none;
     border: none;
     padding: 0;
-    font-family: inherit;
-    font-size: inherit;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-border);
+    transition: color 0.15s ease;
 
-    &--collapsed {
-      font-weight: 700;
+    &:hover, &:focus {
       color: var(--color-accent);
-      
-      &:hover {
-        text-decoration: underline;
-      }
+      text-decoration: none;
+      outline: none;
     }
 
-    &--expanded {
-      font-weight: 700;
-      color: var(--color-border);
-
-      &:hover, &:focus {
-        color: var(--color-accent);
-        text-decoration: underline;
-        outline: none;
-      }
+    &--collapsed {
+      color: var(--color-accent);
     }
   }
 
-  &__nav {
-    margin-left: 0.25rem;
+  &__info {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    opacity: 0.7;
-    color: inherit;
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    row-gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 
   &__nav-link {
@@ -151,6 +174,7 @@ const downvoteOpacity = computed(() => {
     text-decoration: none;
 
     &:hover {
+      color: var(--color-accent);
       text-decoration: underline;
     }
   }

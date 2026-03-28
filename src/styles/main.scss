@@ -14,7 +14,7 @@
   --color-text: #111111;
   --color-text-muted: #555555;
   --color-border: #cccccc;
-  --color-code-bg: #ebebeb;
+  --color-code-bg: #f0f0e8;
   --color-quote-border: #ff6600;
   --color-downvoted: #b0b0b0;
   --color-new-user: #3c963c;
@@ -22,13 +22,13 @@
 }
 
 #hn-modern-root[data-theme="dark"] {
-  --color-bg: #121212;
-  --color-surface: #1e1e1e;
+  --color-bg: #1e1e1e;
+  --color-surface: #252526;
   --color-accent: #ff6600;
-  --color-text: #f3f4f6;
-  --color-text-muted: #9ca3af;
+  --color-text: #e3e3e3;
+  --color-text-muted: #949494;
   --color-border: #333333;
-  --color-code-bg: #2d2d2d;
+  --color-code-bg: #1a1a1a;
   --color-quote-border: #ff6600;
   --color-downvoted: #666666;
   --color-new-user: #5cb85c;
