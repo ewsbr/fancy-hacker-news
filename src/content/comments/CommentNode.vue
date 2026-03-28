@@ -73,11 +73,27 @@ function toggleCollapse() {
 <style scoped lang="scss">
 .comment-node {
   &--root {
-    margin-top: 1rem;
+    margin-top: 1.25rem;
   }
 
   &--nested {
     margin-top: 0.75rem;
+  }
+
+  // Handle sticky header offset for fragment navigation
+  scroll-margin-top: 70px;
+
+  &:target {
+    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+    // No JS needed, works with standard #id fragments
+  }
+
+  &--highlight {
+    // Legacy JS highlight - keeping for now to avoid breaking transition if still referenced
+    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
+    box-shadow: inset 3px 0 0 var(--color-accent);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
   }
 
   &--collapsed {
@@ -176,9 +192,9 @@ function toggleCollapse() {
 
     &::after {
       content: "";
-      width: 2px;
+      width: 1px;
       background-color: var(--color-border);
-      opacity: 0.4;
+      opacity: 0.15;
       transition: background-color 0.2s, opacity 0.2s;
     }
 

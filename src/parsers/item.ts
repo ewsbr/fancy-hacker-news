@@ -253,19 +253,26 @@ export function parseItemPage(doc: Document): ParsedItemPage {
 
     const navs = comhead?.querySelector('.navs');
     const navLinksObj = {
-      root: hrefOf(navs?.querySelector('a[aria-hidden="true"]:not(.togg)')) || null, // Best effort
-      parent: hrefOf(navs?.querySelector('a[aria-hidden="true"]:not(.togg)')) || null,
-      prev: hrefOf(navs?.querySelector('a[aria-hidden="true"]:not(.togg)')) || null,
-      next: hrefOf(navs?.querySelector('a[aria-hidden="true"]:not(.togg)')) || null,
+      root: null as string | null,
+      parent: null as string | null,
+      prev: null as string | null,
+      next: null as string | null,
       context: hrefOf(navs?.querySelector('a[href*="context"]')) || null,
+    };
+
+    const getHash = (el: Element | null | undefined) => {
+      const href = hrefOf(el);
+      if (!href) return null;
+      const hashIndex = href.indexOf('#');
+      return hashIndex !== -1 ? href.substring(hashIndex) : href;
     };
     
     // Accurate nav links using textContent matching:
     if (navs) {
-       navLinksObj.root = hrefOf(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('root')));
-       navLinksObj.parent = hrefOf(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('parent')));
-       navLinksObj.prev = hrefOf(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('prev')));
-       navLinksObj.next = hrefOf(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('next')));
+       navLinksObj.root = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('root')));
+       navLinksObj.parent = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('parent')));
+       navLinksObj.prev = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('prev')));
+       navLinksObj.next = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('next')));
     }
 
     const node: CommentNode = {

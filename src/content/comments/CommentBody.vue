@@ -22,6 +22,8 @@ const classNames = computed(() => {
 <style scoped lang="scss">
 .comment-body {
   transition: opacity 0.2s ease, filter 0.2s ease;
+  line-height: 1.6;
+  font-size: 0.95rem;
 
   &--normal {
     color: var(--color-text);

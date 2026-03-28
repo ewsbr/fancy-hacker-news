@@ -64,12 +64,13 @@ const downvoteOpacity = computed(() => {
         [–]
       </button>
 
-      <span v-if="node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context" class="comment-header__nav">
+      <span v-if="node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context" class="comment-header__nav">
         |
-        <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link">parent</a>
-        <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-header__nav-link">prev</a>
-        <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-header__nav-link">next</a>
-        <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-header__nav-link">context</a>
+        <a v-if="node.navLinks.root" :href="node.navLinks.root ?? undefined" class="comment-header__nav-link">root</a>
+        <a v-if="node.navLinks.parent" :href="node.navLinks.parent ?? undefined" class="comment-header__nav-link">parent</a>
+        <a v-if="node.navLinks.prev" :href="node.navLinks.prev ?? undefined" class="comment-header__nav-link">prev</a>
+        <a v-if="node.navLinks.next" :href="node.navLinks.next ?? undefined" class="comment-header__nav-link">next</a>
+        <a v-if="node.navLinks.context" :href="node.navLinks.context ?? undefined" class="comment-header__nav-link">context</a>
       </span>
     </template>
   </div>
@@ -82,11 +83,12 @@ const downvoteOpacity = computed(() => {
   align-items: center;
   column-gap: 0.5rem;
   row-gap: 0.25rem;
-  font-size: 0.85rem;
-  color: var(--color-muted);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 
   &__author {
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.875rem;
     color: var(--color-text);
     text-decoration: none;
 
