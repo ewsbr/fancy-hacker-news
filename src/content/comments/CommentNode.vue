@@ -3,18 +3,47 @@ import { ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
-import { Triangle } from 'lucide-vue-next';
+import SubThreadModal from './SubThreadModal.vue';
+import { Triangle, MessageSquare } from 'lucide-vue-next';
+import { useIsMobile } from '@/state/useIsMobile';
+
+// Depth at which children are moved into a modal on mobile.
+const MOBILE_MODAL_DEPTH = 4;
 
 const props = defineProps<{
   node: CommentNodeType;
+  /** How many levels deep this node is (0 = top-level). Passed down by parent. */
+  depth?: number;
+  /** When true (inside a modal) never trigger another modal — render inline. */
+  inModal?: boolean;
 }>();
+
+const isMobile = useIsMobile();
 
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const isHeavilyDownvoted = props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase());
 const isCollapsed = ref(props.node.isCollapsed || isHeavilyDownvoted);
+const isModalOpen = ref(false);
+
+const currentDepth = props.depth ?? 0;
+// Children render in modal when: mobile && deep enough && not already inside a modal.
+const childrenInModal = () =>
+  isMobile.value && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
 
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
+}
+
+/** Recursively counts all descendants (direct replies + their replies, etc.) */
+function countAllReplies(n: CommentNodeType): number {
+  return n.children.reduce((sum, child) => sum + 1 + countAllReplies(child), 0);
+}
+
+/** Returns { direct, nested } reply counts for the modal button label. */
+function replyCounts(n: CommentNodeType): { direct: number; nested: number } {
+  const direct = n.children.length;
+  const nested = n.children.reduce((sum, child) => sum + countAllReplies(child), 0);
+  return { direct, nested };
 }
 </script>
 
@@ -60,8 +89,10 @@ function toggleCollapse() {
               </a>
             </div>
 
-            <span class="comment-node__action-dot">&middot;</span>
-            <a v-if="node.replyLink" :href="node.replyLink" class="comment-node__action-link">reply</a>
+            <template v-if="node.replyLink">
+              <span class="comment-node__action-dot">&middot;</span>
+              <a :href="node.replyLink" class="comment-node__action-link">reply</a>
+            </template>
             <template v-if="node.flagUrl">
               <span class="comment-node__action-dot">&middot;</span>
               <a :href="node.flagUrl" class="comment-node__action-link">flag</a>
@@ -71,16 +102,42 @@ function toggleCollapse() {
       </div>
     </div>
 
-    <div v-if="!isCollapsed && node.children && node.children.length > 0" class="comment-node__thread">
-      <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
-      <div class="comment-node__children">
-        <CommentNode 
-          v-for="child in node.children" 
-          :key="child.id" 
-          :node="child" 
-        />
+    <template v-if="!isCollapsed && node.children && node.children.length > 0">
+      <!-- Mobile deep thread: show a tap-to-expand button instead of inline children -->
+      <button
+        v-if="childrenInModal()"
+        class="comment-node__thread-btn"
+        @click="isModalOpen = true"
+      >
+        <MessageSquare :size="13" />
+        <template v-if="replyCounts(node).nested > 0">
+          View {{ replyCounts(node).direct }} {{ replyCounts(node).direct === 1 ? 'reply' : 'replies' }} ({{ replyCounts(node).direct + replyCounts(node).nested }} total)
+        </template>
+        <template v-else>
+          View {{ replyCounts(node).direct }} {{ replyCounts(node).direct === 1 ? 'reply' : 'replies' }}
+        </template>
+      </button>
+
+      <!-- Normal inline children (desktop, or inside a modal, or shallow depth) -->
+      <div v-else class="comment-node__thread">
+        <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
+        <div class="comment-node__children">
+          <CommentNode
+            v-for="child in node.children"
+            :key="child.id"
+            :node="child"
+            :depth="currentDepth + 1"
+            :in-modal="inModal"
+          />
+        </div>
       </div>
-    </div>
+    </template>
+
+    <SubThreadModal
+      v-if="isModalOpen"
+      :node="node"
+      @close="isModalOpen = false"
+    />
   </div>
 </template>
 
@@ -226,9 +283,30 @@ function toggleCollapse() {
     display: flex;
     margin-top: 0.45rem;
     min-width: 0;
-    // Increment nesting depth so deeply-nested comments get progressively
-    // less indentation, keeping text readable on narrow viewports.
+    // Track nesting depth via a CSS counter — used on mobile for the
+    // colored left-border depth indicator (see __children below).
     --hn-depth: calc(var(--hn-depth, 0) + 1);
+  }
+
+  &__thread-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+
+    &:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
   }
 
   &__line {
@@ -239,10 +317,7 @@ function toggleCollapse() {
     padding: 0;
     display: flex;
     justify-content: center;
-    // Base indent is 10px. For each level beyond depth 6 it shrinks by 2px,
-    // reaching 0 at depth 11+. Total indent at depth 15 ≈ 80px vs 330px before.
-    padding-inline-start: 2px;
-    padding-inline-end: clamp(0px, calc(10px - max(0px, calc((var(--hn-depth, 0) - 6) * 2px))), 10px);
+    padding: 0 16px 0 4px;
 
     &::after {
       content: "";
