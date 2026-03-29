@@ -6,7 +6,7 @@
 ┌─────────────────────────────────────────────────────────┐
 │  main.js (entry)                                        │
 │  ├─ Hide original HN page                               │
-│  ├─ Create shadow DOM host                              │
+│  ├─ Create document body host                              │
 │  ├─ Mount Vue app                                       │
 │  └─ Pass original document to parser layer              │
 ├─────────────────────────────────────────────────────────┤
@@ -48,9 +48,9 @@
 3. Resolve route via router
 4. Call appropriate parser for the resolved page
 5. Hide original HN DOM (display: none on body children)
-6. Create shadow DOM host
+6. Create document body host
 7. Mount Vue app, passing parsed data as provide/inject
-8. Vue renders the modern UI inside the shadow root
+8. Vue renders the modern UI inside the root element
 ```
 
 **Parse-then-render**: All parsing is synchronous before Vue mounts. If parsing fails, fall back to showing original HN.

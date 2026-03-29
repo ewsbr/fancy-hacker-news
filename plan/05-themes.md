@@ -11,7 +11,7 @@ Tailwind v4 uses a **CSS-first configuration** approach:
 - Vite plugin: `@tailwindcss/vite` (not PostCSS plugin)
 - Custom utilities: `@utility` directive (not `@layer utilities`)
 
-Tailwind is assumed to be already set up and working inside the shadow DOM.
+Tailwind is assumed to be already set up and working inside the document body.
 
 ---
 
@@ -58,7 +58,7 @@ Usage: `font-body`, `font-title`, `font-mono`, `bg-bg`, `text-accent`, `text-mut
 
 ## Themes
 
-4 themes, switched via `data-theme` attribute on the shadow root host element.
+4 themes, switched via `data-theme` attribute on the root element host element.
 
 ### Theme Tokens (CSS Custom Properties)
 
@@ -153,7 +153,7 @@ useTheme(): {
 - Reads initial preference from `chrome.storage.local`
 - Falls back to system `prefers-color-scheme: dark` → `'dark'`, else `'light'`
 - Persists changes to `chrome.storage.local`
-- Sets `data-theme` attribute on the shadow host element
+- Sets `data-theme` attribute on the root host element
 
 ---
 

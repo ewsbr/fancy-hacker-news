@@ -1,6 +1,6 @@
 # HackerNews Modern UI — Agent Guide
 
-A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every HackerNews page using a Vue 3 app mounted inside a shadow DOM. All data comes from parsing the original HN page DOM — no API calls, no SPA routing.
+A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every HackerNews page using a Vue 3 app mounted directly into the document body. All data comes from parsing the original HN page DOM — no API calls, no SPA routing.
 
 ---
 
@@ -10,7 +10,7 @@ A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every 
 |-------|-----------|
 | UI framework | Vue 3 (Composition API, `<script setup lang="ts">`) |
 | Language | TypeScript (strict mode, `vue-tsc` for type checking) |
-| Styling | Raw SCSS with a global theme/reset layer plus scoped component styles (BEM naming, shadow DOM) |
+| Styling | Raw SCSS with a global theme/reset layer plus scoped component styles (BEM naming) |
 | Build | Vite 8 IIFE build, separate content + background targets |
 | Package manager | pnpm |
 | Icons | `lucide-vue-next` |
@@ -34,9 +34,9 @@ pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 
 1. **Parse** — call `parseHeader(document)` + `resolveRoute(location)` against the live HN DOM
 2. **Hide** — `display: none` all original body children
-3. **Shadow DOM** — create `div#hn-modern-root`, attach a shadow root, inject compiled global + component CSS and a mount point
+3. **Root Element** — create `div#hn-modern-root` in the document body, inject compiled global + component CSS into the document head, and set its mount point
 4. **Mount** — `createApp(App)`, provide `header`, `route`, `originalDoc`, `renderTime` via `app.provide()`
-5. **Render** — Vue renders the modern UI entirely inside the shadow root
+5. **Render** — Vue renders the modern UI entirely inside the `#hn-modern-root` element
 
 If anything throws, the original HN page is left visible (graceful fallback).
 
@@ -47,7 +47,7 @@ If anything throws, the original HN page is left visible (graceful fallback).
 ```
 src/
 ├── content/
-│   ├── main.ts              # entry point (parse → hide → shadow → mount)
+│   ├── main.ts              # entry point (parse → hide → mount)
 │   ├── anti-fouc.js         # injected before parse to suppress FOUC
 │   ├── App.vue              # root: injects route, picks page component
 │   ├── layout/
@@ -89,7 +89,7 @@ src/
 ├── state/
 │   └── theme.ts             # useTheme() composable — chrome.storage + data-theme
 ├── styles/
-│   └── main.scss            # font imports, theme vars, shadow-root reset
+│   └── main.scss            # font imports, theme vars, global reset
 ├── background/
 │   └── background.js        # service worker scaffold (MV3)
 └── env.d.ts                 # vite/client + chrome types
@@ -102,9 +102,9 @@ src/
 - **No fetch / no API** — all data is parsed from the original HN DOM before Vue mounts.
 - **No SPA navigation** — `resolveRoute` is a pure read of `location` on page load only. All links and forms are native HTML pointing at HN's own servers.
 - **CSRF tokens preserved** — `auth=` params in links and `hmac` hidden fields are taken verbatim from the parsed DOM — never hardcoded or fabricated.
-- **Shadow DOM isolation** — all Vue output and CSS lives inside the shadow root; it cannot affect HN's DOM and HN's styles cannot bleed in.
+- **CSS isolation** — all Vue output and CSS lives inside the `#hn-modern-root` container; it avoids affecting original HN elements through component scoping and careful selector choice (no shadow DOM used).
 - **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM class names.
-- **Component CSS is inlined into `content.js`** — the custom Vite plugin exposes `virtual:component-styles`, then patches the emitted content bundle so scoped component CSS is injected alongside `main.scss` inside the shadow root.
+- **Component CSS is inlined into `content.js`** — the custom Vite plugin exposes `virtual:component-styles`, then patches the emitted content bundle so scoped component CSS is injected alongside `main.scss` in the document head.
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
 - **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
 
@@ -112,7 +112,7 @@ src/
 
 ## Themes
 
-Four themes toggled via `data-theme` attribute on `#hn-modern-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties on `:host` / `:host[data-theme="..."]` in `main.scss`. Persisted via `chrome.storage.local`.
+Four themes toggled via `data-theme` attribute on `#hn-modern-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties on `#hn-modern-root` / `#hn-modern-root[data-theme="..."]` in `main.scss`. Persisted via `chrome.storage.local`.
 
 ---
 

@@ -26,7 +26,6 @@ const pageData = inject<ParsedItemPage>('pageData');
           <CommentHeader 
             :node="{
                ...pageData.item, 
-               isCollapsed: false, 
                collapsedCount: 0,
                isDead: false,
                isFlagged: false,
@@ -34,7 +33,8 @@ const pageData = inject<ParsedItemPage>('pageData');
                  parent: pageData.item.parentLink,
                  context: pageData.item.contextLink
                }
-            } as any" 
+            } as any"
+            :is-collapsed="false"
             @toggle="() => {}" 
           />
           <div class="comments-page__comment-body">

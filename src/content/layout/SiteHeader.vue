@@ -3,9 +3,11 @@ import { computed, inject, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '../shared/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
+import { Search } from 'lucide-vue-next';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
+const searchOpen = ref(false);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
 
@@ -23,13 +25,24 @@ function closeNav() {
           <span>Hacker News</span>
         </a>
 
-        <button
-          type="button"
-          class="site-header__nav-toggle"
-          @click="navOpen = !navOpen"
-        >
-          Menu ▾
-        </button>
+        <div class="site-header__mobile-actions">
+          <button
+            type="button"
+            class="site-header__search-toggle"
+            :class="{ 'site-header__search-toggle--active': searchOpen }"
+            aria-label="Search Hacker News"
+            @click="searchOpen = !searchOpen; navOpen = false"
+          >
+            <Search :size="17" />
+          </button>
+          <button
+            type="button"
+            class="site-header__nav-toggle"
+            @click="navOpen = !navOpen; searchOpen = false"
+          >
+            Menu ▾
+          </button>
+        </div>
       </div>
 
       <nav class="site-header__nav" :class="{ 'site-header__nav--open': navOpen }">
@@ -42,6 +55,23 @@ function closeNav() {
           @click="closeNav"
         >{{ link.label }}</a>
       </nav>
+
+      <form
+        action="https://hn.algolia.com/"
+        method="get"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="site-header__search"
+        :class="{ 'site-header__search--mobile-open': searchOpen }"
+      >
+        <Search :size="14" class="site-header__search-icon" aria-hidden="true" />
+        <input
+          name="q"
+          type="search"
+          placeholder="Search HN…"
+          class="site-header__search-input"
+        />
+      </form>
 
       <div class="site-header__controls">
         <div class="site-header__user-controls">
@@ -110,6 +140,31 @@ function closeNav() {
   background: var(--color-accent);
 }
 
+.site-header__mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.site-header__search-toggle {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+
+  &:hover,
+  &--active {
+    background: var(--color-code-bg);
+    color: var(--color-accent);
+  }
+}
+
 .site-header__nav-toggle {
   display: none;
   padding: 0.35rem 0.6rem;
@@ -126,6 +181,60 @@ function closeNav() {
     background: var(--color-code-bg);
     color: var(--color-text);
   }
+}
+
+.site-header__search {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.site-header__search-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.site-header__search-input {
+  width: 160px;
+  padding: 0.34rem 0.65rem 0.34rem 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  outline: none;
+  transition: width 0.25s ease, border-color 0.2s ease;
+
+  // Remove the native search clear button (× chrome adds)
+  &::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+  }
+
+  &:focus {
+    width: 240px;
+    border-color: var(--color-accent);
+
+    ~ .site-header__search-icon,
+    + .site-header__search-icon {
+      color: var(--color-accent);
+    }
+  }
+}
+
+// Icon colour follows focus via sibling selector — icon is before input in DOM,
+// so use :focus-within on the form instead
+.site-header__search:focus-within .site-header__search-icon {
+  color: var(--color-accent);
 }
 
 .site-header__nav {
@@ -198,8 +307,32 @@ function closeNav() {
     width: 100%;
   }
 
+  .site-header__mobile-actions {
+    display: flex;
+  }
+
   .site-header__nav-toggle {
     display: block;
+  }
+
+  // Search bar: hidden by default, expands below mobile-row when toggled
+  .site-header__search {
+    display: none;
+    width: 100%;
+
+    &--mobile-open {
+      display: flex;
+    }
+  }
+
+  .site-header__search-input {
+    width: 100%;
+    border-radius: 6px;
+    padding: 0.5rem 0.65rem 0.5rem 2rem;
+
+    &:focus {
+      width: 100%;
+    }
   }
 
   .site-header__nav {

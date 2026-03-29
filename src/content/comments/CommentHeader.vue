@@ -5,6 +5,7 @@ import Badge from '@/content/shared/Badge.vue';
 
 const props = defineProps<{
   node: CommentNode;
+  isCollapsed: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -34,9 +35,9 @@ const downvoteOpacity = computed(() => {
     <button 
       @click="emit('toggle')"
       class="comment-header__toggle"
-      :class="{ 'comment-header__toggle--collapsed': node.isCollapsed }"
+      :class="{ 'comment-header__toggle--collapsed': isCollapsed }"
     >
-      {{ node.isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
+      {{ isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
     </button>
 
     <div class="comment-header__info">
@@ -61,7 +62,7 @@ const downvoteOpacity = computed(() => {
         {{ node.age }}
       </a>
 
-      <div v-if="!node.isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
+      <div v-if="!isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
       <span class="comment-header__divider" aria-hidden="true">&middot;</span>
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>

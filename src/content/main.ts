@@ -4,10 +4,10 @@
  * 1. Snapshot the original page DOM
  * 2. Parse header & resolve route
  * 3. Hide original HN DOM
- * 4. Create shadow DOM host
+ * 4. Create root host
  * 5. Mount Vue app with parsed data via provide/inject
  */
-import { createApp } from 'vue';
+import { createApp, ref } from 'vue';
 import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
 import { parseLoginPage } from '@/parsers/login';
@@ -59,12 +59,11 @@ try {
   // HN comment <tr>s use the same numeric IDs as our Vue-rendered comment nodes;
   // document.getElementById and native hash navigation would find the hidden HN
   // element first without this step.
-  for (const child of Array.from(document.body.children)) {
-    if ((child as HTMLElement).id !== 'hn-anti-fouc') {
-      child.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-      (child as HTMLElement).removeAttribute('id');
-    }
-  }
+  // Single querySelectorAll over the whole body is far faster than a per-child
+  // nested loop on pages with 500+ comment rows.
+  document.body
+    .querySelectorAll('[id]:not(#hn-anti-fouc)')
+    .forEach(el => el.removeAttribute('id'));
 
   // 3. Strip HN's stylesheets to prevent bleed-in
   document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)').forEach(el => el.remove());
@@ -82,7 +81,11 @@ try {
   const mountPoint = host;
 
   // 4. Mount Vue app with parsed data
-  const renderTime = Math.round(performance.now() - t0);
+  // renderTime is a reactive ref so it can be updated after the first paint.
+  // We provide it before mounting so the component tree has a reference to it,
+  // then update the value after the first requestAnimationFrame — which fires
+  // just before the browser paints — giving us a true end-to-end elapsed time.
+  const renderTime = ref(0);
 
   const app = createApp(App);
   app.provide('header', header);
@@ -91,6 +94,10 @@ try {
   app.provide('pageData', pageData);
   app.provide('renderTime', renderTime);
   app.mount(mountPoint);
+
+  requestAnimationFrame(() => {
+    renderTime.value = Math.round(performance.now() - t0);
+  });
 } catch (e) {
   // On failure, restore original HN page.
   // Explicitly set display:block to override the fouc.css rule (body > center { display:none }).

@@ -10,7 +10,7 @@
 ┌─────────────────────────────────────────────────────────┐
 │  main.js (entry)                                        │
 │  ├─ Hide original HN page                               │
-│  ├─ Create shadow DOM host                              │
+│  ├─ Create document body host                              │
 │  ├─ Mount Vue app                                       │
 │  └─ Pass original document to parser layer              │
 ├─────────────────────────────────────────────────────────┤
@@ -546,7 +546,7 @@ Re-renders FAQ, guidelines, leaders, formatdoc and any unknown pages:
 ### 5.1 Architecture
 
 - Themes are defined as SCSS maps of token overrides
-- The active theme is applied by toggling a `data-theme` attribute on the shadow root's `:host`
+- The active theme is applied by toggling a `data-theme` attribute on the root element's `:host`
 - Theme preference is persisted in `chrome.storage.local`
 - A reactive Vue composable (`useTheme()`) provides the current theme + toggle function
 - System dark mode preference is detected via `matchMedia('(prefers-color-scheme: dark)')` and used as default
@@ -666,9 +666,9 @@ Available themes: **Light** (default), **Dark**, **Nord**, **AMOLED Black**.
 4. Resolve route via router
 5. Call appropriate parser for the resolved page
 6. Hide original HN DOM (display: none on body children)
-7. Create shadow DOM host
+7. Create document body host
 8. Mount Vue app, passing parsed data as provide/inject
-9. Vue renders the modern UI inside the shadow root
+9. Vue renders the modern UI inside the root element
 ```
 
 ### Key design decision: Parse-then-render
@@ -958,7 +958,7 @@ To build accurate parsers, we need HTML samples of each page type. Strategy:
 
 ## 14. Decisions (Resolved)
 
-1. **Shadow DOM CSS injection**: Inline all styles in the Vue build. Vite's lib mode with CSS inlined into the IIFE bundle. No external stylesheet references inside the shadow root.
+1. **document body CSS injection**: Inline all styles in the Vue build. Vite's lib mode with CSS inlined into the IIFE bundle. No external stylesheet references inside the root element.
 
 2. **Passthrough page theming**: Re-render ALL pages including login/auth pages — same parse-then-render approach. No external API calls, just re-rendering the DOM content with modern styling.
 
@@ -980,7 +980,7 @@ To build accurate parsers, we need HTML samples of each page type. Strategy:
 - **Inter** — story titles, headings, header bar
 - **JetBrains Mono** — code blocks (fallback: Fira Mono, Consolas)
 
-Fonts are downloaded as WOFF2 files into `src/assets/fonts/` and referenced via `@font-face` in `base.scss`. Vite's `assetsInlineLimit` can inline small fonts; larger ones are emitted as separate assets and injected into the shadow DOM via a `<style>` tag.
+Fonts are downloaded as WOFF2 files into `src/assets/fonts/` and referenced via `@font-face` in `base.scss`. Vite's `assetsInlineLimit` can inline small fonts; larger ones are emitted as separate assets and injected into the document body via a `<style>` tag.
 
 ---
 

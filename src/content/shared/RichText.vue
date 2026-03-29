@@ -7,22 +7,24 @@ const props = defineProps<{
 
 const processedHtml = computed(() => {
   if (!props.html) return '';
-  
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(props.html, 'text/html');
-  
-  doc.querySelectorAll('pre').forEach(pre => {
+
+  // Use a detached div fragment instead of DOMParser — fragment parsing is
+  // significantly faster because it avoids allocating a full HTMLDocument.
+  const tmp = document.createElement('div');
+  tmp.innerHTML = props.html;
+
+  tmp.querySelectorAll('pre').forEach(pre => {
     pre.classList.add('rich-text__pre');
   });
-  
-  doc.querySelectorAll('p').forEach(p => {
+
+  tmp.querySelectorAll('p').forEach(p => {
     p.classList.add('rich-text__p');
     if (p.childNodes.length === 1 && p.firstElementChild?.tagName === 'I') {
       p.classList.add('rich-text__quote');
     }
   });
 
-  doc.querySelectorAll('a').forEach(a => {
+  tmp.querySelectorAll('a').forEach(a => {
     a.classList.add('rich-text__link');
     const href = a.getAttribute('href');
     if (href && !href.startsWith('item?id=') && !href.startsWith('user?id=') && !href.startsWith('reply?')) {
@@ -31,7 +33,7 @@ const processedHtml = computed(() => {
     }
   });
 
-  return doc.body.innerHTML;
+  return tmp.innerHTML;
 });
 </script>
 

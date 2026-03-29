@@ -12,7 +12,7 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 - [x] **1.4** ~~Download & bundle fonts~~ → Using `@fontsource-variable/*` packages instead (atkinson-hyperlegible-next, inter, jetbrains-mono)
 - [x] **1.5** Create `src/styles/main.css` — `@import "tailwindcss"`, `@theme` block with custom colors/fonts, fontsource imports, theme CSS custom properties for all 4 themes on `:host` / `:host([data-theme])`
 - [x] **1.6** Ensure `@tailwindcss/vite` plugin is configured in `vite.config.js`
-- [x] **1.7** Verify Tailwind works inside shadow DOM (CSS inlined via `?inline` import, injected as `<style>` in shadow root)
+- [x] **1.7** Verify Tailwind works inside document body (CSS inlined via `?inline` import, injected as `<style>` in root element)
 - [x] **1.8** Create `src/state/theme.ts` — `useTheme()` composable (read/write `chrome.storage.local`, system preference detection, `data-theme` attribute)
 - [x] **1.9** Install `lucide-vue-next` dependency
 - [x] **1.10** Create layout components:
@@ -20,12 +20,12 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
   - `src/content/layout/SiteHeader.vue` — logo, nav links, user controls, ThemeToggle
   - `src/content/layout/SiteFooter.vue` — yclinks, Algolia search link
 - [x] **1.11** Create `src/content/shared/ThemeToggle.vue` — theme selector using Lucide icons
-- [x] **1.12** Update `src/content/main.ts` — new entry flow: snapshot DOM → parse header → resolve route → hide original → create shadow host → inject CSS → mount Vue with provide/inject
+- [x] **1.12** Update `src/content/main.ts` — new entry flow: snapshot DOM → parse header → resolve route → hide original → create root host → inject CSS → mount Vue with provide/inject
 - [x] **1.13** Update `src/content/App.vue` — inject parsed data, resolve page component dynamically via AppShell
 - [x] **1.14** Create `src/content/pages/LoginPage.vue` — re-render auth forms (login, changepw, forgot, comment-redirect)
 - [x] **1.15** Create `src/content/pages/StaticPage.vue` — re-render informational pages (FAQ, guidelines, leaders, formatdoc)
 - [x] **1.16** Update `vite.config.js` — CSS inlined into IIFE bundle via `?inline`, `@tailwindcss/vite` plugin, TS entry, removed SCSS config
-- [x] **1.17** Update `manifest.json` — added `storage` permission, removed `css` array (CSS lives in shadow DOM)
+- [x] **1.17** Update `manifest.json` — added `storage` permission, removed `css` array (CSS lives in document body)
 
 ---
 

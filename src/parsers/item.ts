@@ -267,12 +267,15 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       return hashIndex !== -1 ? href.substring(hashIndex) : href;
     };
     
-    // Accurate nav links using textContent matching:
+    // Accurate nav links using textContent matching.
+    // Build the anchor array once to avoid 4 separate querySelectorAll calls
+    // (and 4 Array.from allocations) per comment.
     if (navs) {
-       navLinksObj.root = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('root')));
-       navLinksObj.parent = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('parent')));
-       navLinksObj.prev = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('prev')));
-       navLinksObj.next = getHash(Array.from(navs.querySelectorAll('a')).find(a => a.textContent?.includes('next')));
+      const navAnchors = Array.from(navs.querySelectorAll('a'));
+      navLinksObj.root = getHash(navAnchors.find(a => a.textContent?.includes('root')));
+      navLinksObj.parent = getHash(navAnchors.find(a => a.textContent?.includes('parent')));
+      navLinksObj.prev = getHash(navAnchors.find(a => a.textContent?.includes('prev')));
+      navLinksObj.next = getHash(navAnchors.find(a => a.textContent?.includes('next')));
     }
 
     const node: CommentNode = {

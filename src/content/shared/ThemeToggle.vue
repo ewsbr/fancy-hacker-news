@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Palette } from 'lucide-vue-next';
 import { useTheme, type ThemeName } from '@/state/theme';
 
 const { theme, setTheme } = useTheme();
@@ -23,62 +24,62 @@ function select(name: ThemeName) {
 
 function onBlur(e: FocusEvent) {
   const related = e.relatedTarget as HTMLElement | null;
-  const root = (e.currentTarget as HTMLElement);
+  const root = e.currentTarget as HTMLElement;
   if (!root.contains(related)) open.value = false;
 }
+
+const activeTheme = () => themes.find(t => t.name === theme.value)!;
 </script>
 
 <template>
   <div class="theme-toggle" @focusout="onBlur">
-    <!-- Trigger button -->
+    <!-- Trigger: current swatch + label + palette icon -->
     <button
       type="button"
       class="theme-toggle__trigger"
       :aria-expanded="open"
-      aria-haspopup="listbox"
+      aria-haspopup="dialog"
       aria-label="Change theme"
       @click="open = !open"
     >
       <span
-        class="theme-toggle__swatch"
-        :style="swatchStyle(themes.find(t => t.name === theme)!)"
+        class="theme-toggle__trigger-swatch"
+        :style="swatchStyle(activeTheme())"
         aria-hidden="true"
       />
-      <span class="theme-toggle__label">{{ themes.find(t => t.name === theme)?.label }}</span>
-      <svg class="theme-toggle__chevron" :class="{ 'theme-toggle__chevron--open': open }"
-           width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-        <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <span class="theme-toggle__trigger-label">{{ activeTheme().label }}</span>
+      <Palette class="theme-toggle__palette-icon" :size="13" aria-hidden="true" />
     </button>
 
-    <!-- Dropdown -->
-    <Transition name="theme-toggle-drop">
-      <ul v-if="open" class="theme-toggle__menu" role="listbox" :aria-label="'Theme selector'">
-        <li
-          v-for="item in themes"
-          :key="item.name"
-          role="option"
-          :aria-selected="theme === item.name"
-          class="theme-toggle__option"
-          :class="{ 'theme-toggle__option--active': theme === item.name }"
-          tabindex="0"
-          @click="select(item.name)"
-          @keydown.enter.space.prevent="select(item.name)"
-        >
-          <span
-            class="theme-toggle__swatch"
-            :style="swatchStyle(item)"
-            aria-hidden="true"
-          />
-          <span>{{ item.label }}</span>
-          <svg v-if="theme === item.name" class="theme-toggle__check"
-               width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="1.75"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </li>
-      </ul>
+    <!-- Popover card -->
+    <Transition name="tt-pop">
+      <div
+        v-if="open"
+        class="theme-toggle__popover"
+        role="dialog"
+        aria-label="Theme selector"
+      >
+        <p class="theme-toggle__popover-title">Theme</p>
+        <div class="theme-toggle__grid">
+          <button
+            v-for="item in themes"
+            :key="item.name"
+            type="button"
+            class="theme-toggle__card"
+            :class="{ 'theme-toggle__card--active': theme === item.name }"
+            :aria-pressed="theme === item.name"
+            :aria-label="item.label"
+            @click="select(item.name)"
+          >
+            <span
+              class="theme-toggle__card-swatch"
+              :style="swatchStyle(item)"
+              aria-hidden="true"
+            />
+            <span class="theme-toggle__card-label">{{ item.label }}</span>
+          </button>
+        </div>
+      </div>
     </Transition>
   </div>
 </template>
@@ -93,12 +94,12 @@ function onBlur(e: FocusEvent) {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.25rem 0.5rem 0.25rem 0.35rem;
+  padding: 0.25rem 0.55rem 0.25rem 0.35rem;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 20px;
   background: var(--color-code-bg);
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
@@ -111,91 +112,122 @@ function onBlur(e: FocusEvent) {
   }
 }
 
-/* ── Swatch (shared by trigger + options) ─────────────── */
-.theme-toggle__swatch {
+.theme-toggle__trigger-swatch {
   flex-shrink: 0;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   box-shadow: 0 0 0 1.5px var(--color-border);
 }
 
-/* ── Label ───────────────────────────────────────────── */
-.theme-toggle__label {
+.theme-toggle__trigger-label {
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.82rem;
 }
 
-/* ── Chevron ─────────────────────────────────────────── */
-.theme-toggle__chevron {
-  transition: transform 0.2s ease;
-  color: var(--color-text-muted);
+.theme-toggle__palette-icon {
+  opacity: 0.7;
+  transition: opacity 0.15s;
 
-  &--open {
-    transform: rotate(180deg);
+  .theme-toggle__trigger:hover & {
+    opacity: 1;
+    color: var(--color-accent);
   }
 }
 
-/* ── Dropdown menu ───────────────────────────────────── */
-.theme-toggle__menu {
+/* ── Popover card ─────────────────────────────────────── */
+.theme-toggle__popover {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   right: 0;
   z-index: 200;
-  min-width: 140px;
-  margin: 0;
-  padding: 0.3rem;
-  list-style: none;
+  width: 176px;
+  padding: 0.65rem;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--color-surface);
   box-shadow: var(--shadow-elevation),
-              0 8px 24px -4px rgba(0, 0, 0, 0.12);
+              0 12px 32px -6px rgba(0, 0, 0, 0.15);
 }
 
-/* ── Option ──────────────────────────────────────────── */
-.theme-toggle__option {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.45rem 0.6rem;
-  border-radius: 5px;
+.theme-toggle__popover-title {
+  margin: 0 0 0.6rem 0.15rem;
   color: var(--color-text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* ── 2×2 swatch grid ─────────────────────────────────── */
+.theme-toggle__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.theme-toggle__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.4rem 0.55rem;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: var(--color-code-bg);
   cursor: pointer;
-  user-select: none;
-  transition: background 0.12s, color 0.12s;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
 
   &:hover {
-    background: var(--color-code-bg);
-    color: var(--color-text);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+    background: var(--color-bg);
   }
 
   &--active {
-    color: var(--color-text);
-    font-weight: 600;
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 8%, var(--color-code-bg));
+
+    .theme-toggle__card-swatch {
+      box-shadow: 0 0 0 2px var(--color-surface),
+                  0 0 0 3.5px var(--color-accent);
+    }
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: -1px;
+    outline-offset: 2px;
   }
 }
 
-.theme-toggle__check {
-  margin-left: auto;
-  color: var(--color-accent);
+.theme-toggle__card-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px var(--color-border);
+  transition: box-shadow 0.15s;
 }
 
-/* ── Dropdown transition ─────────────────────────────── */
-.theme-toggle-drop-enter-active,
-.theme-toggle-drop-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+.theme-toggle__card-label {
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+
+  .theme-toggle__card--active & {
+    color: var(--color-accent);
+  }
 }
-.theme-toggle-drop-enter-from,
-.theme-toggle-drop-leave-to {
+
+/* ── Popover transition ───────────────────────────────── */
+.tt-pop-enter-active,
+.tt-pop-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.tt-pop-enter-from,
+.tt-pop-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(-6px) scale(0.97);
 }
 </style>

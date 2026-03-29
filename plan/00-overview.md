@@ -1,6 +1,6 @@
 # HackerNews Modern UI — Plan Overview
 
-A browser extension that fully re-renders every HackerNews page with a modern Vue-based UI inside a shadow DOM. Uses Tailwind CSS for styling. No SPA routing, no fetch calls — all interactions use native HTML forms and links.
+A browser extension that fully re-renders every HackerNews page with a modern Vue-based UI inside a document body. Uses Tailwind CSS for styling. No SPA routing, no fetch calls — all interactions use native HTML forms and links.
 
 ## Plan Files
 
@@ -15,7 +15,7 @@ A browser extension that fully re-renders every HackerNews page with a modern Vu
 
 ## Key Decisions
 
-1. **CSS**: Tailwind CSS with custom theme tokens. All styles inlined in the IIFE build (no external sheets in shadow DOM)
+1. **CSS**: Tailwind CSS with custom theme tokens. All styles inlined in the IIFE build (no external sheets in document body)
 2. **Pages**: ALL pages re-rendered (no passthrough) — including login, FAQ, etc.
 3. **Icons**: Lucide via `lucide-vue-next`
 4. **Fonts**: Atkinson Hyperlegible Next (body), Inter (titles), JetBrains Mono (code) — bundled WOFF2

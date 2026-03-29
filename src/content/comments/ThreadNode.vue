@@ -34,7 +34,7 @@ function toggleCollapse() {
           <a :href="node.onStory.link" class="comment-node__on-story-link">{{ node.onStory.title }}</a>
         </div>
         
-        <CommentHeader :node="{...node, isCollapsed}" @toggle="toggleCollapse">
+        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse">
           <!-- Inject additional nav links exactly as they appear in threads -->
           <template #extra-nav>
             <span v-if="node.navLinks.parent" class="comment-node__extra-nav">
@@ -49,7 +49,7 @@ function toggleCollapse() {
           </template>
         </CommentHeader>
         
-        <div v-show="!isCollapsed" class="comment-node__body-wrapper">
+        <div v-if="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
           
           <div class="comment-node__actions">
@@ -89,7 +89,7 @@ function toggleCollapse() {
       </div>
     </div>
 
-    <div v-show="!isCollapsed" v-if="node.children && node.children.length > 0" class="comment-node__thread">
+    <div v-if="!isCollapsed && node.children && node.children.length > 0" class="comment-node__thread">
       <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
       <div class="comment-node__children">
         <ThreadNode 

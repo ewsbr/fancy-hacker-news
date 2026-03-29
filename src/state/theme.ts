@@ -2,7 +2,7 @@
  * useTheme composable — manages theme preference (light/dark/nord/amoled).
  *
  * Reads from chrome.storage.local, falls back to system preference,
- * and sets `data-theme` on the shadow host element.
+ * and sets `data-theme` on the root host element.
  */
 import { ref, watch, type Ref } from 'vue';
 

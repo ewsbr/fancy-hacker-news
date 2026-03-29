@@ -1,6 +1,6 @@
 # HackerNews Modern UI
 
-A browser extension that fully re-renders Hacker News pages inside a shadow DOM using Vue 3. Data is parsed from the live HN HTML; there are no API calls and no SPA navigation.
+A browser extension that fully re-renders Hacker News pages directly into the document body using Vue 3. Data is parsed from the live HN HTML; there are no API calls and no SPA navigation.
 
 ## Stack
 
@@ -12,10 +12,10 @@ A browser extension that fully re-renders Hacker News pages inside a shadow DOM 
 
 ## Styling Architecture
 
-- Global theme tokens and shadow-root reset live in `src/styles/main.scss`
+- Global theme tokens and site-wide reset live in `src/styles/main.scss`
 - Component and page styles live in scoped `lang="scss"` blocks in each Vue SFC
 - The content script imports `main.scss` with `?inline`
-- A custom Vite plugin inlines component-scoped CSS into `content.js` so all styles still render inside the shadow DOM
+- A custom Vite plugin inlines component-scoped CSS into `content.js` so all styles render correctly in the main document
 
 ## Commands
 

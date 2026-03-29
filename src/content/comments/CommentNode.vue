@@ -29,9 +29,9 @@ function toggleCollapse() {
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
-        <CommentHeader :node="{...node, isCollapsed}" @toggle="toggleCollapse" />
-        
-        <div v-show="!isCollapsed" class="comment-node__body-wrapper">
+        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse" />
+
+        <div v-if="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
           
           <div class="comment-node__actions">
@@ -71,7 +71,7 @@ function toggleCollapse() {
       </div>
     </div>
 
-    <div v-show="!isCollapsed" v-if="node.children && node.children.length > 0" class="comment-node__thread">
+    <div v-if="!isCollapsed && node.children && node.children.length > 0" class="comment-node__thread">
       <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
       <div class="comment-node__children">
         <CommentNode 
