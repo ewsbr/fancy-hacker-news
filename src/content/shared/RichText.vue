@@ -1,44 +1,43 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
-const props = defineProps<{
+defineProps<{
   html: string;
 }>();
 
-const processedHtml = computed(() => {
-  if (!props.html) return '';
+function onClick(event: MouseEvent) {
+  if (event.defaultPrevented || event.button !== 0) {
+    return;
+  }
 
-  // Use a detached div fragment instead of DOMParser — fragment parsing is
-  // significantly faster because it avoids allocating a full HTMLDocument.
-  const tmp = document.createElement('div');
-  tmp.innerHTML = props.html;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    return;
+  }
 
-  tmp.querySelectorAll('pre').forEach(pre => {
-    pre.classList.add('rich-text__pre');
-  });
+  const target = event.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
 
-  tmp.querySelectorAll('p').forEach(p => {
-    p.classList.add('rich-text__p');
-    if (p.childNodes.length === 1 && p.firstElementChild?.tagName === 'I') {
-      p.classList.add('rich-text__quote');
-    }
-  });
+  const anchor = target.closest('a');
+  if (!(anchor instanceof HTMLAnchorElement)) {
+    return;
+  }
 
-  tmp.querySelectorAll('a').forEach(a => {
-    a.classList.add('rich-text__link');
-    const href = a.getAttribute('href');
-    if (href && !href.startsWith('item?id=') && !href.startsWith('user?id=') && !href.startsWith('reply?')) {
-      a.setAttribute('target', '_blank');
-      a.setAttribute('rel', 'noopener noreferrer');
-    }
-  });
+  const href = anchor.getAttribute('href');
+  if (!href) {
+    return;
+  }
 
-  return tmp.innerHTML;
-});
+  if (href.startsWith('item?id=') || href.startsWith('user?id=') || href.startsWith('reply?')) {
+    return;
+  }
+
+  event.preventDefault();
+  window.open(anchor.href, '_blank', 'noopener,noreferrer');
+}
 </script>
 
 <template>
-  <div class="rich-text" v-html="processedHtml"></div>
+  <div class="rich-text" v-html="html" @click="onClick"></div>
 </template>
 
 <style scoped lang="scss">
@@ -47,21 +46,21 @@ const processedHtml = computed(() => {
   line-height: 1.6;
   word-break: break-word;
 
-  :deep(.rich-text__p) {
+  :deep(p) {
     margin-top: 0.75rem;
     &:first-child {
       margin-top: 0;
     }
   }
-  
-  :deep(.rich-text__quote) {
+
+  :deep(p:has(> i:only-child)) {
     color: var(--color-muted);
     border-left: 2px solid var(--color-border);
     padding-left: 0.75rem;
     font-style: italic;
   }
-  
-  :deep(.rich-text__pre) {
+
+  :deep(pre) {
     background: var(--color-code-bg);
     border: 1px solid var(--color-border);
     padding: 0.5rem 0.75rem;
@@ -78,8 +77,8 @@ const processedHtml = computed(() => {
     scrollbar-color: var(--color-border) transparent;
     display: block;
   }
-  
-  :deep(.rich-text__link) {
+
+  :deep(a) {
     text-decoration: underline;
     &:hover {
       color: var(--color-accent);

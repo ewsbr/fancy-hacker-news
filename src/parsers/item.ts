@@ -69,6 +69,7 @@ export interface CommentNode {
   voteUn: string | null;
   flagUrl: string | null;
   replyLink: string | null;
+  descendantCount: number;
   navLinks: {
     root: string | null;
     parent: string | null;
@@ -77,6 +78,17 @@ export interface CommentNode {
     context: string | null;
   };
   children: CommentNode[];
+}
+
+function countDescendants(node: CommentNode): number {
+  let total = 0;
+
+  for (const child of node.children) {
+    total += 1 + countDescendants(child);
+  }
+
+  node.descendantCount = total;
+  return total;
 }
 
 export function parseItemPage(doc: Document): ParsedItemPage {
@@ -244,12 +256,8 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     const commtext = tr.querySelector('.commtext');
     const grayLevel = parseGrayLevel(commtext);
 
-    // Remove reply from body
-    const replyDiv = commtext?.parentElement?.querySelector('.reply');
-    const replyLink = hrefOf(replyDiv?.querySelector('a'));
-    if (replyDiv && replyDiv.parentElement === commtext) {
-        replyDiv.remove();
-    }
+    const commentContainer = commtext?.parentElement;
+    const replyLink = hrefOf(commentContainer?.querySelector('.reply a[href^="reply?"]'));
 
     const navs = comhead?.querySelector('.navs');
     const navLinksObj = {
@@ -297,6 +305,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       voteUn,
       flagUrl: null, // Often not present on standard view
       replyLink,
+      descendantCount: 0,
       navLinks: navLinksObj,
       children: [],
     };
@@ -307,6 +316,10 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     
     stack[stack.length - 1].children.push(node);
     stack.push({ depth: indent, children: node.children });
+  }
+
+  for (const comment of comments) {
+    countDescendants(comment);
   }
 
   return { item, comments, replyForm };

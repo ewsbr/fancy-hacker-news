@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
@@ -27,23 +27,15 @@ const isModalOpen = ref(false);
 
 const currentDepth = props.depth ?? 0;
 // Children render in modal when: mobile && deep enough && not already inside a modal.
-const childrenInModal = () =>
-  isMobile.value && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
+const childrenInModal = computed(
+  () => isMobile.value && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH,
+);
+const directReplyCount = props.node.children.length;
+const totalReplyCount = props.node.descendantCount;
+const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
-}
-
-/** Recursively counts all descendants (direct replies + their replies, etc.) */
-function countAllReplies(n: CommentNodeType): number {
-  return n.children.reduce((sum, child) => sum + 1 + countAllReplies(child), 0);
-}
-
-/** Returns { direct, nested } reply counts for the modal button label. */
-function replyCounts(n: CommentNodeType): { direct: number; nested: number } {
-  const direct = n.children.length;
-  const nested = n.children.reduce((sum, child) => sum + countAllReplies(child), 0);
-  return { direct, nested };
 }
 </script>
 
@@ -105,16 +97,16 @@ function replyCounts(n: CommentNodeType): { direct: number; nested: number } {
     <template v-if="!isCollapsed && node.children && node.children.length > 0">
       <!-- Mobile deep thread: show a tap-to-expand button instead of inline children -->
       <button
-        v-if="childrenInModal()"
+        v-if="childrenInModal"
         class="comment-node__thread-btn"
         @click="isModalOpen = true"
       >
         <MessageSquare :size="13" />
-        <template v-if="replyCounts(node).nested > 0">
-          View {{ replyCounts(node).direct }} {{ replyCounts(node).direct === 1 ? 'reply' : 'replies' }} ({{ replyCounts(node).direct + replyCounts(node).nested }} total)
+        <template v-if="nestedReplyCount > 0">
+          View {{ directReplyCount }} {{ directReplyCount === 1 ? 'reply' : 'replies' }} ({{ totalReplyCount }} total)
         </template>
         <template v-else>
-          View {{ replyCounts(node).direct }} {{ replyCounts(node).direct === 1 ? 'reply' : 'replies' }}
+          View {{ directReplyCount }} {{ directReplyCount === 1 ? 'reply' : 'replies' }}
         </template>
       </button>
 
