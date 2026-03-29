@@ -14,6 +14,11 @@ import { parseLoginPage } from '@/parsers/login';
 import { parseStaticPage } from '@/parsers/static';
 import { parseStoryList } from '@/parsers/storyList';
 import { parseItemPage } from '@/parsers/item';
+import { parseUserPage } from '@/parsers/user';
+import { parseThreadsPage } from '@/parsers/threads';
+import { parseNewComments } from '@/parsers/newComments';
+import { parseSubmitPage } from '@/parsers/submit';
+import { parseReplyPage } from '@/parsers/reply';
 import App from './App.vue';
 import mainCss from '@/styles/main.scss?inline';
 import componentCss from 'virtual:component-styles';
@@ -22,6 +27,16 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
   if (page === 'stories') return parseStoryList(doc);
   if (page === 'item') return parseItemPage(doc);
+  if (page === 'user') return parseUserPage(doc);
+  if (page === 'threads') return parseThreadsPage(doc);
+  if (page === 'newcomments') return parseNewComments(doc);
+  if (page === 'favorites' || page === 'upvoted') {
+    const isComments = new URLSearchParams(location.search).get('comments') === 't';
+    return isComments ? parseNewComments(doc) : parseStoryList(doc);
+  }
+  if (page === 'submitted' || page === 'hidden') return parseStoryList(doc);
+  if (page === 'submit') return parseSubmitPage(doc);
+  if (page === 'reply') return parseReplyPage(doc);
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);

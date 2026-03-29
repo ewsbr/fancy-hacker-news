@@ -8,36 +8,41 @@ const page = inject<ParsedLoginPage>('pageData')!;
 <template>
   <div class="login-page">
     <h1 class="login-page__title">{{ page.title }}</h1>
-    <form
-      v-if="page.visibleFields.length"
-      :action="page.formAction"
-      :method="page.formMethod"
-      class="login-page__form"
-    >
-      <input
-        v-for="f in page.hiddenFields"
-        :key="f.name"
-        type="hidden"
-        :name="f.name"
-        :value="f.value"
-      />
-      <div v-for="field in page.visibleFields" :key="field.name" class="login-page__row">
-        <label :for="`hn-${field.name}`" class="login-page__label">{{ field.label }}</label>
-        <input
-          :id="`hn-${field.name}`"
-          :type="field.type"
-          :name="field.name"
-          :defaultValue="field.value"
-          class="login-page__input"
-        />
+    <div v-if="page.forms.length === 0" class="login-page__empty-state">No forms found on this page.</div>
+    <div v-else class="login-page__forms">
+      <div v-for="(form, idx) in page.forms" :key="idx" class="login-page__form-container">
+        <h2 v-if="form.title" class="login-page__form-title">{{ form.title }}</h2>
+        <form
+          v-if="form.visibleFields.length"
+          :action="form.action"
+          :method="form.method"
+          class="login-page__form"
+        >
+          <input
+            v-for="f in form.hiddenFields"
+            :key="f.name"
+            type="hidden"
+            :name="f.name"
+            :value="f.value"
+          />
+          <div v-for="field in form.visibleFields" :key="field.name" class="login-page__row">
+            <label :for="`hn-${idx}-${field.name}`" class="login-page__label">{{ field.label }}</label>
+            <input
+              :id="`hn-${idx}-${field.name}`"
+              :type="field.type"
+              :name="field.name"
+              :defaultValue="field.value"
+              class="login-page__input"
+            />
+          </div>
+          <input
+            type="submit"
+            :value="form.submitLabel"
+            class="login-page__submit"
+          />
+        </form>
       </div>
-      <input
-        type="submit"
-        :value="page.submitLabel"
-        class="login-page__submit"
-      />
-    </form>
-    <p v-else class="login-page__empty-state">No form found on this page.</p>
+    </div>
   </div>
 </template>
 
@@ -53,11 +58,24 @@ const page = inject<ParsedLoginPage>('pageData')!;
   font-weight: 600;
 }
 
+.login-page__forms {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 28rem;
+}
+
+.login-page__form-title {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
 .login-page__form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 28rem;
   padding: 1.5rem;
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;

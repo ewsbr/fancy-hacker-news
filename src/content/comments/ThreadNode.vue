@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import { Triangle } from 'lucide-vue-next';
 
 const props = defineProps<{
-  node: CommentNodeType;
+  node: ThreadEntry;
 }>();
 
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -29,7 +29,25 @@ function toggleCollapse() {
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
-        <CommentHeader :node="{...node, isCollapsed}" @toggle="toggleCollapse" />
+        <div v-if="node.onStory" class="comment-node__on-story">
+          <span class="comment-node__on-story-label">on:</span>
+          <a :href="node.onStory.link" class="comment-node__on-story-link">{{ node.onStory.title }}</a>
+        </div>
+        
+        <CommentHeader :node="{...node, isCollapsed}" @toggle="toggleCollapse">
+          <!-- Inject additional nav links exactly as they appear in threads -->
+          <template #extra-nav>
+            <span v-if="node.navLinks.parent" class="comment-node__extra-nav">
+              | <a :href="node.navLinks.parent">parent</a>
+            </span>
+            <span v-if="node.navLinks.next" class="comment-node__extra-nav">
+              | <a :href="node.navLinks.next">next</a>
+            </span>
+            <span v-if="node.navLinks.context" class="comment-node__extra-nav">
+              | <a :href="node.navLinks.context">context</a>
+            </span>
+          </template>
+        </CommentHeader>
         
         <div v-show="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
@@ -38,7 +56,7 @@ function toggleCollapse() {
             <div class="comment-node__votes">
               <a 
                 v-if="node.voteUp || node.voteUn" 
-                :href="node.voteUn || node.voteUp || undefined" 
+                :href="node.voteUn || node.voteUp || ''" 
                 class="comment-node__vote-action"
                 :class="{ 
                   'comment-node__vote-action--up': true, 
@@ -74,7 +92,7 @@ function toggleCollapse() {
     <div v-show="!isCollapsed" v-if="node.children && node.children.length > 0" class="comment-node__thread">
       <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
       <div class="comment-node__children">
-        <CommentNode 
+        <ThreadNode 
           v-for="child in node.children" 
           :key="child.id" 
           :node="child" 
@@ -89,7 +107,7 @@ function toggleCollapse() {
   position: relative;
 
   &--root {
-    margin-top: 0.5rem;
+    margin-top: 1.5rem;
   }
 
   // Handle sticky header offset for fragment navigation
@@ -111,22 +129,6 @@ function toggleCollapse() {
     }
   }
 
-  &--highlight {
-    animation: highlight-fade 1.5s forwards;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -4px;
-      bottom: -4px;
-      left: -10px;
-      width: 10px;
-      background: inherit;
-      border-left: 2px solid var(--color-accent);
-      animation: highlight-line-fade 1.5s forwards;
-    }
-  }
-
   &--collapsed {
     > .comment-node__content-wrap {
       opacity: 0.8;
@@ -138,10 +140,44 @@ function toggleCollapse() {
     align-items: flex-start;
   }
 
-
   &__main {
     flex: 1;
     min-width: 0;
+  }
+
+  &__on-story {
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+
+    &-label {
+      color: var(--color-text-muted);
+      margin-right: 0.3rem;
+    }
+
+    &-link {
+      color: var(--color-text);
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__extra-nav {
+    color: var(--color-border);
+    margin-left: 0.3rem;
+    
+    a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      
+      &:hover {
+        color: var(--color-text);
+        text-decoration: underline;
+      }
+    }
   }
 
   &__body-wrapper {
@@ -206,7 +242,7 @@ function toggleCollapse() {
   }
 
   &__action-dot {
-    color: var(--color-muted);
+    color: var(--color-border);
     opacity: 0.5;
     user-select: none;
   }
@@ -227,6 +263,7 @@ function toggleCollapse() {
   }
 
   &__line {
+    width: 20px;
     flex-shrink: 0;
     cursor: pointer;
     background: none;
@@ -234,7 +271,6 @@ function toggleCollapse() {
     padding: 0;
     display: flex;
     justify-content: center;
-    padding: 0 16px 0 4px;
 
     &::after {
       content: "";

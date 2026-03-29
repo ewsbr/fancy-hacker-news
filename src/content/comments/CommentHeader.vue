@@ -36,7 +36,7 @@ const downvoteOpacity = computed(() => {
       class="comment-header__toggle"
       :class="{ 'comment-header__toggle--collapsed': node.isCollapsed }"
     >
-      {{ node.isCollapsed ? `[+${node.collapsedCount}]` : '[–]' }}
+      {{ node.isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
     </button>
 
     <div class="comment-header__info">

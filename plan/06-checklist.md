@@ -47,43 +47,43 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 
 ## Phase 3 — Item Pages (Stories + Comments)
 
-- [ ] **3.1** Create `src/parsers/item.js` — `parseItemPage(doc)` for both story-parent and comment-parent
-- [ ] **3.2** Create `src/content/shared/RichText.vue` — HTML renderer with code block, quote, and link styling
-- [ ] **3.3** Create `src/content/stories/StoryDetail.vue` — full story header for item page (title, URL, score, author, body)
-- [ ] **3.4** Create comment components:
+- [x] **3.1** Create `src/parsers/item.ts` — `parseItemPage(doc)` for both story-parent and comment-parent
+- [x] **3.2** Create `src/content/shared/RichText.vue` — HTML renderer with code block, quote, and link styling
+- [x] **3.3** Create `src/content/stories/StoryDetail.vue` — full story header for item page (title, URL, score, author, body)
+- [x] **3.4** Create comment components:
   - `src/content/comments/CommentHeader.vue` — author, age, nav links, collapse toggle
   - `src/content/comments/CommentBody.vue` — wraps RichText, handles downvoted/dead styling
   - `src/content/comments/CommentForm.vue` — native POST form with hidden fields
   - `src/content/comments/CommentNode.vue` — recursive: header + body + actions + children
   - `src/content/comments/CommentTree.vue` — renders top-level CommentNode list
-- [ ] **3.5** Create `src/content/pages/ItemPage.vue` — story/comment detail + CommentTree + CommentForm
-- [ ] **3.6** Wire ItemPage into App.vue for `item` route
-- [ ] **3.7** Implement comment collapse/expand (client-side toggle, no server call)
-- [ ] **3.8** Implement downvoted comment rendering (reduced opacity, expand on click)
-- [ ] **3.9** Implement dead/flagged comment rendering (dimmed, badges)
-- [ ] **3.10** Handle comment-parent item pages (show "on: Story Title", context/parent links)
+- [x] **3.5** Create `src/content/pages/ItemPage.vue` — story/comment detail + CommentTree + CommentForm
+- [x] **3.6** Wire ItemPage into App.vue for `item` route (implemented as `CommentsPage.vue` — both files exist, `CommentsPage` is in use)
+- [x] **3.7** Implement comment collapse/expand (client-side toggle, no server call)
+- [x] **3.8** Implement downvoted comment rendering (reduced opacity + grayscale via grayLevel; expand-on-click for `noHover`-hidden comments not implemented — shown at reduced opacity instead)
+- [x] **3.9** Implement dead/flagged comment rendering (dimmed via grayLevel, `Dead`/`Flagged` badges in CommentHeader)
+- [x] **3.10** Handle comment-parent item pages (show "on: Story Title", context/parent links)
 - [ ] **3.11** Test with deeply nested comment threads, dead/flagged comments, new-user authors
 
 ---
 
 ## Phase 4 — User & Auxiliary Pages
 
-- [ ] **4.1** Create `src/parsers/user.ts` — `parseUserPage(doc: Document): ParsedUserPage` with profile fields, preferences, links
+- [x] **4.1** Create `src/parsers/user.ts` — `parseUserPage(doc: Document): ParsedUserPage` with profile fields, preferences, links
 - [ ] **4.2** Create user components:
   - `src/content/user/UserProfile.vue` — username, karma, created, about, preferences form
   - `src/content/user/UserLinks.vue` — submissions, threads, favorites, upvoted links
 - [ ] **4.3** Create `src/content/pages/UserPage.vue` — composing UserProfile + UserLinks
 - [ ] **4.4** Wire UserPage into App.vue for `user` route
-- [ ] **4.5** Create `src/parsers/threads.ts` — `parseThreadsPage(doc: Document): ParsedThreadsPage`
+- [x] **4.5** Create `src/parsers/threads.ts` — `parseThreadsPage(doc: Document): ParsedThreadsPage`
 - [ ] **4.6** Create `src/content/pages/ThreadsPage.vue`
-- [ ] **4.7** Create `src/parsers/newComments.ts` — `parseNewComments(doc: Document): ParsedNewComments`
+- [x] **4.7** Create `src/parsers/newComments.ts` — `parseNewComments(doc: Document): ParsedNewComments`
 - [ ] **4.8** Create `src/content/comments/FlatComment.vue` — single comment with story context
 - [ ] **4.9** Create `src/content/pages/NewCommentsPage.vue`
 - [ ] **4.10** Create `src/content/pages/FavoritesPage.vue` — reuses StoryRow / FlatComment
-- [ ] **4.11** Create `src/parsers/submit.ts` — `parseSubmitPage(doc: Document): ParsedSubmitPage`
+- [x] **4.11** Create `src/parsers/submit.ts` — `parseSubmitPage(doc: Document): ParsedSubmitPage`
 - [ ] **4.12** Create `src/content/forms/SubmitForm.vue`
 - [ ] **4.13** Create `src/content/pages/SubmitPage.vue`
-- [ ] **4.14** Create `src/parsers/reply.ts` — `parseReplyPage(doc: Document): ParsedReplyPage`
+- [x] **4.14** Create `src/parsers/reply.ts` — `parseReplyPage(doc: Document): ParsedReplyPage`
 - [ ] **4.15** Create `src/content/pages/ReplyPage.vue`
 - [ ] **4.16** Wire all new pages into App.vue for their respective routes
 

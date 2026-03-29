@@ -29,7 +29,7 @@ const STORY_TYPE: Record<string, string> = {
   '/noobstories': 'noobstories',
 };
 
-const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot']);
+const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
 
 const STATIC_PAGES = new Set(['/newsfaq', '/newsguidelines', '/leaders', '/formatdoc']);
 
