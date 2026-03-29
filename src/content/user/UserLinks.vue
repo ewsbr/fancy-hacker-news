@@ -9,11 +9,11 @@ defineProps<{
 <template>
   <div class="user-links">
     <a :href="user.submissionsLink" class="user-links__link">submissions</a>
-    <span class="user-links__separator" aria-hidden="true">|</span>
+    <span class="user-links__separator" aria-hidden="true">&middot;</span>
     <a :href="user.threadsLink" class="user-links__link">comments</a>
     
     <template v-if="user.upvotedLink || user.upvotedCommentsLink">
-      <span class="user-links__separator" aria-hidden="true">|</span>
+      <span class="user-links__separator" aria-hidden="true">&middot;</span>
       <span class="user-links__group">
         upvoted <a v-if="user.upvotedLink" :href="user.upvotedLink" class="user-links__link">submissions</a>
         <template v-if="user.upvotedLink && user.upvotedCommentsLink"> / </template>
@@ -22,7 +22,7 @@ defineProps<{
     </template>
     
     <template v-if="user.favoritesLink || user.favoritesCommentsLink">
-      <span class="user-links__separator" aria-hidden="true">|</span>
+      <span class="user-links__separator" aria-hidden="true">&middot;</span>
       <span class="user-links__group">
         favorites <a v-if="user.favoritesLink" :href="user.favoritesLink" class="user-links__link">submissions</a>
         <template v-if="user.favoritesLink && user.favoritesCommentsLink"> / </template>
@@ -58,8 +58,10 @@ defineProps<{
   }
 
   &__separator {
-    color: var(--color-border);
-    opacity: 0.5;
+    color: var(--color-text-muted);
+    font-weight: 900;
+    opacity: 0.6;
+    user-select: none;
   }
 
   &__group {

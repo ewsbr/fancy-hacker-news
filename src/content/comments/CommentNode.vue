@@ -149,13 +149,13 @@ function toggleCollapse() {
   }
 
   &__actions {
-    margin-top: 0.5rem;
+    margin-top: 0.2rem;
     display: flex;
     align-items: center;
     gap: 0.6rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--color-muted);
+    color: var(--color-text-muted);
   }
 
   &__votes {
@@ -206,7 +206,8 @@ function toggleCollapse() {
   }
 
   &__action-dot {
-    color: var(--color-muted);
+    color: var(--color-text-muted);
+    font-weight: 900;
     opacity: 0.5;
     user-select: none;
   }
@@ -223,7 +224,7 @@ function toggleCollapse() {
 
   &__thread {
     display: flex;
-    margin-top: 0.35rem;
+    margin-top: 0.45rem;
   }
 
   &__line {

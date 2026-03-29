@@ -55,14 +55,14 @@ const downvoteOpacity = computed(() => {
         <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
       </div>
 
-      <span class="comment-header__divider">•</span>
+      <span class="comment-header__divider" aria-hidden="true">&middot;</span>
 
       <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">
         {{ node.age }}
       </a>
 
       <div v-if="!node.isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
-        <span class="comment-header__divider">•</span>
+      <span class="comment-header__divider" aria-hidden="true">&middot;</span>
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
         <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-header__nav-link" title="Previous">prev</a>
@@ -104,7 +104,8 @@ const downvoteOpacity = computed(() => {
 
   &__divider {
     color: var(--color-text-muted);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 900;
     user-select: none;
     opacity: 0.6;
   }

@@ -38,13 +38,13 @@ function toggleCollapse() {
           <!-- Inject additional nav links exactly as they appear in threads -->
           <template #extra-nav>
             <span v-if="node.navLinks.parent" class="comment-node__extra-nav">
-              | <a :href="node.navLinks.parent">parent</a>
+              <span class="comment-node__extra-nav-sep">&middot;</span> <a :href="node.navLinks.parent">parent</a>
             </span>
             <span v-if="node.navLinks.next" class="comment-node__extra-nav">
-              | <a :href="node.navLinks.next">next</a>
+              <span class="comment-node__extra-nav-sep">&middot;</span> <a :href="node.navLinks.next">next</a>
             </span>
             <span v-if="node.navLinks.context" class="comment-node__extra-nav">
-              | <a :href="node.navLinks.context">context</a>
+              <span class="comment-node__extra-nav-sep">&middot;</span> <a :href="node.navLinks.context">context</a>
             </span>
           </template>
         </CommentHeader>
@@ -169,19 +169,12 @@ function toggleCollapse() {
     color: var(--color-border);
     margin-left: 0.3rem;
     
-    a {
+    &-sep {
       color: var(--color-text-muted);
-      text-decoration: none;
-      
-      &:hover {
-        color: var(--color-text);
-        text-decoration: underline;
-      }
+      font-weight: 900;
+      opacity: 0.5;
+      user-select: none;
     }
-  }
-
-  &__body-wrapper {
-    margin-top: 0.2rem;
   }
 
   &__actions {
@@ -191,7 +184,7 @@ function toggleCollapse() {
     gap: 0.6rem;
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--color-muted);
+    color: var(--color-text-muted);
   }
 
   &__votes {
@@ -242,7 +235,8 @@ function toggleCollapse() {
   }
 
   &__action-dot {
-    color: var(--color-border);
+    color: var(--color-text-muted);
+    font-weight: 900;
     opacity: 0.5;
     user-select: none;
   }

@@ -30,9 +30,9 @@ function formatComments(count: number | null): string {
     </template>
     <a :href="ageLinkHref" class="story-meta__age">{{ story.age }}</a>
     <template v-if="!story.isJob">
-      <span class="story-meta__sep" aria-hidden="true">|</span>
+      <span class="story-meta__sep" aria-hidden="true">&middot;</span>
       <a v-if="story.hideUrl" :href="story.hideUrl" class="story-meta__action">hide</a>
-      <span v-if="story.hideUrl" class="story-meta__sep" aria-hidden="true">|</span>
+      <span v-if="story.hideUrl" class="story-meta__sep" aria-hidden="true">&middot;</span>
       <a
         v-if="story.commentLink"
         :href="story.commentLink"
@@ -73,8 +73,9 @@ function formatComments(count: number | null): string {
 }
 
 .story-meta__sep {
-  color: var(--color-border);
-  font-weight: 700;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  font-weight: 900;
   user-select: none;
 }
 

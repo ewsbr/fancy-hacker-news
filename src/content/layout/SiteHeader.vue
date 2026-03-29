@@ -50,7 +50,7 @@ function closeNav() {
             </strong>
             <span>({{ header.user.karma }})</span>
             <template v-if="header.logoutUrl">
-              <span class="site-header__divider">|</span>
+              <span class="site-header__divider" aria-hidden="true">&middot;</span>
               <a :href="header.logoutUrl">logout</a>
             </template>
           </template>
@@ -181,8 +181,9 @@ function closeNav() {
 }
 
 .site-header__divider {
-  color: var(--color-border);
-  font-weight: 700;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  font-weight: 900;
 }
 
 @media (max-width: 768px) {

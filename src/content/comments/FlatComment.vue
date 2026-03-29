@@ -23,7 +23,7 @@ defineProps<{
         <a :href="comment.ageLink">{{ comment.age }}</a>
       </span>
       
-      <span class="flat-comment__separator">|</span>
+      <span class="flat-comment__separator" aria-hidden="true">&middot;</span>
       
       <span class="flat-comment__on-story">
         on: <a :href="comment.onStory.link" class="flat-comment__story-title">{{ comment.onStory.title }}</a>
@@ -104,8 +104,10 @@ defineProps<{
   }
   
   &__separator {
-    color: var(--color-border);
+    color: var(--color-text-muted);
+    font-weight: 900;
     opacity: 0.6;
+    user-select: none;
   }
   
   &__on-story {
