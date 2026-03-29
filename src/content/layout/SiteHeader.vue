@@ -2,6 +2,7 @@
 import { computed, inject, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '../shared/ThemeToggle.vue';
+import YLogo from '@/assets/ycombinator.svg';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
@@ -18,7 +19,7 @@ function closeNav() {
     <div class="site-header__container">
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
-          <span class="site-header__logo">Y</span>
+          <img :src="YLogo" class="site-header__logo-img" alt="Y Combinator Logo" />
           <span>Hacker News</span>
         </a>
 
@@ -101,18 +102,12 @@ function closeNav() {
   }
 }
 
-.site-header__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.site-header__logo-img {
   width: 22px;
   height: 22px;
   border: 1px solid #fff;
   border-radius: 2px;
   background: var(--color-accent);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .site-header__nav-toggle {
@@ -146,11 +141,13 @@ function closeNav() {
 
 .site-header__nav-link {
   white-space: nowrap;
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, var(--color-text) 85%, transparent); // Increased contrast vs --color-text-muted
+  transition: all 0.15s ease;
 
   &:hover,
   &--active {
     color: var(--color-text);
+    opacity: 1;
   }
 }
 
@@ -167,16 +164,16 @@ function closeNav() {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--color-text-muted);
+  color: color-mix(in srgb, var(--color-text) 75%, transparent); // Brighter than --color-text-muted
+  transition: all 0.15s ease;
 
-  strong,
-  a {
+  strong, a {
     white-space: nowrap;
     color: var(--color-text);
   }
 
   a:hover {
-    text-decoration: underline;
+    color: var(--color-accent);
   }
 }
 

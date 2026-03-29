@@ -1,123 +1,344 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { inject, ref, computed } from 'vue';
+import { ArrowRight, UserPlus, HelpCircle, ArrowLeft } from 'lucide-vue-next';
 import type { ParsedLoginPage } from '@/parsers/login';
+import YLogo from '@/assets/ycombinator.svg';
 
 const page = inject<ParsedLoginPage>('pageData')!;
+
+const isLogin = ref(true);
+
+const loginForm = computed(() => 
+  page.forms.find(f => f.submitLabel.toLowerCase().includes('login')) || page.forms[0]
+);
+
+const registerForm = computed(() => 
+  page.forms.find(f => f.submitLabel.toLowerCase().includes('create'))
+);
+
+const currentForm = computed(() => {
+  if (page.variant !== 'login') return page.forms[0];
+  return isLogin.value ? loginForm.value : (registerForm.value || loginForm.value);
+});
+
+const canToggle = computed(() => page.variant === 'login' && registerForm.value);
+
+const title = computed(() => {
+  if (page.variant !== 'login') return page.title;
+  return isLogin.value ? 'Welcome back' : 'Create an account';
+});
+
+const subheader = computed(() => {
+  if (page.variant !== 'login') return 'Reset your password to continue';
+  return isLogin.value 
+    ? 'Sign in to your account to continue' 
+    : 'Join the Hacker News community';
+});
+
+function getPlaceholder(label: string) {
+  const l = label.toLowerCase();
+  if (l.includes('username')) return 'Your HN username';
+  if (l.includes('password')) return '••••••••';
+  return '';
+}
 </script>
 
 <template>
-  <div class="login-page">
-    <h1 class="login-page__title">{{ page.title }}</h1>
-    <div v-if="page.forms.length === 0" class="login-page__empty-state">No forms found on this page.</div>
-    <div v-else class="login-page__forms">
-      <div v-for="(form, idx) in page.forms" :key="idx" class="login-page__form-container">
-        <h2 v-if="form.title" class="login-page__form-title">{{ form.title }}</h2>
-        <form
-          v-if="form.visibleFields.length"
-          :action="form.action"
-          :method="form.method"
-          class="login-page__form"
+  <div class="login-container">
+    <div class="login-content">
+      <!-- Header Section -->
+      <header class="login-header">
+        <div class="login-logo">
+          <img :src="YLogo" class="login-logo__img" alt="Y Combinator Logo" />
+        </div>
+        <h1 class="login-header__title">{{ title }}</h1>
+        <p class="login-header__subheader">{{ subheader }}</p>
+      </header>
+
+      <!-- Form Card -->
+      <div v-if="page.authMessage" class="login-message">
+        {{ page.authMessage }}
+      </div>
+
+      <main class="login-card">
+        <div v-if="!currentForm" class="login-card__empty">
+          No authentication forms found.
+        </div>
+        
+        <form 
+          v-else
+          :action="currentForm.action" 
+          :method="currentForm.method"
+          class="login-form"
         >
+          <!-- Hidden CSRF/State Fields -->
           <input
-            v-for="f in form.hiddenFields"
+            v-for="f in currentForm.hiddenFields"
             :key="f.name"
             type="hidden"
             :name="f.name"
             :value="f.value"
           />
-          <div v-for="field in form.visibleFields" :key="field.name" class="login-page__row">
-            <label :for="`hn-${idx}-${field.name}`" class="login-page__label">{{ field.label }}</label>
-            <input
-              :id="`hn-${idx}-${field.name}`"
-              :type="field.type"
-              :name="field.name"
-              :defaultValue="field.value"
-              class="login-page__input"
-            />
+
+          <div class="login-form__fields">
+            <div 
+              v-for="field in currentForm.visibleFields" 
+              :key="field.name" 
+              class="login-form__field"
+            >
+              <label :for="field.name" class="login-form__label">{{ field.label }}</label>
+              <input 
+                :id="field.name"
+                :type="field.type" 
+                :name="field.name"
+                :defaultValue="field.value"
+                class="login-form__input"
+                :placeholder="getPlaceholder(field.label)"
+                :autofocus="field.type === 'text' || field.name === 's'"
+                autocomplete="on"
+                required
+              />
+            </div>
           </div>
-          <input
-            type="submit"
-            :value="form.submitLabel"
-            class="login-page__submit"
-          />
+
+          <!-- Actions Row (Forgot Password inside Login state) -->
+          <div v-if="page.variant === 'login' && isLogin" class="login-form__actions">
+            <div class="login-form__forgot">
+              <a href="/forgot" class="login-form__forgot-link">
+                <HelpCircle :size="13" />
+                Forgot password?
+              </a>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            class="login-form__submit"
+          >
+            <UserPlus v-if="page.variant === 'login' && !isLogin" :size="16" />
+            {{ isLogin ? 'Sign in' : 'Create account' }}
+            <ArrowRight v-if="page.variant === 'login' && isLogin" :size="16" />
+          </button>
         </form>
-      </div>
+      </main>
+
+      <!-- Footer Toggle / Navigation -->
+      <footer v-if="canToggle || page.variant === 'forgot'" class="login-footer">
+        <template v-if="canToggle">
+          <span class="login-footer__text">
+            {{ isLogin ? "Don't have an account? " : "Already have an account? " }}
+          </span>
+          <button 
+            type="button"
+            @click="isLogin = !isLogin"
+            class="login-footer__btn"
+          >
+            {{ isLogin ? 'Sign up' : 'Sign in' }}
+          </button>
+        </template>
+        
+        <template v-else-if="page.variant === 'forgot'">
+          <a href="/login" class="login-footer__btn login-footer__btn--back">
+            <ArrowLeft :size="14" />
+            Back to login
+          </a>
+        </template>
+      </footer>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.login-page {
-  padding: 2rem 0;
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 4rem;
+  padding-bottom: 6rem;
+  min-height: calc(100vh - 40px);
+  background: var(--color-bg);
 }
 
-.login-page__title {
+.login-content {
+  width: 100%;
+  max-width: 400px; // reverted to original
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.login-logo {
   margin-bottom: 1.5rem;
+}
+
+.login-logo__img {
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  background: var(--color-accent);
+}
+
+.login-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text);
   font-family: var(--font-title);
-  font-size: 1.25rem;
-  font-weight: 600;
 }
 
-.login-page__forms {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-  max-width: 28rem;
+.login-header__subheader {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
 }
 
-.login-page__form-title {
-  font-family: var(--font-title);
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-}
-
-.login-page__form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
+.login-message {
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
   border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
-  background: var(--color-surface);
+  border-radius: 4px;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-.login-page__row {
+.login-card {
+  background: var(--color-surface);
+  padding: 2.25rem 2rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-elevation);
+  border-radius: 4px; // less round (4px)
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-form__label {
+  font-size: 0.725rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-form__input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px; // consistent 4px
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.4;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+}
+
+.login-form__actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
-.login-page__label {
-  width: 6rem;
-  flex-shrink: 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  text-transform: capitalize;
-}
-
-.login-page__input {
-  flex: 1;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 0.25rem;
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.login-page__submit {
-  align-self: flex-start;
-  padding: 0.375rem 1rem;
-  border: 1px solid var(--color-accent);
-  border-radius: 0.25rem;
-  background: var(--color-accent);
-  color: #fff;
-  cursor: pointer;
+.login-form__forgot-link {
+  font-size: 0.85rem;
   font-weight: 600;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.login-page__empty-state {
-  color: var(--color-text-muted);
+.login-form__submit {
+  width: 100%;
+  padding: 0.6rem 1rem; // smaller (reduced from 0.85rem)
+  background: color-mix(in srgb, var(--color-accent) 90%, black);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.88rem; // smaller font size
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--color-accent);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.login-footer {
+  text-align: center;
   font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.login-footer__btn {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.login-card__empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 2rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
 }
 </style>

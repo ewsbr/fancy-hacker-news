@@ -67,17 +67,45 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
     const submitLabel = submitEl?.value ?? 'login';
   
     const visibleFields: FormField[] = [];
-    for (const row of form.querySelectorAll('tr')) {
-      const tds = row.querySelectorAll('td');
-      if (tds.length < 2) continue;
-      const input = tds[1].querySelector<HTMLInputElement>('input:not([type=hidden]):not([type=submit])');
-      if (!input) continue;
-      visibleFields.push({
-        label: textOf(tds[0]).replace(/:$/, ''),
-        name: input.name,
-        type: input.type || 'text',
-        value: input.value,
-      });
+    const tableRows = form.querySelectorAll('tr');
+    
+    if (tableRows.length > 0) {
+      for (const row of tableRows) {
+        const tds = row.querySelectorAll('td');
+        if (tds.length < 2) continue;
+        const input = tds[1].querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input:not([type=hidden]):not([type=submit]), select, textarea');
+        if (!input) continue;
+        visibleFields.push({
+          label: textOf(tds[0]).replace(/:$/, '').trim(),
+          name: (input as HTMLInputElement).name,
+          type: (input as HTMLInputElement).type || 'text',
+          value: (input as HTMLInputElement).value,
+        });
+      }
+    }
+
+    if (visibleFields.length === 0) {
+      // Fallback for non-table forms (like /forgot)
+      const inputs = form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input:not([type=hidden]):not([type=submit]), select, textarea');
+      for (const input of inputs) {
+        let label = '';
+        // Try to find a previous text node as label
+        let prev = input.previousSibling;
+        while (prev) {
+          const text = (prev.textContent || '').trim();
+          if (text) {
+            label = text.replace(/:$/, '');
+            break;
+          }
+          prev = prev.previousSibling;
+        }
+        visibleFields.push({
+          label: label || (input as HTMLInputElement).name,
+          name: (input as HTMLInputElement).name,
+          type: (input as HTMLInputElement).type || 'text',
+          value: (input as HTMLInputElement).value,
+        });
+      }
     }
     
     forms.push({

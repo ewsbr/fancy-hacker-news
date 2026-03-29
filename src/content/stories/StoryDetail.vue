@@ -116,10 +116,6 @@ defineProps<{
     font-weight: 700;
     color: var(--color-text);
     text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent);
-    }
   }
 
   &__site {
