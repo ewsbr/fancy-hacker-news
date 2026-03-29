@@ -2,42 +2,10 @@
 defineProps<{
   html: string;
 }>();
-
-function onClick(event: MouseEvent) {
-  if (event.defaultPrevented || event.button !== 0) {
-    return;
-  }
-
-  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-    return;
-  }
-
-  const target = event.target;
-  if (!(target instanceof Element)) {
-    return;
-  }
-
-  const anchor = target.closest('a');
-  if (!(anchor instanceof HTMLAnchorElement)) {
-    return;
-  }
-
-  const href = anchor.getAttribute('href');
-  if (!href) {
-    return;
-  }
-
-  if (href.startsWith('item?id=') || href.startsWith('user?id=') || href.startsWith('reply?')) {
-    return;
-  }
-
-  event.preventDefault();
-  window.open(anchor.href, '_blank', 'noopener,noreferrer');
-}
 </script>
 
 <template>
-  <div class="rich-text" v-html="html" @click="onClick"></div>
+  <div class="rich-text" v-html="html"></div>
 </template>
 
 <style scoped lang="scss">

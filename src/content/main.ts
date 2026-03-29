@@ -42,28 +42,42 @@ function parsePageData(page: string, doc: Document): unknown {
   return parseStaticPage(doc);
 }
 
+let hideOriginalStyle: HTMLStyleElement | null = null;
+
+function cleanupOriginalBody(originalBodyChildren: Element[]) {
+  for (const child of originalBodyChildren) {
+    if (child.isConnected) {
+      child.remove();
+    }
+  }
+
+  hideOriginalStyle?.remove();
+  hideOriginalStyle = null;
+}
+
+function restoreInitialFragment() {
+  if (!location.hash) {
+    return;
+  }
+
+  const target = document.getElementById(location.hash.slice(1));
+  target?.scrollIntoView();
+}
+
 try {
   const t0 = performance.now();
+  const originalBodyChildren = Array.from(document.body.children);
 
   // 1. Parse from original DOM before hiding anything
   const header = parseHeader(document);
   const route = resolveRoute(location);
   const pageData = parsePageData(route.page, document);
 
-  // 2. Hide original HN content
-  for (const child of Array.from(document.body.children)) {
-    (child as HTMLElement).style.display = 'none';
-  }
-
-  // Strip IDs from hidden HN elements to prevent fragment navigation conflicts.
-  // HN comment <tr>s use the same numeric IDs as our Vue-rendered comment nodes;
-  // document.getElementById and native hash navigation would find the hidden HN
-  // element first without this step.
-  // Single querySelectorAll over the whole body is far faster than a per-child
-  // nested loop on pages with 500+ comment rows.
-  document.body
-    .querySelectorAll('[id]:not(#hn-anti-fouc)')
-    .forEach(el => el.removeAttribute('id'));
+  // 2. Hide original HN content with one rule instead of mutating each body child.
+  hideOriginalStyle = document.createElement('style');
+  hideOriginalStyle.id = 'hn-modern-hide-original';
+  hideOriginalStyle.textContent = 'body > :not(#hn-modern-root) { display: none !important; }';
+  document.head.appendChild(hideOriginalStyle);
 
   // 3. Strip HN's stylesheets to prevent bleed-in
   document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)').forEach(el => el.remove());
@@ -94,15 +108,15 @@ try {
   app.provide('pageData', pageData);
   app.provide('renderTime', renderTime);
   app.mount(mountPoint);
+  cleanupOriginalBody(originalBodyChildren);
 
   requestAnimationFrame(() => {
+    restoreInitialFragment();
     renderTime.value = Math.round(performance.now() - t0);
   });
 } catch (e) {
   // On failure, restore original HN page.
-  // Explicitly set display:block to override the fouc.css rule (body > center { display:none }).
+  // Remove the hide rule so the original DOM becomes visible again.
   console.error('[HN Modern] Failed to render:', e);
-  for (const child of Array.from(document.body.children)) {
-    (child as HTMLElement).style.display = 'block';
-  }
+  hideOriginalStyle?.remove();
 }

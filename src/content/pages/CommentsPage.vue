@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
@@ -8,6 +8,13 @@ import CommentHeader from '@/content/comments/CommentHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 
 const pageData = inject<ParsedItemPage>('pageData');
+const commentItemDomId = computed(() => {
+  if (!pageData || pageData.item.type !== 'comment') {
+    return null;
+  }
+
+  return pageData.item.id;
+});
 </script>
 
 <template>
@@ -18,7 +25,7 @@ const pageData = inject<ParsedItemPage>('pageData');
       </template>
       
       <template v-else-if="pageData.item.type === 'comment'">
-        <div class="comments-page__comment-parent">
+        <div class="comments-page__comment-parent" :id="commentItemDomId || undefined">
           <div class="comments-page__context" v-if="pageData.item.storyTitle">
             on: <a :href="pageData.item.storyLink || ''" class="comments-page__context-link">{{ pageData.item.storyTitle }}</a>
           </div>
@@ -75,6 +82,7 @@ const pageData = inject<ParsedItemPage>('pageData');
     padding: 0.75rem 0.75rem 1rem;
     background: color-mix(in srgb, var(--color-surface) 98%, var(--color-accent) 2%);
     border-bottom: 1px solid var(--color-border);
+    scroll-margin-top: 50px;
   }
 
   &__context {
