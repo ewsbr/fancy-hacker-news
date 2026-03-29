@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
+import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/comments/CommentForm.vue';
 import CommentHeader from '@/content/comments/CommentHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
+
+const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 
 const pageData = inject<ParsedItemPage>('pageData');
 const commentItemDomId = computed(() => {
@@ -14,6 +17,60 @@ const commentItemDomId = computed(() => {
   }
 
   return pageData.item.id;
+});
+
+const hashPathIds = ref<Set<string>>(new Set());
+
+provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
+
+function findCommentPath(
+  nodes: ParsedCommentNode[],
+  targetId: string,
+): string[] | null {
+  for (const node of nodes) {
+    if (node.id === targetId) {
+      return [node.id];
+    }
+
+    const childPath = findCommentPath(node.children, targetId);
+    if (childPath) {
+      return [node.id, ...childPath];
+    }
+  }
+
+  return null;
+}
+
+async function syncHashPath() {
+  const targetId = location.hash.slice(1) || null;
+
+  if (!pageData || !targetId) {
+    hashPathIds.value = new Set();
+    return;
+  }
+
+  if (pageData.item.type === 'comment' && pageData.item.id === targetId) {
+    hashPathIds.value = new Set([targetId]);
+    await nextTick();
+    document.getElementById(targetId)?.scrollIntoView();
+    return;
+  }
+
+  const path = findCommentPath(pageData.comments, targetId);
+  hashPathIds.value = new Set(path ?? []);
+
+  await nextTick();
+  document.getElementById(targetId)?.scrollIntoView();
+}
+
+syncHashPath();
+
+onMounted(() => {
+  window.addEventListener('hashchange', syncHashPath);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', syncHashPath);
 });
 </script>
 

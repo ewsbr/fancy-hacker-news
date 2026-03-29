@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, inject, ref, watch, type Ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import { Triangle, MessageSquare } from 'lucide-vue-next';
-import { useIsMobile } from '@/state/useIsMobile';
 
 // Depth at which children are moved into a modal on mobile.
 const MOBILE_MODAL_DEPTH = 4;
+const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -18,17 +18,21 @@ const props = defineProps<{
   inModal?: boolean;
 }>();
 
-const isMobile = useIsMobile();
+const isMobileLayout = inject<boolean>('isMobileLayout', false);
+const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
 
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const isHeavilyDownvoted = props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase());
-const isCollapsed = ref(props.node.isCollapsed || isHeavilyDownvoted);
+const isCollapsed = ref((props.node.isCollapsed || isHeavilyDownvoted) && !props.node.expandForHash);
 const isModalOpen = ref(false);
 
 const currentDepth = props.depth ?? 0;
 // Children render in modal when: mobile && deep enough && not already inside a modal.
 const childrenInModal = computed(
-  () => isMobile.value && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH,
+  () => isMobileLayout
+    && !props.inModal
+    && currentDepth >= MOBILE_MODAL_DEPTH
+    && !hashPathIds.value.has(props.node.id),
 );
 const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
@@ -37,6 +41,16 @@ const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
 }
+
+watch(
+  () => hashPathIds.value.has(props.node.id),
+  inHashPath => {
+    if (inHashPath) {
+      isCollapsed.value = false;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
