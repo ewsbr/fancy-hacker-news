@@ -225,6 +225,10 @@ function toggleCollapse() {
   &__thread {
     display: flex;
     margin-top: 0.45rem;
+    min-width: 0;
+    // Increment nesting depth so deeply-nested comments get progressively
+    // less indentation, keeping text readable on narrow viewports.
+    --hn-depth: calc(var(--hn-depth, 0) + 1);
   }
 
   &__line {
@@ -235,7 +239,10 @@ function toggleCollapse() {
     padding: 0;
     display: flex;
     justify-content: center;
-    padding: 0 16px 0 4px;
+    // Base indent is 10px. For each level beyond depth 6 it shrinks by 2px,
+    // reaching 0 at depth 11+. Total indent at depth 15 ≈ 80px vs 330px before.
+    padding-inline-start: 2px;
+    padding-inline-end: clamp(0px, calc(10px - max(0px, calc((var(--hn-depth, 0) - 6) * 2px))), 10px);
 
     &::after {
       content: "";
