@@ -5,10 +5,12 @@ import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/comments/CommentForm.vue';
-import CommentHeader from '@/content/comments/CommentHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
+import VoteButton from '@/content/shared/VoteButton.vue';
+import Badge from '@/content/shared/Badge.vue';
 
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
+const HASH_TARGET_ID_KEY = 'hash-target-id';
 
 const pageData = inject<ParsedItemPage>('pageData');
 const commentItemDomId = computed(() => {
@@ -20,8 +22,10 @@ const commentItemDomId = computed(() => {
 });
 
 const hashPathIds = ref<Set<string>>(new Set());
+const hashTargetId = ref<string | null>(null);
 
 provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
+provide(HASH_TARGET_ID_KEY, hashTargetId);
 
 function findCommentPath(
   nodes: ParsedCommentNode[],
@@ -43,6 +47,7 @@ function findCommentPath(
 
 async function syncHashPath() {
   const targetId = location.hash.slice(1) || null;
+  hashTargetId.value = targetId;
 
   if (!pageData || !targetId) {
     hashPathIds.value = new Set();
@@ -60,7 +65,39 @@ async function syncHashPath() {
   hashPathIds.value = new Set(path ?? []);
 
   await nextTick();
-  document.getElementById(targetId)?.scrollIntoView();
+
+  // Defer scroll to next macrotask — the browser may perform its own native
+  // hash-scroll when elements matching the URL fragment appear in the DOM.
+  // By yielding to a setTimeout(0), we ensure our scroll runs AFTER the
+  // browser's native behavior.
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  // Find the right element to scroll to. If the target ended up inside a modal
+  // (mobile deep thread), walk the path backward to find the last ancestor on
+  // the main page — the modal handles internal scrolling.
+  const targetEl = document.getElementById(targetId);
+  if (targetEl && !targetEl.closest('.sub-thread-modal')) {
+    targetEl.scrollIntoView({ block: 'start' });
+  } else if (path) {
+    for (let i = path.length - 1; i >= 0; i--) {
+      const candidates = document.querySelectorAll(`#${CSS.escape(path[i])}`);
+      for (const el of candidates) {
+        if (!el.closest('.sub-thread-modal')) {
+          // Scroll to the "View N replies" button if present, since the target
+          // is behind the modal and the user needs to tap this button.
+          // Use block:'center' for the button (it lacks scroll-margin-top so
+          // 'start' would place it behind the sticky header).
+          const btn = el.querySelector('.comment-node__thread-btn');
+          if (btn) {
+            (btn as HTMLElement).scrollIntoView({ block: 'center' });
+          } else {
+            (el as HTMLElement).scrollIntoView({ block: 'start' });
+          }
+          return;
+        }
+      }
+    }
+  }
 }
 
 syncHashPath();
@@ -83,32 +120,43 @@ onUnmounted(() => {
       
       <template v-else-if="pageData.item.type === 'comment'">
         <div class="comments-page__comment-parent" :id="commentItemDomId || undefined">
-          <div class="comments-page__context" v-if="pageData.item.storyTitle">
-            on: <a :href="pageData.item.storyLink || ''" class="comments-page__context-link">{{ pageData.item.storyTitle }}</a>
+
+          <!-- Thread context header -->
+          <div class="comments-page__thread" v-if="pageData.item.storyTitle">
+            <span class="comments-page__thread-label">thread</span>
+            <a :href="pageData.item.storyLink || ''" class="comments-page__thread-title">
+              {{ pageData.item.storyTitle }}
+            </a>
           </div>
-          
-          <CommentHeader 
-            :node="{
-               ...pageData.item, 
-               collapsedCount: 0,
-               isDead: false,
-               isFlagged: false,
-               navLinks: {
-                 parent: pageData.item.parentLink,
-                 context: pageData.item.contextLink
-               }
-            } as any"
-            :is-collapsed="false"
-            @toggle="() => {}" 
-          />
-          <div class="comments-page__comment-body">
-            <CommentBody :html="pageData.item.bodyHtml || ''" gray-level="c00" />
+
+          <!-- Comment: vote + content -->
+          <div class="comments-page__comment-layout">
+            <div class="comments-page__comment-vote">
+              <VoteButton :href="pageData.item.voteUp" />
+            </div>
+            <div class="comments-page__comment-content">
+              <div class="comments-page__comment-meta">
+                <a :href="`user?id=${pageData.item.author}`" class="comments-page__comment-author">{{ pageData.item.author }}</a>
+                <Badge v-if="pageData.item.authorIsNew" variant="new" label="New" title="New user" />
+                <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
+                <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
+                <span class="comments-page__comment-sep">&middot;</span>
+                <a :href="pageData.item.ageLink" class="comments-page__comment-age" :title="pageData.item.ageTimestamp">{{ pageData.item.age }}</a>
+                <template v-if="pageData.item.favoriteUrl">
+                  <span class="comments-page__comment-sep">&middot;</span>
+                  <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">favorite</a>
+                </template>
+                <template v-if="pageData.item.flagUrl">
+                  <span class="comments-page__comment-sep">&middot;</span>
+                  <a :href="pageData.item.flagUrl" class="comments-page__comment-action">flag</a>
+                </template>
+              </div>
+              <div class="comments-page__comment-body">
+                <CommentBody :html="pageData.item.bodyHtml || ''" gray-level="c00" />
+              </div>
+            </div>
           </div>
-          
-          <div class="comments-page__actions">
-            <span v-if="pageData.item.favoriteUrl" class="comments-page__sep">&middot;</span>
-            <a v-if="pageData.item.favoriteUrl" :href="pageData.item.favoriteUrl" class="comments-page__action-link">favorite</a>
-          </div>
+
         </div>
       </template>
 
@@ -136,61 +184,110 @@ onUnmounted(() => {
   }
 
   &__comment-parent {
-    padding: 0.75rem 0.75rem 1rem;
-    background: color-mix(in srgb, var(--color-surface) 98%, var(--color-accent) 2%);
     border-bottom: 1px solid var(--color-border);
     scroll-margin-top: 50px;
   }
 
-  &__context {
-    margin-bottom: 0.5rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
+  &__thread {
+    padding: 0.6rem 0.75rem 0.55rem;
+    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-accent) 4%);
+    border-bottom: 1px solid var(--color-border);
   }
 
-  &__context-link {
-    color: var(--color-text);
+  &__thread-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  &__thread-title {
+    display: block;
     font-family: var(--font-title);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text);
     text-decoration: none;
+    line-height: 1.3;
 
     &:hover {
       color: var(--color-accent);
     }
   }
 
-  &__comment-body {
-    margin-top: 0.75rem;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    color: var(--color-text);
-  }
-
-  &__actions {
-    margin-top: 0.75rem;
+  &__comment-layout {
     display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.75rem 0.75rem 1rem;
   }
 
-  &__sep {
+  &__comment-vote {
+    padding-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  &__comment-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__comment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.35rem;
+    row-gap: 0.1rem;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  &__comment-author {
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-accent);
+      text-decoration: underline;
+    }
+  }
+
+  &__comment-sep {
     color: var(--color-border);
     font-weight: 900;
     font-size: 1.1rem;
     user-select: none;
   }
 
-  &__action-link {
+  &__comment-age {
     color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__comment-action {
+    color: inherit;
+    font-weight: 600;
     text-decoration: none;
 
     &:hover {
       color: var(--color-text);
       text-decoration: underline;
     }
+  }
+
+  &__comment-body {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-text);
   }
 
   &__form-wrapper {

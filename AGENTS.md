@@ -34,7 +34,7 @@ pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 
 1. **Parse** — call `parseHeader(document)` + `resolveRoute(location)` against the live HN DOM
 2. **Hide** — `display: none` all original body children
-3. **Root Element** — create `div#hn-modern-root` in the document body, inject compiled global + component CSS into the document head, and set its mount point
+3. **Root Element** — create `div#hn-modern-root` in the document body; compiled CSS is loaded separately by the manifest as a content-script stylesheet
 4. **Mount** — `createApp(App)`, provide `header`, `route`, `originalDoc`, `renderTime` via `app.provide()`
 5. **Render** — Vue renders the modern UI entirely inside the `#hn-modern-root` element
 
@@ -104,7 +104,8 @@ src/
 - **CSRF tokens preserved** — `auth=` params in links and `hmac` hidden fields are taken verbatim from the parsed DOM — never hardcoded or fabricated.
 - **CSS isolation** — all Vue output and CSS lives inside the `#hn-modern-root` container; it avoids affecting original HN elements through component scoping and careful selector choice (no shadow DOM used).
 - **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM class names.
-- **Component CSS is inlined into `content.js`** — the custom Vite plugin exposes `virtual:component-styles`, then patches the emitted content bundle so scoped component CSS is injected alongside `main.scss` in the document head.
+- **CSS ships as a real stylesheet** — Vite emits `dist/content/assets/style.css`, and `manifest.json` injects it as a content-script stylesheet.
+- **JS asset URLs are extension-aware** — Vite's `renderBuiltUrl` hook emits `chrome.runtime.getURL(...)` for JS-hosted assets so imported images resolve from the extension origin instead of the host page.
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
 - **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
 

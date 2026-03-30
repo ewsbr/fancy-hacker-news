@@ -14,8 +14,9 @@ A browser extension that fully re-renders Hacker News pages directly into the do
 
 - Global theme tokens and site-wide reset live in `src/styles/main.scss`
 - Component and page styles live in scoped `lang="scss"` blocks in each Vue SFC
-- The content script imports `main.scss` with `?inline`
-- A custom Vite plugin inlines component-scoped CSS into `content.js` so all styles render correctly in the main document
+- Vite emits a real stylesheet at `dist/content/assets/style.css`, and the manifest injects it as a content-script stylesheet
+- CSS asset URLs stay relative to that stylesheet, so fonts resolve without JS-side rewriting
+- JS-imported assets are emitted normally and rebound to the extension origin at runtime via Vite's `renderBuiltUrl` hook
 
 ## Commands
 
@@ -87,11 +88,13 @@ hackernews/
 
 | Browser | Minimum version | Notes |
 |---------|----------------|-------|
-| Firefox | 109 | Uses Manifest V3 + `browser_specific_settings.gecko` |
+| Firefox | 109 | Uses Manifest V3 + `browser_specific_settings.gecko`; keep `background.scripts` alongside `service_worker` for temporary add-on installs |
 | Chrome / Chromium | 88 | Standard MV3 |
 | Edge | 88 | Standard MV3 |
 
 ## Loading the Extension Locally
+
+Run `pnpm build` before loading the unpacked extension so `dist/content/content.js`, `dist/content/assets/style.css`, and `dist/background/background.js` exist.
 
 ### Firefox
 1. Navigate to `about:debugging#/runtime/this-firefox`

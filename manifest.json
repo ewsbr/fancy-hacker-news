@@ -14,6 +14,7 @@
     },
     {
       "matches": ["*://news.ycombinator.com/*"],
+      "css": ["dist/content/assets/style.css"],
       "js": ["dist/content/content.js"],
       "run_at": "document_end"
     }
@@ -35,5 +36,14 @@
       "id": "hackernews-modern-ui@extension",
       "strict_min_version": "109.0"
     }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["dist/content/assets/*"],
+      "matches": ["*://news.ycombinator.com/*"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; font-src 'self' data:;"
   }
 }

@@ -181,7 +181,6 @@ function getPlaceholder(label: string) {
 .login-logo__img {
   width: 44px;
   height: 44px;
-  border-radius: 4px;
   background: var(--color-accent);
 }
 

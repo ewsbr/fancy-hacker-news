@@ -9,6 +9,7 @@ import { Triangle, MessageSquare } from 'lucide-vue-next';
 // Depth at which children are moved into a modal on mobile.
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
+const HASH_TARGET_ID_KEY = 'hash-target-id';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -20,6 +21,7 @@ const props = defineProps<{
 
 const isMobileLayout = inject<boolean>('isMobileLayout', false);
 const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
+const hashTargetId = inject<Ref<string | null>>(HASH_TARGET_ID_KEY, ref(null));
 
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const isHeavilyDownvoted = props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase());
@@ -31,12 +33,13 @@ const currentDepth = props.depth ?? 0;
 const childrenInModal = computed(
   () => isMobileLayout
     && !props.inModal
-    && currentDepth >= MOBILE_MODAL_DEPTH
-    && !hashPathIds.value.has(props.node.id),
+    && currentDepth >= MOBILE_MODAL_DEPTH,
 );
 const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
+
+const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
@@ -47,6 +50,10 @@ watch(
   inHashPath => {
     if (inHashPath) {
       isCollapsed.value = false;
+      // Auto-open modal when the hash target is behind this node's modal boundary
+      if (childrenInModal.value) {
+        isModalOpen.value = true;
+      }
     }
   },
   { immediate: true },
@@ -58,7 +65,8 @@ watch(
     class="comment-node"
     :class="[
       node.indent > 0 ? 'comment-node--nested' : 'comment-node--root',
-      isCollapsed ? 'comment-node--collapsed' : ''
+      isCollapsed ? 'comment-node--collapsed' : '',
+      isHashTarget ? 'comment-node--highlight' : ''
     ]"
     :id="node.id"
   >
@@ -142,6 +150,7 @@ watch(
     <SubThreadModal
       v-if="isModalOpen"
       :node="node"
+      :scroll-to-id="hashTargetId"
       @close="isModalOpen = false"
     />
   </div>
@@ -159,7 +168,7 @@ watch(
   scroll-margin-top: 50px;
 
   &:target {
-    animation: highlight-fade 1.5s forwards;
+    animation: highlight-fade 5s forwards;
 
     &::before {
       content: "";
@@ -170,12 +179,12 @@ watch(
       width: 10px;
       background: inherit;
       border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-      animation: highlight-line-fade 1.5s forwards;
+      animation: highlight-line-fade 5s forwards;
     }
   }
 
   &--highlight {
-    animation: highlight-fade 1.5s forwards;
+    animation: highlight-fade 5s forwards;
 
     &::before {
       content: "";
@@ -186,7 +195,7 @@ watch(
       width: 10px;
       background: inherit;
       border-left: 2px solid var(--color-accent);
-      animation: highlight-line-fade 1.5s forwards;
+      animation: highlight-line-fade 5s forwards;
     }
   }
 
@@ -349,7 +358,7 @@ watch(
 }
 
 @keyframes highlight-fade {
-  0%, 60% {
+  0%, 80% {
     background: color-mix(in srgb, var(--color-accent) 3%, transparent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
   }
@@ -360,7 +369,7 @@ watch(
 }
 
 @keyframes highlight-line-fade {
-  0%, 60% {
+  0%, 80% {
     opacity: 1;
   }
   100% {

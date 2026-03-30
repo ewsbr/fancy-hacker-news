@@ -6,8 +6,3 @@ declare module '*.vue' {
   const component: DefineComponent
   export default component
 }
-
-declare module 'virtual:component-styles' {
-  const css: string
-  export default css
-}

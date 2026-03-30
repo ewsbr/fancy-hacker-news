@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
-import ThemeToggle from '../shared/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
+import ThemeToggle from '../shared/ThemeToggle.vue';
 import { Search } from 'lucide-vue-next';
 
 const header = inject<ParsedHeader>('header')!;

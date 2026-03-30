@@ -9,10 +9,10 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 - [x] **1.1** Create `src/router/index.ts` — `resolveRoute(location: Location): RouteDescriptor` pure function with full route table (see [02-router.md](02-router.md)) — **already done**
 - [x] **1.2** Create `src/parsers/utils.ts` — shared helpers: `textOf`, `attrOf`, `hrefOf`, `parseScore`, `parseCommentCount`, `isNewUser`, `parseAge`, `findMoreLink` — **already done**
 - [x] **1.3** Create `src/parsers/header.ts` — `parseHeader(doc: Document): ParsedHeader` extracts nav links, user info, logout URL — **already done**
-- [x] **1.4** ~~Download & bundle fonts~~ → Using `@fontsource-variable/*` packages instead (atkinson-hyperlegible-next, inter, jetbrains-mono)
-- [x] **1.5** Create `src/styles/main.css` — `@import "tailwindcss"`, `@theme` block with custom colors/fonts, fontsource imports, theme CSS custom properties for all 4 themes on `:host` / `:host([data-theme])`
-- [x] **1.6** Ensure `@tailwindcss/vite` plugin is configured in `vite.config.js`
-- [x] **1.7** Verify Tailwind works inside document body (CSS inlined via `?inline` import, injected as `<style>` in root element)
+- [x] **1.4** Use `@fontsource-variable/*` packages for extension-bundled fonts (Atkinson Hyperlegible Next, Manrope, JetBrains Mono)
+- [x] **1.5** Create `src/styles/main.scss` — font imports, theme tokens, global reset, and shared base styles for `#hn-modern-root`
+- [x] **1.6** Configure `vite.config.js` for extension-safe asset output, including real CSS emission and JS asset URL rebinding via `renderBuiltUrl`
+- [x] **1.7** Verify manifest-injected CSS works inside the document body and that font URLs resolve from `dist/content/assets/style.css`
 - [x] **1.8** Create `src/state/theme.ts` — `useTheme()` composable (read/write `chrome.storage.local`, system preference detection, `data-theme` attribute)
 - [x] **1.9** Install `lucide-vue-next` dependency
 - [x] **1.10** Create layout components:
@@ -20,12 +20,12 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
   - `src/content/layout/SiteHeader.vue` — logo, nav links, user controls, ThemeToggle
   - `src/content/layout/SiteFooter.vue` — yclinks, Algolia search link
 - [x] **1.11** Create `src/content/shared/ThemeToggle.vue` — theme selector using Lucide icons
-- [x] **1.12** Update `src/content/main.ts` — new entry flow: snapshot DOM → parse header → resolve route → hide original → create root host → inject CSS → mount Vue with provide/inject
+- [x] **1.12** Update `src/content/main.ts` — new entry flow: snapshot DOM → parse header → resolve route → hide original → create root host → mount Vue with provide/inject
 - [x] **1.13** Update `src/content/App.vue` — inject parsed data, resolve page component dynamically via AppShell
 - [x] **1.14** Create `src/content/pages/LoginPage.vue` — re-render auth forms (login, changepw, forgot, comment-redirect)
 - [x] **1.15** Create `src/content/pages/StaticPage.vue` — re-render informational pages (FAQ, guidelines, leaders, formatdoc)
-- [x] **1.16** Update `vite.config.js` — CSS inlined into IIFE bundle via `?inline`, `@tailwindcss/vite` plugin, TS entry, removed SCSS config
-- [x] **1.17** Update `manifest.json` — added `storage` permission, removed `css` array (CSS lives in document body)
+- [x] **1.16** Update `vite.config.js` — separate content/background IIFE builds, emitted stylesheet, fixed asset filenames, and extension-aware JS asset URLs
+- [x] **1.17** Update `manifest.json` — added `storage` permission, inject emitted content CSS, and expose emitted content assets via `web_accessible_resources`
 
 ---
 

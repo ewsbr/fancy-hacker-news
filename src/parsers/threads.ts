@@ -12,6 +12,17 @@ export interface ParsedThreadsPage {
   moreLink: string | null;
 }
 
+function countThreadDescendants(node: ThreadEntry): number {
+  let total = 0;
+
+  for (const child of node.children) {
+    total += 1 + countThreadDescendants(child);
+  }
+
+  node.descendantCount = total;
+  return total;
+}
+
 export function parseThreadsPage(doc: Document): ParsedThreadsPage {
   // Extract from title: "j0rg3's comments | Hacker News"
   const titleMatch = doc.title?.match(/^(.+?)'s comments/);
@@ -100,6 +111,8 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       voteUn,
       flagUrl: null,
       replyLink,
+      descendantCount: 0,
+      expandForHash: false,
       navLinks: navLinksObj,
       onStory,
       children: [],
@@ -110,6 +123,10 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
     }
     stack[stack.length - 1].children.push(node);
     stack.push({ depth: indent, children: node.children });
+  }
+
+  for (const thread of threads) {
+    countThreadDescendants(thread);
   }
 
   return { username, threads, moreLink: findMoreLink(doc) };

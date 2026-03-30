@@ -21,8 +21,7 @@ import { parseNewComments } from '@/parsers/newComments';
 import { parseSubmitPage } from '@/parsers/submit';
 import { parseReplyPage } from '@/parsers/reply';
 import App from './App.vue';
-import mainCss from '@/styles/main.scss?inline';
-import componentCss from 'virtual:component-styles';
+import '@/styles/main.scss';
 
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
@@ -132,15 +131,7 @@ try {
     return styleNodes.length;
   }, () => ({ headNodeCount: document.head.childElementCount }));
 
-  // Inject styles into document.head
-  debugMeasure('main:inject-styles', () => {
-    const style = document.createElement('style');
-    const combinedCss = [mainCss, componentCss].filter(Boolean).join('\n');
-    style.textContent = combinedCss.replace(/url\(['"]?(\.?\/)?assets\/([^'"]+\.woff2)['"]?\)/g, (_match, _prefix, filename) => {
-      return `url("${chrome.runtime.getURL(`dist/content/assets/${filename}`)}")`;
-    });
-    document.head.appendChild(style);
-  });
+  // CSS is now injected by the browser via manifest.json
 
   // Create mount host
   const host = debugMeasure('main:create-host', () => {
@@ -175,6 +166,12 @@ try {
 
   requestAnimationFrame(() => {
     debugMeasure('main:restore-initial-fragment', () => {
+      // Item pages handle fragment scrolling in CommentsPage.vue (which
+      // accounts for modals intercepting deeply nested comments).
+      // No other HN page type uses fragment identifiers.
+      if (route.page === 'item') {
+        return;
+      }
       restoreInitialFragment();
     });
     renderTime.value = Math.round(performance.now() - t0);
@@ -202,7 +199,7 @@ try {
         : {};
 
       debugLog('main:mode', {
-        enabledBy: new URLSearchParams(location.search).get('hnmodern_debug') === '1' ? 'query' : 'storage',
+        enabledBy: new URLSearchParams(location.search).get('debug') === '1' ? 'query' : 'off',
       });
       flushDebugSession({
         route: route.page,

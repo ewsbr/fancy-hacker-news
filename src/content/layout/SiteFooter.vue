@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, ref, type Ref } from 'vue';
+import YLogo from '@/assets/ycombinator.svg';
 import {
   Clock,
   Twitter,
@@ -50,10 +51,7 @@ const socialLinks = [
       <div class="site-footer__top">
         <div class="site-footer__brand">
           <div class="site-footer__logo">
-            <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M47.9985 47.9994H0V0H47.9985V47.9994Z" fill="#FF6600"/>
-              <path d="M13.9012 11.7843H17.6595L22.4961 21.5325C23.203 22.9836 23.7984 24.3976 23.7984 24.3976C23.7984 24.3976 24.4313 23.021 25.175 21.5325L30.0868 11.7843H33.5843L25.2865 27.3746V37.309H22.1244V27.1884L13.9012 11.7843Z" fill="white"/>
-            </svg>
+            <img :src="YLogo" width="40" height="40" alt="Y Combinator Logo" />
             <h3 class="site-footer__tagline">Make something people want.</h3>
           </div>
         </div>
@@ -178,6 +176,7 @@ const socialLinks = [
   align-items: center;
   gap: 1rem;
 
+  img,
   svg {
     flex-shrink: 0;
   }

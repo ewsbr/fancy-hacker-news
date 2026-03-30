@@ -10,8 +10,7 @@ interface DebugWindow extends Window {
   __HN_MODERN_DEBUG_ENTRIES__?: DebugEntry[];
 }
 
-const DEBUG_SEARCH_PARAM = 'hnmodern_debug';
-const DEBUG_STORAGE_KEY = 'hn-modern:debug';
+const DEBUG_SEARCH_PARAM = 'debug';
 
 function debugWindow(): DebugWindow {
   return window as DebugWindow;
@@ -20,11 +19,7 @@ function debugWindow(): DebugWindow {
 export function isDebugMode(): boolean {
   try {
     const search = new URLSearchParams(location.search);
-    if (search.get(DEBUG_SEARCH_PARAM) === '1') {
-      return true;
-    }
-
-    return localStorage.getItem(DEBUG_STORAGE_KEY) === '1';
+    return search.get(DEBUG_SEARCH_PARAM) === '1';
   } catch {
     return false;
   }

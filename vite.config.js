@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'path';
-
-const COMPONENT_STYLE_PLACEHOLDER = '__HN_COMPONENT_STYLES__';
+import { posix, resolve } from 'path';
 
 /**
  * Each entry (content script, background) is built as a standalone IIFE so it
@@ -35,60 +32,23 @@ const entries = {
 
 const cfg = entries[TARGET];
 
-function escapeForTemplateLiteral(value) {
-  return value
-    .replaceAll('\\', '\\\\')
-    .replaceAll('`', '\\`')
-    .replaceAll('${', '\\${');
-}
+function renderExtensionAssetUrl(filename, { hostType, type }) {
+  if (TARGET !== 'content') {
+    return undefined;
+  }
 
-function inlineComponentStyles() {
+  if (hostType !== 'js') {
+    return { relative: true };
+  }
+
+  const assetPath = type === 'asset'
+    ? posix.join(cfg.outDir, filename)
+    : filename;
+
   return {
-    name: 'inline-component-styles',
-    enforce: 'post',
-
-    resolveId(id) {
-      if (id === 'virtual:component-styles') {
-        return '\0virtual:component-styles';
-      }
-    },
-
-    load(id) {
-      if (id === '\0virtual:component-styles') {
-        return `export default ${JSON.stringify(COMPONENT_STYLE_PLACEHOLDER)};`;
-      }
-    },
-
-    writeBundle(options, bundle) {
-      if (TARGET !== 'content') {
-        return;
-      }
-
-      const outDir = options.dir ?? cfg.outDir;
-      const cssAssets = Object.values(bundle).filter((output) => {
-        return output.type === 'asset' && output.fileName.endsWith('.css');
-      });
-
-      const combinedCss = cssAssets
-        .map((asset) => readFileSync(resolve(outDir, asset.fileName), 'utf8'))
-        .join('\n');
-
-      for (const output of Object.values(bundle)) {
-        if (output.type === 'chunk' && output.fileName.endsWith('.js')) {
-          const filePath = resolve(outDir, output.fileName);
-          const code = readFileSync(filePath, 'utf8').replaceAll(
-            COMPONENT_STYLE_PLACEHOLDER,
-            escapeForTemplateLiteral(combinedCss),
-          );
-
-          writeFileSync(filePath, code);
-        }
-      }
-
-      for (const asset of cssAssets) {
-        rmSync(resolve(outDir, asset.fileName), { force: true });
-      }
-    },
+    // Content scripts execute against the host page, so JS asset URLs must be
+    // rebound to the extension origin instead of the page origin.
+    runtime: `chrome.runtime.getURL(${JSON.stringify(assetPath)})`,
   };
 }
 
@@ -96,11 +56,16 @@ export default defineConfig(({ mode }) => {
   const isFirefox = mode === 'firefox';
 
   return {
-    plugins: [vue(), inlineComponentStyles()],
+    base: '',
+    plugins: [vue()],
 
     define: {
       // Replace Node.js globals so the IIFE bundle works in browser extensions.
       'process.env.NODE_ENV': JSON.stringify(mode === 'development' ? 'development' : 'production'),
+    },
+
+    experimental: {
+      renderBuiltUrl: renderExtensionAssetUrl,
     },
 
     resolve: {
@@ -114,12 +79,16 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: cfg.emptyOutDir,
       sourcemap: true,
       target: ['chrome88', isFirefox ? 'firefox109' : 'chrome88'],
+      assetsInlineLimit: 0, // Prevent Vite from inlining fonts as base64 data URIs
+      cssCodeSplit: false,
 
-      lib: {
-        entry: cfg.entry,
-        name: cfg.libName,
-        formats: ['iife'],
-        fileName: cfg.fileName,
+      rollupOptions: {
+        input: cfg.entry,
+        output: {
+          format: 'iife',
+          entryFileNames: cfg.fileName(),
+          assetFileNames: 'assets/[name].[ext]',
+        },
       },
     },
   };

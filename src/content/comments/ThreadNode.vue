@@ -114,7 +114,7 @@ function toggleCollapse() {
   scroll-margin-top: 50px;
 
   &:target {
-    animation: highlight-fade 1.5s forwards;
+    animation: highlight-fade 5s forwards;
 
     &::before {
       content: "";
@@ -125,7 +125,7 @@ function toggleCollapse() {
       width: 10px;
       background: inherit;
       border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-      animation: highlight-line-fade 1.5s forwards;
+      animation: highlight-line-fade 5s forwards;
     }
   }
 
@@ -290,7 +290,7 @@ function toggleCollapse() {
 }
 
 @keyframes highlight-fade {
-  0%, 60% {
+  0%, 80% {
     background: color-mix(in srgb, var(--color-accent) 3%, transparent);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
   }
@@ -301,7 +301,7 @@ function toggleCollapse() {
 }
 
 @keyframes highlight-line-fade {
-  0%, 60% {
+  0%, 80% {
     opacity: 1;
   }
   100% {
