@@ -22,7 +22,7 @@ function closeNav() {
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
           <img :src="YLogo" class="site-header__logo-img" alt="Y Combinator Logo" />
-          <span>Hacker News</span>
+          <span class="site-header__logo-text">Hacker News</span>
         </a>
 
         <div class="site-header__mobile-actions">
@@ -140,6 +140,11 @@ function closeNav() {
   background: var(--color-accent);
 }
 
+.site-header__logo-text {
+  font-family: var(--font-title);
+  font-weight: 600;
+}
+
 .site-header__mobile-actions {
   display: none;
   align-items: center;
@@ -253,10 +258,16 @@ function closeNav() {
   color: color-mix(in srgb, var(--color-text) 85%, transparent); // Increased contrast vs --color-text-muted
   transition: all 0.15s ease;
 
-  &:hover,
-  &--active {
+  &:hover {
     color: var(--color-text);
     opacity: 1;
+  }
+
+  &--active {
+    color: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+    font-weight: 700;
+    opacity: 1;
+    text-decoration: none;
   }
 }
 
