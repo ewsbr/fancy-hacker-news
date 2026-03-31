@@ -9,7 +9,6 @@ import StaticPage from './pages/StaticPage.vue';
 import UserPage from './pages/UserPage.vue';
 import ThreadsPage from './pages/ThreadsPage.vue';
 import NewCommentsPage from './pages/NewCommentsPage.vue';
-import FavoritesPage from './pages/FavoritesPage.vue';
 import SubmitPage from './pages/SubmitPage.vue';
 import ReplyPage from './pages/ReplyPage.vue';
 
@@ -23,15 +22,18 @@ const PAGE_MAP: Record<string, Component> = {
   user: UserPage,
   threads: ThreadsPage,
   newcomments: NewCommentsPage,
-  favorites: FavoritesPage,
-  upvoted: FavoritesPage,
   submitted: StoriesPage,
   hidden: StoriesPage,
   submit: SubmitPage,
   reply: ReplyPage,
 };
 
-const pageComponent = computed(() => PAGE_MAP[route.page] ?? StaticPage);
+const pageComponent = computed(() => {
+  if (route.page === 'favorites' || route.page === 'upvoted') {
+    return route.params.comments === 't' ? NewCommentsPage : StoriesPage;
+  }
+  return PAGE_MAP[route.page] ?? StaticPage;
+});
 </script>
 
 <template>

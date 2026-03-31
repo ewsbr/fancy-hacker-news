@@ -35,13 +35,16 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   const form = doc.querySelector<HTMLFormElement>('form.profileform[action="/xuser"]');
   const isOwnProfile = form !== null;
 
+  // Scope all profile queries to #bigbox to avoid matching header nav elements
+  const bigbox = doc.getElementById('bigbox');
+
   // Username
-  const usernameEl = doc.querySelector('#bigbox a.hnuser');
+  const usernameEl = bigbox?.querySelector('a.hnuser');
   const username = textOf(usernameEl);
 
   // Karma — find <td>karma:</td> then read the adjacent td
   let karma = 0;
-  doc.querySelectorAll('td').forEach(td => {
+  bigbox?.querySelectorAll('td').forEach(td => {
     if (td.textContent?.trim() === 'karma:') {
       const next = td.nextElementSibling;
       if (next) karma = parseInt(next.textContent?.trim() || '0', 10) || 0;
@@ -49,7 +52,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   });
 
   // Created
-  const createdLinkEl = doc.querySelector<HTMLAnchorElement>('a[href^="front?day="]');
+  const createdLinkEl = bigbox?.querySelector<HTMLAnchorElement>('a[href^="front?day="]') ?? null;
   const created = textOf(createdLinkEl);
   const createdLink = hrefOf(createdLinkEl) || '';
 
@@ -59,7 +62,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     const textarea = form!.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
     about = textarea?.value ?? null;
   } else {
-    doc.querySelectorAll('td').forEach(td => {
+    bigbox?.querySelectorAll('td').forEach(td => {
       if (td.textContent?.trim() === 'about:') {
         const next = td.nextElementSibling;
         if (next) about = next.innerHTML.trim() || null;
@@ -93,27 +96,27 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     : null;
 
   // Change password link
-  const changePwLink = hrefOf(doc.querySelector('a[href^="changepw"]'));
+  const changePwLink = hrefOf(bigbox?.querySelector('a[href^="changepw"]'));
 
   // Submissions / threads links
   const submissionsLink =
-    hrefOf(doc.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`;
+    hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`;
   const threadsLink =
-    hrefOf(doc.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`;
+    hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`;
 
   // Upvoted links (submissions and comments variants; only present on own profile)
-  const upvotedLinks = Array.from(
-    doc.querySelectorAll<HTMLAnchorElement>('a[href^="upvoted?"]'),
-  );
+  const upvotedLinks = bigbox
+    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href^="upvoted?"]'))
+    : [];
   const upvotedLink =
     hrefOf(upvotedLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
   const upvotedCommentsLink =
     hrefOf(upvotedLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
 
   // Favorites links
-  const favLinks = Array.from(
-    doc.querySelectorAll<HTMLAnchorElement>('a[href^="favorites?"]'),
-  );
+  const favLinks = bigbox
+    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href^="favorites?"]'))
+    : [];
   const favoritesLink =
     hrefOf(favLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ||
     `favorites?id=${username}`;

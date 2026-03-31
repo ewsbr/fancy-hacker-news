@@ -9,7 +9,7 @@ const pageData = inject<ParsedThreadsPage>('pageData')!;
 
 <template>
   <div class="threads-page">
-    <div class="threads-page__list">
+    <div class="threads-page__container">
       <ThreadNode 
         v-for="thread in pageData.threads" 
         :key="thread.id" 
@@ -17,27 +17,21 @@ const pageData = inject<ParsedThreadsPage>('pageData')!;
       />
     </div>
     
-    <div class="threads-page__more">
-      <Pagination :href="pageData.moreLink" />
-    </div>
+    <Pagination :href="pageData.moreLink" />
   </div>
 </template>
 
 <style scoped lang="scss">
 .threads-page {
   padding-bottom: 2rem;
-  max-width: 900px;
-  
-  &__list {
-    display: flex;
-    flex-direction: column;
-    /* Extra spacing between root threads */
-    gap: 1.5rem;
-  }
-  
-  &__more {
-    margin-top: 2rem;
-    padding-left: 20px;
+
+  &__container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-accent);
+    border-radius: 4px;
+    box-shadow: var(--shadow-elevation);
+    overflow: hidden;
   }
 }
 </style>

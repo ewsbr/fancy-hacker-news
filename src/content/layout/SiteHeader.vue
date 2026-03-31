@@ -264,7 +264,7 @@ function closeNav() {
   }
 
   &--active {
-    color: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+    color: var(--color-accent-muted);
     font-weight: 700;
     opacity: 1;
     text-decoration: none;

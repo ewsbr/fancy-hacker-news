@@ -30,7 +30,7 @@ function toggleCollapse() {
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
         <div v-if="node.onStory" class="comment-node__on-story">
-          <span class="comment-node__on-story-label">on:</span>
+          <span class="comment-node__on-story-label">on</span>
           <a :href="node.onStory.link" class="comment-node__on-story-link">{{ node.onStory.title }}</a>
         </div>
         
@@ -107,7 +107,12 @@ function toggleCollapse() {
   position: relative;
 
   &--root {
-    margin-top: 1.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--color-border);
+
+    &:first-child {
+      border-top: none;
+    }
   }
 
   // Handle sticky header offset for fragment navigation
@@ -146,22 +151,30 @@ function toggleCollapse() {
   }
 
   &__on-story {
-    margin-bottom: 0.25rem;
-    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
 
     &-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       color: var(--color-text-muted);
-      margin-right: 0.3rem;
+      flex-shrink: 0;
     }
 
     &-link {
-      color: var(--color-text);
+      color: var(--color-accent-muted);
       text-decoration: none;
-      font-weight: 500;
-
-      &:hover {
-        text-decoration: underline;
-      }
+      font-size: 0.9rem;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
