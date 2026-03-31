@@ -18,12 +18,22 @@ function getFirstLeafText(node: Node): Text | null {
   return null;
 }
 
+const INLINE_TAGS = new Set(['I', 'B', 'EM', 'STRONG', 'A', 'CODE', 'SPAN', 'U', 'S', 'FONT']);
+
+function isInlineNode(node: Node): boolean {
+  if (node.nodeType === Node.TEXT_NODE) return true;
+  if (node.nodeType === Node.ELEMENT_NODE) return INLINE_TAGS.has((node as Element).nodeName);
+  return false;
+}
+
 function transformQuotes(html: string): string {
   const wrap = document.createElement('div');
   wrap.innerHTML = html;
 
+  const nodes = Array.from(wrap.childNodes);
   const output: Node[] = [];
   const quoteParagraphs: Element[] = [];
+  let i = 0;
 
   function flush() {
     if (!quoteParagraphs.length) return;
@@ -33,33 +43,41 @@ function transformQuotes(html: string): string {
     quoteParagraphs.length = 0;
   }
 
-  for (const node of Array.from(wrap.childNodes)) {
-    let isQuote = false;
+  while (i < nodes.length) {
+    const node = nodes[i];
 
-    if (node.nodeType === Node.TEXT_NODE) {
-      const text = node.textContent || '';
-      if (/^\s*>/.test(text)) {
-        isQuote = true;
-        const p = document.createElement('p');
-        p.textContent = text.replace(/^\s*>\s?/, '');
-        quoteParagraphs.push(p);
+    // Bare text node starting with > — absorb it plus any trailing inline siblings
+    // into a single paragraph for the blockquote. Handles: >&gt;<i>text</i>
+    if (node.nodeType === Node.TEXT_NODE && /^\s*>/.test(node.textContent || '')) {
+      const p = document.createElement('p');
+      const stripped = (node.textContent || '').replace(/^\s*>\s?/, '');
+      if (stripped) p.appendChild(document.createTextNode(stripped));
+      i++;
+      while (i < nodes.length && isInlineNode(nodes[i])) {
+        p.appendChild(nodes[i].cloneNode(true));
+        i++;
       }
-    } else if (node.nodeName === 'P') {
+      quoteParagraphs.push(p);
+      continue;
+    }
+
+    // <p> whose first text starts with >
+    if (node.nodeName === 'P') {
       const el = node as Element;
       const first = getFirstLeafText(el);
       if (first && /^\s*>/.test(first.textContent || '')) {
-        isQuote = true;
         const clone = el.cloneNode(true) as Element;
         const cloneFirst = getFirstLeafText(clone)!;
         cloneFirst.textContent = (cloneFirst.textContent || '').replace(/^\s*>\s?/, '');
         quoteParagraphs.push(clone);
+        i++;
+        continue;
       }
     }
 
-    if (!isQuote) {
-      flush();
-      output.push(node);
-    }
+    flush();
+    output.push(node);
+    i++;
   }
 
   flush();
@@ -85,13 +103,6 @@ const processedHtml = computed(() => transformQuotes(props.html));
     &:first-child {
       margin-top: 0;
     }
-  }
-
-  :deep(p:has(> i:only-child)) {
-    color: var(--color-muted);
-    border-left: 2px solid var(--color-border);
-    padding-left: 0.75rem;
-    font-style: italic;
   }
 
   :deep(pre) {
