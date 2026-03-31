@@ -4,6 +4,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import SubThreadModal from './SubThreadModal.vue';
+import FlagButton from '@/content/shared/FlagButton.vue';
 import { Triangle, MessageSquare } from 'lucide-vue-next';
 
 // Depth at which children are moved into a modal on mobile.
@@ -74,45 +75,60 @@ watch(
       <div class="comment-node__main">
         <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse" />
 
-        <div v-if="!isCollapsed" class="comment-node__body-wrapper">
-          <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
-          
-          <div class="comment-node__actions">
-            <div class="comment-node__votes">
-              <a 
-                v-if="node.voteUp || node.voteUn" 
-                :href="node.voteUn || node.voteUp || undefined" 
-                class="comment-node__vote-action"
-                :class="{ 
-                  'comment-node__vote-action--up': true, 
-                  'comment-node__vote-action--active': node.voteUn 
-                }"
-                :title="node.voteUn ? 'unvote' : 'upvote'"
-              >
-                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                <span>{{ node.voteUn ? 'unvote' : 'upvote' }}</span>
-              </a>
-              <a 
-                v-if="node.voteDown" 
-                :href="node.voteDown" 
-                class="comment-node__vote-action comment-node__vote-action--down"
-                title="downvote"
-              >
-                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                <span>downvote</span>
-              </a>
-            </div>
-
-            <template v-if="node.replyLink">
-              <span class="comment-node__action-dot">&middot;</span>
-              <a :href="node.replyLink" class="comment-node__action-link">reply</a>
-            </template>
-            <template v-if="node.flagUrl">
-              <span class="comment-node__action-dot">&middot;</span>
-              <a :href="node.flagUrl" class="comment-node__action-link">flag</a>
-            </template>
+        <template v-if="!isCollapsed">
+          <!-- Deleted comment: minimal rendering, no actions -->
+          <div v-if="node.isDeleted" class="comment-node__body-wrapper comment-node__body-wrapper--deleted">
+            <span class="comment-node__deleted-label">[deleted]</span>
           </div>
-        </div>
+
+          <div v-else class="comment-node__body-wrapper">
+            <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
+          
+            <div class="comment-node__actions">
+              <div class="comment-node__votes">
+                <a 
+                  v-if="node.voteUp || node.voteUn" 
+                  :href="node.voteUn || node.voteUp || undefined" 
+                  class="comment-node__vote-action"
+                  :class="{ 
+                    'comment-node__vote-action--up': true, 
+                    'comment-node__vote-action--active': node.voteUn 
+                  }"
+                  :title="node.voteUn ? 'unvote' : 'upvote'"
+                >
+                  <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+                  <span>{{ node.voteUn ? 'unvote' : 'upvote' }}</span>
+                </a>
+                <a 
+                  v-if="node.voteDown" 
+                  :href="node.voteDown" 
+                  class="comment-node__vote-action comment-node__vote-action--down"
+                  title="downvote"
+                >
+                  <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+                  <span>downvote</span>
+                </a>
+              </div>
+
+              <template v-if="node.replyLink">
+                <span class="comment-node__action-dot">&middot;</span>
+                <a :href="node.replyLink" class="comment-node__action-link">reply</a>
+              </template>
+              <template v-if="node.editUrl">
+                <span class="comment-node__action-dot">&middot;</span>
+                <a :href="node.editUrl" class="comment-node__action-link">edit</a>
+              </template>
+              <template v-if="node.deleteUrl">
+                <span class="comment-node__action-dot">&middot;</span>
+                <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
+              </template>
+              <template v-if="node.flagUrl">
+                <span class="comment-node__action-dot">&middot;</span>
+                <FlagButton :href="node.flagUrl" />
+              </template>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -218,6 +234,16 @@ watch(
 
   &__body-wrapper {
     margin-top: 0.2rem;
+
+    &--deleted {
+      opacity: 0.5;
+    }
+  }
+
+  &__deleted-label {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
   }
 
   &__actions {
@@ -291,6 +317,10 @@ watch(
     &:hover {
       color: var(--color-text);
       text-decoration: underline;
+    }
+
+    &--delete:hover {
+      color: #ff3e00;
     }
   }
 

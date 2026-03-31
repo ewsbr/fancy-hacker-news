@@ -8,6 +8,8 @@ import CommentForm from '@/content/comments/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
+import FlagButton from '@/content/shared/FlagButton.vue';
+import PollOptions from '@/content/shared/PollOptions.vue';
 
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
@@ -20,6 +22,8 @@ const commentItemDomId = computed(() => {
 
   return pageData.item.id;
 });
+
+const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('un=t') ?? false);
 
 const hashPathIds = ref<Set<string>>(new Set());
 const hashTargetId = ref<string | null>(null);
@@ -116,6 +120,7 @@ onUnmounted(() => {
     <div class="comments-page__container">
       <template v-if="pageData.item.type === 'story'">
         <StoryDetail :item="pageData.item" />
+        <PollOptions v-if="pageData.pollOptions.length > 0" :options="pageData.pollOptions" />
       </template>
       
       <template v-else-if="pageData.item.type === 'comment'">
@@ -144,11 +149,11 @@ onUnmounted(() => {
                 <a :href="pageData.item.ageLink" class="comments-page__comment-age" :title="pageData.item.ageTimestamp">{{ pageData.item.age }}</a>
                 <template v-if="pageData.item.favoriteUrl">
                   <span class="comments-page__comment-sep">&middot;</span>
-                  <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">favorite</a>
+                  <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
                 </template>
                 <template v-if="pageData.item.flagUrl">
                   <span class="comments-page__comment-sep">&middot;</span>
-                  <a :href="pageData.item.flagUrl" class="comments-page__comment-action">flag</a>
+                  <FlagButton :href="pageData.item.flagUrl" />
                 </template>
               </div>
               <div class="comments-page__comment-body">

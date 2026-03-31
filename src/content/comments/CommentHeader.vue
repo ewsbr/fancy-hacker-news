@@ -41,20 +41,25 @@ const downvoteOpacity = computed(() => {
     </button>
 
     <div class="comment-header__info">
-      <a 
-        :href="`user?id=${node.author}`" 
-        class="comment-header__author"
-        :class="{ 'comment-header__author--new': node.authorIsNew }"
-      >
-        {{ node.author }}
-      </a>
+      <!-- Deleted comment: no author -->
+      <span v-if="node.isDeleted" class="comment-header__deleted">[deleted]</span>
 
-      <div class="comment-header__badges" v-if="node.authorIsNew || node.isDead || node.isFlagged || downvoteOpacity">
-        <Badge v-if="node.authorIsNew" variant="new" label="New" title="New user" />
-        <Badge v-if="node.isDead" variant="dead" label="Dead" />
-        <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
-        <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
-      </div>
+      <template v-else>
+        <a 
+          :href="`user?id=${node.author}`" 
+          class="comment-header__author"
+          :class="{ 'comment-header__author--new': node.authorIsNew }"
+        >
+          {{ node.author }}
+        </a>
+
+        <div class="comment-header__badges" v-if="node.authorIsNew || node.isDead || node.isFlagged || downvoteOpacity">
+          <Badge v-if="node.authorIsNew" variant="new" label="New" title="New user" />
+          <Badge v-if="node.isDead" variant="dead" label="Dead" />
+          <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
+          <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
+        </div>
+      </template>
 
       <span class="comment-header__divider" aria-hidden="true">&middot;</span>
 
@@ -62,7 +67,7 @@ const downvoteOpacity = computed(() => {
         {{ node.age }}
       </a>
 
-      <div v-if="!isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
+      <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
       <span class="comment-header__divider" aria-hidden="true">&middot;</span>
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
@@ -183,6 +188,12 @@ const downvoteOpacity = computed(() => {
       color: var(--color-accent);
       text-decoration: underline;
     }
+  }
+
+  &__deleted {
+    font-style: italic;
+    color: var(--color-text-muted);
+    opacity: 0.6;
   }
 }
 </style>

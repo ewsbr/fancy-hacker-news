@@ -36,6 +36,13 @@ defineProps<{ href: string | null }>();
     left: -4px;
     right: -4px;
     bottom: -4px;
+
+    @media (max-width: 640px) {
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+    }
   }
 
   &:hover {

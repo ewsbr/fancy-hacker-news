@@ -1,12 +1,17 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { ItemDetail } from '@/parsers/item';
 import RichText from '@/content/shared/RichText.vue';
 import Badge from '@/content/shared/Badge.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
+import FlagButton from '@/content/shared/FlagButton.vue';
 
-defineProps<{
+const props = defineProps<{
   item: ItemDetail;
 }>();
+
+const isFavorited = computed(() => props.item.favoriteUrl?.includes('un=t') ?? false);
+const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 </script>
 
 <template>
@@ -62,12 +67,12 @@ defineProps<{
 
               <template v-if="item.favoriteUrl">
                 <span class="story-detail__sep">&middot;</span>
-                <a :href="item.favoriteUrl" class="story-detail__action">favorite</a>
+                <a :href="item.favoriteUrl" class="story-detail__action">{{ isFavorited ? 'un-favorite' : 'favorite' }}</a>
               </template>
 
               <template v-if="item.flagUrl">
                 <span class="story-detail__sep">&middot;</span>
-                <a :href="item.flagUrl" class="story-detail__action">flag</a>
+                <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" />
               </template>
             </div>
           </div>
@@ -207,6 +212,22 @@ defineProps<{
     color: var(--color-text);
     background: var(--color-surface);
     border-top: 1px dashed var(--color-border);
+  }
+}
+
+@media (max-width: 640px) {
+  .story-detail {
+    &__title {
+      font-size: 1.05rem;
+    }
+
+    &__meta {
+      column-gap: 0.3rem;
+    }
+
+    &__actions {
+      flex-wrap: wrap;
+    }
   }
 }
 </style>

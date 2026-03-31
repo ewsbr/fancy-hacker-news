@@ -69,34 +69,34 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 ## Phase 4 — User & Auxiliary Pages
 
 - [x] **4.1** Create `src/parsers/user.ts` — `parseUserPage(doc: Document): ParsedUserPage` with profile fields, preferences, links
-- [ ] **4.2** Create user components:
+- [x] **4.2** Create user components:
   - `src/content/user/UserProfile.vue` — username, karma, created, about, preferences form
   - `src/content/user/UserLinks.vue` — submissions, threads, favorites, upvoted links
-- [ ] **4.3** Create `src/content/pages/UserPage.vue` — composing UserProfile + UserLinks
-- [ ] **4.4** Wire UserPage into App.vue for `user` route
+- [x] **4.3** Create `src/content/pages/UserPage.vue` — composing UserProfile + UserLinks
+- [x] **4.4** Wire UserPage into App.vue for `user` route
 - [x] **4.5** Create `src/parsers/threads.ts` — `parseThreadsPage(doc: Document): ParsedThreadsPage`
-- [ ] **4.6** Create `src/content/pages/ThreadsPage.vue`
+- [x] **4.6** Create `src/content/pages/ThreadsPage.vue`
 - [x] **4.7** Create `src/parsers/newComments.ts` — `parseNewComments(doc: Document): ParsedNewComments`
-- [ ] **4.8** Create `src/content/comments/FlatComment.vue` — single comment with story context
-- [ ] **4.9** Create `src/content/pages/NewCommentsPage.vue`
-- [ ] **4.10** Create `src/content/pages/FavoritesPage.vue` — reuses StoryRow / FlatComment
+- [x] **4.8** Create `src/content/comments/FlatComment.vue` — single comment with story context
+- [x] **4.9** Create `src/content/pages/NewCommentsPage.vue`
+- [x] **4.10** Create `src/content/pages/FavoritesPage.vue` — reuses StoryRow / FlatComment
 - [x] **4.11** Create `src/parsers/submit.ts` — `parseSubmitPage(doc: Document): ParsedSubmitPage`
-- [ ] **4.12** Create `src/content/forms/SubmitForm.vue`
-- [ ] **4.13** Create `src/content/pages/SubmitPage.vue`
+- [x] **4.12** Create `src/content/forms/SubmitForm.vue`
+- [x] **4.13** Create `src/content/pages/SubmitPage.vue`
 - [x] **4.14** Create `src/parsers/reply.ts` — `parseReplyPage(doc: Document): ParsedReplyPage`
-- [ ] **4.15** Create `src/content/pages/ReplyPage.vue`
-- [ ] **4.16** Wire all new pages into App.vue for their respective routes
+- [x] **4.15** Create `src/content/pages/ReplyPage.vue`
+- [x] **4.16** Wire all new pages into App.vue for their respective routes
 
 ---
 
 ## Phase 5 — Polish & Edge Cases
 
-- [ ] **5.1** Create `src/content/shared/FlagButton.vue` — flag/unflag with confirmation dialog
-- [ ] **5.2** Implement favorite/unfavorite toggle on item pages
-- [ ] **5.3** Implement poll rendering (parse poll `<tr>` rows, render as styled list)
-- [ ] **5.4** Handle edit/delete windows (parse edit/delete links, render with countdowns if present)
-- [ ] **5.5** Error handling: wrap parser calls in try/catch, fall back to showing original HN on failure
-- [ ] **5.6** Responsive design: mobile-friendly layout, touch targets, readable on small screens
+- [x] **5.1** Create `src/content/shared/FlagButton.vue` — flag/unflag with confirmation dialog
+- [x] **5.2** Implement favorite/unfavorite toggle on item pages
+- [x] **5.3** Implement poll rendering (parse poll `<tr>` rows, render as styled list with bar chart)
+- [x] **5.4** Handle edit/delete windows (parse edit/delete links, render with countdowns if present)
+- [x] **5.5** Error handling: wrap parser calls in try/catch, fall back to showing original HN on failure
+- [x] **5.6** Responsive design: mobile-friendly layout, touch targets, readable on small screens
 - [ ] **5.7** Test all themes (light, dark, nord, amoled) across all page types
 - [ ] **5.8** Test all form submissions (vote, comment, submit, user profile update, hide, flag, fave)
 - [ ] **5.9** Cross-browser testing (Chrome, Firefox if applicable)

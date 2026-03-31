@@ -11,8 +11,16 @@ import { debugLog, debugMeasure } from '@/debug';
 
 export interface ParsedItemPage {
   item: ItemDetail;
+  pollOptions: PollOption[];
   comments: CommentNode[];
   replyForm: ReplyForm | null;
+}
+
+export interface PollOption {
+  id: string;
+  text: string;
+  score: number | null;
+  voteUp: string | null;
 }
 
 export interface ItemDetail {
@@ -69,7 +77,10 @@ export interface CommentNode {
   voteDown: string | null;
   voteUn: string | null;
   flagUrl: string | null;
+  editUrl: string | null;
+  deleteUrl: string | null;
   replyLink: string | null;
+  isDeleted: boolean;
   descendantCount: number;
   expandForHash: boolean;
   navLinks: {
@@ -216,6 +227,28 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     return null;
   });
 
+  // Parse poll options
+  // Poll options live inside fatitem as tr.athing rows that are NOT .submission and NOT .comtr
+  const pollOptions: PollOption[] = debugMeasure('item:parse-poll', () => {
+    const options: PollOption[] = [];
+    const pollRows = fatitem.querySelectorAll('tr.athing:not(.submission):not(.comtr)');
+    for (const row of pollRows) {
+      const id = attrOf(row, 'id') || '';
+      const commentTd = row.querySelector('td.comment');
+      if (!commentTd) continue;
+      const text = commentTd.textContent?.trim() || '';
+      const voteUp = hrefOf(row.querySelector('td.votelinks a[href^="vote?"]'));
+
+      // Score is in the next sibling tr's td.default span.score
+      const nextRow = row.nextElementSibling;
+      const scoreText = textOf(nextRow?.querySelector('.score'));
+      const score = parseScore(scoreText);
+
+      options.push({ id, text, score, voteUp });
+    }
+    return options;
+  }, () => ({}));
+
   // Parse comment tree
   const comtrs = debugMeasure('item:collect-comment-rows', () => {
     const commentTreeEl = doc.querySelector('table.comment-tree');
@@ -267,7 +300,14 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       const grayLevel = parseGrayLevel(commtext);
 
       const commentContainer = commtext?.parentElement;
-      const replyLink = hrefOf(commentContainer?.querySelector('.reply a[href^="reply?"]'));
+      const replyDiv = commentContainer?.querySelector('.reply');
+      const replyLink = hrefOf(replyDiv?.querySelector('a[href^="reply?"]'));
+      const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'));
+      const editUrl = hrefOf(replyDiv?.querySelector('a[href^="edit?"]'));
+      const deleteUrl = hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
+
+      // Detect deleted comments: no author and body text is [deleted]
+      const isDeleted = !author && (commtext?.textContent?.trim() === '[deleted]');
 
       const navs = comhead?.querySelector('.navs');
       const navLinksObj = {
@@ -310,8 +350,11 @@ export function parseItemPage(doc: Document): ParsedItemPage {
         voteUp,
         voteDown,
         voteUn,
-        flagUrl: null,
+        flagUrl,
+        editUrl,
+        deleteUrl,
         replyLink,
+        isDeleted,
         descendantCount: 0,
         expandForHash: false,
         navLinks: navLinksObj,
@@ -341,5 +384,5 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     collapsedRows,
   });
 
-  return { item, comments, replyForm };
+  return { item, pollOptions, comments, replyForm };
 }
