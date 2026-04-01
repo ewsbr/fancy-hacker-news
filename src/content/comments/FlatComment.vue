@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FlatComment as FlatCommentType } from '@/parsers/newComments';
 import CommentBody from './CommentBody.vue';
-import { Triangle } from 'lucide-vue-next';
+import CommentActions from '@/content/shared/CommentActions.vue';
 
 defineProps<{
   comment: FlatCommentType;
@@ -34,32 +34,11 @@ defineProps<{
       <CommentBody :html="comment.bodyHtml" :gray-level="null" />
     </div>
     
-    <div class="flat-comment__actions">
-      <div class="flat-comment__votes">
-        <a 
-          v-if="comment.voteUp || comment.voteUn" 
-          :href="comment.voteUn || comment.voteUp || ''" 
-          class="flat-comment__vote-action"
-          :class="{ 
-            'flat-comment__vote-action--up': true, 
-            'flat-comment__vote-action--active': comment.voteUn 
-          }"
-          :title="comment.voteUn ? 'unvote' : 'upvote'"
-        >
-          <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-          <span>{{ comment.voteUn ? 'unvote' : 'upvote' }}</span>
-        </a>
-        <a 
-          v-if="comment.voteDown" 
-          :href="comment.voteDown" 
-          class="flat-comment__vote-action flat-comment__vote-action--down"
-          title="downvote"
-        >
-          <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-          <span>downvote</span>
-        </a>
-      </div>
-    </div>
+    <CommentActions
+      :vote-up="comment.voteUp"
+      :vote-un="comment.voteUn"
+      :vote-down="comment.voteDown"
+    />
   </div>
 </template>
 
@@ -126,63 +105,6 @@ defineProps<{
   
   &__body {
     margin-left: 0;
-  }
-  
-  &__actions {
-    margin-top: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-muted);
-  }
-
-  &__votes {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin-right: 0.1rem;
-  }
-
-  &__vote-action {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: var(--color-text-muted);
-    transition: color 0.15s ease;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: lowercase;
-    position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
-    }
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: none;
-    }
-
-    &--up {
-      color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text-muted));
-    }
-
-    &--active {
-      color: var(--color-accent);
-    }
-
-    &--down {
-      .lucide {
-        transform: rotate(180deg);
-      }
-    }
   }
 }
 </style>

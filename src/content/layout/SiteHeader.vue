@@ -135,9 +135,6 @@ function closeNav() {
 .site-header__logo-img {
   width: 22px;
   height: 22px;
-  border: 1px solid #fff;
-  border-radius: 2px;
-  background: var(--color-accent);
 }
 
 .site-header__logo-text {

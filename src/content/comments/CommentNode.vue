@@ -4,8 +4,8 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import SubThreadModal from './SubThreadModal.vue';
-import FlagButton from '@/content/shared/FlagButton.vue';
-import { Triangle, MessageSquare } from 'lucide-vue-next';
+import CommentActions from '@/content/shared/CommentActions.vue';
+import { MessageSquare } from 'lucide-vue-next';
 
 // Depth at which children are moved into a modal on mobile.
 const MOBILE_MODAL_DEPTH = 4;
@@ -84,49 +84,15 @@ watch(
           <div v-else class="comment-node__body-wrapper">
             <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
           
-            <div class="comment-node__actions">
-              <div class="comment-node__votes">
-                <a 
-                  v-if="node.voteUp || node.voteUn" 
-                  :href="node.voteUn || node.voteUp || undefined" 
-                  class="comment-node__vote-action"
-                  :class="{ 
-                    'comment-node__vote-action--up': true, 
-                    'comment-node__vote-action--active': node.voteUn 
-                  }"
-                  :title="node.voteUn ? 'unvote' : 'upvote'"
-                >
-                  <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                  <span>{{ node.voteUn ? 'unvote' : 'upvote' }}</span>
-                </a>
-                <a 
-                  v-if="node.voteDown" 
-                  :href="node.voteDown" 
-                  class="comment-node__vote-action comment-node__vote-action--down"
-                  title="downvote"
-                >
-                  <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                  <span>downvote</span>
-                </a>
-              </div>
-
-              <template v-if="node.replyLink">
-                <span class="comment-node__action-dot">&middot;</span>
-                <a :href="node.replyLink" class="comment-node__action-link">reply</a>
-              </template>
-              <template v-if="node.editUrl">
-                <span class="comment-node__action-dot">&middot;</span>
-                <a :href="node.editUrl" class="comment-node__action-link">edit</a>
-              </template>
-              <template v-if="node.deleteUrl">
-                <span class="comment-node__action-dot">&middot;</span>
-                <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
-              </template>
-              <template v-if="node.flagUrl">
-                <span class="comment-node__action-dot">&middot;</span>
-                <FlagButton :href="node.flagUrl" />
-              </template>
-            </div>
+            <CommentActions
+              :vote-up="node.voteUp"
+              :vote-un="node.voteUn"
+              :vote-down="node.voteDown"
+              :reply-link="node.replyLink"
+              :edit-url="node.editUrl"
+              :delete-url="node.deleteUrl"
+              :flag-url="node.flagUrl"
+            />
           </div>
         </template>
       </div>
@@ -244,84 +210,6 @@ watch(
     font-style: italic;
     font-size: 0.85rem;
     color: var(--color-text-muted);
-  }
-
-  &__actions {
-    margin-top: 0.2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-  }
-
-  &__votes {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin-right: 0.1rem;
-  }
-
-  &__vote-action {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: var(--color-text-muted);
-    transition: color 0.15s ease;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: lowercase;
-    position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
-    }
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: none;
-    }
-
-    &--up {
-      color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text-muted));
-    }
-
-    &--active {
-      color: var(--color-accent);
-    }
-
-    &--down {
-      .lucide {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  &__action-dot {
-    color: var(--color-text-muted);
-    font-weight: 900;
-    opacity: 0.5;
-    user-select: none;
-  }
-
-  &__action-link {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-text);
-      text-decoration: underline;
-    }
-
-    &--delete:hover {
-      color: #ff3e00;
-    }
   }
 
   &__thread {

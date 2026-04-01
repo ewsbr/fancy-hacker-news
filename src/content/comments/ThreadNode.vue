@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
-import { Triangle } from 'lucide-vue-next';
+import CommentActions from '@/content/shared/CommentActions.vue';
 
 const props = defineProps<{
   node: ThreadEntry;
@@ -52,39 +52,13 @@ function toggleCollapse() {
         <div v-if="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
           
-          <div class="comment-node__actions">
-            <div class="comment-node__votes">
-              <a 
-                v-if="node.voteUp || node.voteUn" 
-                :href="node.voteUn || node.voteUp || ''" 
-                class="comment-node__vote-action"
-                :class="{ 
-                  'comment-node__vote-action--up': true, 
-                  'comment-node__vote-action--active': node.voteUn 
-                }"
-                :title="node.voteUn ? 'unvote' : 'upvote'"
-              >
-                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                <span>{{ node.voteUn ? 'unvote' : 'upvote' }}</span>
-              </a>
-              <a 
-                v-if="node.voteDown" 
-                :href="node.voteDown" 
-                class="comment-node__vote-action comment-node__vote-action--down"
-                title="downvote"
-              >
-                <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-                <span>downvote</span>
-              </a>
-            </div>
-
-            <span class="comment-node__action-dot">&middot;</span>
-            <a v-if="node.replyLink" :href="node.replyLink" class="comment-node__action-link">reply</a>
-            <template v-if="node.flagUrl">
-              <span class="comment-node__action-dot">&middot;</span>
-              <a :href="node.flagUrl" class="comment-node__action-link">flag</a>
-            </template>
-          </div>
+          <CommentActions
+            :vote-up="node.voteUp"
+            :vote-un="node.voteUn"
+            :vote-down="node.voteDown"
+            :reply-link="node.replyLink"
+            :flag-url="node.flagUrl"
+          />
         </div>
       </div>
     </div>
@@ -187,80 +161,6 @@ function toggleCollapse() {
       font-weight: 900;
       opacity: 0.5;
       user-select: none;
-    }
-  }
-
-  &__actions {
-    margin-top: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-  }
-
-  &__votes {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin-right: 0.1rem;
-  }
-
-  &__vote-action {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: var(--color-text-muted);
-    transition: color 0.15s ease;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: lowercase;
-    position: relative;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
-    }
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: none;
-    }
-
-    &--up {
-      color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text-muted));
-    }
-
-    &--active {
-      color: var(--color-accent);
-    }
-
-    &--down {
-      .lucide {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  &__action-dot {
-    color: var(--color-text-muted);
-    font-weight: 900;
-    opacity: 0.5;
-    user-select: none;
-  }
-
-  &__action-link {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-text);
-      text-decoration: underline;
     }
   }
 
