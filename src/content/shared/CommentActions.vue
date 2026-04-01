@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/shared/FlagButton.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 defineProps<{
   voteUp?: string | null;
@@ -38,19 +39,19 @@ defineProps<{
     </div>
 
     <template v-if="replyLink">
-      <span class="comment-actions__dot" aria-hidden="true">&middot;</span>
+      <MetaSep />
       <a :href="replyLink" class="comment-actions__link">reply</a>
     </template>
     <template v-if="editUrl">
-      <span class="comment-actions__dot" aria-hidden="true">&middot;</span>
+      <MetaSep />
       <a :href="editUrl" class="comment-actions__link">edit</a>
     </template>
     <template v-if="deleteUrl">
-      <span class="comment-actions__dot" aria-hidden="true">&middot;</span>
+      <MetaSep />
       <a :href="deleteUrl" class="comment-actions__link comment-actions__link--delete">delete</a>
     </template>
     <template v-if="flagUrl">
-      <span class="comment-actions__dot" aria-hidden="true">&middot;</span>
+      <MetaSep />
       <FlagButton :href="flagUrl" />
     </template>
   </div>
@@ -111,13 +112,6 @@ defineProps<{
         transform: rotate(180deg);
       }
     }
-  }
-
-  &__dot {
-    color: var(--color-text-muted);
-    font-weight: 900;
-    opacity: 0.5;
-    user-select: none;
   }
 
   &__link {

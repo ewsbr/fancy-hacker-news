@@ -4,6 +4,7 @@ import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
+import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
 
 const props = defineProps<{
   node: ThreadEntry;
@@ -29,10 +30,7 @@ function toggleCollapse() {
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
-        <div v-if="node.onStory" class="comment-node__on-story">
-          <span class="comment-node__on-story-label">on</span>
-          <a :href="node.onStory.link" class="comment-node__on-story-link">{{ node.onStory.title }}</a>
-        </div>
+        <OnStoryHeader v-if="node.onStory" class="comment-node__on-story" label="on" :href="node.onStory.link" :title="node.onStory.title" />
         
         <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse">
           <!-- Inject additional nav links exactly as they appear in threads -->
@@ -77,8 +75,10 @@ function toggleCollapse() {
 </template>
 
 <style scoped lang="scss">
+@use '../../styles/comment-node' as *;
+
 .comment-node {
-  position: relative;
+  @include comment-node-base;
 
   &--root {
     padding: 0.75rem;
@@ -89,73 +89,14 @@ function toggleCollapse() {
     }
   }
 
-  // Handle sticky header offset for fragment navigation
-  scroll-margin-top: 50px;
-
-  &:target {
-    animation: highlight-fade 5s forwards;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -4px;
-      bottom: -4px;
-      left: -10px;
-      width: 10px;
-      background: inherit;
-      border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-      animation: highlight-line-fade 5s forwards;
-    }
-  }
-
-  &--collapsed {
-    > .comment-node__content-wrap {
-      opacity: 0.8;
-    }
-  }
-
-  &__content-wrap {
-    display: flex;
-    align-items: flex-start;
-  }
-
-  &__main {
-    flex: 1;
-    min-width: 0;
-  }
-
   &__on-story {
     margin-bottom: 0.35rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    line-height: 1.4;
-
-    &-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--color-text-muted);
-      flex-shrink: 0;
-    }
-
-    &-link {
-      color: var(--color-accent-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
   }
 
   &__extra-nav {
     color: var(--color-border);
     margin-left: 0.3rem;
-    
+
     &-sep {
       color: var(--color-text-muted);
       font-weight: 900;
@@ -165,60 +106,11 @@ function toggleCollapse() {
   }
 
   &__thread {
-    display: flex;
     margin-top: 0.35rem;
   }
 
   &__line {
     width: 20px;
-    flex-shrink: 0;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-
-    &::after {
-      content: "";
-      width: 2px;
-      background-color: var(--color-border);
-      opacity: 0.5;
-      transition: background-color 0.2s, opacity 0.2s;
-    }
-
-    &:hover::after {
-      background-color: var(--color-accent);
-      opacity: 1;
-    }
-  }
-
-  &__children {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-}
-
-@keyframes highlight-fade {
-  0%, 80% {
-    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
-  }
-  100% {
-    background: transparent;
-    box-shadow: 0 0 0 4px transparent;
-  }
-}
-
-@keyframes highlight-line-fade {
-  0%, 80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
   }
 }
 </style>

@@ -4,6 +4,7 @@ import StoryRank from './StoryRank.vue';
 import StoryMeta from './StoryMeta.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
+import StorySiteLink from '@/content/shared/StorySiteLink.vue';
 
 defineProps<{ story: Story }>();
 </script>
@@ -18,9 +19,7 @@ defineProps<{ story: Story }>();
           :href="story.url ?? `item?id=${story.id}`"
           class="story-row__title"
         >{{ story.title }}</a>
-        <span v-if="story.site" class="story-row__site">
-          (<a :href="`from?site=${story.site}`">{{ story.site }}</a>)
-        </span>
+        <StorySiteLink :site="story.site" />
         <Badge v-if="story.isDead" variant="dead" label="Dead" />
         <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
         <Badge v-if="story.isJob" variant="job" label="Job" />
@@ -45,49 +44,32 @@ defineProps<{ story: Story }>();
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-border);
   }
-}
 
-.story-row__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-}
-
-.story-row__title-line {
-  display: inline;
-  line-height: 1.35;
-}
-
-.story-row__title {
-  color: var(--color-text);
-  font-family: var(--font-title);
-  font-size: 1.02rem;
-  font-weight: 600;
-  text-decoration: none;
-
-  &:visited {
-    color: var(--color-text-muted);
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
   }
-}
 
-.story-row__site {
-  margin-left: 0.3rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  font-size: 0.82rem;
+  &__title-line {
+    display: inline;
+    line-height: 1.35;
+  }
 
-  a {
-    color: inherit;
+  &__title {
+    color: var(--color-text);
+    font-family: var(--font-title);
+    font-size: 1.02rem;
+    font-weight: 600;
+    text-decoration: none;
 
-    &:hover {
-      color: var(--color-text);
+    &:visited {
+      color: var(--color-text-muted);
     }
   }
-}
 
-@media (max-width: 640px) {
-  .story-row {
+  @media (max-width: 640px) {
     grid-template-columns: 1.5rem 1.1rem 1fr;
     gap: 0 0.3rem;
     padding: 0.5rem 0.6rem 0.5rem 0;

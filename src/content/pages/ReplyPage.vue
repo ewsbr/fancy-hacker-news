@@ -77,5 +77,9 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   &__parent-body {
     margin-top: 0.5rem;
   }
+
+  &__form {
+    margin-top: 1.5rem;
+  }
 }
 </style>

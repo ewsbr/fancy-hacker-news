@@ -2,6 +2,8 @@
 import { computed } from 'vue';
 import type { CommentNode } from '@/parsers/item';
 import Badge from '@/content/shared/Badge.vue';
+import AuthorByline from '@/content/shared/AuthorByline.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 const props = defineProps<{
   node: CommentNode;
@@ -41,34 +43,29 @@ const downvoteOpacity = computed(() => {
     </button>
 
     <div class="comment-header__info">
-      <!-- Deleted comment: no author -->
-      <span v-if="node.isDeleted" class="comment-header__deleted">[deleted]</span>
+      <template v-if="node.isDeleted">
+        <span class="comment-header__deleted">[deleted]</span>
+        <MetaSep />
+        <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">{{ node.age }}</a>
+      </template>
 
       <template v-else>
-        <a 
-          :href="`user?id=${node.author}`" 
-          class="comment-header__author"
-          :class="{ 'comment-header__author--new': node.authorIsNew }"
-        >
-          {{ node.author }}
-        </a>
-
-        <div class="comment-header__badges" v-if="node.authorIsNew || node.isDead || node.isFlagged || downvoteOpacity">
-          <Badge v-if="node.authorIsNew" variant="new" label="New" title="New user" />
+        <AuthorByline
+          :author="node.author"
+          :author-is-new="node.authorIsNew"
+          :age-link="node.ageLink"
+          :age="node.age"
+          :age-timestamp="node.ageTimestamp"
+        />
+        <div class="comment-header__badges" v-if="node.isDead || node.isFlagged || downvoteOpacity">
           <Badge v-if="node.isDead" variant="dead" label="Dead" />
           <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
           <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
         </div>
       </template>
 
-      <span class="comment-header__divider" aria-hidden="true">&middot;</span>
-
-      <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">
-        {{ node.age }}
-      </a>
-
       <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
-      <span class="comment-header__divider" aria-hidden="true">&middot;</span>
+      <MetaSep />
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
         <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-header__nav-link" title="Previous">prev</a>
@@ -89,31 +86,11 @@ const downvoteOpacity = computed(() => {
   font-size: 0.8rem;
   color: var(--color-text-muted);
 
-  &__author {
-    font-weight: 700;
-    font-size: 0.825rem;
-    color: var(--color-text);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
-    }
-  }
-
   &__badges {
     display: flex;
     align-items: center;
     gap: 0.2rem;
     align-self: center;
-  }
-
-  &__divider {
-    color: var(--color-text-muted);
-    font-size: 0.8rem;
-    font-weight: 900;
-    user-select: none;
-    opacity: 0.6;
   }
 
   &__age {

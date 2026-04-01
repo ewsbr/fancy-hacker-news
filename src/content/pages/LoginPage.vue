@@ -161,7 +161,7 @@ function getPlaceholder(label: string) {
 
 .login-content {
   width: 100%;
-  max-width: 400px; // reverted to original
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -172,30 +172,30 @@ function getPlaceholder(label: string) {
   flex-direction: column;
   align-items: center;
   text-align: center;
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+    font-family: var(--font-title);
+  }
+
+  &__subheader {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
 }
 
 .login-logo {
   margin-bottom: 1.5rem;
-}
 
-.login-logo__img {
-  width: 44px;
-  height: 44px;
-  background: var(--color-accent);
-}
-
-.login-header__title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--color-text);
-  font-family: var(--font-title);
-}
-
-.login-header__subheader {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
+  &__img {
+    width: 44px;
+    height: 44px;
+    background: var(--color-accent);
+  }
 }
 
 .login-message {
@@ -213,99 +213,110 @@ function getPlaceholder(label: string) {
   padding: 2.25rem 2rem;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-elevation);
-  border-radius: 4px; // less round (4px)
+  border-radius: 4px;
+
+  &__empty {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 2rem;
+    border: 1px dashed var(--color-border);
+    border-radius: 4px;
+  }
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
 
-.login-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
 
-.login-form__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
 
-.login-form__label {
-  font-size: 0.725rem;
-  font-weight: 800;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.login-form__input {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid var(--color-border);
-  border-radius: 4px; // consistent 4px
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-family: inherit;
-  font-size: 0.9rem;
-  transition: all 0.15s ease;
-
-  &::placeholder {
+  &__label {
+    font-size: 0.725rem;
+    font-weight: 800;
     color: var(--color-text-muted);
-    opacity: 0.4;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  &:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
-  }
-}
+  &__input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
 
-.login-form__actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
+    &::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.4;
+    }
 
-.login-form__forgot-link {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.login-form__submit {
-  width: 100%;
-  padding: 0.6rem 1rem; // smaller (reduced from 0.85rem)
-  background: color-mix(in srgb, var(--color-accent) 90%, black);
-  color: #fff;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  font-size: 0.88rem; // smaller font size
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: var(--color-accent);
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+    }
   }
 
-  &:active {
-    transform: translateY(1px);
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  &__forgot {
+  }
+
+  &__forgot-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__submit {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: color-mix(in srgb, var(--color-accent) 90%, black);
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: var(--color-accent);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
   }
 }
 
@@ -313,31 +324,29 @@ function getPlaceholder(label: string) {
   text-align: center;
   font-size: 0.875rem;
   color: var(--color-text-muted);
-}
 
-.login-footer__btn {
-  background: none;
-  border: none;
-  color: var(--color-accent);
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
+  &__text {
   }
-}
 
-.login-card__empty {
-  text-align: center;
-  color: var(--color-text-muted);
-  padding: 2rem;
-  border: 1px dashed var(--color-border);
-  border-radius: 4px;
+  &__btn {
+    background: none;
+    border: none;
+    color: var(--color-accent);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &--back {
+    }
+  }
 }
 </style>

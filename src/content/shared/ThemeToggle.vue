@@ -87,144 +87,155 @@ const activeTheme = () => themes.find(t => t.name === theme.value)!;
 <style scoped lang="scss">
 .theme-toggle {
   position: relative;
-}
 
-/* ── Trigger ─────────────────────────────────────────── */
-.theme-toggle__trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.55rem 0.25rem 0.35rem;
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  background: var(--color-code-bg);
-  color: var(--color-text-muted);
-  font-size: 0.82rem;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  // ── Trigger ─────────────────────────────────────────── 
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.55rem 0.25rem 0.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    background: var(--color-code-bg);
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
 
-  &:hover {
-    border-color: var(--color-accent);
-    background: var(--color-surface);
-    color: var(--color-text);
-  }
-}
-
-.theme-toggle__trigger-swatch {
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1.5px var(--color-border);
-}
-
-.theme-toggle__trigger-label {
-  color: var(--color-text);
-  font-weight: 700;
-  font-size: 0.82rem;
-}
-
-.theme-toggle__palette-icon {
-  opacity: 0.7;
-  transition: opacity 0.15s;
-
-  .theme-toggle__trigger:hover & {
-    opacity: 1;
-    color: var(--color-accent);
-  }
-}
-
-/* ── Popover card ─────────────────────────────────────── */
-.theme-toggle__popover {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 200;
-  width: 176px;
-  padding: 0.65rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-elevation),
-              0 12px 32px -6px rgba(0, 0, 0, 0.15);
-}
-
-.theme-toggle__popover-title {
-  margin: 0 0 0.6rem 0.15rem;
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-/* ── 2×2 swatch grid ─────────────────────────────────── */
-.theme-toggle__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.45rem;
-}
-
-.theme-toggle__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.65rem 0.4rem 0.55rem;
-  border: 2px solid transparent;
-  border-radius: 4px;
-  background: var(--color-code-bg);
-  cursor: pointer;
-  font-family: inherit;
-  transition: border-color 0.15s, background 0.15s;
-
-  &:hover {
-    border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
-    background: var(--color-bg);
-  }
-
-  &--active {
-    border-color: var(--color-accent);
-    background: color-mix(in srgb, var(--color-accent) 8%, var(--color-code-bg));
-
-    .theme-toggle__card-swatch {
-      box-shadow: 0 0 0 2px var(--color-surface),
-                  0 0 0 3.5px var(--color-accent);
+    &:hover {
+      border-color: var(--color-accent);
+      background: var(--color-surface);
+      color: var(--color-text);
     }
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
+  &__trigger-swatch {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px var(--color-border);
+  }
+
+  &__trigger-label {
+    color: var(--color-text);
+    font-weight: 700;
+    font-size: 0.82rem;
+  }
+
+  &__palette-icon {
+    opacity: 0.7;
+    transition: opacity 0.15s;
+
+    .theme-toggle__trigger:hover & {
+      opacity: 1;
+      color: var(--color-accent);
+    }
+  }
+
+  // ── Popover card ─────────────────────────────────────── 
+  &__popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 200;
+    width: 176px;
+    padding: 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-elevation), 0 12px 32px -6px rgba(0, 0, 0, 0.15);
+  }
+
+  &__popover-title {
+    margin: 0 0 0.6rem 0.15rem;
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  // ── 2×2 swatch grid ─────────────────────────────────── 
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 0.4rem 0.55rem;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    background: var(--color-code-bg);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+      background: var(--color-bg);
+    }
+
+    &--active {
+      border-color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 8%, var(--color-code-bg));
+
+      .theme-toggle__card-swatch {
+        box-shadow: 0 0 0 2px var(--color-surface),
+                    0 0 0 3.5px var(--color-accent);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__card-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px var(--color-border);
+    transition: box-shadow 0.15s;
+  }
+
+  &__card-label {
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+
+    .theme-toggle__card--active & {
+      color: var(--color-accent);
+    }
+  }
+
+  // ── Popover transition ───────────────────────────────── 
+  &.tt-pop-enter-active,
+  &.tt-pop-leave-active {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  &.tt-pop-enter-from,
+  &.tt-pop-leave-to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
   }
 }
 
-.theme-toggle__card-swatch {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1.5px var(--color-border);
-  transition: box-shadow 0.15s;
-}
-
-.theme-toggle__card-label {
-  color: var(--color-text);
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1;
-
-  .theme-toggle__card--active & {
-    color: var(--color-accent);
-  }
-}
-
-/* ── Popover transition ───────────────────────────────── */
 .tt-pop-enter-active,
 .tt-pop-leave-active {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
+
 .tt-pop-enter-from,
 .tt-pop-leave-to {
   opacity: 0;

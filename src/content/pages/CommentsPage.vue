@@ -10,6 +10,8 @@ import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
+import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
+import AuthorByline from '@/content/shared/AuthorByline.vue';
 
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
@@ -117,7 +119,7 @@ onUnmounted(() => {
 
 <template>
   <div class="comments-page" v-if="pageData">
-    <div class="comments-page__container">
+    <div class="comments-page__container hn-content-card">
       <template v-if="pageData.item.type === 'story'">
         <StoryDetail :item="pageData.item" />
         <PollOptions v-if="pageData.pollOptions.length > 0" :options="pageData.pollOptions" />
@@ -127,12 +129,7 @@ onUnmounted(() => {
         <div class="comments-page__comment-parent" :id="commentItemDomId || undefined">
 
           <!-- Thread context header -->
-          <div class="comments-page__thread" v-if="pageData.item.storyTitle">
-            <span class="comments-page__thread-label">thread</span>
-            <a :href="pageData.item.storyLink || ''" class="comments-page__thread-title">
-              {{ pageData.item.storyTitle }}
-            </a>
-          </div>
+          <OnStoryHeader v-if="pageData.item.storyTitle" :block="true" label="thread" :href="pageData.item.storyLink || ''" :title="pageData.item.storyTitle" />
 
           <!-- Comment: vote + content -->
           <div class="comments-page__comment-layout">
@@ -141,12 +138,15 @@ onUnmounted(() => {
             </div>
             <div class="comments-page__comment-content">
               <div class="comments-page__comment-meta">
-                <a :href="`user?id=${pageData.item.author}`" class="comments-page__comment-author">{{ pageData.item.author }}</a>
-                <Badge v-if="pageData.item.authorIsNew" variant="new" label="New" title="New user" />
+                <AuthorByline
+                  :author="pageData.item.author"
+                  :author-is-new="pageData.item.authorIsNew"
+                  :age-link="pageData.item.ageLink"
+                  :age="pageData.item.age"
+                  :age-timestamp="pageData.item.ageTimestamp"
+                />
                 <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
                 <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
-                <span class="comments-page__comment-sep">&middot;</span>
-                <a :href="pageData.item.ageLink" class="comments-page__comment-age" :title="pageData.item.ageTimestamp">{{ pageData.item.age }}</a>
                 <template v-if="pageData.item.favoriteUrl">
                   <span class="comments-page__comment-sep">&middot;</span>
                   <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
@@ -179,48 +179,9 @@ onUnmounted(() => {
 .comments-page {
   padding-bottom: 2rem;
 
-  &__container {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-accent);
-    border-radius: 4px;
-    box-shadow: var(--shadow-elevation);
-    overflow: hidden;
-  }
-
   &__comment-parent {
     border-bottom: 1px solid var(--color-border);
     scroll-margin-top: 50px;
-  }
-
-  &__thread {
-    padding: 0.6rem 0.75rem 0.55rem;
-    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-accent) 4%);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  &__thread-label {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--color-text-muted);
-    margin-bottom: 0.2rem;
-  }
-
-  &__thread-title {
-    display: block;
-    font-family: var(--font-title);
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--color-text);
-    text-decoration: none;
-    line-height: 1.3;
-
-    &:hover {
-      color: var(--color-accent);
-    }
   }
 
   &__comment-layout {
@@ -251,31 +212,11 @@ onUnmounted(() => {
     margin-bottom: 0.6rem;
   }
 
-  &__comment-author {
-    font-weight: 700;
-    color: var(--color-text);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
-    }
-  }
-
   &__comment-sep {
     color: var(--color-border);
     font-weight: 900;
     font-size: 1.1rem;
     user-select: none;
-  }
-
-  &__comment-age {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 
   &__comment-action {

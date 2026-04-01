@@ -3,6 +3,7 @@ import { inject, ref, type Ref } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import {
   Clock,
+  Search,
   Twitter,
   Facebook,
   Instagram,
@@ -11,6 +12,9 @@ import {
 } from 'lucide-vue-next';
 
 const renderTime = inject<Ref<number>>('renderTime', ref(0));
+const openSearch = inject<() => void>('openSearch');
+
+const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
 
 const links = [
   { text: 'Guidelines', href: 'newsguidelines.html' },
@@ -56,20 +60,16 @@ const socialLinks = [
             </template>
           </nav>
 
-          <form method="get" action="//hn.algolia.com/" class="site-footer__search">
-            <label for="hn-footer-search" class="site-footer__search-label">Search:</label>
-            <input
-              id="hn-footer-search"
-              type="text"
-              name="q"
-              size="17"
-              autocorrect="off"
-              spellcheck="false"
-              autocapitalize="none"
-              autocomplete="off"
-              class="site-footer__search-input"
-            />
-          </form>
+          <button
+            type="button"
+            class="site-footer__search-trigger"
+            aria-label="Search Hacker News"
+            @click="openSearch?.()"
+          >
+            <Search :size="14" class="site-footer__search-icon" aria-hidden="true" />
+            <span class="site-footer__search-placeholder">Search HN…</span>
+            <kbd>{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
+          </button>
         </div>
       </div>
 
@@ -116,23 +116,71 @@ const socialLinks = [
   color: var(--color-text);
   font-family: var(--font-title);
 
+  // Theme overrides
   #hn-modern-root:not([data-theme]) & {
     background: #000000;
     color: #f5f5ee;
     border-top: none;
 
-    .site-footer__link { color: #f5f5ee; opacity: 0.7; &:hover { opacity: 1; text-decoration: none; color: #fff; } }
-    .site-footer__sep { color: #f5f5ee; opacity: 0.3; }
-    .site-footer__tagline { color: #f5f5ee; }
-    .site-footer__copyright { color: #f5f5ee; opacity: 0.6; }
-    .site-footer__social-link { color: #f5f5ee; opacity: 0.8; &:hover { color: #fff; opacity: 1; } }
-    .site-footer__divider { border-color: rgba(255, 255, 255, 0.1); }
-    .site-footer__metadata { color: #f5f5ee; opacity: 0.5; }
-    .site-footer__search-label { color: #f5f5ee; opacity: 0.7; }
-    .site-footer__search-input {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
+    .site-footer__link {
       color: #f5f5ee;
+      opacity: 0.7;
+
+      &:hover {
+        opacity: 1;
+        text-decoration: none;
+        color: #fff;
+      }
+    }
+
+    .site-footer__sep {
+      color: #f5f5ee;
+      opacity: 0.3;
+    }
+
+    .site-footer__tagline {
+      color: #f5f5ee;
+    }
+
+    .site-footer__copyright {
+      color: #f5f5ee;
+      opacity: 0.6;
+    }
+
+    .site-footer__social-link {
+      color: #f5f5ee;
+      opacity: 0.8;
+
+      &:hover {
+        color: #fff;
+        opacity: 1;
+      }
+    }
+
+    .site-footer__divider {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .site-footer__metadata {
+      color: #f5f5ee;
+      opacity: 0.5;
+    }
+
+    .site-footer__search-trigger {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(245, 245, 238, 0.6);
+
+      kbd {
+        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(245, 245, 238, 0.5);
+      }
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        color: #f5f5ee;
+      }
     }
   }
 
@@ -146,178 +194,196 @@ const socialLinks = [
     border-top: 3px solid var(--color-accent);
     box-shadow: 0 -10px 40px -10px rgba(255, 102, 0, 0.15);
   }
-}
 
-.site-footer__container {
-  max-width: 1024px;
-  margin: 0 auto;
-}
-
-.site-footer__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 3rem;
-  margin-bottom: 3rem;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 2rem;
+  // Block structure
+  &__container {
+    max-width: 1024px;
+    margin: 0 auto;
   }
-}
 
-.site-footer__brand {
-  flex-shrink: 0;
-}
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 3rem;
+    margin-bottom: 3rem;
 
-.site-footer__logo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 2rem;
+    }
+  }
 
-  img,
-  svg {
+  &__brand {
     flex-shrink: 0;
   }
-}
 
-.site-footer__tagline {
-  font-size: 1.15rem;
-  font-weight: 300;
-  letter-spacing: -0.01em;
-}
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 
-.site-footer__nav {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    align-items: flex-start;
+    img,
+    svg {
+      flex-shrink: 0;
+    }
   }
-}
 
-.site-footer__links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.5rem;
-}
-
-.site-footer__link {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  transition: color 0.2s ease;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--color-accent);
-    text-decoration: none;
+  &__tagline {
+    font-size: 1.15rem;
+    font-weight: 300;
+    letter-spacing: -0.01em;
   }
-}
 
-.site-footer__sep {
-  color: var(--color-text-muted);
-  opacity: 0.4;
-  font-size: 0.875rem;
-  user-select: none;
-}
+  &__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
 
-.site-footer__search {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.site-footer__search-label {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-.site-footer__search-input {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  padding: 0.3rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-bg);
-  color: var(--color-text);
-  outline: none;
-
-  &:focus {
-    border-color: var(--color-accent);
+    @media (max-width: 768px) {
+      align-items: flex-start;
+    }
   }
-}
 
-.site-footer__divider {
-  height: 1px;
-  background: var(--color-border);
-  margin-bottom: 2rem;
-  opacity: 0.5;
-}
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+  }
 
-.site-footer__disclaimer {
-  margin-bottom: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  line-height: 1.6;
-  color: var(--color-text-muted);
-  opacity: 0.6;
+  &__link {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    transition: color 0.2s ease;
+    white-space: nowrap;
 
-  #hn-modern-root:not([data-theme]) & {
-    color: #f5f5ee;
+    &:hover {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+  }
+
+  &__sep {
+    color: var(--color-text-muted);
+    opacity: 0.4;
+    font-size: 0.875rem;
+    user-select: none;
+  }
+
+  &__search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.38rem 0.75rem 0.38rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    kbd {
+      display: inline-block;
+      padding: 0.1em 0.35em;
+      border: 1px solid var(--color-border);
+      border-radius: 3px;
+      background: var(--color-surface);
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      line-height: 1.4;
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+
+    &:hover {
+      border-color: var(--color-accent);
+      color: var(--color-text);
+    }
+  }
+
+  &__search-icon {
+    flex-shrink: 0;
+  }
+
+  &__search-placeholder {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+
+  &__divider {
+    height: 1px;
+    background: var(--color-border);
+    margin-bottom: 2rem;
     opacity: 0.5;
   }
-}
 
-.site-footer__bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 2rem;
-
-  @media (max-width: 768px) {
+  &__disclaimer {
+    margin-bottom: 1.5rem;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    opacity: 0.6;
+
+    #hn-modern-root:not([data-theme]) & {
+      color: #f5f5ee;
+      opacity: 0.5;
+    }
   }
-}
 
-.site-footer__bottom-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+  &__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
 
-.site-footer__copyright {
-  font-size: 0.875rem;
-  opacity: 0.7;
-}
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 
-.site-footer__metadata {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  opacity: 0.5;
-}
+  &__bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 
-.site-footer__socials {
-  display: flex;
-  gap: 1rem;
-}
+  &__copyright {
+    font-size: 0.875rem;
+    opacity: 0.7;
+  }
 
-.site-footer__social-link {
-  color: var(--color-text-muted);
-  transition: transform 0.2s ease, color 0.2s ease;
+  &__metadata {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    opacity: 0.5;
+  }
 
-  &:hover {
-    color: var(--color-accent);
-    transform: translateY(-2px);
+  &__socials {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__social-link {
+    color: var(--color-text-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: var(--color-accent);
+      transform: translateY(-2px);
+    }
   }
 }
 </style>

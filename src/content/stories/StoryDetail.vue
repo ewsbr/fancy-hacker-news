@@ -5,6 +5,8 @@ import RichText from '@/content/shared/RichText.vue';
 import Badge from '@/content/shared/Badge.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
+import StorySiteLink from '@/content/shared/StorySiteLink.vue';
+import AuthorByline from '@/content/shared/AuthorByline.vue';
 
 const props = defineProps<{
   item: ItemDetail;
@@ -31,9 +33,7 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
             >
               {{ item.title }}
             </component>
-            <span v-if="item.site" class="story-detail__site">
-              (<a :href="`from?site=${item.site}`">{{ item.site }}</a>)
-            </span>
+            <StorySiteLink :site="item.site" />
             <Badge v-if="item.isDead" variant="dead" label="Dead" />
             <Badge v-if="item.isFlagged" variant="flagged" label="Flagged" />
           </div>
@@ -41,18 +41,14 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
           <div class="story-detail__meta">
             <span v-if="item.score !== null" class="story-detail__score">{{ item.score }} points</span>
             
-            <span class="story-detail__author-wrap">
-              by 
-              <a 
-                :href="`user?id=${item.author}`" 
-                class="story-detail__author"
-              >
-                {{ item.author }}
-              </a>
-              <Badge v-if="item.authorIsNew" variant="new" label="New" title="New user" />
-            </span>
-
-            <a :href="item.ageLink" class="story-detail__age" :title="item.ageTimestamp">{{ item.age }}</a>
+            <AuthorByline
+              prefix="by"
+              :author="item.author"
+              :author-is-new="item.authorIsNew"
+              :age-link="item.ageLink"
+              :age="item.age"
+              :age-timestamp="item.ageTimestamp"
+            />
 
             <div class="story-detail__actions">
               <template v-if="item.hideUrl">
@@ -123,21 +119,6 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
     text-decoration: none;
   }
 
-  &__site {
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
-    margin-left: 0.3rem;
-
-    a {
-      color: inherit;
-      text-decoration: none;
-
-      &:hover {
-        color: var(--color-text);
-      }
-    }
-  }
-
   &__meta {
     margin-top: 0.1rem;
     display: flex;
@@ -152,31 +133,6 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
   &__score {
     font-weight: 700;
     color: var(--color-accent);
-  }
-
-  &__author-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
-  &__author {
-    font-weight: 600;
-    color: var(--color-text);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__age {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 
   &__actions {

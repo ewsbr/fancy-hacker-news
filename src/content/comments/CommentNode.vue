@@ -139,30 +139,13 @@ watch(
 </template>
 
 <style scoped lang="scss">
+@use '../../styles/comment-node' as *;
+
 .comment-node {
-  position: relative;
+  @include comment-node-base;
 
   &--root {
     margin-top: 0.5rem;
-  }
-
-  // Handle sticky header offset for fragment navigation
-  scroll-margin-top: 50px;
-
-  &:target {
-    animation: highlight-fade 5s forwards;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: -4px;
-      bottom: -4px;
-      left: -10px;
-      width: 10px;
-      background: inherit;
-      border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-      animation: highlight-line-fade 5s forwards;
-    }
   }
 
   &--highlight {
@@ -181,23 +164,6 @@ watch(
     }
   }
 
-  &--collapsed {
-    > .comment-node__content-wrap {
-      opacity: 0.8;
-    }
-  }
-
-  &__content-wrap {
-    display: flex;
-    align-items: flex-start;
-  }
-
-
-  &__main {
-    flex: 1;
-    min-width: 0;
-  }
-
   &__body-wrapper {
     margin-top: 0.2rem;
 
@@ -213,7 +179,6 @@ watch(
   }
 
   &__thread {
-    display: flex;
     margin-top: 0.45rem;
     min-width: 0;
     // Track nesting depth via a CSS counter — used on mobile for the
@@ -243,55 +208,7 @@ watch(
   }
 
   &__line {
-    flex-shrink: 0;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    display: flex;
-    justify-content: center;
     padding: 0 16px 0 4px;
-
-    &::after {
-      content: "";
-      width: 2px;
-      background-color: var(--color-border);
-      opacity: 0.5;
-      transition: background-color 0.2s, opacity 0.2s;
-    }
-
-    &:hover::after {
-      background-color: var(--color-accent);
-      opacity: 1;
-    }
-  }
-
-  &__children {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-}
-
-@keyframes highlight-fade {
-  0%, 80% {
-    background: color-mix(in srgb, var(--color-accent) 3%, transparent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
-  }
-  100% {
-    background: transparent;
-    box-shadow: 0 0 0 4px transparent;
-  }
-}
-
-@keyframes highlight-line-fade {
-  0%, 80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
   }
 }
 </style>
