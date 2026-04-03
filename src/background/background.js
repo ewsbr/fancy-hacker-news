@@ -5,11 +5,15 @@
  * network interception here as needed.
  */
 
+import { createLogger } from '../debug';
+
+const backgroundLogger = createLogger('background');
+
 // Log when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    console.log('[Refined HN] Extension installed.');
+    backgroundLogger.info('Extension installed');
   } else if (reason === 'update') {
-    console.log('[Refined HN] Extension updated.');
+    backgroundLogger.info('Extension updated');
   }
 });

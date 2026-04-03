@@ -8,7 +8,7 @@
  * 5. Mount Vue app with parsed data via provide/inject
  */
 import { createApp, ref } from 'vue';
-import { clearDebugEntries, debugLog, debugMeasure, flushDebugSession, isDebugMode } from '@/debug';
+import { clearDebugEntries, createLogger, debugLog, debugMeasure, flushDebugSession, isDebugMode } from '@/debug';
 import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
 import { parseLoginPage } from '@/parsers/login';
@@ -23,6 +23,8 @@ import { parseReplyPage } from '@/parsers/reply';
 import { parseLeadersPage } from '@/parsers/leaders';
 import App from './App.vue';
 import '@/styles/main.scss';
+
+const mainLogger = createLogger('main');
 
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
@@ -248,7 +250,7 @@ function mountApp() {
   } catch (e) {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.
-    console.error('[Refined HN] Failed to render:', e);
+    mainLogger.error('Failed to render', e);
     document.getElementById('refined-hn-hide-original')?.remove();
     hideOriginalStyle = null;
   }

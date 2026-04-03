@@ -2,7 +2,7 @@
 import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
 import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
-import { debugLog, isDebugMode } from '@/debug';
+import { createLogger, debugLog, isDebugMode } from '@/debug';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/comments/CommentForm.vue';
@@ -16,6 +16,7 @@ import AuthorByline from '@/content/shared/AuthorByline.vue';
 
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
+const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
 const commentItemDomId = computed(() => {
@@ -117,7 +118,7 @@ function logFragmentWarning(
   reason: string,
   details: Record<string, unknown>,
 ) {
-  console.warn('[Refined HN] Fragment scroll warning:', reason, details);
+  commentsLogger.warn(`Fragment scroll warning: ${reason}`, details);
   debugLog(`fragment:${reason}`, details);
 }
 
