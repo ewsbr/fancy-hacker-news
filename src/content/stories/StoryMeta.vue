@@ -64,7 +64,7 @@ function formatComments(count: number | null): string {
 }
 
 .story-meta__score {
-  color: var(--color-accent);
+  color: var(--color-accent-muted);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }

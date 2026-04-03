@@ -44,7 +44,10 @@ function parsePageData(page: string, doc: Document): unknown {
     return isComments ? parseNewComments(doc) : parseStoryList(doc);
   }
   if (page === 'submitted' || page === 'hidden') return parseStoryList(doc);
-  if (page === 'submit') return parseSubmitPage(doc);
+  if (page === 'submit') {
+    const submitPage = parseSubmitPage(doc);
+    return submitPage.form ? submitPage : parseLoginPage(doc);
+  }
   if (page === 'reply') return parseReplyPage(doc);
   if (page === 'formatdoc') return parseStaticPage(doc);
   if (page === 'leaders') return parseLeadersPage(doc);

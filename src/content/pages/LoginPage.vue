@@ -7,6 +7,7 @@ import YLogo from '@/assets/ycombinator.svg';
 const page = inject<ParsedLoginPage>('pageData')!;
 
 const isLogin = ref(true);
+const isStandardLoginExperience = computed(() => page.variant !== 'forgot' && page.variant !== 'changepw');
 
 const loginForm = computed(() => 
   page.forms.find(f => f.submitLabel.toLowerCase().includes('login')) || page.forms[0]
@@ -17,22 +18,32 @@ const registerForm = computed(() =>
 );
 
 const currentForm = computed(() => {
-  if (page.variant !== 'login') return page.forms[0];
+  if (!isStandardLoginExperience.value) return page.forms[0];
   return isLogin.value ? loginForm.value : (registerForm.value || loginForm.value);
 });
 
-const canToggle = computed(() => page.variant === 'login' && registerForm.value);
+const canToggle = computed(() => isStandardLoginExperience.value && registerForm.value);
 
 const title = computed(() => {
-  if (page.variant !== 'login') return page.title;
+  if (page.variant === 'forgot') return 'Reset Password';
+  if (page.variant === 'changepw') return 'Change Password';
   return isLogin.value ? 'Welcome back' : 'Create an account';
 });
 
 const subheader = computed(() => {
-  if (page.variant !== 'login') return 'Reset your password to continue';
+  if (page.variant === 'forgot') return 'Reset your password to continue';
+  if (page.variant === 'changepw') return 'Update your password to continue';
   return isLogin.value 
     ? 'Sign in to your account to continue' 
     : 'Join the Hacker News community';
+});
+
+const submitLabel = computed(() => {
+  if (!isStandardLoginExperience.value) {
+    return currentForm.value?.submitLabel || 'Continue';
+  }
+
+  return isLogin.value ? 'Sign in' : 'Create account';
 });
 
 function getPlaceholder(label: string) {
@@ -102,7 +113,7 @@ function getPlaceholder(label: string) {
           </div>
 
           <!-- Actions Row (Forgot Password inside Login state) -->
-          <div v-if="page.variant === 'login' && isLogin" class="login-form__actions">
+          <div v-if="isStandardLoginExperience && isLogin" class="login-form__actions">
             <div class="login-form__forgot">
               <a href="/forgot" class="login-form__forgot-link">
                 <HelpCircle :size="13" />
@@ -115,9 +126,9 @@ function getPlaceholder(label: string) {
             type="submit" 
             class="login-form__submit"
           >
-            <UserPlus v-if="page.variant === 'login' && !isLogin" :size="16" />
-            {{ isLogin ? 'Sign in' : 'Create account' }}
-            <ArrowRight v-if="page.variant === 'login' && isLogin" :size="16" />
+            <UserPlus v-if="isStandardLoginExperience && !isLogin" :size="16" />
+            {{ submitLabel }}
+            <ArrowRight v-if="isStandardLoginExperience && isLogin" :size="16" />
           </button>
         </form>
       </main>

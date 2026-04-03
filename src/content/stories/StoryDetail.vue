@@ -132,7 +132,7 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 
   &__score {
     font-weight: 700;
-    color: var(--color-accent);
+    color: var(--color-accent-muted);
   }
 
   &__actions {

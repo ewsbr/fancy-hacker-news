@@ -8,12 +8,7 @@ const pageData = inject<ParsedSubmitPage>('pageData')!;
 
 <template>
   <div class="submit-page">
-    <template v-if="pageData.isLoggedOut">
-      <div class="submit-page__message">
-        You have to <a href="login?goto=submit">log in</a> to submit.
-      </div>
-    </template>
-    <template v-else-if="pageData.form">
+    <template v-if="pageData.form">
       <SubmitForm :form="pageData.form" />
       
       <div class="submit-page__guidelines">
@@ -28,19 +23,6 @@ const pageData = inject<ParsedSubmitPage>('pageData')!;
 <style scoped lang="scss">
 .submit-page {
   padding: 1rem 0;
-  
-  &__message {
-    padding: 1rem 0;
-    
-    a {
-      color: var(--color-text);
-      text-decoration: underline;
-      
-      &:hover {
-        color: var(--color-accent);
-      }
-    }
-  }
   
   &__guidelines {
     max-width: 600px;
