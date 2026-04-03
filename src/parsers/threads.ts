@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf, isNewUser, parseAge, parseGrayLevel, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, normalizeQuotedHtml, parseAge, parseGrayLevel, findMoreLink } from './utils';
 import type { CommentNode } from './item';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
@@ -99,7 +99,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       age: ageInfo.text,
       ageTimestamp: ageInfo.timestamp,
       ageLink: ageInfo.link,
-      bodyHtml: commtext?.innerHTML || '',
+      bodyHtml: normalizeQuotedHtml(commtext?.innerHTML || ''),
       grayLevel,
       indent,
       isCollapsed,

@@ -1,4 +1,4 @@
-import { textOf, attrOf, parseAge } from './utils';
+import { textOf, attrOf, normalizeQuotedHtml, parseAge } from './utils';
 
 export interface ParsedReplyPage {
   isLoggedOut: boolean;
@@ -32,7 +32,7 @@ export function parseReplyPage(doc: Document): ParsedReplyPage {
   const parent = {
     author: textOf(authorEl),
     age: ageInfo.text,
-    bodyHtml: commtext?.innerHTML || '',
+    bodyHtml: normalizeQuotedHtml(commtext?.innerHTML || ''),
   };
 
   // Reply form

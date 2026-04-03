@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf, isNewUser, parseAge, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, normalizeQuotedHtml, parseAge, findMoreLink } from './utils';
 
 export interface FlatComment {
   id: string;
@@ -47,7 +47,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
       authorIsNew: isNewUser(authorEl),
       age: ageInfo.text,
       ageLink: ageInfo.link,
-      bodyHtml: commtext?.innerHTML || '',
+      bodyHtml: normalizeQuotedHtml(commtext?.innerHTML || ''),
       onStory: {
         title: attrOf(onstoryEl, 'title') || textOf(onstoryEl),
         link: hrefOf(onstoryEl) || '',

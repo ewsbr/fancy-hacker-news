@@ -2,6 +2,7 @@ import {
   attrOf,
   hrefOf,
   isNewUser,
+  normalizeQuotedHtml,
   parseAge,
   parseGrayLevel,
   parseScore,
@@ -173,7 +174,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
 
       const toptext = fatitem.querySelector('.toptext');
       if (toptext && toptext.innerHTML.trim()) {
-        parsedItem.bodyHtml = toptext.innerHTML;
+        parsedItem.bodyHtml = normalizeQuotedHtml(toptext.innerHTML);
       }
 
       return parsedItem;
@@ -198,14 +199,14 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     parsedItem.storyTitle = textOf(onStory);
     parsedItem.storyLink = hrefOf(onStory);
 
-    const commtext = athing?.querySelector('.commtext');
-    if (commtext) {
-      const replyDiv = commtext.querySelector('.reply');
-      if (replyDiv) {
-        replyDiv.remove();
+      const commtext = athing?.querySelector('.commtext');
+      if (commtext) {
+        const replyDiv = commtext.querySelector('.reply');
+        if (replyDiv) {
+          replyDiv.remove();
+        }
+        parsedItem.bodyHtml = normalizeQuotedHtml(commtext.innerHTML);
       }
-      parsedItem.bodyHtml = commtext.innerHTML;
-    }
 
     return parsedItem;
   }, () => ({ itemType: fatitem.querySelector('tr.athing')?.classList.contains('submission') ? 'story' : 'comment' }));
@@ -340,7 +341,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
         age: ageInfo.text,
         ageTimestamp: ageInfo.timestamp,
         ageLink: ageInfo.link,
-        bodyHtml: commtext?.innerHTML || '',
+        bodyHtml: normalizeQuotedHtml(commtext?.innerHTML || ''),
         grayLevel,
         indent,
         isCollapsed,

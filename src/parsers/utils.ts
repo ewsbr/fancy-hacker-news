@@ -63,5 +63,96 @@ export function parseGrayLevel(el: Element | null | undefined): string | null {
   if (!el) return null;
   const classes = Array.from(el.classList);
   const grayClass = classes.find(c => /^c[0-9a-fA-F]{2}$/.test(c));
-  return grayClass || null;
+  return grayClass?.toLowerCase() || null;
+}
+
+const QUOTED_HTML_PATTERN = /(^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
+
+function getFirstLeafText(node: Node): Text | null {
+  for (const child of Array.from(node.childNodes)) {
+    if (child.nodeType === Node.TEXT_NODE && (child.textContent || '').trim()) {
+      return child as Text;
+    }
+    if (child.nodeType === Node.ELEMENT_NODE) {
+      const found = getFirstLeafText(child);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+const INLINE_TAGS = new Set(['I', 'B', 'EM', 'STRONG', 'A', 'CODE', 'SPAN', 'U', 'S', 'FONT']);
+
+function isInlineNode(node: Node): boolean {
+  if (node.nodeType === Node.TEXT_NODE) return true;
+  if (node.nodeType === Node.ELEMENT_NODE) return INLINE_TAGS.has((node as Element).nodeName);
+  return false;
+}
+
+export function normalizeQuotedHtml(html: string): string {
+  if (!html || !QUOTED_HTML_PATTERN.test(html)) {
+    return html;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+
+  const nodes = Array.from(wrap.childNodes);
+  const output: Node[] = [];
+  const quoteParagraphs: Element[] = [];
+  let i = 0;
+
+  function flushQuotes() {
+    if (!quoteParagraphs.length) return;
+    const blockquote = document.createElement('blockquote');
+    for (const paragraph of quoteParagraphs) {
+      blockquote.appendChild(paragraph);
+    }
+    output.push(blockquote);
+    quoteParagraphs.length = 0;
+  }
+
+  while (i < nodes.length) {
+    const node = nodes[i];
+
+    if (node.nodeType === Node.TEXT_NODE && /^\s*>/.test(node.textContent || '')) {
+      const paragraph = document.createElement('p');
+      const stripped = (node.textContent || '').replace(/^\s*>\s?/, '');
+      if (stripped) {
+        paragraph.appendChild(document.createTextNode(stripped));
+      }
+      i += 1;
+
+      while (i < nodes.length && isInlineNode(nodes[i])) {
+        paragraph.appendChild(nodes[i].cloneNode(true));
+        i += 1;
+      }
+
+      quoteParagraphs.push(paragraph);
+      continue;
+    }
+
+    if (node.nodeName === 'P') {
+      const paragraph = node as Element;
+      const firstText = getFirstLeafText(paragraph);
+      if (firstText && /^\s*>/.test(firstText.textContent || '')) {
+        const clone = paragraph.cloneNode(true) as Element;
+        const cloneFirstText = getFirstLeafText(clone);
+        if (cloneFirstText) {
+          cloneFirstText.textContent = (cloneFirstText.textContent || '').replace(/^\s*>\s?/, '');
+        }
+        quoteParagraphs.push(clone);
+        i += 1;
+        continue;
+      }
+    }
+
+    flushQuotes();
+    output.push(node);
+    i += 1;
+  }
+
+  flushQuotes();
+  wrap.replaceChildren(...output);
+  return wrap.innerHTML;
 }
