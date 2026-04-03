@@ -19,7 +19,7 @@
   --color-quote-bg: #f7f7f7;
   --color-downvoted: #b0b0b0;
   --color-new-user: #3c963c;
-  --color-accent-muted: color-mix(in srgb, var(--color-text) 20%, var(--color-accent) 80%);
+  --color-accent-muted: #bf4d00;
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
 }
 
@@ -35,7 +35,7 @@
   --color-quote-bg: #282829;
   --color-downvoted: #666666;
   --color-new-user: #5cb85c;
-  --color-accent-muted: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+  --color-accent-muted: #ff9060;
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
 }
 
@@ -51,7 +51,7 @@
   --color-quote-bg: #3d4456;
   --color-downvoted: #616e88;
   --color-new-user: #a3be8c;
-  --color-accent-muted: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+  --color-accent-muted: #9ac8d6;
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
 }
 
@@ -67,7 +67,7 @@
   --color-quote-bg: #141414;
   --color-downvoted: #555555;
   --color-new-user: #5cb85c;
-  --color-accent-muted: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+  --color-accent-muted: #ff8c50;
   --shadow-elevation: 0 4px 6px -1px rgba(255, 255, 255, 0.02), 0 2px 4px -2px rgba(255, 255, 255, 0.01);
 }
 
