@@ -30,12 +30,18 @@ const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('
 
 const hashPathIds = ref<Set<string>>(new Set());
 const hashTargetId = ref<string | null>(null);
+const FRAGMENT_SCROLL_TOLERANCE = 24;
+const FRAGMENT_SCROLL_SETTLE_ATTEMPTS = 8;
 
 provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
 provide(HASH_TARGET_ID_KEY, hashTargetId);
 
 function getModernRoot(): HTMLElement | null {
-  return document.getElementById('hn-modern-root');
+  return document.getElementById('refined-hn-root');
+}
+
+function getScrollContainer(): HTMLElement | null {
+  return getModernRoot();
 }
 
 function getStickyHeaderOffset(): number {
@@ -86,64 +92,125 @@ async function waitForRenderedHashTarget(targetId: string, attempts = 36): Promi
 }
 
 function scrollMainPageTarget(target: HTMLElement) {
+  const scrollContainer = getScrollContainer();
   const offset = getStickyHeaderOffset();
   target.style.scrollMarginTop = `${Math.ceil(offset)}px`;
-  target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+
+  if (!scrollContainer) {
+    target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const desiredScrollTop = scrollContainer.scrollTop + (targetRect.top - containerRect.top) - offset;
+  const maxScrollTop = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
+
+  scrollContainer.scrollTo({
+    top: Math.min(Math.max(0, desiredScrollTop), maxScrollTop),
+    left: 0,
+    behavior: 'auto',
+  });
 }
 
 function logFragmentWarning(
   reason: string,
   details: Record<string, unknown>,
 ) {
-  console.warn('[HN Modern] Fragment scroll warning:', reason, details);
+  console.warn('[Refined HN] Fragment scroll warning:', reason, details);
   debugLog(`fragment:${reason}`, details);
 }
 
+function getMainPageScrollMetrics(target: HTMLElement) {
+  const scrollContainer = getScrollContainer();
+  const headerOffset = getStickyHeaderOffset();
+  const containerTop = Math.round(scrollContainer?.getBoundingClientRect().top ?? 0);
+  const actualTop = Math.round(target.getBoundingClientRect().top);
+  const expectedTop = Math.round(containerTop + headerOffset);
+  const delta = actualTop - expectedTop;
+  const rootScrollTop = Math.round(scrollContainer?.scrollTop ?? 0);
+  const rootMaxScrollTop = Math.max(
+    0,
+    (scrollContainer?.scrollHeight ?? 0) - (scrollContainer?.clientHeight ?? 0),
+  );
+  const isClampedAtTop = delta > FRAGMENT_SCROLL_TOLERANCE && rootScrollTop <= 1;
+  const isClampedAtBottom = delta < -FRAGMENT_SCROLL_TOLERANCE && rootScrollTop >= rootMaxScrollTop - 1;
+
+  return {
+    actualTop,
+    expectedTop,
+    delta,
+    headerOffset,
+    rootScrollTop,
+    rootMaxScrollTop,
+    isClampedAtTop,
+    isClampedAtBottom,
+  };
+}
+
 async function verifyMainPageScroll(targetId: string, pathLength: number) {
-  const target = getModernRoot()?.querySelector<HTMLElement>(`#${CSS.escape(targetId)}`) ?? null;
-  if (!target) {
-    logFragmentWarning('target-missing-after-scroll', {
-      targetId,
-      pathLength,
-      readyState: document.readyState,
-      isMobile: window.matchMedia('(max-width: 640px)').matches,
-      domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
-      scrollY: Math.round(window.scrollY),
-    });
-    return;
+  const selector = `#${CSS.escape(targetId)}`;
+  let lastMetrics: ReturnType<typeof getMainPageScrollMetrics> | null = null;
+
+  for (let attempt = 0; attempt < FRAGMENT_SCROLL_SETTLE_ATTEMPTS; attempt += 1) {
+    const target = getModernRoot()?.querySelector<HTMLElement>(selector) ?? null;
+    if (!target) {
+      logFragmentWarning('target-missing-after-scroll', {
+        targetId,
+        pathLength,
+        readyState: document.readyState,
+        isMobile: window.matchMedia('(max-width: 640px)').matches,
+        domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
+        scrollY: Math.round(window.scrollY),
+        attempt,
+      });
+      return;
+    }
+
+    scrollMainPageTarget(target);
+
+    await waitForAnimationFrame();
+    await waitForAnimationFrame();
+    await waitForTimeout(80);
+
+    lastMetrics = getMainPageScrollMetrics(target);
+
+    if (lastMetrics.isClampedAtTop || lastMetrics.isClampedAtBottom) {
+      if (isDebugMode()) {
+        debugLog('fragment:scroll-clamped', {
+          targetId,
+          pathLength,
+          attempt,
+          ...lastMetrics,
+          clampedAt: lastMetrics.isClampedAtTop ? 'top' : 'bottom',
+        });
+      }
+      return;
+    }
+
+    if (Math.abs(lastMetrics.delta) <= FRAGMENT_SCROLL_TOLERANCE) {
+      if (isDebugMode()) {
+        debugLog('fragment:scroll-success', {
+          targetId,
+          pathLength,
+          attempt,
+          scrollY: Math.round(window.scrollY),
+          ...lastMetrics,
+        });
+      }
+      return;
+    }
   }
 
-  await waitForAnimationFrame();
-  await waitForAnimationFrame();
-  await waitForTimeout(80);
-
-  const headerOffset = getStickyHeaderOffset();
-  const actualTop = Math.round(target.getBoundingClientRect().top);
-  const expectedTop = Math.round(headerOffset);
-  const delta = actualTop - expectedTop;
-  const scrollTop = Math.round(document.scrollingElement?.scrollTop ?? window.scrollY);
-
-  if (Math.abs(delta) > 24) {
+  if (lastMetrics && Math.abs(lastMetrics.delta) > FRAGMENT_SCROLL_TOLERANCE) {
     logFragmentWarning('scroll-offset-mismatch', {
       targetId,
       pathLength,
       readyState: document.readyState,
       isMobile: window.matchMedia('(max-width: 640px)').matches,
-      actualTop,
-      expectedTop,
-      delta,
+      attempts: FRAGMENT_SCROLL_SETTLE_ATTEMPTS,
       scrollY: Math.round(window.scrollY),
-      scrollTop,
-      headerOffset,
-    });
-  } else if (isDebugMode()) {
-    debugLog('fragment:scroll-success', {
-      targetId,
-      actualTop,
-      expectedTop,
-      delta,
-      scrollY: Math.round(window.scrollY),
-      scrollTop,
+      ...lastMetrics,
     });
   }
 }

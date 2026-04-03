@@ -45,9 +45,10 @@ const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
 
-const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
-const isCollapsed = computed(() => !isInHashPath.value && userCollapsed.value);
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
+const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
+const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
+const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
 const isUnvoted = computed(() => !!props.node.voteUn);
 const voteHref = computed(() => props.node.voteUn || props.node.voteUp || undefined);
 const hasHeaderNav = !!(
