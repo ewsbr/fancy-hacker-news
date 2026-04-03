@@ -1,7 +1,7 @@
 {
-  "name": "hackernews",
+  "name": "refined-hacker-news",
   "version": "1.0.0",
-  "description": "A browser extension that replaces the HackerNews UI with a cleaner, more modern design.",
+  "description": "A browser extension that replaces the Hacker News UI with a refined, modern design.",
   "packageManager": "pnpm@10.30.1",
   "scripts": {
     "dev": "BUILD_TARGET=content vite build --watch",
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/chrome": "^0.1.38",
     "@vitejs/plugin-vue": "^6.0.5",
+    "jsdom": "^29.0.1",
     "sass": "^1.98.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",

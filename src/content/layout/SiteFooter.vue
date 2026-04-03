@@ -117,7 +117,7 @@ const socialLinks = [
   font-family: var(--font-title);
 
   // Theme overrides
-  #hn-modern-root:not([data-theme]) & {
+  #refined-hn-root:not([data-theme]) & {
     background: #000000;
     color: #f5f5ee;
     border-top: none;
@@ -184,12 +184,12 @@ const socialLinks = [
     }
   }
 
-  #hn-modern-root[data-theme="dark"] &,
-  #hn-modern-root[data-theme="nord"] & {
+  #refined-hn-root[data-theme="dark"] &,
+  #refined-hn-root[data-theme="nord"] & {
     border-top: 2px solid var(--color-border);
   }
 
-  #hn-modern-root[data-theme="amoled"] & {
+  #refined-hn-root[data-theme="amoled"] & {
     background: #0a0a0a;
     border-top: 3px solid var(--color-accent);
     box-shadow: 0 -10px 40px -10px rgba(255, 102, 0, 0.15);
@@ -333,7 +333,7 @@ const socialLinks = [
     color: var(--color-text-muted);
     opacity: 0.6;
 
-    #hn-modern-root:not([data-theme]) & {
+    #refined-hn-root:not([data-theme]) & {
       color: #f5f5ee;
       opacity: 0.5;
     }

@@ -8,8 +8,8 @@
 // Log when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    console.log('[HN Modern] Extension installed.');
+    console.log('[Refined HN] Extension installed.');
   } else if (reason === 'update') {
-    console.log('[HN Modern] Extension updated.');
+    console.log('[Refined HN] Extension updated.');
   }
 });

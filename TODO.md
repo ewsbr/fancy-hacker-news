@@ -1,7 +1,3 @@
-- Issues with nested fragments on mobile
-  - Doesn't scroll correctly in the modal
-  - Doesn't scroll correctly outside of it either (into the containing element)
-
 - The parent comment on a comment thread isn't highlighted enough 
 - Remove fixtures leaking my tokens
 
@@ -11,10 +7,13 @@
 
 - Upvote buttons ain't expanding on mobile
 
-- Rename hn-modern let's not infringe on copyright
+- ~~Rename hn-modern let's not infringe on copyright~~ (renamed to Refined Hacker News)
 
 - User page is very bare bones
 - Accessibility, Lighthouse etc
+
+- Tooltip sucks
+- Rework doc pages .html and add links to each other
 
 Final security
 - No requests
