@@ -29,6 +29,11 @@ const commentItemDomId = computed(() => {
 
 const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('un=t') ?? false);
 
+const totalCommentCount = computed(() => {
+  if (!pageData) return 0;
+  return pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
+});
+
 const hashPathIds = ref<Set<string>>(new Set());
 const hashTargetId = ref<string | null>(null);
 const FRAGMENT_SCROLL_TOLERANCE = 24;
@@ -338,8 +343,14 @@ onUnmounted(() => {
       <div v-if="pageData.replyForm" class="comments-page__form-wrapper">
         <CommentForm :form="pageData.replyForm" />
       </div>
+      <div v-else-if="pageData.item.type === 'story'" class="comments-page__login-prompt">
+        <a href="login">Log in</a> to post a comment.
+      </div>
 
       <!-- Tree -->
+      <div v-if="totalCommentCount > 0" class="comments-page__comments-header">
+        {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
+      </div>
       <CommentTree :comments="pageData.comments" />
     </div>
   </div>
@@ -408,6 +419,33 @@ onUnmounted(() => {
 
   &__form-wrapper {
     padding: 0.875rem 0.75rem;
+  }
+
+  &__login-prompt {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+
+    a {
+      color: var(--color-accent);
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__comments-header {
+    padding: 0.6rem 1rem 0rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-top: 1px solid var(--color-border);
   }
 }
 

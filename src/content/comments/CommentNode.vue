@@ -44,6 +44,7 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
+const isDownvoted = !!props.node.grayLevel && props.node.grayLevel !== 'c00';
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
@@ -274,7 +275,11 @@ watch(
             <span class="comment-node__deleted-label">[deleted]</span>
           </div>
 
-          <div v-else class="comment-node__body-wrapper">
+          <div
+            v-else
+            class="comment-node__body-wrapper"
+            :tabindex="isDownvoted ? 0 : undefined"
+          >
             <div
               v-once
               class="comment-node__body"
@@ -579,7 +584,20 @@ watch(
       opacity: 0.85;
       filter: grayscale(10%);
       color: var(--color-text-muted);
+      transition: opacity 0.2s ease, filter 0.2s ease, color 0.2s ease;
+      cursor: pointer;
     }
+  }
+
+  &__body-wrapper:is(:hover, :active, :focus-visible, :focus-within) &__body--downvoted {
+    opacity: 1;
+    filter: none;
+    color: var(--color-text);
+  }
+
+  &__body-wrapper:focus-visible {
+    outline: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+    outline-offset: 3px;
   }
 
   &__rich-text {
