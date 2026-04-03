@@ -1,21 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import RichText from '@/content/shared/RichText.vue';
 
-const props = defineProps<{
+defineProps<{
   html: string;
   grayLevel: string | null;
 }>();
-
-const classNames = computed(() => {
-  if (!props.grayLevel || props.grayLevel === 'c00') return 'comment-body--normal';
-  return 'comment-body--downvoted';
-});
 </script>
 
 <template>
-  <div :class="['comment-body', classNames]">
-    <RichText :html="html" />
+  <div
+    class="comment-body"
+    :class="grayLevel && grayLevel !== 'c00' ? 'comment-body--downvoted' : 'comment-body--normal'"
+  >
+    <RichText v-once :html="html" />
   </div>
 </template>
 

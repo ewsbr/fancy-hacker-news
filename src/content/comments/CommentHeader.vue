@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { CommentNode } from '@/parsers/item';
 import Badge from '@/content/shared/Badge.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
@@ -14,22 +13,19 @@ const emit = defineEmits<{
   (e: 'toggle'): void;
 }>();
 
-const downvoteOpacity = computed(() => {
-  if (!props.node.grayLevel || props.node.grayLevel === 'c00') return null;
-  // Map HN classes to 1/9 - 9/9 levels
-  const map: Record<string, string> = {
-    'c5a': '1/9',
-    'c73': '2/9',
-    'c82': '3/9',
-    'c88': '4/9',
-    'c9c': '5/9',
-    'cae': '6/9',
-    'cbe': '7/9',
-    'cce': '8/9',
-    'cdd': '9/9',
-  };
-  return map[props.node.grayLevel.toLowerCase()] || null;
-});
+const DOWNVOTE_LABELS: Record<string, string> = {
+  c5a: '1/9',
+  c73: '2/9',
+  c82: '3/9',
+  c88: '4/9',
+  c9c: '5/9',
+  cae: '6/9',
+  cbe: '7/9',
+  cce: '8/9',
+  cdd: '9/9',
+};
+
+const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
 </script>
 
 <template>
