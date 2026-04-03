@@ -1,8 +1,8 @@
 import {
   attrOf,
+  extractRichTextHtml,
   hrefOf,
   isNewUser,
-  normalizeQuotedHtml,
   parseAge,
   parseGrayLevel,
   parseScore,
@@ -173,8 +173,9 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       parsedItem.flagUrl = hrefOf(subtext?.querySelector('a[href^="flag?"]'));
 
       const toptext = fatitem.querySelector('.toptext');
-      if (toptext && toptext.innerHTML.trim()) {
-        parsedItem.bodyHtml = normalizeQuotedHtml(toptext.innerHTML);
+      const bodyHtml = extractRichTextHtml(toptext);
+      if (bodyHtml) {
+        parsedItem.bodyHtml = bodyHtml;
       }
 
       return parsedItem;
@@ -199,14 +200,11 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     parsedItem.storyTitle = textOf(onStory);
     parsedItem.storyLink = hrefOf(onStory);
 
-      const commtext = athing?.querySelector('.commtext');
-      if (commtext) {
-        const replyDiv = commtext.querySelector('.reply');
-        if (replyDiv) {
-          replyDiv.remove();
-        }
-        parsedItem.bodyHtml = normalizeQuotedHtml(commtext.innerHTML);
-      }
+    const commtext = athing?.querySelector('.commtext');
+    const bodyHtml = extractRichTextHtml(commtext);
+    if (bodyHtml) {
+      parsedItem.bodyHtml = bodyHtml;
+    }
 
     return parsedItem;
   }, () => ({ itemType: fatitem.querySelector('tr.athing')?.classList.contains('submission') ? 'story' : 'comment' }));
@@ -341,7 +339,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
         age: ageInfo.text,
         ageTimestamp: ageInfo.timestamp,
         ageLink: ageInfo.link,
-        bodyHtml: normalizeQuotedHtml(commtext?.innerHTML || ''),
+        bodyHtml: extractRichTextHtml(commtext),
         grayLevel,
         indent,
         isCollapsed,

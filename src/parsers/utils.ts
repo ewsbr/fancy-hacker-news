@@ -67,6 +67,7 @@ export function parseGrayLevel(el: Element | null | undefined): string | null {
 }
 
 const QUOTED_HTML_PATTERN = /(^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
+const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
 
 function getFirstLeafText(node: Node): Text | null {
   for (const child of Array.from(node.childNodes)) {
@@ -89,22 +90,15 @@ function isInlineNode(node: Node): boolean {
   return false;
 }
 
-export function normalizeQuotedHtml(html: string): string {
-  if (!html || !QUOTED_HTML_PATTERN.test(html)) {
-    return html;
-  }
-
-  const wrap = document.createElement('div');
-  wrap.innerHTML = html;
-
-  const nodes = Array.from(wrap.childNodes);
+function normalizeQuotedContent(container: Element, doc: Document): void {
+  const nodes = Array.from(container.childNodes);
   const output: Node[] = [];
   const quoteParagraphs: Element[] = [];
   let i = 0;
 
   function flushQuotes() {
     if (!quoteParagraphs.length) return;
-    const blockquote = document.createElement('blockquote');
+    const blockquote = doc.createElement('blockquote');
     for (const paragraph of quoteParagraphs) {
       blockquote.appendChild(paragraph);
     }
@@ -115,11 +109,11 @@ export function normalizeQuotedHtml(html: string): string {
   while (i < nodes.length) {
     const node = nodes[i];
 
-    if (node.nodeType === Node.TEXT_NODE && /^\s*>/.test(node.textContent || '')) {
-      const paragraph = document.createElement('p');
-      const stripped = (node.textContent || '').replace(/^\s*>\s?/, '');
+    if (node.nodeType === Node.TEXT_NODE && QUOTED_TEXT_PATTERN.test(node.textContent || '')) {
+      const paragraph = doc.createElement('p');
+      const stripped = (node.textContent || '').replace(QUOTED_TEXT_PATTERN, '');
       if (stripped) {
-        paragraph.appendChild(document.createTextNode(stripped));
+        paragraph.appendChild(doc.createTextNode(stripped));
       }
       i += 1;
 
@@ -135,11 +129,11 @@ export function normalizeQuotedHtml(html: string): string {
     if (node.nodeName === 'P') {
       const paragraph = node as Element;
       const firstText = getFirstLeafText(paragraph);
-      if (firstText && /^\s*>/.test(firstText.textContent || '')) {
+      if (firstText && QUOTED_TEXT_PATTERN.test(firstText.textContent || '')) {
         const clone = paragraph.cloneNode(true) as Element;
         const cloneFirstText = getFirstLeafText(clone);
         if (cloneFirstText) {
-          cloneFirstText.textContent = (cloneFirstText.textContent || '').replace(/^\s*>\s?/, '');
+          cloneFirstText.textContent = (cloneFirstText.textContent || '').replace(QUOTED_TEXT_PATTERN, '');
         }
         quoteParagraphs.push(clone);
         i += 1;
@@ -153,6 +147,21 @@ export function normalizeQuotedHtml(html: string): string {
   }
 
   flushQuotes();
-  wrap.replaceChildren(...output);
-  return wrap.innerHTML;
+  container.replaceChildren(...output);
+}
+
+export function extractRichTextHtml(source: Element | null | undefined): string {
+  if (!source) return '';
+
+  const clone = source.cloneNode(true) as Element;
+  const html = clone.innerHTML;
+  if (!html) {
+    return '';
+  }
+
+  if (QUOTED_HTML_PATTERN.test(html)) {
+    normalizeQuotedContent(clone, clone.ownerDocument);
+  }
+
+  return clone.innerHTML;
 }
