@@ -11,6 +11,8 @@ import ThreadsPage from './pages/ThreadsPage.vue';
 import NewCommentsPage from './pages/NewCommentsPage.vue';
 import SubmitPage from './pages/SubmitPage.vue';
 import ReplyPage from './pages/ReplyPage.vue';
+import FormatDocPage from './pages/FormatDocPage.vue';
+import LeadersPage from './pages/LeadersPage.vue';
 
 const route = inject<RouteDescriptor>('route')!;
 
@@ -26,6 +28,8 @@ const PAGE_MAP: Record<string, Component> = {
   hidden: StoriesPage,
   submit: SubmitPage,
   reply: ReplyPage,
+  formatdoc: FormatDocPage,
+  leaders: LeadersPage,
 };
 
 const pageComponent = computed(() => {

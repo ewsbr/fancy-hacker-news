@@ -20,6 +20,7 @@ import { parseThreadsPage } from '@/parsers/threads';
 import { parseNewComments } from '@/parsers/newComments';
 import { parseSubmitPage } from '@/parsers/submit';
 import { parseReplyPage } from '@/parsers/reply';
+import { parseLeadersPage } from '@/parsers/leaders';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -37,6 +38,8 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'submitted' || page === 'hidden') return parseStoryList(doc);
   if (page === 'submit') return parseSubmitPage(doc);
   if (page === 'reply') return parseReplyPage(doc);
+  if (page === 'formatdoc') return parseStaticPage(doc);
+  if (page === 'leaders') return parseLeadersPage(doc);
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);
@@ -51,12 +54,18 @@ function cleanupOriginalBody(host: HTMLElement) {
   hideOriginalStyle = null;
 }
 
+function preventLegacyHnClickHandling(host: HTMLElement) {
+  host.addEventListener('click', event => {
+    event.stopPropagation();
+  });
+}
+
 function restoreInitialFragment() {
   if (!location.hash) {
     return;
   }
 
-  const host = document.getElementById('hn-modern-root');
+  const host = document.getElementById('refined-hn-root');
   const target = host?.querySelector<HTMLElement>(`#${CSS.escape(location.hash.slice(1))}`);
   target?.scrollIntoView();
 }
@@ -110,7 +119,7 @@ function resetInitialHashScroll() {
 // cleanupOriginalBody, so parsing would fail. Detect this by checking for the root
 // element we create, and reload the page to restore the clean server-rendered DOM.
 function mountApp() {
-  if (document.getElementById('hn-modern-root')) {
+  if (document.getElementById('refined-hn-root')) {
     window.location.reload();
     return;
   }
@@ -135,8 +144,8 @@ function mountApp() {
     // 2. Hide original HN content with one rule instead of mutating each body child.
     debugMeasure('main:hide-original-dom', () => {
       hideOriginalStyle = document.createElement('style');
-      hideOriginalStyle.id = 'hn-modern-hide-original';
-      hideOriginalStyle.textContent = 'body > :not(#hn-modern-root) { display: none !important; }';
+      hideOriginalStyle.id = 'refined-hn-hide-original';
+      hideOriginalStyle.textContent = 'body > :not(#refined-hn-root) { display: none !important; }';
       document.head.appendChild(hideOriginalStyle);
     });
   
@@ -152,7 +161,8 @@ function mountApp() {
     // Create mount host
     const host = debugMeasure('main:create-host', () => {
       const nextHost = document.createElement('div');
-      nextHost.id = 'hn-modern-root';
+      nextHost.id = 'refined-hn-root';
+      preventLegacyHnClickHandling(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
     });
@@ -238,8 +248,8 @@ function mountApp() {
   } catch (e) {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.
-    console.error('[HN Modern] Failed to render:', e);
-    document.getElementById('hn-modern-hide-original')?.remove();
+    console.error('[Refined HN] Failed to render:', e);
+    document.getElementById('refined-hn-hide-original')?.remove();
     hideOriginalStyle = null;
   }
 }

@@ -7,7 +7,7 @@ interface DebugEntry {
 }
 
 interface DebugWindow extends Window {
-  __HN_MODERN_DEBUG_ENTRIES__?: DebugEntry[];
+  __REFINED_HN_DEBUG_ENTRIES__?: DebugEntry[];
 }
 
 const DEBUG_SEARCH_PARAM = 'debug';
@@ -27,8 +27,8 @@ export function isDebugMode(): boolean {
 
 function entries(): DebugEntry[] {
   const currentWindow = debugWindow();
-  currentWindow.__HN_MODERN_DEBUG_ENTRIES__ ||= [];
-  return currentWindow.__HN_MODERN_DEBUG_ENTRIES__;
+  currentWindow.__REFINED_HN_DEBUG_ENTRIES__ ||= [];
+  return currentWindow.__REFINED_HN_DEBUG_ENTRIES__;
 }
 
 export function clearDebugEntries() {
@@ -36,7 +36,7 @@ export function clearDebugEntries() {
     return;
   }
 
-  debugWindow().__HN_MODERN_DEBUG_ENTRIES__ = [];
+  debugWindow().__REFINED_HN_DEBUG_ENTRIES__ = [];
 }
 
 export function debugMeasure<T>(
@@ -66,7 +66,7 @@ export function debugLog(label: string, details?: DebugDetails) {
     return;
   }
 
-  console.debug(`[HN Modern][debug] ${label}`, details ?? '');
+  console.debug(`[Refined HN][debug] ${label}`, details ?? '');
 }
 
 export function flushDebugSession(summary?: DebugDetails) {
@@ -75,7 +75,7 @@ export function flushDebugSession(summary?: DebugDetails) {
   }
 
   const currentEntries = entries();
-  console.groupCollapsed(`[HN Modern][debug] ${location.pathname}${location.search}`);
+  console.groupCollapsed(`[Refined HN][debug] ${location.pathname}${location.search}`);
   console.table(
     currentEntries.map(entry => ({
       label: entry.label,
@@ -85,7 +85,7 @@ export function flushDebugSession(summary?: DebugDetails) {
   );
 
   if (summary) {
-    console.log('[HN Modern][debug] summary', summary);
+    console.log('[Refined HN][debug] summary', summary);
   }
 
   console.groupEnd();

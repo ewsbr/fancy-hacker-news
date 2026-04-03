@@ -19,9 +19,14 @@ const page = inject<ParsedStaticPage>('pageData')!;
 <style scoped lang="scss">
 .static-page {
   padding: 2rem 0;
+  max-width: 48rem;
 
   &__content {
     color: var(--color-text);
+
+    :deep(img) {
+      display: none;
+    }
 
     :deep(a) {
       color: var(--color-accent);
@@ -33,17 +38,19 @@ const page = inject<ParsedStaticPage>('pageData')!;
 
     :deep(p) {
       margin-bottom: 0.75rem;
+      line-height: 1.625;
     }
 
     :deep(h1) {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
       font-family: var(--font-title);
-      font-size: 1.125rem;
-      font-weight: 600;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
 
     :deep(h2) {
-      margin-bottom: 0.75rem;
+      margin-top: 1.75rem;
+      margin-bottom: 0.625rem;
       font-family: var(--font-title);
       font-size: 1rem;
       font-weight: 600;

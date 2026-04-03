@@ -9,7 +9,7 @@ import { ref, watch, type Ref } from 'vue';
 export type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
 
 const THEMES: ThemeName[] = ['light', 'dark', 'nord', 'amoled'];
-const STORAGE_KEY = 'hn-modern-theme';
+const STORAGE_KEY = 'refined-hn-theme';
 
 let _shared: ReturnType<typeof createTheme> | null = null;
 
@@ -20,7 +20,7 @@ function detectSystem(): ThemeName {
 }
 
 function applyToHost(theme: ThemeName) {
-  const host = document.getElementById('hn-modern-root');
+  const host = document.getElementById('refined-hn-root');
   if (!host) return;
   if (theme === 'light') {
     host.removeAttribute('data-theme');

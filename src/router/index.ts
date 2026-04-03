@@ -31,7 +31,7 @@ const STORY_TYPE: Record<string, string> = {
 
 const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
 
-const STATIC_PAGES = new Set(['/newsfaq', '/newsguidelines', '/leaders', '/formatdoc']);
+const STATIC_PAGES = new Set(['/newsfaq.html', '/newsguidelines.html']);
 
 const USER_LISTS = new Map<string, string>([
   ['/submitted', 'submitted'],
@@ -67,6 +67,8 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   }
 
   if (path === '/submit') return { page: 'submit', params: {} };
+  if (path === '/formatdoc') return { page: 'formatdoc', params: {} };
+  if (path === '/leaders') return { page: 'leaders', params: {} };
   if (AUTH_PAGES.has(path)) return { page: 'login', params: {} };
   if (STATIC_PAGES.has(path)) return { page: 'static', params: {} };
 
