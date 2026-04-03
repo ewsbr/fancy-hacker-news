@@ -2,6 +2,7 @@
 import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
 import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
+import { debugLog, isDebugMode } from '@/debug';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/comments/CommentForm.vue';
@@ -33,6 +34,120 @@ const hashTargetId = ref<string | null>(null);
 provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
 provide(HASH_TARGET_ID_KEY, hashTargetId);
 
+function getModernRoot(): HTMLElement | null {
+  return document.getElementById('hn-modern-root');
+}
+
+function getStickyHeaderOffset(): number {
+  const header = getModernRoot()?.querySelector<HTMLElement>('.site-header');
+  return header ? header.getBoundingClientRect().height + 8 : 58;
+}
+
+function waitForAnimationFrame() {
+  return new Promise<void>(resolve => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
+function waitForTimeout(ms: number) {
+  return new Promise<void>(resolve => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function waitForPageLoad() {
+  if (document.readyState === 'complete') {
+    return Promise.resolve();
+  }
+
+  return new Promise<void>(resolve => {
+    const onLoad = () => {
+      window.removeEventListener('load', onLoad);
+      resolve();
+    };
+
+    window.addEventListener('load', onLoad);
+  });
+}
+
+async function waitForRenderedHashTarget(targetId: string, attempts = 36): Promise<HTMLElement | null> {
+  const selector = `#${CSS.escape(targetId)}`;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const target = getModernRoot()?.querySelector<HTMLElement>(selector) ?? null;
+    if (target) {
+      return target;
+    }
+
+    await waitForAnimationFrame();
+  }
+
+  return null;
+}
+
+function scrollMainPageTarget(target: HTMLElement) {
+  const offset = getStickyHeaderOffset();
+  target.style.scrollMarginTop = `${Math.ceil(offset)}px`;
+  target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+}
+
+function logFragmentWarning(
+  reason: string,
+  details: Record<string, unknown>,
+) {
+  console.warn('[HN Modern] Fragment scroll warning:', reason, details);
+  debugLog(`fragment:${reason}`, details);
+}
+
+async function verifyMainPageScroll(targetId: string, pathLength: number) {
+  const target = getModernRoot()?.querySelector<HTMLElement>(`#${CSS.escape(targetId)}`) ?? null;
+  if (!target) {
+    logFragmentWarning('target-missing-after-scroll', {
+      targetId,
+      pathLength,
+      readyState: document.readyState,
+      isMobile: window.matchMedia('(max-width: 640px)').matches,
+      domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
+      scrollY: Math.round(window.scrollY),
+    });
+    return;
+  }
+
+  await waitForAnimationFrame();
+  await waitForAnimationFrame();
+  await waitForTimeout(80);
+
+  const headerOffset = getStickyHeaderOffset();
+  const actualTop = Math.round(target.getBoundingClientRect().top);
+  const expectedTop = Math.round(headerOffset);
+  const delta = actualTop - expectedTop;
+  const scrollTop = Math.round(document.scrollingElement?.scrollTop ?? window.scrollY);
+
+  if (Math.abs(delta) > 24) {
+    logFragmentWarning('scroll-offset-mismatch', {
+      targetId,
+      pathLength,
+      readyState: document.readyState,
+      isMobile: window.matchMedia('(max-width: 640px)').matches,
+      actualTop,
+      expectedTop,
+      delta,
+      scrollY: Math.round(window.scrollY),
+      scrollTop,
+      headerOffset,
+    });
+  } else if (isDebugMode()) {
+    debugLog('fragment:scroll-success', {
+      targetId,
+      actualTop,
+      expectedTop,
+      delta,
+      scrollY: Math.round(window.scrollY),
+      scrollTop,
+    });
+  }
+}
+
 function findCommentPath(
   nodes: ParsedCommentNode[],
   targetId: string,
@@ -60,55 +175,42 @@ async function syncHashPath() {
     return;
   }
 
+  const path = findCommentPath(pageData.comments, targetId);
+  const nextHashPathIds = new Set(path ?? []);
+
   if (pageData.item.type === 'comment' && pageData.item.id === targetId) {
-    hashPathIds.value = new Set([targetId]);
-    await nextTick();
-    document.getElementById(targetId)?.scrollIntoView();
+    nextHashPathIds.add(targetId);
+  }
+
+  hashPathIds.value = nextHashPathIds;
+
+  await waitForPageLoad();
+  await nextTick();
+  await waitForAnimationFrame();
+  await waitForAnimationFrame();
+
+  const targetEl = await waitForRenderedHashTarget(targetId);
+  if (targetEl?.closest('.sub-thread-modal')) {
     return;
   }
 
-  const path = findCommentPath(pageData.comments, targetId);
-  hashPathIds.value = new Set(path ?? []);
-
-  await nextTick();
-
-  // Defer scroll to next macrotask — the browser may perform its own native
-  // hash-scroll when elements matching the URL fragment appear in the DOM.
-  // By yielding to a setTimeout(0), we ensure our scroll runs AFTER the
-  // browser's native behavior.
-  await new Promise(resolve => setTimeout(resolve, 0));
-
-  // Find the right element to scroll to. If the target ended up inside a modal
-  // (mobile deep thread), walk the path backward to find the last ancestor on
-  // the main page — the modal handles internal scrolling.
-  const targetEl = document.getElementById(targetId);
-  if (targetEl && !targetEl.closest('.sub-thread-modal')) {
-    targetEl.scrollIntoView({ block: 'start' });
-  } else if (path) {
-    for (let i = path.length - 1; i >= 0; i--) {
-      const candidates = document.querySelectorAll(`#${CSS.escape(path[i])}`);
-      for (const el of candidates) {
-        if (!el.closest('.sub-thread-modal')) {
-          // Scroll to the "View N replies" button if present, since the target
-          // is behind the modal and the user needs to tap this button.
-          // Use block:'center' for the button (it lacks scroll-margin-top so
-          // 'start' would place it behind the sticky header).
-          const btn = el.querySelector('.comment-node__thread-btn');
-          if (btn) {
-            (btn as HTMLElement).scrollIntoView({ block: 'center' });
-          } else {
-            (el as HTMLElement).scrollIntoView({ block: 'start' });
-          }
-          return;
-        }
-      }
-    }
+  if (targetEl) {
+    scrollMainPageTarget(targetEl);
+    await verifyMainPageScroll(targetId, path?.length ?? 0);
+  } else {
+    logFragmentWarning('target-not-found', {
+      targetId,
+      pathLength: path?.length ?? 0,
+      readyState: document.readyState,
+      isMobile: window.matchMedia('(max-width: 640px)').matches,
+      domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
+      scrollY: Math.round(window.scrollY),
+    });
   }
 }
 
-syncHashPath();
-
 onMounted(() => {
+  void syncHashPath();
   window.addEventListener('hashchange', syncHashPath);
 });
 

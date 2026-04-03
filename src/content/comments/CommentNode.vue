@@ -1,22 +1,31 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch, type Ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
-import CommentHeader from './CommentHeader.vue';
-import CommentBody from './CommentBody.vue';
 import SubThreadModal from './SubThreadModal.vue';
-import CommentActions from '@/content/shared/CommentActions.vue';
 import { MessageSquare } from 'lucide-vue-next';
 
-// Depth at which children are moved into a modal on mobile.
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
+const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
+const SUBTREE_PROGRESSIVE_THRESHOLD = 160;
+const INITIAL_CHILD_BUDGET = 120;
+const FRAME_CHILD_BUDGET = 240;
+const DOWNVOTE_LABELS: Record<string, string> = {
+  c5a: '1/9',
+  c73: '2/9',
+  c82: '3/9',
+  c88: '4/9',
+  c9c: '5/9',
+  cae: '6/9',
+  cbe: '7/9',
+  cce: '8/9',
+  cdd: '9/9',
+};
 
 const props = defineProps<{
   node: CommentNodeType;
-  /** How many levels deep this node is (0 = top-level). Passed down by parent. */
   depth?: number;
-  /** When true (inside a modal) never trigger another modal — render inline. */
   inModal?: boolean;
 }>();
 
@@ -24,82 +33,301 @@ const isMobileLayout = inject<boolean>('isMobileLayout', false);
 const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
 const hashTargetId = inject<Ref<string | null>>(HASH_TARGET_ID_KEY, ref(null));
 
-const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
-const isHeavilyDownvoted = props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase());
-const isCollapsed = ref((props.node.isCollapsed || isHeavilyDownvoted) && !props.node.expandForHash);
+const userCollapsed = ref(
+  props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
+);
 const isModalOpen = ref(false);
 
 const currentDepth = props.depth ?? 0;
-// Children render in modal when: mobile && deep enough && not already inside a modal.
-const childrenInModal = computed(
-  () => isMobileLayout
-    && !props.inModal
-    && currentDepth >= MOBILE_MODAL_DEPTH,
-);
+const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
 const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
+const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
 
+const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
+const isCollapsed = computed(() => !isInHashPath.value && userCollapsed.value);
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
+const isUnvoted = computed(() => !!props.node.voteUn);
+const voteHref = computed(() => props.node.voteUn || props.node.voteUp || undefined);
+const hasHeaderNav = !!(
+  props.node.navLinks.root
+  || props.node.navLinks.parent
+  || props.node.navLinks.prev
+  || props.node.navLinks.next
+  || props.node.navLinks.context
+);
+const flagLabel = computed(() => (props.node.flagUrl?.includes('un=t') ? 'unflag' : 'flag'));
+const shouldProgressivelyRenderChildren = !props.inModal && props.node.descendantCount > SUBTREE_PROGRESSIVE_THRESHOLD;
+const visibleChildCount = ref(props.node.children.length);
+
+let childBatchFrameId: number | null = null;
+
+function nextChildCount(startIndex: number, budget: number): number {
+  let spent = 0;
+  let nextIndex = startIndex;
+
+  while (nextIndex < props.node.children.length) {
+    const child = props.node.children[nextIndex];
+    const cost = child.descendantCount + 1;
+
+    if (nextIndex > startIndex && spent + cost > budget) {
+      break;
+    }
+
+    spent += cost;
+    nextIndex += 1;
+
+    if (spent >= budget) {
+      break;
+    }
+  }
+
+  return nextIndex;
+}
+
+function requiredChildCount(): number {
+  let requiredCount = 0;
+
+  for (let index = 0; index < props.node.children.length; index += 1) {
+    const child = props.node.children[index];
+    if (child.expandForHash || hashPathIds.value.has(child.id)) {
+      requiredCount = index + 1;
+    }
+  }
+
+  return requiredCount;
+}
+
+function extendVisibleChildren(budget: number) {
+  if (!shouldProgressivelyRenderChildren || visibleChildCount.value >= props.node.children.length || isCollapsed.value) {
+    visibleChildCount.value = props.node.children.length;
+    return;
+  }
+
+  const nextCount = nextChildCount(visibleChildCount.value, budget);
+  visibleChildCount.value = Math.min(
+    props.node.children.length,
+    Math.max(nextCount, requiredChildCount()),
+  );
+}
+
+function queueNextChildBatch() {
+  if (
+    !shouldProgressivelyRenderChildren
+    || visibleChildCount.value >= props.node.children.length
+    || isCollapsed.value
+    || childBatchFrameId !== null
+  ) {
+    return;
+  }
+
+  childBatchFrameId = requestAnimationFrame(() => {
+    childBatchFrameId = null;
+    extendVisibleChildren(FRAME_CHILD_BUDGET);
+    queueNextChildBatch();
+  });
+}
+
+if (shouldProgressivelyRenderChildren) {
+  visibleChildCount.value = Math.min(
+    props.node.children.length,
+    Math.max(nextChildCount(0, INITIAL_CHILD_BUDGET), requiredChildCount()),
+  );
+}
+
+const visibleChildren = computed(() =>
+  shouldProgressivelyRenderChildren && !isCollapsed.value
+    ? props.node.children.slice(0, visibleChildCount.value)
+    : props.node.children,
+);
 
 function toggleCollapse() {
-  isCollapsed.value = !isCollapsed.value;
+  userCollapsed.value = !isCollapsed.value;
+}
+
+function confirmFlagAction(event: Event) {
+  if (!props.node.flagUrl) {
+    return;
+  }
+
+  if (!window.confirm(`Are you sure you want to ${flagLabel.value} this?`)) {
+    event.preventDefault();
+  }
+}
+
+if (childrenInModal) {
+  watch(
+    isInHashPath,
+    inHashPath => {
+      if (inHashPath) {
+        isModalOpen.value = true;
+      }
+    },
+    { immediate: true },
+  );
 }
 
 watch(
-  () => hashPathIds.value.has(props.node.id),
-  inHashPath => {
-    if (inHashPath) {
-      isCollapsed.value = false;
-      // Auto-open modal when the hash target is behind this node's modal boundary
-      if (childrenInModal.value) {
-        isModalOpen.value = true;
-      }
+  isCollapsed,
+  collapsed => {
+    if (!shouldProgressivelyRenderChildren) {
+      return;
     }
+
+    if (collapsed) {
+      if (childBatchFrameId !== null) {
+        cancelAnimationFrame(childBatchFrameId);
+        childBatchFrameId = null;
+      }
+      return;
+    }
+
+    const nextRequiredChildCount = requiredChildCount();
+    if (nextRequiredChildCount > visibleChildCount.value) {
+      visibleChildCount.value = nextRequiredChildCount;
+    }
+
+    queueNextChildBatch();
   },
   { immediate: true },
+);
+
+watch(
+  () => hashPathIds.value,
+  () => {
+    if (!shouldProgressivelyRenderChildren || isCollapsed.value) {
+      return;
+    }
+
+    const nextRequiredChildCount = requiredChildCount();
+    if (nextRequiredChildCount > visibleChildCount.value) {
+      visibleChildCount.value = nextRequiredChildCount;
+    }
+
+    queueNextChildBatch();
+  },
 );
 </script>
 
 <template>
-  <div 
+  <div
     class="comment-node"
     :class="[
       node.indent > 0 ? 'comment-node--nested' : 'comment-node--root',
       isCollapsed ? 'comment-node--collapsed' : '',
-      isHashTarget ? 'comment-node--highlight' : ''
+      isHashTarget ? 'comment-node--highlight' : '',
     ]"
     :id="node.id"
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
-        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse" />
+        <div class="comment-node__header">
+          <button
+            class="comment-node__toggle"
+            :class="{ 'comment-node__toggle--collapsed': isCollapsed }"
+            @click="toggleCollapse"
+          >
+            {{ isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
+          </button>
+
+          <div class="comment-node__header-info">
+            <template v-if="node.isDeleted">
+              <span class="comment-node__deleted-meta">[deleted]</span>
+              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
+            </template>
+
+            <template v-else>
+              <a :href="`user?id=${node.author}`" class="comment-node__author">{{ node.author }}</a>
+              <span v-if="node.authorIsNew" class="comment-node__badge comment-node__badge--new" title="New user">New</span>
+              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
+
+              <div v-if="node.isDead || node.isFlagged || downvoteOpacity" class="comment-node__badges">
+                <span v-if="node.isDead" class="comment-node__badge comment-node__badge--dead">Dead</span>
+                <span v-if="node.isFlagged" class="comment-node__badge comment-node__badge--flagged">Flagged</span>
+                <span
+                  v-if="downvoteOpacity"
+                  class="comment-node__badge comment-node__badge--downvoted"
+                  title="Downvoted level"
+                >
+                  {{ downvoteOpacity }}
+                </span>
+              </div>
+            </template>
+
+            <div v-if="!node.isDeleted && !isCollapsed && hasHeaderNav" class="comment-node__nav">
+              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__nav-link">root</a>
+              <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__nav-link">parent</a>
+              <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__nav-link">prev</a>
+              <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__nav-link">next</a>
+              <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__nav-link">context</a>
+            </div>
+          </div>
+        </div>
 
         <template v-if="!isCollapsed">
-          <!-- Deleted comment: minimal rendering, no actions -->
           <div v-if="node.isDeleted" class="comment-node__body-wrapper comment-node__body-wrapper--deleted">
             <span class="comment-node__deleted-label">[deleted]</span>
           </div>
 
           <div v-else class="comment-node__body-wrapper">
-            <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
-          
-            <CommentActions
-              :vote-up="node.voteUp"
-              :vote-un="node.voteUn"
-              :vote-down="node.voteDown"
-              :reply-link="node.replyLink"
-              :edit-url="node.editUrl"
-              :delete-url="node.deleteUrl"
-              :flag-url="node.flagUrl"
-            />
+            <div
+              v-once
+              class="comment-node__body"
+              :class="node.grayLevel && node.grayLevel !== 'c00' ? 'comment-node__body--downvoted' : 'comment-node__body--normal'"
+            >
+              <div class="comment-node__rich-text" v-html="node.bodyHtml"></div>
+            </div>
+
+            <div class="comment-node__actions">
+              <div v-if="voteHref || node.voteDown" class="comment-node__votes">
+                <a
+                  v-if="voteHref"
+                  :href="voteHref"
+                  class="comment-node__vote comment-node__vote--up"
+                  :class="{ 'comment-node__vote--active': isUnvoted }"
+                  :title="isUnvoted ? 'unvote' : 'upvote'"
+                >
+                  <span class="comment-node__vote-chevron" aria-hidden="true"></span>
+                  <span>{{ isUnvoted ? 'unvote' : 'upvote' }}</span>
+                </a>
+                <a
+                  v-if="node.voteDown"
+                  :href="node.voteDown"
+                  class="comment-node__vote comment-node__vote--down"
+                  title="downvote"
+                >
+                  <span class="comment-node__vote-chevron" aria-hidden="true"></span>
+                  <span>downvote</span>
+                </a>
+              </div>
+
+              <template v-if="node.replyLink">
+                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <a :href="node.replyLink" class="comment-node__action-link">reply</a>
+              </template>
+              <template v-if="node.editUrl">
+                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <a :href="node.editUrl" class="comment-node__action-link">edit</a>
+              </template>
+              <template v-if="node.deleteUrl">
+                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
+              </template>
+              <template v-if="node.flagUrl">
+                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <a :href="node.flagUrl" class="comment-node__action-link" @click="confirmFlagAction">{{ flagLabel }}</a>
+              </template>
+            </div>
           </div>
         </template>
       </div>
     </div>
 
-    <template v-if="!isCollapsed && node.children && node.children.length > 0">
-      <!-- Mobile deep thread: show a tap-to-expand button instead of inline children -->
+    <template v-if="!isCollapsed && node.children.length > 0">
       <button
         v-if="childrenInModal"
         class="comment-node__thread-btn"
@@ -114,12 +342,11 @@ watch(
         </template>
       </button>
 
-      <!-- Normal inline children (desktop, or inside a modal, or shallow depth) -->
       <div v-else class="comment-node__thread">
-        <button class="comment-node__line" @click="toggleCollapse" title="Collapse thread"></button>
+        <button class="comment-node__line" title="Collapse thread" @click="toggleCollapse"></button>
         <div class="comment-node__children">
           <CommentNode
-            v-for="child in node.children"
+            v-for="child in visibleChildren"
             :key="child.id"
             :node="child"
             :depth="currentDepth + 1"
@@ -164,6 +391,169 @@ watch(
     }
   }
 
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.35rem;
+    row-gap: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  &__toggle {
+    margin-right: 0.15rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: var(--color-accent);
+      text-decoration: none;
+      outline: none;
+    }
+
+    &--collapsed {
+      color: var(--color-accent);
+    }
+  }
+
+  &__header-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    row-gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__author {
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-accent);
+      text-decoration: underline;
+    }
+  }
+
+  &__age-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__sep {
+    color: var(--color-text-muted);
+    font-weight: 900;
+    user-select: none;
+    opacity: 0.6;
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    align-self: center;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1rem 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    text-transform: uppercase;
+
+    &--new {
+      background: color-mix(in srgb, var(--color-new-user) 15%, transparent);
+      color: var(--color-new-user);
+      border-color: color-mix(in srgb, var(--color-new-user) 30%, transparent);
+    }
+
+    &--dead {
+      background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+      color: var(--color-text-muted);
+      border-color: color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+      text-decoration: line-through;
+    }
+
+    &--flagged {
+      background: color-mix(in srgb, #ff3e00 10%, transparent);
+      color: #ff3e00;
+      border-color: color-mix(in srgb, #ff3e00 20%, transparent);
+    }
+
+    &--downvoted {
+      background: color-mix(in srgb, var(--color-downvoted) 15%, transparent);
+      color: var(--color-downvoted);
+      border-color: color-mix(in srgb, var(--color-downvoted) 30%, transparent);
+      text-transform: none;
+      font-weight: 600;
+    }
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+  &__nav-link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-accent);
+      text-decoration: underline;
+    }
+  }
+
+  &__deleted-meta,
+  &__deleted-label {
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  &__deleted-meta {
+    opacity: 0.6;
+  }
+
   &__body-wrapper {
     margin-top: 0.2rem;
 
@@ -173,16 +563,156 @@ watch(
   }
 
   &__deleted-label {
-    font-style: italic;
     font-size: 0.85rem;
+  }
+
+  &__body {
+    line-height: 1.6;
+    font-size: 0.95rem;
+
+    &--normal {
+      color: var(--color-text);
+    }
+
+    &--downvoted {
+      opacity: 0.85;
+      filter: grayscale(10%);
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__rich-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    word-break: break-word;
+
+    :deep(p) {
+      margin-top: 0.75rem;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    :deep(pre) {
+      background: var(--color-code-bg);
+      border: 1px solid var(--color-border);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.6rem;
+      margin-bottom: 0.6rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.825rem;
+      line-height: 1.45;
+      max-width: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border) transparent;
+      display: block;
+    }
+
+    :deep(a) {
+      text-decoration: underline;
+
+      &:hover {
+        color: var(--color-accent);
+      }
+    }
+
+    :deep(blockquote) {
+      margin: 0.65rem 0;
+      padding: 0.15rem 0.75rem;
+      border-left: 3px solid var(--color-text-muted);
+      background: var(--color-quote-bg);
+
+      p {
+        margin-top: 0.35rem;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  &__actions {
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--color-text-muted);
+    flex-wrap: wrap;
+  }
+
+  &__votes {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-right: 0.1rem;
+  }
+
+  &__vote {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-text-muted);
+    transition: color 0.15s ease;
+    font-size: 0.8rem;
+    font-weight: 600;
+    position: relative;
+    text-decoration: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+    }
+
+    &:hover {
+      color: var(--color-accent);
+      text-decoration: none;
+    }
+
+    &--active {
+      color: var(--color-accent);
+    }
+
+    &--down .comment-node__vote-chevron {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__vote-chevron {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid currentColor;
+  }
+
+  &__action-link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: underline;
+    }
+
+    &--delete:hover {
+      color: #ff3e00;
+    }
   }
 
   &__thread {
     margin-top: 0.45rem;
     min-width: 0;
-    // Track nesting depth via a CSS counter — used on mobile for the
-    // colored left-border depth indicator (see __children below).
     --hn-depth: calc(var(--hn-depth, 0) + 1);
   }
 

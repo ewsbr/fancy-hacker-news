@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { X } from 'lucide-vue-next';
@@ -14,6 +14,20 @@ const emit = defineEmits<{
 }>();
 
 const bodyRef = ref<HTMLElement | null>(null);
+
+async function scrollToTargetComment(targetId: string) {
+  await nextTick();
+  await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+  await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+
+  const target = bodyRef.value?.querySelector<HTMLElement>(`#${CSS.escape(targetId)}`) ?? null;
+  if (!target) {
+    return;
+  }
+
+  const header = target.querySelector<HTMLElement>('.comment-node__header') ?? target;
+  header.scrollIntoView({ block: 'start' });
+}
 
 function onOverlayClick(e: MouseEvent) {
   // Stop propagation to prevent HN's hn.js handlers from receiving click events
@@ -32,17 +46,21 @@ onMounted(async () => {
   document.addEventListener('keydown', onKeyDown);
 
   if (props.scrollToId) {
-    // Wait for Vue render + browser layout to settle, then scroll.
-    await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 0));
-    const target = bodyRef.value?.querySelector(`#${CSS.escape(props.scrollToId)}`);
-    if (target instanceof HTMLElement && bodyRef.value) {
-      const targetRect = target.getBoundingClientRect();
-      const bodyRect = bodyRef.value.getBoundingClientRect();
-      bodyRef.value.scrollTop = targetRect.top - bodyRect.top;
-    }
+    await scrollToTargetComment(props.scrollToId);
   }
 });
+
+watch(
+  () => props.scrollToId,
+  async scrollToId => {
+    if (!scrollToId) {
+      return;
+    }
+
+    await scrollToTargetComment(scrollToId);
+  },
+  { flush: 'post' },
+);
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeyDown);

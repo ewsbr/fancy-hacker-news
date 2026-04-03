@@ -44,12 +44,8 @@ function parsePageData(page: string, doc: Document): unknown {
 
 let hideOriginalStyle: HTMLStyleElement | null = null;
 
-function cleanupOriginalBody(originalBodyChildren: Element[]) {
-  for (const child of originalBodyChildren) {
-    if (child.isConnected) {
-      child.remove();
-    }
-  }
+function cleanupOriginalBody(host: HTMLElement) {
+  document.body.replaceChildren(host);
 
   hideOriginalStyle?.remove();
   hideOriginalStyle = null;
@@ -60,7 +56,8 @@ function restoreInitialFragment() {
     return;
   }
 
-  const target = document.getElementById(location.hash.slice(1));
+  const host = document.getElementById('hn-modern-root');
+  const target = host?.querySelector<HTMLElement>(`#${CSS.escape(location.hash.slice(1))}`);
   target?.scrollIntoView();
 }
 
@@ -99,122 +96,152 @@ function prepareInitialItemHashState(pageData: ParsedItemPage) {
   }
 }
 
-try {
-  clearDebugEntries();
-  const t0 = performance.now();
-  const originalBodyChildren = Array.from(document.body.children);
-  const isMobileLayout = window.matchMedia('(max-width: 640px)').matches;
-
-  // 1. Parse from original DOM before hiding anything
-  const header = debugMeasure('main:parse-header', () => parseHeader(document));
-  const route = debugMeasure('main:resolve-route', () => resolveRoute(location));
-  const pageData = debugMeasure(`main:parse-page:${route.page}`, () => parsePageData(route.page, document));
-
-  if (route.page === 'item') {
-    debugMeasure('main:prepare-item-hash-state', () => {
-      prepareInitialItemHashState(pageData as ParsedItemPage);
-    });
+function resetInitialHashScroll() {
+  if (!location.hash) {
+    return;
   }
 
-  // 2. Hide original HN content with one rule instead of mutating each body child.
-  debugMeasure('main:hide-original-dom', () => {
-    hideOriginalStyle = document.createElement('style');
-    hideOriginalStyle.id = 'hn-modern-hide-original';
-    hideOriginalStyle.textContent = 'body > :not(#hn-modern-root) { display: none !important; }';
-    document.head.appendChild(hideOriginalStyle);
-  });
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+}
 
-  // 3. Strip HN's stylesheets to prevent bleed-in
-  const removedStylesheetCount = debugMeasure('main:remove-source-styles', () => {
-    const styleNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)'));
-    styleNodes.forEach(el => el.remove());
-    return styleNodes.length;
-  }, () => ({ headNodeCount: document.head.childElementCount }));
+// Re-injection guard: when the extension is reloaded while a tab is already open
+// (common in Firefox during development), the new content script is injected into
+// the already-modified DOM. The original HN nodes have been removed by
+// cleanupOriginalBody, so parsing would fail. Detect this by checking for the root
+// element we create, and reload the page to restore the clean server-rendered DOM.
+function mountApp() {
+  if (document.getElementById('hn-modern-root')) {
+    window.location.reload();
+    return;
+  }
 
-  // CSS is now injected by the browser via manifest.json
-
-  // Create mount host
-  const host = debugMeasure('main:create-host', () => {
-    const nextHost = document.createElement('div');
-    nextHost.id = 'hn-modern-root';
-    document.body.appendChild(nextHost);
-    return nextHost;
-  });
-
-  const mountPoint = host;
-
-  // 4. Mount Vue app with parsed data
-  // renderTime is a reactive ref so it can be updated after the first paint.
-  // We provide it before mounting so the component tree has a reference to it,
-  // then update the value after the first requestAnimationFrame — which fires
-  // just before the browser paints — giving us a true end-to-end elapsed time.
-  const renderTime = ref(0);
-
-  const app = createApp(App);
-  app.provide('header', header);
-  app.provide('route', route);
-  app.provide('originalDoc', document);
-  app.provide('pageData', pageData);
-  app.provide('isMobileLayout', isMobileLayout);
-  app.provide('renderTime', renderTime);
-  debugMeasure('main:app-mount', () => {
-    app.mount(mountPoint);
-  });
-  debugMeasure('main:cleanup-original-body', () => {
-    cleanupOriginalBody(originalBodyChildren);
-  }, () => ({ removedBodyChildren: originalBodyChildren.length }));
-
-  requestAnimationFrame(() => {
-    debugMeasure('main:restore-initial-fragment', () => {
-      // Item pages handle fragment scrolling in CommentsPage.vue (which
-      // accounts for modals intercepting deeply nested comments).
-      // No other HN page type uses fragment identifiers.
-      if (route.page === 'item') {
-        return;
-      }
-      restoreInitialFragment();
-    });
-    renderTime.value = Math.round(performance.now() - t0);
-
-    if (isDebugMode()) {
-      const itemSummary = route.page === 'item'
-        ? (() => {
-            const itemPage = pageData as ParsedItemPage;
-            let commentCount = 0;
-            let maxDepth = 0;
-            const stack = [...itemPage.comments];
-            while (stack.length > 0) {
-              const node = stack.pop();
-              if (!node) continue;
-              commentCount += 1;
-              maxDepth = Math.max(maxDepth, node.indent);
-              stack.push(...node.children);
-            }
-            return {
-              commentCount,
-              maxDepth,
-              rootComments: itemPage.comments.length,
-            };
-          })()
-        : {};
-
-      debugLog('main:mode', {
-        enabledBy: new URLSearchParams(location.search).get('debug') === '1' ? 'query' : 'off',
-      });
-      flushDebugSession({
-        route: route.page,
-        totalRenderMs: Math.round(performance.now() - t0),
-        bodyChildrenBeforeCleanup: originalBodyChildren.length,
-        removedStylesheetCount,
-        isMobileLayout,
-        ...itemSummary,
+  try {
+    clearDebugEntries();
+    const t0 = performance.now();
+    const originalBodyChildrenCount = document.body.childElementCount;
+    const isMobileLayout = window.matchMedia('(max-width: 640px)').matches;
+  
+    // 1. Parse from original DOM before hiding anything
+    const header = debugMeasure('main:parse-header', () => parseHeader(document));
+    const route = debugMeasure('main:resolve-route', () => resolveRoute(location));
+    const pageData = debugMeasure(`main:parse-page:${route.page}`, () => parsePageData(route.page, document));
+  
+    if (route.page === 'item') {
+      debugMeasure('main:prepare-item-hash-state', () => {
+        prepareInitialItemHashState(pageData as ParsedItemPage);
       });
     }
-  });
-} catch (e) {
-  // On failure, restore original HN page.
-  // Remove the hide rule so the original DOM becomes visible again.
-  console.error('[HN Modern] Failed to render:', e);
-  document.getElementById('hn-modern-hide-original')?.remove();
-  hideOriginalStyle = null;
+  
+    // 2. Hide original HN content with one rule instead of mutating each body child.
+    debugMeasure('main:hide-original-dom', () => {
+      hideOriginalStyle = document.createElement('style');
+      hideOriginalStyle.id = 'hn-modern-hide-original';
+      hideOriginalStyle.textContent = 'body > :not(#hn-modern-root) { display: none !important; }';
+      document.head.appendChild(hideOriginalStyle);
+    });
+  
+    // 3. Strip HN's stylesheets to prevent bleed-in
+    const removedStylesheetCount = debugMeasure('main:remove-source-styles', () => {
+      const styleNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)'));
+      styleNodes.forEach(el => el.remove());
+      return styleNodes.length;
+    }, () => ({ headNodeCount: document.head.childElementCount }));
+  
+    // CSS is now injected by the browser via manifest.json
+  
+    // Create mount host
+    const host = debugMeasure('main:create-host', () => {
+      const nextHost = document.createElement('div');
+      nextHost.id = 'hn-modern-root';
+      document.body.appendChild(nextHost);
+      return nextHost;
+    });
+  
+    const mountPoint = host;
+  
+    if (route.page === 'item') {
+      debugMeasure('main:reset-initial-hash-scroll', () => {
+        resetInitialHashScroll();
+      });
+    }
+  
+    // 4. Mount Vue app with parsed data
+    // renderTime is a reactive ref so it can be updated after the first paint.
+    // We provide it before mounting so the component tree has a reference to it,
+    // then update the value after the first requestAnimationFrame — which fires
+    // just before the browser paints — giving us a true end-to-end elapsed time.
+    const renderTime = ref(0);
+  
+    const app = createApp(App);
+    app.provide('header', header);
+    app.provide('route', route);
+    app.provide('originalDoc', document);
+    app.provide('pageData', pageData);
+    app.provide('isMobileLayout', isMobileLayout);
+    app.provide('renderTime', renderTime);
+    debugMeasure('main:app-mount', () => {
+      app.mount(mountPoint);
+    });
+    requestAnimationFrame(() => {
+      debugMeasure('main:restore-initial-fragment', () => {
+        // Item pages handle fragment scrolling in CommentsPage.vue (which
+        // accounts for modals intercepting deeply nested comments).
+        // No other HN page type uses fragment identifiers.
+        if (route.page === 'item') {
+          return;
+        }
+        restoreInitialFragment();
+      });
+      renderTime.value = Math.round(performance.now() - t0);
+  
+      if (isDebugMode()) {
+        const itemSummary = route.page === 'item'
+          ? (() => {
+              const itemPage = pageData as ParsedItemPage;
+              let commentCount = 0;
+              let maxDepth = 0;
+              const stack = [...itemPage.comments];
+              while (stack.length > 0) {
+                const node = stack.pop();
+                if (!node) continue;
+                commentCount += 1;
+                maxDepth = Math.max(maxDepth, node.indent);
+                stack.push(...node.children);
+              }
+              return {
+                commentCount,
+                maxDepth,
+                rootComments: itemPage.comments.length,
+              };
+            })()
+          : {};
+  
+        debugLog('main:mode', {
+          enabledBy: new URLSearchParams(location.search).get('debug') === '1' ? 'query' : 'off',
+        });
+        flushDebugSession({
+          route: route.page,
+          totalRenderMs: Math.round(performance.now() - t0),
+          bodyChildrenBeforeCleanup: originalBodyChildrenCount,
+          removedStylesheetCount,
+          isMobileLayout,
+          ...itemSummary,
+        });
+      }
+  
+      window.setTimeout(() => {
+        debugMeasure('main:cleanup-original-body', () => {
+          cleanupOriginalBody(host);
+        }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
+      }, 0);
+    });
+  } catch (e) {
+    // On failure, restore original HN page.
+    // Remove the hide rule so the original DOM becomes visible again.
+    console.error('[HN Modern] Failed to render:', e);
+    document.getElementById('hn-modern-hide-original')?.remove();
+    hideOriginalStyle = null;
+  }
 }
+
+mountApp();
