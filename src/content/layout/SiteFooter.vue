@@ -109,7 +109,7 @@ const socialLinks = [
 
 <style scoped lang="scss">
 .site-footer {
-  margin-top: 4rem;
+  margin-top: 2rem;
   padding: 4rem 1.5rem 3rem;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
