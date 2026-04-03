@@ -8,7 +8,13 @@
  * 5. Mount Vue app with parsed data via provide/inject
  */
 import { createApp, ref } from 'vue';
-import { clearDebugEntries, createLogger, debugLog, debugMeasure, flushDebugSession, isDebugMode } from '@/debug';
+import {
+  clearDebugEntries,
+  createDebugTimeline,
+  createLogger,
+  flushDebugSession,
+  isDebugMode,
+} from '@/debug';
 import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
 import { parseLoginPage } from '@/parsers/login';
@@ -128,23 +134,24 @@ function mountApp() {
 
   try {
     clearDebugEntries();
+    const timeline = createDebugTimeline('main');
     const t0 = performance.now();
     const originalBodyChildrenCount = document.body.childElementCount;
     const isMobileLayout = window.matchMedia('(max-width: 640px)').matches;
   
     // 1. Parse from original DOM before hiding anything
-    const header = debugMeasure('main:parse-header', () => parseHeader(document));
-    const route = debugMeasure('main:resolve-route', () => resolveRoute(location));
-    const pageData = debugMeasure(`main:parse-page:${route.page}`, () => parsePageData(route.page, document));
+    const header = timeline.step('parse-header', () => parseHeader(document));
+    const route = timeline.step('resolve-route', () => resolveRoute(location));
+    const pageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
   
     if (route.page === 'item') {
-      debugMeasure('main:prepare-item-hash-state', () => {
+      timeline.step('prepare-item-hash-state', () => {
         prepareInitialItemHashState(pageData as ParsedItemPage);
       });
     }
   
     // 2. Hide original HN content with one rule instead of mutating each body child.
-    debugMeasure('main:hide-original-dom', () => {
+    timeline.step('hide-original-dom', () => {
       hideOriginalStyle = document.createElement('style');
       hideOriginalStyle.id = 'refined-hn-hide-original';
       hideOriginalStyle.textContent = 'body > :not(#refined-hn-root) { display: none !important; }';
@@ -152,7 +159,7 @@ function mountApp() {
     });
   
     // 3. Strip HN's stylesheets to prevent bleed-in
-    const removedStylesheetCount = debugMeasure('main:remove-source-styles', () => {
+    const removedStylesheetCount = timeline.step('remove-source-styles', () => {
       const styleNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)'));
       styleNodes.forEach(el => el.remove());
       return styleNodes.length;
@@ -161,7 +168,7 @@ function mountApp() {
     // CSS is now injected by the browser via manifest.json
   
     // Create mount host
-    const host = debugMeasure('main:create-host', () => {
+    const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
       nextHost.id = 'refined-hn-root';
       preventLegacyHnClickHandling(nextHost);
@@ -172,7 +179,7 @@ function mountApp() {
     const mountPoint = host;
   
     if (route.page === 'item') {
-      debugMeasure('main:reset-initial-hash-scroll', () => {
+      timeline.step('reset-initial-hash-scroll', () => {
         resetInitialHashScroll();
       });
     }
@@ -191,11 +198,11 @@ function mountApp() {
     app.provide('pageData', pageData);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
-    debugMeasure('main:app-mount', () => {
+    timeline.step('app-mount', () => {
       app.mount(mountPoint);
     });
     requestAnimationFrame(() => {
-      debugMeasure('main:restore-initial-fragment', () => {
+      timeline.step('restore-initial-fragment', () => {
         // Item pages handle fragment scrolling in CommentsPage.vue (which
         // accounts for modals intercepting deeply nested comments).
         // No other HN page type uses fragment identifiers.
@@ -228,7 +235,7 @@ function mountApp() {
             })()
           : {};
   
-        debugLog('main:mode', {
+        timeline.log('mode', {
           enabledBy: new URLSearchParams(location.search).get('debug') === '1' ? 'query' : 'off',
         });
         flushDebugSession({
@@ -242,7 +249,7 @@ function mountApp() {
       }
   
       window.setTimeout(() => {
-        debugMeasure('main:cleanup-original-body', () => {
+        timeline.step('cleanup-original-body', () => {
           cleanupOriginalBody(host);
         }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
       }, 0);
