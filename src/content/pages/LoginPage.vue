@@ -278,9 +278,6 @@ function getPlaceholder(label: string) {
     justify-content: flex-end;
   }
 
-  &__forgot {
-  }
-
   &__forgot-link {
     font-size: 0.85rem;
     font-weight: 600;

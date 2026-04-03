@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import type { Story } from '@/parsers/storyList';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
 
@@ -62,31 +61,31 @@ function formatComments(count: number | null): string {
       text-decoration: underline;
     }
   }
+}
 
-  &__score {
-    color: var(--color-accent);
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
+.story-meta__score {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-meta__age {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
   }
+}
 
-  &__age {
-    color: inherit;
-    text-decoration: none;
+.story-meta__comments {
+  font-weight: 600;
+  color: var(--color-text) !important;
+}
 
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__comments {
-    font-weight: 600;
-    color: var(--color-text) !important;
-  }
-
-  &__action {
-    &:hover {
-      color: var(--color-text);
-    }
+.story-meta__action {
+  &:hover {
+    color: var(--color-text);
   }
 }
 </style>
