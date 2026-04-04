@@ -3,6 +3,7 @@ import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import YLogo from '@/assets/ycombinator.svg';
 import ThemeToggle from '../shared/ThemeToggle.vue';
+import { Menu } from 'lucide-vue-next';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
@@ -52,6 +53,7 @@ onUnmounted(() => {
 
         <div class="site-header__mobile-actions">
           <button
+            v-if="navLinks.length > 0"
             ref="navToggle"
             type="button"
             class="site-header__nav-toggle"
@@ -59,7 +61,8 @@ onUnmounted(() => {
             aria-haspopup="menu"
             @click="navOpen = !navOpen"
           >
-            Menu ▾
+            <Menu :size="16" />
+            Menu
           </button>
         </div>
       </div>
@@ -112,7 +115,6 @@ onUnmounted(() => {
 .site-header {
   border-bottom: 1px solid var(--color-chrome-border);
   background: var(--color-chrome-surface);
-  box-shadow: var(--shadow-chrome);
 
   &__container {
     position: relative;
@@ -160,20 +162,22 @@ onUnmounted(() => {
 
   &__nav-toggle {
     display: none;
+    align-items: center;
+    gap: 0.3rem;
     padding: 0.35rem 0.6rem;
-    border: 1px solid var(--color-chrome-control-border);
+    border: 1px solid var(--color-chrome-border);
     border-radius: 4px;
-    background: var(--color-chrome-control-bg);
-    color: var(--color-chrome-control-text);
+    background: transparent;
+    color: var(--color-text-muted);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
     user-select: none;
 
     &:hover {
-      border-color: var(--color-chrome-control-hover-border);
-      background: var(--color-chrome-control-hover-bg);
-      color: var(--color-chrome-control-hover-text);
+      border-color: color-mix(in srgb, var(--color-accent) 42%, var(--color-chrome-border));
+      background: color-mix(in srgb, var(--color-accent) 10%, var(--color-chrome-surface));
+      color: var(--color-text);
     }
   }
 
@@ -260,7 +264,7 @@ onUnmounted(() => {
     }
 
     &__nav-toggle {
-      display: block;
+      display: flex;
     }
 
     &__nav {
@@ -273,10 +277,10 @@ onUnmounted(() => {
       align-items: stretch;
       min-width: 160px;
       gap: 0;
-      border: 1px solid var(--color-chrome-menu-border);
+      border: 1px solid var(--color-chrome-border);
       border-radius: 4px;
-      background: var(--color-chrome-menu-surface);
-      box-shadow: var(--shadow-chrome-menu);
+      background: var(--color-chrome-surface);
+      box-shadow: var(--shadow-elevation);
 
       &--open {
         display: flex;
