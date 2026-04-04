@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf, isNewUser, extractRichTextHtml, parseAge, parseGrayLevel, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, extractRichTextHtml, parseAge, parseGrayLevel, parseScore, findMoreLink } from './utils';
 import type { CommentNode } from './item';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
@@ -60,6 +60,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
     }
 
     const ageInfo = parseAge(comhead?.querySelector('span.age'));
+    const score = parseScore(textOf(comhead?.querySelector('span.score')));
 
     const votelinks = tr.querySelector('td.votelinks');
     const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
@@ -96,6 +97,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       id,
       author,
       authorIsNew: isNewUser(authorEl),
+      score,
       age: ageInfo.text,
       ageTimestamp: ageInfo.timestamp,
       ageLink: ageInfo.link,

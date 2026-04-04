@@ -1,9 +1,10 @@
-import { textOf, attrOf, hrefOf, isNewUser, extractRichTextHtml, parseAge, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, extractRichTextHtml, parseAge, parseScore, findMoreLink } from './utils';
 
 export interface FlatComment {
   id: string;
   author: string;
   authorIsNew: boolean;
+  score: number | null;
   age: string;
   ageLink: string;
   bodyHtml: string;
@@ -29,6 +30,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
     const comhead = tr.querySelector('span.comhead');
     const authorEl = comhead?.querySelector('a.hnuser');
     const ageInfo = parseAge(comhead?.querySelector('span.age'));
+    const score = parseScore(textOf(comhead?.querySelector('span.score')));
 
     const onstoryEl = comhead?.querySelector('span.onstory a[href^="item?id="]');
     // newcomments always have story context; skip malformed rows
@@ -45,6 +47,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
       id,
       author: textOf(authorEl),
       authorIsNew: isNewUser(authorEl),
+      score,
       age: ageInfo.text,
       ageLink: ageInfo.link,
       bodyHtml: extractRichTextHtml(commtext),

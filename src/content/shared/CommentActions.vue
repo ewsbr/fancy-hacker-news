@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 
-defineProps<{
+const props = defineProps<{
   voteUp?: string | null;
   voteUn?: string | null;
   voteDown?: string | null;
@@ -12,11 +13,16 @@ defineProps<{
   deleteUrl?: string | null;
   flagUrl?: string | null;
 }>();
+
+const hasVoteActions = computed(() => !!(props.voteUp || props.voteUn || props.voteDown));
+const hasReplyAction = computed(() => !!props.replyLink);
+const hasEditAction = computed(() => !!props.editUrl);
+const hasDeleteAction = computed(() => !!props.deleteUrl);
 </script>
 
 <template>
   <div class="comment-actions">
-    <div v-if="voteUp || voteUn || voteDown" class="comment-actions__votes">
+    <div v-if="hasVoteActions" class="comment-actions__votes">
       <a
         v-if="voteUp || voteUn"
         :href="voteUn || voteUp || undefined"
@@ -39,19 +45,19 @@ defineProps<{
     </div>
 
     <template v-if="replyLink">
-      <MetaSep />
+      <MetaSep v-if="hasVoteActions" />
       <a :href="replyLink" class="comment-actions__link">reply</a>
     </template>
     <template v-if="editUrl">
-      <MetaSep />
+      <MetaSep v-if="hasVoteActions || hasReplyAction" />
       <a :href="editUrl" class="comment-actions__link">edit</a>
     </template>
     <template v-if="deleteUrl">
-      <MetaSep />
+      <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction" />
       <a :href="deleteUrl" class="comment-actions__link comment-actions__link--delete">delete</a>
     </template>
     <template v-if="flagUrl">
-      <MetaSep />
+      <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
       <FlagButton :href="flagUrl" />
     </template>
   </div>

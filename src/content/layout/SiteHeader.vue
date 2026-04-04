@@ -110,8 +110,9 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .site-header {
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-chrome-border);
+  background: var(--color-chrome-surface);
+  box-shadow: var(--shadow-chrome);
 
   &__container {
     position: relative;
@@ -160,18 +161,19 @@ onUnmounted(() => {
   &__nav-toggle {
     display: none;
     padding: 0.35rem 0.6rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-chrome-control-border);
     border-radius: 4px;
-    background: transparent;
-    color: var(--color-text-muted);
+    background: var(--color-chrome-control-bg);
+    color: var(--color-chrome-control-text);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
     user-select: none;
 
     &:hover {
-      background: var(--color-code-bg);
-      color: var(--color-text);
+      border-color: var(--color-chrome-control-hover-border);
+      background: var(--color-chrome-control-hover-bg);
+      color: var(--color-chrome-control-hover-text);
     }
   }
 
@@ -271,10 +273,10 @@ onUnmounted(() => {
       align-items: stretch;
       min-width: 160px;
       gap: 0;
-      border: 1px solid var(--color-border);
+      border: 1px solid var(--color-chrome-menu-border);
       border-radius: 4px;
-      background: var(--color-surface);
-      box-shadow: var(--shadow-elevation);
+      background: var(--color-chrome-menu-surface);
+      box-shadow: var(--shadow-chrome-menu);
 
       &--open {
         display: flex;

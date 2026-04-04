@@ -52,6 +52,10 @@ const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.valu
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
 const isUnvoted = computed(() => !!props.node.voteUn);
 const voteHref = computed(() => props.node.voteUn || props.node.voteUp || undefined);
+const hasVoteActions = computed(() => !!(voteHref.value || props.node.voteDown));
+const hasReplyAction = computed(() => !!props.node.replyLink);
+const hasEditAction = computed(() => !!props.node.editUrl);
+const hasDeleteAction = computed(() => !!props.node.deleteUrl);
 const hasHeaderNav = !!(
   props.node.navLinks.root
   || props.node.navLinks.parent
@@ -243,6 +247,10 @@ watch(
             <template v-else>
               <a :href="`user?id=${node.author}`" class="comment-node__author">{{ node.author }}</a>
               <span v-if="node.authorIsNew" class="comment-node__badge comment-node__badge--new" title="New user">New</span>
+              <template v-if="node.score != null">
+                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <span class="comment-node__score">{{ node.score }} {{ node.score === 1 ? 'point' : 'points' }}</span>
+              </template>
               <span class="comment-node__sep" aria-hidden="true">&middot;</span>
               <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
 
@@ -289,7 +297,7 @@ watch(
             </div>
 
             <div class="comment-node__actions">
-              <div v-if="voteHref || node.voteDown" class="comment-node__votes">
+              <div v-if="hasVoteActions" class="comment-node__votes">
                 <a
                   v-if="voteHref"
                   :href="voteHref"
@@ -312,19 +320,19 @@ watch(
               </div>
 
               <template v-if="node.replyLink">
-                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <span v-if="hasVoteActions" class="comment-node__sep" aria-hidden="true">&middot;</span>
                 <a :href="node.replyLink" class="comment-node__action-link">reply</a>
               </template>
               <template v-if="node.editUrl">
-                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <span v-if="hasVoteActions || hasReplyAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
                 <a :href="node.editUrl" class="comment-node__action-link">edit</a>
               </template>
               <template v-if="node.deleteUrl">
-                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <span v-if="hasVoteActions || hasReplyAction || hasEditAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
                 <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
               </template>
               <template v-if="node.flagUrl">
-                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <span v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
                 <a :href="node.flagUrl" class="comment-node__action-link" @click="confirmFlagAction">{{ flagLabel }}</a>
               </template>
             </div>
@@ -460,6 +468,11 @@ watch(
     &:hover {
       text-decoration: underline;
     }
+  }
+
+  &__score {
+    color: inherit;
+    font-weight: 500;
   }
 
   &__sep {

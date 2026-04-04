@@ -49,6 +49,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
         <AuthorByline
           :author="node.author"
           :author-is-new="node.authorIsNew"
+          :score="node.score"
           :age-link="node.ageLink"
           :age="node.age"
           :age-timestamp="node.ageTimestamp"

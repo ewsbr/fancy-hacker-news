@@ -18,6 +18,7 @@ defineProps<{
         <AuthorByline
           :author="comment.author"
           :author-is-new="comment.authorIsNew"
+          :score="comment.score"
           :age-link="comment.ageLink"
           :age="comment.age"
         />

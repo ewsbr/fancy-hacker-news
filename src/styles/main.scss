@@ -22,6 +22,18 @@
   --color-accent-muted: #bf4d00;
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
   --fragment-scroll-offset: 16px;
+  --color-chrome-surface: var(--color-surface);
+  --color-chrome-border: var(--color-border);
+  --shadow-chrome: none;
+  --color-chrome-control-border: var(--color-border);
+  --color-chrome-control-bg: transparent;
+  --color-chrome-control-text: var(--color-text-muted);
+  --color-chrome-control-hover-border: var(--color-border);
+  --color-chrome-control-hover-bg: var(--color-code-bg);
+  --color-chrome-control-hover-text: var(--color-text);
+  --color-chrome-menu-surface: var(--color-surface);
+  --color-chrome-menu-border: var(--color-border);
+  --shadow-chrome-menu: var(--shadow-elevation);
 }
 
 #refined-hn-root[data-theme="dark"] {
@@ -58,18 +70,30 @@
 
 #refined-hn-root[data-theme="amoled"] {
   --color-bg: #000000;
-  --color-surface: #111111;
+  --color-surface: #000000;
   --color-accent: #ff6600;
   --color-text: #e0e0e0;
   --color-text-muted: #888888;
-  --color-border: #333333;
-  --color-code-bg: #1a1a1a;
+  --color-border: #202020;
+  --color-code-bg: #080808;
   --color-quote-border: #ff6600;
-  --color-quote-bg: #141414;
+  --color-quote-bg: #080808;
   --color-downvoted: #555555;
   --color-new-user: #5cb85c;
   --color-accent-muted: #ff8c50;
-  --shadow-elevation: 0 4px 6px -1px rgba(255, 255, 255, 0.02), 0 2px 4px -2px rgba(255, 255, 255, 0.01);
+  --shadow-elevation: none;
+  --color-chrome-surface: #080808;
+  --color-chrome-border: #1f1f1f;
+  --shadow-chrome: 0 1px 0 rgba(255, 102, 0, 0.12);
+  --color-chrome-control-border: #2b2b2b;
+  --color-chrome-control-bg: rgba(255, 102, 0, 0.06);
+  --color-chrome-control-text: rgba(255, 255, 255, 0.76);
+  --color-chrome-control-hover-border: rgba(255, 102, 0, 0.5);
+  --color-chrome-control-hover-bg: rgba(255, 102, 0, 0.12);
+  --color-chrome-control-hover-text: #ffffff;
+  --color-chrome-menu-surface: #080808;
+  --color-chrome-menu-border: #242424;
+  --shadow-chrome-menu: 0 12px 32px -16px rgba(255, 102, 0, 0.28);
 }
 
 #refined-hn-root {
@@ -132,4 +156,10 @@ pre {
   border-radius: 4px;
   box-shadow: var(--shadow-elevation);
   overflow: hidden;
+}
+
+#refined-hn-root[data-theme="amoled"] .hn-content-card {
+  background: #000000;
+  border-color: #1c1c1c;
+  box-shadow: none;
 }

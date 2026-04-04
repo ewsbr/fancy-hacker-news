@@ -64,6 +64,7 @@ export interface CommentNode {
   id: string;
   author: string;
   authorIsNew: boolean;
+  score: number | null;
   age: string;
   ageTimestamp: string;
   ageLink: string;
@@ -289,6 +290,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       }
 
       const ageInfo = parseAge(comhead?.querySelector('.age'));
+      const score = parseScore(textOf(comhead?.querySelector('.score')));
 
       const votelinks = tr.querySelector('td.votelinks');
       const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
@@ -300,15 +302,18 @@ export function parseItemPage(doc: Document): ParsedItemPage {
 
       const commentContainer = commtext?.parentElement;
       const replyDiv = commentContainer?.querySelector('.reply');
+      const navs = comhead?.querySelector('.navs');
       const replyLink = hrefOf(replyDiv?.querySelector('a[href^="reply?"]'));
-      const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'));
-      const editUrl = hrefOf(replyDiv?.querySelector('a[href^="edit?"]'));
-      const deleteUrl = hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
+      const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
+        || hrefOf(navs?.querySelector('a[href^="flag?"]'));
+      const editUrl = hrefOf(navs?.querySelector('a[href^="edit?"]'))
+        || hrefOf(replyDiv?.querySelector('a[href^="edit?"]'));
+      const deleteUrl = hrefOf(navs?.querySelector('a[href^="delete-confirm?"]'))
+        || hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
 
       // Detect deleted comments: no author and body text is [deleted]
       const isDeleted = !author && (commtext?.textContent?.trim() === '[deleted]');
 
-      const navs = comhead?.querySelector('.navs');
       const navLinksObj = {
         root: null as string | null,
         parent: null as string | null,
@@ -336,6 +341,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
         id,
         author,
         authorIsNew: isNewUser(authorEl),
+        score,
         age: ageInfo.text,
         ageTimestamp: ageInfo.timestamp,
         ageLink: ageInfo.link,
