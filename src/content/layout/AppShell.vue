@@ -52,6 +52,12 @@ onUnmounted(() => document.removeEventListener('keydown', onGlobalKeydown));
     max-width: 1024px;
     margin: 0.5rem auto 0;
     padding: 0 0.5rem;
+
+    @media (max-width: 640px) {
+      padding: 0 0.5rem;
+      margin-left: 0;
+      margin-right: 0;
+    }
   }
 }
 </style>

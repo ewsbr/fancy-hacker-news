@@ -72,7 +72,7 @@ defineProps<{ story: Story }>();
   @media (max-width: 640px) {
     grid-template-columns: 1.5rem 1.1rem 1fr;
     gap: 0 0.3rem;
-    padding: 0.5rem 0.6rem 0.5rem 0;
+    padding: 0.5rem 0.375rem 0.5rem 0.375rem;
   }
 }
 </style>

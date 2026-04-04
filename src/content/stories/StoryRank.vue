@@ -17,5 +17,9 @@ defineProps<{ rank: number }>();
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+
+  @media (max-width: 640px) {
+    text-align: left;
+  }
 }
 </style>
