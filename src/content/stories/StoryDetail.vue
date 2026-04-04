@@ -164,7 +164,6 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
     padding: 1rem 0.75rem 1.25rem;
     font-size: 0.92rem;
     line-height: 1.55;
-    max-width: 50rem;
     color: var(--color-text);
     background: var(--color-surface);
     border-top: 1px dashed var(--color-border);
