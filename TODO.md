@@ -6,6 +6,8 @@
   - downvote
 
 - Upvote buttons ain't expanding on mobile
+- Rename extension
+- Maybe batch render for 100+ comments
 
 - Deletion via https://news.ycombinator.com/delete-confirm?id=47632301&goto=item%3Fid%3D47629433
 <html><head></head><body>You can't delete that.</body></html>
