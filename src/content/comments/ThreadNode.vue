@@ -48,7 +48,11 @@ function toggleCollapse() {
         </CommentHeader>
         
         <div v-if="!isCollapsed" class="comment-node__body-wrapper">
-          <CommentBody :html="node.bodyHtml" :gray-level="node.grayLevel" />
+          <CommentBody
+            :html="node.bodyHtml"
+            :gray-level="node.grayLevel"
+            :placeholder-kind="node.placeholderKind"
+          />
           
           <CommentActions
             :vote-up="node.voteUp"

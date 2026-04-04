@@ -16,6 +16,7 @@ import AuthorByline from '@/content/shared/AuthorByline.vue';
 
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
+const MAIN_THREAD_HASH_TARGET_ID_KEY = 'main-thread-hash-target-id';
 const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
@@ -36,11 +37,15 @@ const totalCommentCount = computed(() => {
 
 const hashPathIds = ref<Set<string>>(new Set());
 const hashTargetId = ref<string | null>(null);
+const mainThreadHashTargetId = ref<string | null>(null);
 const FRAGMENT_SCROLL_TOLERANCE = 24;
 const FRAGMENT_SCROLL_SETTLE_ATTEMPTS = 8;
 
 provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
 provide(HASH_TARGET_ID_KEY, hashTargetId);
+provide(MAIN_THREAD_HASH_TARGET_ID_KEY, mainThreadHashTargetId);
+
+type HashTargetScope = 'any' | 'main-thread';
 
 function getModernRoot(): HTMLElement | null {
   return document.getElementById('refined-hn-root');
@@ -87,11 +92,37 @@ function waitForPageLoad() {
   });
 }
 
-async function waitForRenderedHashTarget(targetId: string, attempts = 36): Promise<HTMLElement | null> {
+function findRenderedHashTarget(targetId: string, scope: HashTargetScope = 'any'): HTMLElement | null {
   const selector = `#${CSS.escape(targetId)}`;
 
+  const matches = getModernRoot()?.querySelectorAll<HTMLElement>(selector) ?? [];
+  for (const match of matches) {
+    if (scope === 'main-thread' && match.closest('.sub-thread-modal')) {
+      continue;
+    }
+
+    return match;
+  }
+
+  return null;
+}
+
+function getMainPageScrollAnchor(target: HTMLElement): HTMLElement {
+  return target.querySelector<HTMLElement>('.comment-node__author')
+    ?? target.querySelector<HTMLElement>('.comment-node__deleted-meta')
+    ?? target.querySelector<HTMLElement>('.comment-node__age-link')
+    ?? target.querySelector<HTMLElement>('.comment-node__header')
+    ?? target.querySelector<HTMLElement>('.comments-page__comment-meta')
+    ?? target;
+}
+
+async function waitForRenderedHashTarget(
+  targetId: string,
+  attempts = 36,
+  scope: HashTargetScope = 'any',
+): Promise<HTMLElement | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const target = getModernRoot()?.querySelector<HTMLElement>(selector) ?? null;
+    const target = findRenderedHashTarget(targetId, scope);
     if (target) {
       return target;
     }
@@ -102,18 +133,53 @@ async function waitForRenderedHashTarget(targetId: string, attempts = 36): Promi
   return null;
 }
 
-function scrollMainPageTarget(target: HTMLElement) {
-  const scrollContainer = getScrollContainer();
-  const offset = getFragmentScrollOffset();
-  target.style.scrollMarginTop = `${Math.ceil(offset)}px`;
+function getMainThreadHashTargetCandidates(targetId: string, path: string[] | null): string[] {
+  const candidates = path ? [...path].reverse() : [];
 
-  if (!scrollContainer) {
-    target.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+  if (!candidates.includes(targetId)) {
+    candidates.unshift(targetId);
+  }
+
+  return candidates;
+}
+
+async function waitForRenderedMainThreadHashTarget(
+  targetId: string,
+  path: string[] | null,
+  attempts = 36,
+): Promise<{ element: HTMLElement; targetId: string } | null> {
+  const candidates = getMainThreadHashTargetCandidates(targetId, path);
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    for (const candidateId of candidates) {
+      const target = findRenderedHashTarget(candidateId, 'main-thread');
+      if (target) {
+        return {
+          element: target,
+          targetId: candidateId,
+        };
+      }
+    }
+
+    await waitForAnimationFrame();
+  }
+
+  return null;
+}
+
+function scrollMainPageTarget(target: HTMLElement, alignToTopEdge = false) {
+  const scrollContainer = getScrollContainer();
+  const offset = alignToTopEdge ? 0 : getFragmentScrollOffset();
+  const scrollAnchor = getMainPageScrollAnchor(target);
+  scrollAnchor.style.scrollMarginTop = `${Math.ceil(offset)}px`;
+
+  if (!scrollContainer || alignToTopEdge) {
+    scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
     return;
   }
 
   const containerRect = scrollContainer.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
+  const targetRect = scrollAnchor.getBoundingClientRect();
   const desiredScrollTop = scrollContainer.scrollTop + (targetRect.top - containerRect.top) - offset;
   const maxScrollTop = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
 
@@ -132,11 +198,12 @@ function logFragmentWarning(
   debugLog(`fragment:${reason}`, details);
 }
 
-function getMainPageScrollMetrics(target: HTMLElement) {
+function getMainPageScrollMetrics(target: HTMLElement, alignToTopEdge = false) {
   const scrollContainer = getScrollContainer();
-  const fragmentOffset = getFragmentScrollOffset();
+  const fragmentOffset = alignToTopEdge ? 0 : getFragmentScrollOffset();
+  const scrollAnchor = getMainPageScrollAnchor(target);
   const containerTop = Math.round(scrollContainer?.getBoundingClientRect().top ?? 0);
-  const actualTop = Math.round(target.getBoundingClientRect().top);
+  const actualTop = Math.round(scrollAnchor.getBoundingClientRect().top);
   const expectedTop = Math.round(containerTop + fragmentOffset);
   const delta = actualTop - expectedTop;
   const rootScrollTop = Math.round(scrollContainer?.scrollTop ?? 0);
@@ -159,7 +226,7 @@ function getMainPageScrollMetrics(target: HTMLElement) {
   };
 }
 
-async function verifyMainPageScroll(targetId: string, pathLength: number) {
+async function verifyMainPageScroll(targetId: string, pathLength: number, alignToTopEdge = false) {
   const selector = `#${CSS.escape(targetId)}`;
   let lastMetrics: ReturnType<typeof getMainPageScrollMetrics> | null = null;
 
@@ -178,13 +245,13 @@ async function verifyMainPageScroll(targetId: string, pathLength: number) {
       return;
     }
 
-    scrollMainPageTarget(target);
+    scrollMainPageTarget(target, alignToTopEdge);
 
     await waitForAnimationFrame();
     await waitForAnimationFrame();
     await waitForTimeout(80);
 
-    lastMetrics = getMainPageScrollMetrics(target);
+    lastMetrics = getMainPageScrollMetrics(target, alignToTopEdge);
 
     if (lastMetrics.isClampedAtTop || lastMetrics.isClampedAtBottom) {
       if (isDebugMode()) {
@@ -247,9 +314,11 @@ function findCommentPath(
 async function syncHashPath() {
   const targetId = location.hash.slice(1) || null;
   hashTargetId.value = targetId;
+  mainThreadHashTargetId.value = targetId;
 
   if (!pageData || !targetId) {
     hashPathIds.value = new Set();
+    mainThreadHashTargetId.value = null;
     return;
   }
 
@@ -268,14 +337,22 @@ async function syncHashPath() {
   await waitForAnimationFrame();
 
   const targetEl = await waitForRenderedHashTarget(targetId);
-  if (targetEl?.closest('.sub-thread-modal')) {
+  const mainThreadTarget = targetEl?.closest('.sub-thread-modal')
+    ? await waitForRenderedMainThreadHashTarget(targetId, path)
+    : targetEl
+      ? { element: targetEl, targetId }
+      : await waitForRenderedMainThreadHashTarget(targetId, path);
+
+  mainThreadHashTargetId.value = mainThreadTarget?.targetId ?? null;
+
+  if (mainThreadTarget) {
+    const alignToTopEdge = true;
+    scrollMainPageTarget(mainThreadTarget.element, alignToTopEdge);
+    await verifyMainPageScroll(mainThreadTarget.targetId, path?.length ?? 0, alignToTopEdge);
     return;
   }
 
-  if (targetEl) {
-    scrollMainPageTarget(targetEl);
-    await verifyMainPageScroll(targetId, path?.length ?? 0);
-  } else {
+  if (!targetEl) {
     logFragmentWarning('target-not-found', {
       targetId,
       pathLength: path?.length ?? 0,
@@ -284,7 +361,17 @@ async function syncHashPath() {
       domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
       scrollY: Math.round(window.scrollY),
     });
+    return;
   }
+
+  logFragmentWarning('main-thread-target-not-found', {
+    targetId,
+    pathLength: path?.length ?? 0,
+    readyState: document.readyState,
+    isMobile: window.matchMedia('(max-width: 640px)').matches,
+    domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
+    scrollY: Math.round(window.scrollY),
+  });
 }
 
 onMounted(() => {
@@ -318,15 +405,28 @@ onUnmounted(() => {
             </div>
             <div class="comments-page__comment-content">
               <div class="comments-page__comment-meta">
-                <AuthorByline
-                  :author="pageData.item.author"
-                  :author-is-new="pageData.item.authorIsNew"
-                  :age-link="pageData.item.ageLink"
-                  :age="pageData.item.age"
-                  :age-timestamp="pageData.item.ageTimestamp"
-                />
-                <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
-                <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
+                <template v-if="pageData.item.isDeleted">
+                  <span class="comments-page__comment-deleted">[deleted]</span>
+                  <span class="comments-page__comment-sep">&middot;</span>
+                  <a
+                    :href="pageData.item.ageLink"
+                    :title="pageData.item.ageTimestamp"
+                    class="comments-page__comment-age"
+                  >
+                    {{ pageData.item.age }}
+                  </a>
+                </template>
+                <template v-else>
+                  <AuthorByline
+                    :author="pageData.item.author"
+                    :author-is-new="pageData.item.authorIsNew"
+                    :age-link="pageData.item.ageLink"
+                    :age="pageData.item.age"
+                    :age-timestamp="pageData.item.ageTimestamp"
+                  />
+                  <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
+                  <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
+                </template>
                 <template v-if="pageData.item.favoriteUrl">
                   <span class="comments-page__comment-sep">&middot;</span>
                   <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
@@ -337,7 +437,11 @@ onUnmounted(() => {
                 </template>
               </div>
               <div class="comments-page__comment-body">
-                <CommentBody :html="pageData.item.bodyHtml || ''" gray-level="c00" />
+                <CommentBody
+                  :html="pageData.item.bodyHtml || ''"
+                  gray-level="c00"
+                  :placeholder-kind="pageData.item.placeholderKind"
+                />
               </div>
             </div>
           </div>
@@ -412,6 +516,23 @@ onUnmounted(() => {
 
     &:hover {
       color: var(--color-text);
+      text-decoration: underline;
+    }
+  }
+
+  &__comment-deleted,
+  &__comment-age {
+    color: var(--color-text-muted);
+  }
+
+  &__comment-deleted {
+    font-style: italic;
+  }
+
+  &__comment-age {
+    text-decoration: none;
+
+    &:hover {
       text-decoration: underline;
     }
   }

@@ -66,6 +66,20 @@ export function parseGrayLevel(el: Element | null | undefined): string | null {
   return grayClass?.toLowerCase() || null;
 }
 
+export type CommentPlaceholderKind = 'flagged' | 'deleted';
+
+export interface ParsedCommentBody {
+  html: string;
+  placeholderKind: CommentPlaceholderKind | null;
+}
+
+function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
+  const normalized = text.trim();
+  if (normalized === '[flagged]') return 'flagged';
+  if (normalized === '[deleted]') return 'deleted';
+  return null;
+}
+
 const QUOTED_HTML_PATTERN = /(^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
 const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
 
@@ -164,4 +178,37 @@ export function extractRichTextHtml(source: Element | null | undefined): string 
   }
 
   return clone.innerHTML;
+}
+
+export function parseCommentBody(source: Element | null | undefined): ParsedCommentBody {
+  if (!source) {
+    return { html: '', placeholderKind: null };
+  }
+
+  if (source.classList.contains('comment')) {
+    const richTextChild = Array.from(source.children).find(child => child.classList.contains('commtext')) ?? null;
+    if (richTextChild) {
+      const html = extractRichTextHtml(richTextChild);
+      return {
+        html,
+        placeholderKind: detectCommentPlaceholder(textOf(richTextChild)),
+      };
+    }
+
+    const clone = source.cloneNode(true) as Element;
+    for (const reply of clone.querySelectorAll('.reply')) {
+      reply.remove();
+    }
+
+    return {
+      html: clone.innerHTML.trim(),
+      placeholderKind: detectCommentPlaceholder(textOf(clone)),
+    };
+  }
+
+  const html = extractRichTextHtml(source);
+  return {
+    html,
+    placeholderKind: detectCommentPlaceholder(textOf(source)),
+  };
 }

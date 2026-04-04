@@ -5,6 +5,7 @@ import CommentActions from '@/content/shared/CommentActions.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import Badge from '@/content/shared/Badge.vue';
 
 defineProps<{
   comment: FlatCommentType;
@@ -15,13 +16,21 @@ defineProps<{
   <div class="flat-comment" :id="comment.id">
     <div class="flat-comment__header">
       <div class="flat-comment__meta">
-        <AuthorByline
-          :author="comment.author"
-          :author-is-new="comment.authorIsNew"
-          :score="comment.score"
-          :age-link="comment.ageLink"
-          :age="comment.age"
-        />
+        <template v-if="comment.isDeleted">
+          <span class="flat-comment__deleted">[deleted]</span>
+          <MetaSep />
+          <a :href="comment.ageLink" class="flat-comment__age">{{ comment.age }}</a>
+        </template>
+        <template v-else>
+          <AuthorByline
+            :author="comment.author"
+            :author-is-new="comment.authorIsNew"
+            :score="comment.score"
+            :age-link="comment.ageLink"
+            :age="comment.age"
+          />
+          <Badge v-if="comment.isFlagged" variant="flagged" label="Flagged" />
+        </template>
       </div>
 
       <div class="flat-comment__story">
@@ -31,7 +40,11 @@ defineProps<{
     </div>
     
     <div class="flat-comment__body">
-      <CommentBody :html="comment.bodyHtml" :gray-level="null" />
+      <CommentBody
+        :html="comment.bodyHtml"
+        :gray-level="comment.grayLevel"
+        :placeholder-kind="comment.placeholderKind"
+      />
     </div>
     
     <CommentActions
@@ -65,6 +78,7 @@ defineProps<{
   &__meta {
     display: flex;
     align-items: center;
+    gap: 0.35rem;
     min-width: 0;
   }
 
@@ -78,6 +92,23 @@ defineProps<{
   
   &__body {
     margin-left: 0;
+  }
+
+  &__deleted,
+  &__age {
+    color: var(--color-text-muted);
+  }
+
+  &__deleted {
+    font-style: italic;
+  }
+
+  &__age {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
   @media (max-width: 640px) {

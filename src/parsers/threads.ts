@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf, isNewUser, extractRichTextHtml, parseAge, parseGrayLevel, parseScore, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink } from './utils';
 import type { CommentNode } from './item';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
@@ -67,10 +67,12 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
     const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
     const voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
 
-    const commtext = tr.querySelector('.commtext');
+    const commentEl = tr.querySelector('.comment');
+    const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
+    const commentBody = parseCommentBody(commentEl ?? commtext);
     const grayLevel = parseGrayLevel(commtext);
 
-    const replyDiv = commtext?.parentElement?.querySelector('.reply');
+    const replyDiv = commentEl?.querySelector('.reply');
     const replyLink = hrefOf(replyDiv?.querySelector('a'));
 
     const navs = comhead?.querySelector('.navs');
@@ -101,12 +103,13 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       age: ageInfo.text,
       ageTimestamp: ageInfo.timestamp,
       ageLink: ageInfo.link,
-      bodyHtml: extractRichTextHtml(commtext),
+      bodyHtml: commentBody.html,
+      placeholderKind: commentBody.placeholderKind,
       grayLevel,
       indent,
       isCollapsed,
       isDead,
-      isFlagged,
+      isFlagged: isFlagged || commentBody.placeholderKind === 'flagged',
       collapsedCount,
       voteUp,
       voteDown,
@@ -115,7 +118,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       editUrl: null,
       deleteUrl: null,
       replyLink,
-      isDeleted: !author && (commtext?.textContent?.trim() === '[deleted]'),
+      isDeleted: commentBody.placeholderKind === 'deleted',
       descendantCount: 0,
       expandForHash: false,
       navLinks: navLinksObj,

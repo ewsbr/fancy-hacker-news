@@ -2,11 +2,13 @@
 import { computed, inject, ref, watch, type Ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import SubThreadModal from './SubThreadModal.vue';
+import CommentBody from './CommentBody.vue';
 import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const HASH_TARGET_ID_KEY = 'hash-target-id';
+const MAIN_THREAD_HASH_TARGET_ID_KEY = 'main-thread-hash-target-id';
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const SUBTREE_PROGRESSIVE_THRESHOLD = 160;
 const INITIAL_CHILD_BUDGET = 120;
@@ -32,6 +34,7 @@ const props = defineProps<{
 const isMobileLayout = inject<boolean>('isMobileLayout', false);
 const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
 const hashTargetId = inject<Ref<string | null>>(HASH_TARGET_ID_KEY, ref(null));
+const mainThreadHashTargetId = inject<Ref<string | null>>(MAIN_THREAD_HASH_TARGET_ID_KEY, ref(null));
 
 const userCollapsed = ref(
   props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
@@ -44,9 +47,10 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
-const isDownvoted = !!props.node.grayLevel && props.node.grayLevel !== 'c00';
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
+const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
+const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value : isMainThreadHashTarget.value));
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
@@ -222,7 +226,7 @@ watch(
     :class="[
       node.indent > 0 ? 'comment-node--nested' : 'comment-node--root',
       isCollapsed ? 'comment-node--collapsed' : '',
-      isHashTarget ? 'comment-node--highlight' : '',
+      isHighlightedForHash ? 'comment-node--highlight' : '',
     ]"
     :id="node.id"
   >
@@ -279,22 +283,12 @@ watch(
         </div>
 
         <template v-if="!isCollapsed">
-          <div v-if="node.isDeleted" class="comment-node__body-wrapper comment-node__body-wrapper--deleted">
-            <span class="comment-node__deleted-label">[deleted]</span>
-          </div>
-
-          <div
-            v-else
-            class="comment-node__body-wrapper"
-            :tabindex="isDownvoted ? 0 : undefined"
-          >
-            <div
-              v-once
-              class="comment-node__body"
-              :class="node.grayLevel && node.grayLevel !== 'c00' ? 'comment-node__body--downvoted' : 'comment-node__body--normal'"
-            >
-              <div class="comment-node__rich-text" v-html="node.bodyHtml"></div>
-            </div>
+          <div class="comment-node__body-wrapper">
+            <CommentBody
+              :html="node.bodyHtml"
+              :gray-level="node.grayLevel"
+              :placeholder-kind="node.placeholderKind"
+            />
 
             <div class="comment-node__actions">
               <div v-if="hasVoteActions" class="comment-node__votes">
@@ -575,97 +569,6 @@ watch(
 
   &__body-wrapper {
     margin-top: 0.2rem;
-
-    &--deleted {
-      opacity: 0.5;
-    }
-  }
-
-  &__deleted-label {
-    font-size: 0.85rem;
-  }
-
-  &__body {
-    line-height: 1.6;
-    font-size: 0.95rem;
-
-    &--normal {
-      color: var(--color-text);
-    }
-
-    &--downvoted {
-      opacity: 0.85;
-      filter: grayscale(10%);
-      color: var(--color-text-muted);
-      transition: opacity 0.2s ease, filter 0.2s ease, color 0.2s ease;
-      cursor: pointer;
-    }
-  }
-
-  &__body-wrapper:is(:hover, :active, :focus-visible, :focus-within) &__body--downvoted {
-    opacity: 1;
-    filter: none;
-    color: var(--color-text);
-  }
-
-  &__body-wrapper:focus-visible {
-    outline: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
-    outline-offset: 3px;
-  }
-
-  &__rich-text {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    word-break: break-word;
-
-    :deep(p) {
-      margin-top: 0.75rem;
-
-      &:first-child {
-        margin-top: 0;
-      }
-    }
-
-    :deep(pre) {
-      background: var(--color-code-bg);
-      border: 1px solid var(--color-border);
-      padding: 0.5rem 0.75rem;
-      margin-top: 0.6rem;
-      margin-bottom: 0.6rem;
-      border-radius: 4px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      font-family: var(--font-mono);
-      font-size: 0.825rem;
-      line-height: 1.45;
-      max-width: 100%;
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-border) transparent;
-      display: block;
-    }
-
-    :deep(a) {
-      text-decoration: underline;
-
-      &:hover {
-        color: var(--color-accent);
-      }
-    }
-
-    :deep(blockquote) {
-      margin: 0.65rem 0;
-      padding: 0.15rem 0.75rem;
-      border-left: 3px solid var(--color-text-muted);
-      background: var(--color-quote-bg);
-
-      p {
-        margin-top: 0.35rem;
-
-        &:first-child {
-          margin-top: 0;
-        }
-      }
-    }
   }
 
   &__actions {

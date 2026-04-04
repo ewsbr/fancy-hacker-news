@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { Flag, Trash2 } from 'lucide-vue-next';
 import RichText from '@/content/shared/RichText.vue';
+import type { CommentPlaceholderKind } from '@/parsers/utils';
 
 const props = defineProps<{
   html: string;
   grayLevel: string | null;
+  placeholderKind?: CommentPlaceholderKind | null;
 }>();
 
 const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
@@ -12,10 +15,18 @@ const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
 <template>
   <div
     class="comment-body"
-    :class="grayLevel && grayLevel !== 'c00' ? 'comment-body--downvoted' : 'comment-body--normal'"
+    :class="[
+      grayLevel && grayLevel !== 'c00' ? 'comment-body--downvoted' : 'comment-body--normal',
+      placeholderKind ? 'comment-body--placeholder' : '',
+    ]"
     :tabindex="isDownvoted ? 0 : undefined"
   >
-    <RichText v-once :html="html" />
+    <div v-if="placeholderKind" class="comment-body__placeholder">
+      <Flag v-if="placeholderKind === 'flagged'" :size="15" class="comment-body__placeholder-icon" />
+      <Trash2 v-else :size="15" class="comment-body__placeholder-icon" />
+      <span class="comment-body__placeholder-label">[{{ placeholderKind }}]</span>
+    </div>
+    <RichText v-else v-once :html="html" />
   </div>
 </template>
 
@@ -46,6 +57,26 @@ const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
       outline: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
       outline-offset: 3px;
     }
+  }
+
+  &--placeholder {
+    opacity: 1;
+    filter: none;
+    cursor: default;
+  }
+
+  &__placeholder {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.15rem 0;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  &__placeholder-icon {
+    flex: 0 0 auto;
+    opacity: 0.7;
   }
 }
 </style>

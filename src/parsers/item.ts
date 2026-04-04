@@ -3,12 +3,14 @@ import {
   extractRichTextHtml,
   hrefOf,
   isNewUser,
+  parseCommentBody,
   parseAge,
   parseGrayLevel,
   parseScore,
   textOf,
 } from './utils';
 import { debugLog, debugMeasure } from '@/debug';
+import type { CommentPlaceholderKind } from './utils';
 
 export interface ParsedItemPage {
   item: ItemDetail;
@@ -37,6 +39,7 @@ export interface ItemDetail {
   ageTimestamp: string;
   ageLink: string;
   bodyHtml: string | null;
+  placeholderKind: CommentPlaceholderKind | null;
   parentLink: string | null;
   contextLink: string | null;
   storyTitle: string | null;
@@ -50,6 +53,7 @@ export interface ItemDetail {
   flagUrl: string | null;
   isDead: boolean;
   isFlagged: boolean;
+  isDeleted: boolean;
 }
 
 export interface ReplyForm {
@@ -69,6 +73,7 @@ export interface CommentNode {
   ageTimestamp: string;
   ageLink: string;
   bodyHtml: string;
+  placeholderKind: CommentPlaceholderKind | null;
   grayLevel: string | null;
   indent: number;
   isCollapsed: boolean;
@@ -130,6 +135,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       ageTimestamp: '',
       ageLink: '',
       bodyHtml: null,
+      placeholderKind: null,
       parentLink: null,
       contextLink: null,
       storyTitle: null,
@@ -143,6 +149,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       flagUrl: null,
       isDead: false,
       isFlagged: false,
+      isDeleted: false,
     };
 
     const votelinks = athing?.querySelector('td.votelinks');
@@ -196,16 +203,23 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     parsedItem.parentLink = hrefOf(navs?.querySelector('a[href^="item?id="]'));
     parsedItem.contextLink = hrefOf(navs?.querySelector('a[href*="context"]'));
     parsedItem.favoriteUrl = hrefOf(navs?.querySelector('a[href^="fave?"]'));
+    parsedItem.isDead = comhead?.textContent?.includes('[dead]') || false;
+    parsedItem.isFlagged = comhead?.textContent?.includes('[flagged]') || false;
 
     const onStory = navs?.querySelector('.onstory a');
     parsedItem.storyTitle = textOf(onStory);
     parsedItem.storyLink = hrefOf(onStory);
 
-    const commtext = athing?.querySelector('.commtext');
-    const bodyHtml = extractRichTextHtml(commtext);
+    const commentEl = athing?.querySelector('.comment');
+    const commtext = commentEl?.querySelector('.commtext') ?? athing?.querySelector('.commtext');
+    const commentBody = parseCommentBody(commentEl ?? commtext);
+    const bodyHtml = commentBody.html;
     if (bodyHtml) {
       parsedItem.bodyHtml = bodyHtml;
     }
+    parsedItem.placeholderKind = commentBody.placeholderKind;
+    parsedItem.isDeleted = commentBody.placeholderKind === 'deleted';
+    parsedItem.isFlagged = parsedItem.isFlagged || commentBody.placeholderKind === 'flagged';
 
     return parsedItem;
   }, () => ({ itemType: fatitem.querySelector('tr.athing')?.classList.contains('submission') ? 'story' : 'comment' }));
@@ -297,11 +311,12 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
       const voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
 
-      const commtext = tr.querySelector('.commtext');
+      const commentEl = tr.querySelector('.comment');
+      const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
+      const commentBody = parseCommentBody(commentEl ?? commtext);
       const grayLevel = parseGrayLevel(commtext);
 
-      const commentContainer = commtext?.parentElement;
-      const replyDiv = commentContainer?.querySelector('.reply');
+      const replyDiv = commentEl?.querySelector('.reply');
       const navs = comhead?.querySelector('.navs');
       const replyLink = hrefOf(replyDiv?.querySelector('a[href^="reply?"]'));
       const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
@@ -311,8 +326,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       const deleteUrl = hrefOf(navs?.querySelector('a[href^="delete-confirm?"]'))
         || hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
 
-      // Detect deleted comments: no author and body text is [deleted]
-      const isDeleted = !author && (commtext?.textContent?.trim() === '[deleted]');
+      const isDeleted = commentBody.placeholderKind === 'deleted';
 
       const navLinksObj = {
         root: null as string | null,
@@ -345,12 +359,13 @@ export function parseItemPage(doc: Document): ParsedItemPage {
         age: ageInfo.text,
         ageTimestamp: ageInfo.timestamp,
         ageLink: ageInfo.link,
-        bodyHtml: extractRichTextHtml(commtext),
+        bodyHtml: commentBody.html,
+        placeholderKind: commentBody.placeholderKind,
         grayLevel,
         indent,
         isCollapsed,
         isDead,
-        isFlagged,
+        isFlagged: isFlagged || commentBody.placeholderKind === 'flagged',
         collapsedCount,
         voteUp,
         voteDown,
