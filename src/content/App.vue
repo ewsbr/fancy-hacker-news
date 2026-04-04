@@ -14,6 +14,7 @@ import SubmitPage from './pages/SubmitPage.vue';
 import ReplyPage from './pages/ReplyPage.vue';
 import FormatDocPage from './pages/FormatDocPage.vue';
 import LeadersPage from './pages/LeadersPage.vue';
+import DeleteConfirmPage from './pages/DeleteConfirmPage.vue';
 
 const route = inject<RouteDescriptor>('route')!;
 const pageData = inject<unknown>('pageData');
@@ -32,6 +33,7 @@ const PAGE_MAP: Record<string, Component> = {
   reply: ReplyPage,
   formatdoc: FormatDocPage,
   leaders: LeadersPage,
+  'delete-confirm': DeleteConfirmPage,
 };
 
 function isLoginPageData(value: unknown): value is ParsedLoginPage {

@@ -10,7 +10,7 @@ Actionable tasks organized by phase. Each task is independent enough for an agen
 - [x] **1.2** Create `src/parsers/utils.ts` — shared helpers: `textOf`, `attrOf`, `hrefOf`, `parseScore`, `parseCommentCount`, `isNewUser`, `parseAge`, `findMoreLink` — **already done**
 - [x] **1.3** Create `src/parsers/header.ts` — `parseHeader(doc: Document): ParsedHeader` extracts nav links, user info, logout URL — **already done**
 - [x] **1.4** Use `@fontsource-variable/*` packages for extension-bundled fonts (Atkinson Hyperlegible Next, Manrope, JetBrains Mono)
-- [x] **1.5** Create `src/styles/main.scss` — font imports, theme tokens, global reset, and shared base styles for `#hn-modern-root`
+- [x] **1.5** Create `src/styles/main.scss` — font imports, theme tokens, global reset, and shared base styles for `#refined-hn-root`
 - [x] **1.6** Configure `vite.config.js` for extension-safe asset output, including real CSS emission and JS asset URL rebinding via `renderBuiltUrl`
 - [x] **1.7** Verify manifest-injected CSS works inside the document body and that font URLs resolve from `dist/content/assets/style.css`
 - [x] **1.8** Create `src/state/theme.ts` — `useTheme()` composable (read/write `chrome.storage.local`, system preference detection, `data-theme` attribute)

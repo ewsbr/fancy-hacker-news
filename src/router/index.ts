@@ -69,6 +69,7 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   if (path === '/submit') return { page: 'submit', params: {} };
   if (path === '/formatdoc') return { page: 'formatdoc', params: {} };
   if (path === '/leaders') return { page: 'leaders', params: {} };
+  if (path === '/delete-confirm') return { page: 'delete-confirm', params: {} };
   if (AUTH_PAGES.has(path)) return { page: 'login', params: {} };
   if (STATIC_PAGES.has(path)) return { page: 'static', params: {} };
 

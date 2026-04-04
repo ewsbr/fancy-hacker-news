@@ -7,11 +7,11 @@
 
 - Upvote buttons ain't expanding on mobile
 
-- ~~Rename hn-modern let's not infringe on copyright~~ (renamed to Refined Hacker News)
-
-- User page is very bare bones
+- Deletion via https://news.ycombinator.com/delete-confirm?id=47632301&goto=item%3Fid%3D47629433
+<html><head></head><body>You can't delete that.</body></html>
 - Accessibility, Lighthouse etc
 
+- Some pages don't show the username, we should hide login
 - Tooltip sucks
 - Rework doc pages .html and add links to each other
 

@@ -27,6 +27,7 @@ import { parseNewComments } from '@/parsers/newComments';
 import { parseSubmitPage } from '@/parsers/submit';
 import { parseReplyPage } from '@/parsers/reply';
 import { parseLeadersPage } from '@/parsers/leaders';
+import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -51,6 +52,7 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'reply') return parseReplyPage(doc);
   if (page === 'formatdoc') return parseStaticPage(doc);
   if (page === 'leaders') return parseLeadersPage(doc);
+  if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);
