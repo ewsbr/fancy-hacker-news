@@ -6,6 +6,17 @@ export interface ParsedStaticPage {
   contentHtml: string;
 }
 
+function extractBodyFallbackHtml(doc: Document): string {
+  const body = doc.body;
+  if (!body) {
+    return '';
+  }
+
+  const clone = body.cloneNode(true) as HTMLElement;
+  clone.querySelectorAll('script, style, link[rel="stylesheet"], noscript').forEach(el => el.remove());
+  return clone.innerHTML.trim();
+}
+
 /**
  * Normalize the content of older HN static pages (e.g. newsguidelines.html)
  * that use a legacy table layout with <b> tags as section headers.
@@ -30,6 +41,21 @@ function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
     heading.textContent = b.textContent ?? '';
     b.replaceWith(heading);
   });
+
+  // <b> tags that follow a <p> separator end up inside <p> elements in the parsed DOM.
+  // h1/h2 cannot be children of <p>, so hoist them out to avoid invalid nesting that
+  // causes the browser to insert empty <p> stubs when v-html re-parses the serialized HTML.
+  for (const heading of Array.from(clone.querySelectorAll('p > h1, p > h2'))) {
+    heading.parentElement!.replaceWith(heading);
+  }
+
+  // Strip remaining empty paragraphs (lone <br> or pure whitespace) left by the
+  // old separator-style markup.
+  for (const p of Array.from(clone.querySelectorAll('p'))) {
+    if (!p.textContent?.trim() && !p.querySelector(':not(br)')) {
+      p.remove();
+    }
+  }
 
   return clone.innerHTML;
 }
@@ -59,5 +85,7 @@ export function parseStaticPage(doc: Document): ParsedStaticPage {
     return { contentHtml: normalizeLegacyHtml(legacyTd, doc) };
   }
 
-  return { contentHtml: '' };
+  // Some utility endpoints such as delete-confirm can return a bare body
+  // message or form instead of the normal HN table chrome.
+  return { contentHtml: extractBodyFallbackHtml(doc) };
 }

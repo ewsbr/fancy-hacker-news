@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 import type { ParsedStaticPage } from '@/parsers/static';
 
 const page = inject<ParsedStaticPage>('pageData')!;
+
+const contentHtml = computed(() =>
+  (page.contentHtml ?? '')
+    .replace(/<br\s*\/?>/gi, '')
+    .replace(/<p[^>]*>\s*<\/p>/gi, '')
+);
 
 interface FormatExample {
   title: string;
@@ -47,47 +53,58 @@ const examples: FormatExample[] = [
 
 <template>
   <div class="formatdoc-page">
-    <section class="formatdoc-page__rules">
-      <h1 class="formatdoc-page__title">Formatting Options</h1>
-      <div
-        v-if="page.contentHtml"
-        class="formatdoc-page__prose"
-        v-html="page.contentHtml"
-      />
-    </section>
+    <div class="formatdoc-page__card hn-content-card">
+      <section class="formatdoc-page__rules">
+        <h1 class="formatdoc-page__title">Formatting Options</h1>
+        <div
+          v-if="page.contentHtml"
+          class="formatdoc-page__prose"
+          v-html="contentHtml"
+        />
+      </section>
 
-    <section class="formatdoc-page__examples">
-      <h2 class="formatdoc-page__section-title">Examples</h2>
+      <section class="formatdoc-page__examples">
+        <h2 class="formatdoc-page__section-title">Examples</h2>
 
-      <div
-        v-for="ex in examples"
-        :key="ex.title"
-        class="format-example"
-      >
-        <div class="format-example__header">
-          <span class="format-example__title">{{ ex.title }}</span>
-          <span class="format-example__desc">{{ ex.description }}</span>
-        </div>
-        <div class="format-example__grid">
-          <div class="format-example__pane">
-            <div class="format-example__label">You type</div>
-            <pre class="format-example__source">{{ ex.input }}</pre>
+        <div
+          v-for="ex in examples"
+          :key="ex.title"
+          class="format-example"
+        >
+          <div class="format-example__header">
+            <span class="format-example__title">{{ ex.title }}</span>
+            <span class="format-example__desc">{{ ex.description }}</span>
           </div>
-          <div class="format-example__pane">
-            <div class="format-example__label">Looks like</div>
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div class="format-example__preview" v-html="ex.renderedHtml" />
+          <div class="format-example__grid">
+            <div class="format-example__pane">
+              <div class="format-example__label">You type</div>
+              <pre class="format-example__source">{{ ex.input }}</pre>
+            </div>
+            <div class="format-example__pane">
+              <div class="format-example__label">Looks like</div>
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <div class="format-example__preview" v-html="ex.renderedHtml" />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .formatdoc-page {
-  padding: 2rem 0;
+  padding: 1rem 0 2rem;
   max-width: 48rem;
+  margin: 0 auto;
+
+  &__card {
+    padding: 1.5rem 1.75rem;
+
+    @media (max-width: 640px) {
+      padding: 1rem 0.875rem;
+    }
+  }
 
   &__title {
     margin-bottom: 1.5rem;
