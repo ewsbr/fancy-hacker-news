@@ -19,6 +19,8 @@ defineProps<{
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
   font-size: 0.85rem;
   line-height: 1.4;
 
@@ -61,6 +63,8 @@ defineProps<{
   }
 
   &__link {
+    min-width: 0;
+    max-width: 100%;
     color: var(--color-accent-muted);
     text-decoration: none;
     font-size: 0.9rem;
@@ -68,6 +72,17 @@ defineProps<{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    align-items: flex-start;
+
+    &__link {
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+      overflow-wrap: anywhere;
+    }
   }
 }
 </style>

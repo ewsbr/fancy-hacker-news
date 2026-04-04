@@ -11,8 +11,8 @@ defineProps<{ href: string | null }>();
 <style scoped lang="scss">
 .pagination {
   border: 1px solid var(--color-border);
-  border-top: 0;
   border-radius: 0 0 4px 4px;
+  margin-top: -1px;
   background: var(--color-surface);
 
   &__more {

@@ -3,8 +3,8 @@
 @mixin comment-node-base {
   position: relative;
 
-  // Handle sticky header offset for fragment navigation
-  scroll-margin-top: 50px;
+  // Keep anchored comments slightly below the top edge after hash navigation.
+  scroll-margin-top: var(--fragment-scroll-offset);
 
   &:target {
     animation: highlight-fade 5s forwards;

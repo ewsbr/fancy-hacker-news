@@ -9,7 +9,7 @@ const pageData = inject<ParsedNewComments>('pageData')!;
 
 <template>
   <div class="new-comments">
-    <div class="new-comments__list">
+    <div class="new-comments__list hn-content-card">
       <FlatComment 
         v-for="comment in pageData.comments" 
         :key="comment.id" 
@@ -26,16 +26,16 @@ const pageData = inject<ParsedNewComments>('pageData')!;
 <style scoped lang="scss">
 .new-comments {
   padding-bottom: 2rem;
-  max-width: 900px;
+  max-width: 1024px;
   
   &__list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    border-radius: 4px 4px 0 0;
   }
   
   &__more {
-    margin-top: 1.5rem;
+    margin-top: 0;
   }
 }
 </style>

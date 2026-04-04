@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, provide, ref } from 'vue';
 import SiteHeader from './SiteHeader.vue';
 import SiteFooter from './SiteFooter.vue';
 import SearchModal from '../shared/SearchModal.vue';
+import ScrollToTopButton from '../shared/ScrollToTopButton.vue';
 
 const searchOpen = ref(false);
 
@@ -30,6 +31,7 @@ onUnmounted(() => document.removeEventListener('keydown', onGlobalKeydown));
       <slot />
     </main>
     <SiteFooter />
+    <ScrollToTopButton />
   </div>
 
   <SearchModal v-if="searchOpen" @close="searchOpen = false" />

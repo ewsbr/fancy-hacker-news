@@ -1,17 +1,44 @@
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import YLogo from '@/assets/ycombinator.svg';
 import ThemeToggle from '../shared/ThemeToggle.vue';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
+const navToggle = ref<HTMLElement | null>(null);
+const navMenu = ref<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
 
 function closeNav() {
   navOpen.value = false;
 }
+
+function onDocumentPointerDown(event: PointerEvent) {
+  if (!navOpen.value || window.innerWidth > 768) {
+    return;
+  }
+
+  const target = event.target;
+  if (!(target instanceof Node)) {
+    return;
+  }
+
+  if (navToggle.value?.contains(target) || navMenu.value?.contains(target)) {
+    return;
+  }
+
+  closeNav();
+}
+
+onMounted(() => {
+  document.addEventListener('pointerdown', onDocumentPointerDown);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('pointerdown', onDocumentPointerDown);
+});
 </script>
 
 <template>
@@ -25,8 +52,11 @@ function closeNav() {
 
         <div class="site-header__mobile-actions">
           <button
+            ref="navToggle"
             type="button"
             class="site-header__nav-toggle"
+            :aria-expanded="navOpen"
+            aria-haspopup="menu"
             @click="navOpen = !navOpen"
           >
             Menu ▾
@@ -34,7 +64,11 @@ function closeNav() {
         </div>
       </div>
 
-      <nav class="site-header__nav" :class="{ 'site-header__nav--open': navOpen }">
+      <nav
+        ref="navMenu"
+        class="site-header__nav"
+        :class="{ 'site-header__nav--open': navOpen }"
+      >
         <a
           v-for="link in navLinks"
           :key="link.href"
@@ -44,6 +78,14 @@ function closeNav() {
           @click="closeNav"
         >{{ link.label }}</a>
       </nav>
+
+      <button
+        v-if="navOpen"
+        type="button"
+        class="site-header__backdrop"
+        aria-label="Close menu"
+        @click="closeNav"
+      />
 
       <div class="site-header__controls">
         <div class="site-header__user-controls">
@@ -68,10 +110,6 @@ function closeNav() {
 
 <style scoped lang="scss">
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-top: 3px solid var(--color-accent);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
 
@@ -82,7 +120,7 @@ function closeNav() {
     gap: 1.5rem;
     max-width: 1024px;
     margin: 0 auto;
-    padding: 0.5rem 0.5rem;
+    padding: 0.5rem 1rem;
   }
 
   &__mobile-row {
@@ -211,6 +249,8 @@ function closeNav() {
       align-items: center;
       justify-content: space-between;
       width: 100%;
+      position: relative;
+      z-index: 110;
     }
 
     &__mobile-actions {
@@ -239,6 +279,16 @@ function closeNav() {
       &--open {
         display: flex;
       }
+    }
+
+    &__backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: default;
     }
 
     &__nav-link {

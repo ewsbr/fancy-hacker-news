@@ -14,16 +14,19 @@ defineProps<{
 <template>
   <div class="flat-comment" :id="comment.id">
     <div class="flat-comment__header">
-      <AuthorByline
-        :author="comment.author"
-        :author-is-new="comment.authorIsNew"
-        :age-link="comment.ageLink"
-        :age="comment.age"
-      />
-      
-      <MetaSep />
-      
-      <OnStoryHeader label="on" :href="comment.onStory.link" :title="comment.onStory.title" />
+      <div class="flat-comment__meta">
+        <AuthorByline
+          :author="comment.author"
+          :author-is-new="comment.authorIsNew"
+          :age-link="comment.ageLink"
+          :age="comment.age"
+        />
+      </div>
+
+      <div class="flat-comment__story">
+        <MetaSep class="flat-comment__story-sep" />
+        <OnStoryHeader label="on" :href="comment.onStory.link" :title="comment.onStory.title" />
+      </div>
     </div>
     
     <div class="flat-comment__body">
@@ -41,18 +44,78 @@ defineProps<{
 <style scoped lang="scss">
 .flat-comment {
   padding: 0.75rem 0;
+  margin: 0 0.75rem;
+  border-top: 1px solid var(--color-border);
+
+  &:first-child {
+    border-top: 0;
+  }
   
   &__header {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    column-gap: 0.5rem;
+    row-gap: 0.2rem;
     font-size: 0.85rem;
     margin-bottom: 0.25rem;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  &__story {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1 1 auto;
   }
   
   &__body {
     margin-left: 0;
+  }
+
+  @media (max-width: 640px) {
+    margin: 0 0.5rem;
+    padding: 0.65rem 0;
+
+    &__header {
+      display: grid;
+      row-gap: 0.1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    &__story-sep {
+      display: none;
+    }
+
+    &__story {
+      gap: 0.35rem;
+    }
+
+    :deep(.on-story-header) {
+      display: block;
+      line-height: 1.3;
+    }
+
+    :deep(.on-story-header__label) {
+      display: inline;
+      margin-right: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: baseline;
+    }
+
+    :deep(.on-story-header__link) {
+      display: inline;
+      vertical-align: baseline;
+    }
   }
 }
 </style>

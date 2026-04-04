@@ -24,5 +24,9 @@ const pageData = inject<ParsedThreadsPage>('pageData')!;
 <style scoped lang="scss">
 .threads-page {
   padding-bottom: 2rem;
+
+  &__container {
+    border-radius: 4px 4px 0 0;
+  }
 }
 </style>

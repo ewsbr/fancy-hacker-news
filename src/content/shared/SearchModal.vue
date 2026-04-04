@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Search, X } from 'lucide-vue-next';
+import Keycap from '@/content/shared/Keycap.vue';
 
 const emit = defineEmits<{ close: [] }>();
 
@@ -61,7 +62,7 @@ onUnmounted(() => {
         </form>
         <div class="search-modal__footer">
           <span class="search-modal__footer-hint">
-            <kbd>Enter</kbd> to search on Algolia &nbsp;·&nbsp; <kbd>Esc</kbd> to close
+            <Keycap>Enter</Keycap> to search on Algolia &nbsp;·&nbsp; <Keycap>Esc</Keycap> to close
           </span>
         </div>
       </div>
@@ -165,18 +166,6 @@ onUnmounted(() => {
   &__footer-hint {
     font-size: 0.78rem;
     color: var(--color-text-muted);
-
-    kbd {
-      display: inline-block;
-      padding: 0.1em 0.35em;
-      border: 1px solid var(--color-border);
-      border-radius: 3px;
-      background: var(--color-surface);
-      font-family: var(--font-mono);
-      font-size: 0.8em;
-      line-height: 1.4;
-      color: var(--color-text);
-    }
   }
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, ref, type Ref } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
+import Keycap from '@/content/shared/Keycap.vue';
 import {
   Clock,
   Search,
@@ -13,8 +14,6 @@ import {
 
 const renderTime = inject<Ref<number>>('renderTime', ref(0));
 const openSearch = inject<() => void>('openSearch');
-
-const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
 
 const links = [
   { text: 'Guidelines', href: 'newsguidelines.html' },
@@ -68,7 +67,7 @@ const socialLinks = [
           >
             <Search :size="14" class="site-footer__search-icon" aria-hidden="true" />
             <span class="site-footer__search-placeholder">Search HN…</span>
-            <kbd>{{ isMac ? '⌘' : 'Ctrl' }} K</kbd>
+            <Keycap :platform-modifier="true" :keys="['K']" />
           </button>
         </div>
       </div>
@@ -83,7 +82,6 @@ const socialLinks = [
 
       <div class="site-footer__bottom">
         <div class="site-footer__bottom-left">
-          <p class="site-footer__copyright">&copy; 2026 Y Combinator</p>
           <p class="site-footer__metadata">
             <Clock :size="12" />
             <span>Rendered in {{ renderTime }}ms</span>
@@ -167,20 +165,23 @@ const socialLinks = [
     }
 
     .site-footer__search-trigger {
-      border-color: rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(245, 245, 238, 0.6);
-
-      kbd {
-        border-color: rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.05);
-        color: rgba(245, 245, 238, 0.5);
-      }
+      --keycap-bg: rgba(255, 255, 255, 0.06);
+      --keycap-border: rgba(255, 255, 255, 0.2);
+      --keycap-text: rgba(245, 245, 238, 0.7);
+      border-color: rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(245, 245, 238, 0.78);
 
       &:hover {
         border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.14);
         color: #f5f5ee;
       }
+    }
+
+    .site-footer__search-placeholder {
+      color: rgba(245, 245, 238, 0.62);
+      opacity: 1;
     }
   }
 
@@ -193,6 +194,24 @@ const socialLinks = [
     background: #0a0a0a;
     border-top: 3px solid var(--color-accent);
     box-shadow: 0 -10px 40px -10px rgba(255, 102, 0, 0.15);
+
+    .site-footer__search-trigger {
+      --keycap-bg: rgba(255, 255, 255, 0.05);
+      --keycap-border: rgba(255, 255, 255, 0.16);
+      --keycap-text: rgba(255, 255, 255, 0.68);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.76);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.07);
+      }
+    }
+
+    .site-footer__search-placeholder {
+      color: rgba(255, 255, 255, 0.58);
+      opacity: 1;
+    }
   }
 
   // Block structure
@@ -274,6 +293,7 @@ const socialLinks = [
   }
 
   &__search-trigger {
+    --keycap-text: var(--color-text-muted);
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -285,24 +305,16 @@ const socialLinks = [
     cursor: pointer;
     font-family: var(--font-body);
     font-size: 0.875rem;
-    transition: border-color 0.15s ease, color 0.15s ease;
-
-    kbd {
-      display: inline-block;
-      padding: 0.1em 0.35em;
-      border: 1px solid var(--color-border);
-      border-radius: 3px;
-      background: var(--color-surface);
-      font-family: var(--font-mono);
-      font-size: 0.76rem;
-      line-height: 1.4;
-      color: var(--color-text-muted);
-      white-space: nowrap;
-    }
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 
     &:hover {
       border-color: var(--color-accent);
       color: var(--color-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--color-accent) 78%, white 22%);
+      outline-offset: 2px;
     }
   }
 
@@ -355,11 +367,6 @@ const socialLinks = [
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-
-  &__copyright {
-    font-size: 0.875rem;
-    opacity: 0.7;
   }
 
   &__metadata {

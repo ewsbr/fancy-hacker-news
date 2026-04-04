@@ -50,9 +50,14 @@ function getScrollContainer(): HTMLElement | null {
   return getModernRoot();
 }
 
-function getStickyHeaderOffset(): number {
-  const header = getModernRoot()?.querySelector<HTMLElement>('.site-header');
-  return header ? header.getBoundingClientRect().height + 8 : 58;
+function getFragmentScrollOffset(): number {
+  const root = getModernRoot();
+  if (!root) {
+    return 16;
+  }
+
+  const offset = Number.parseFloat(getComputedStyle(root).getPropertyValue('--fragment-scroll-offset'));
+  return Number.isFinite(offset) ? offset : 16;
 }
 
 function waitForAnimationFrame() {
@@ -99,7 +104,7 @@ async function waitForRenderedHashTarget(targetId: string, attempts = 36): Promi
 
 function scrollMainPageTarget(target: HTMLElement) {
   const scrollContainer = getScrollContainer();
-  const offset = getStickyHeaderOffset();
+  const offset = getFragmentScrollOffset();
   target.style.scrollMarginTop = `${Math.ceil(offset)}px`;
 
   if (!scrollContainer) {
@@ -129,10 +134,10 @@ function logFragmentWarning(
 
 function getMainPageScrollMetrics(target: HTMLElement) {
   const scrollContainer = getScrollContainer();
-  const headerOffset = getStickyHeaderOffset();
+  const fragmentOffset = getFragmentScrollOffset();
   const containerTop = Math.round(scrollContainer?.getBoundingClientRect().top ?? 0);
   const actualTop = Math.round(target.getBoundingClientRect().top);
-  const expectedTop = Math.round(containerTop + headerOffset);
+  const expectedTop = Math.round(containerTop + fragmentOffset);
   const delta = actualTop - expectedTop;
   const rootScrollTop = Math.round(scrollContainer?.scrollTop ?? 0);
   const rootMaxScrollTop = Math.max(
@@ -146,7 +151,7 @@ function getMainPageScrollMetrics(target: HTMLElement) {
     actualTop,
     expectedTop,
     delta,
-    headerOffset,
+    fragmentOffset,
     rootScrollTop,
     rootMaxScrollTop,
     isClampedAtTop,
@@ -362,7 +367,7 @@ onUnmounted(() => {
 
   &__comment-parent {
     border-bottom: 1px solid var(--color-border);
-    scroll-margin-top: 50px;
+    scroll-margin-top: var(--fragment-scroll-offset);
   }
 
   &__comment-layout {
