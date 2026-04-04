@@ -2,7 +2,7 @@
 import { inject } from 'vue';
 import type { ParsedReplyPage } from '@/parsers/reply';
 import CommentBody from '@/content/comments/CommentBody.vue';
-import CommentForm from '@/content/comments/CommentForm.vue';
+import CommentForm from '@/content/forms/CommentForm.vue';
 
 const pageData = inject<ParsedReplyPage>('pageData')!;
 </script>

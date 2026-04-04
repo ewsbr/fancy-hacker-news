@@ -80,11 +80,12 @@ src/
 │   │   ├── CommentNode.vue
 │   │   ├── CommentHeader.vue
 │   │   ├── CommentBody.vue
-│   │   ├── CommentForm.vue
 │   │   ├── FlatComment.vue
+│   │   ├── OnStoryHeader.vue
 │   │   ├── SubThreadModal.vue
 │   │   └── ThreadNode.vue
 │   ├── forms/
+│   │   ├── CommentForm.vue
 │   │   └── SubmitForm.vue
 │   └── shared/
 │       ├── AuthorByline.vue
@@ -92,7 +93,6 @@ src/
 │       ├── CommentActions.vue
 │       ├── FlagButton.vue
 │       ├── MetaSep.vue
-│       ├── OnStoryHeader.vue
 │       ├── Pagination.vue
 │       ├── PollOptions.vue
 │       ├── RichText.vue
@@ -117,6 +117,7 @@ src/
 ├── router/
 │   └── index.ts
 ├── state/
+│   ├── fragmentState.ts
 │   ├── theme.ts
 │   └── useIsMobile.ts
 └── styles/

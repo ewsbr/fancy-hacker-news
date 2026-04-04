@@ -3,7 +3,7 @@ import type { FlatComment as FlatCommentType } from '@/parsers/newComments';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
-import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
+import OnStoryHeader from './OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 import Badge from '@/content/shared/Badge.vue';
 

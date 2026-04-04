@@ -3,7 +3,7 @@ import { computed, inject, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from './fragmentState';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;

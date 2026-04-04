@@ -5,14 +5,14 @@ import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
 import { createLogger, debugLog } from '@/debug';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
-import CommentForm from '@/content/comments/CommentForm.vue';
+import CommentForm from '@/content/forms/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/content/comments/fragmentState';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
-import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
+import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 
 const commentsLogger = createLogger('comments');

@@ -3,7 +3,7 @@ import { inject } from 'vue';
 import type { ParsedDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
-import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
+import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 
 const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;

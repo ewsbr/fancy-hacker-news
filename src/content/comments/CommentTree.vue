@@ -2,7 +2,7 @@
 import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from './fragmentState';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 
 const PROGRESSIVE_RENDER_THRESHOLD = 600;
 const INITIAL_RENDER_BUDGET = 240;

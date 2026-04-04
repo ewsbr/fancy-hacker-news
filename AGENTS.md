@@ -80,11 +80,12 @@ src/
 │   │   ├── CommentNode.vue  # recursive node: collapse/expand, indent, threading
 │   │   ├── CommentHeader.vue # author, age, badges, nav arrows, collapse toggle
 │   │   ├── CommentBody.vue  # comment HTML with depth-based gray styling
-│   │   ├── CommentForm.vue  # inline reply form with CSRF fields
 │   │   ├── FlatComment.vue  # single flattened comment row (for ThreadsPage / NewCommentsPage)
+│   │   ├── OnStoryHeader.vue # "N comments on: <title>" banner used in comment contexts
 │   │   ├── SubThreadModal.vue # modal overlay for viewing a sub-thread in context
 │   │   └── ThreadNode.vue   # comment row used inside SubThreadModal
 │   ├── forms/
+│   │   ├── CommentForm.vue  # inline reply form with CSRF fields
 │   │   └── SubmitForm.vue   # story submission form fields
 │   └── shared/
 │       ├── AuthorByline.vue  # author link + "new user" badge
@@ -92,7 +93,6 @@ src/
 │       ├── CommentActions.vue # vote/reply/edit/delete/flag action row for comments
 │       ├── FlagButton.vue    # flag link with confirmation
 │       ├── MetaSep.vue       # separator dot between meta items
-│       ├── OnStoryHeader.vue # "N comments on: <title>" banner for flat comment pages
 │       ├── Pagination.vue    # "More" / prev-next pagination link
 │       ├── PollOptions.vue   # poll option rows with vote bars
 │       ├── RichText.vue      # HTML renderer with code/quote/link styles
@@ -117,6 +117,7 @@ src/
 ├── router/
 │   └── index.ts             # resolveRoute(location) → RouteDescriptor (pure fn)
 ├── state/
+│   ├── fragmentState.ts      # shared comment fragment highlight/scroll injection state
 │   ├── theme.ts             # useTheme() composable — chrome.storage + data-theme attr
 │   └── useIsMobile.ts       # useIsMobile() composable — matchMedia(max-width: 640px)
 └── styles/
