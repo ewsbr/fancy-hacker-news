@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { computed, inject, ref, watch, type Ref } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from './fragmentState';
 import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;
-const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
-const HASH_TARGET_ID_KEY = 'hash-target-id';
-const MAIN_THREAD_HASH_TARGET_ID_KEY = 'main-thread-hash-target-id';
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const SUBTREE_PROGRESSIVE_THRESHOLD = 160;
 const INITIAL_CHILD_BUDGET = 120;
@@ -32,9 +30,12 @@ const props = defineProps<{
 }>();
 
 const isMobileLayout = inject<boolean>('isMobileLayout', false);
-const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
-const hashTargetId = inject<Ref<string | null>>(HASH_TARGET_ID_KEY, ref(null));
-const mainThreadHashTargetId = inject<Ref<string | null>>(MAIN_THREAD_HASH_TARGET_ID_KEY, ref(null));
+const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
+  hashPathIds: ref(new Set<string>()),
+  hashTargetId: ref<string | null>(null),
+  mainThreadHashTargetId: ref<string | null>(null),
+});
+const { hashPathIds, hashTargetId, mainThreadHashTargetId } = fragmentState;
 
 const userCollapsed = ref(
   props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),

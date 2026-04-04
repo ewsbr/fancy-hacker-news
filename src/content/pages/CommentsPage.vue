@@ -2,11 +2,12 @@
 import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
 import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
-import { createLogger, debugLog, isDebugMode } from '@/debug';
+import { createLogger, debugLog } from '@/debug';
 import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/comments/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/content/comments/fragmentState';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
@@ -14,9 +15,6 @@ import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/shared/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 
-const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
-const HASH_TARGET_ID_KEY = 'hash-target-id';
-const MAIN_THREAD_HASH_TARGET_ID_KEY = 'main-thread-hash-target-id';
 const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
@@ -38,31 +36,17 @@ const totalCommentCount = computed(() => {
 const hashPathIds = ref<Set<string>>(new Set());
 const hashTargetId = ref<string | null>(null);
 const mainThreadHashTargetId = ref<string | null>(null);
-const FRAGMENT_SCROLL_TOLERANCE = 24;
-const FRAGMENT_SCROLL_SETTLE_ATTEMPTS = 8;
 
-provide(COMMENT_HASH_PATH_IDS_KEY, hashPathIds);
-provide(HASH_TARGET_ID_KEY, hashTargetId);
-provide(MAIN_THREAD_HASH_TARGET_ID_KEY, mainThreadHashTargetId);
+const fragmentState: CommentFragmentState = {
+  hashPathIds,
+  hashTargetId,
+  mainThreadHashTargetId,
+};
 
-type HashTargetScope = 'any' | 'main-thread';
+provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
 
 function getModernRoot(): HTMLElement | null {
   return document.getElementById('refined-hn-root');
-}
-
-function getScrollContainer(): HTMLElement | null {
-  return getModernRoot();
-}
-
-function getFragmentScrollOffset(): number {
-  const root = getModernRoot();
-  if (!root) {
-    return 16;
-  }
-
-  const offset = Number.parseFloat(getComputedStyle(root).getPropertyValue('--fragment-scroll-offset'));
-  return Number.isFinite(offset) ? offset : 16;
 }
 
 function waitForAnimationFrame() {
@@ -71,33 +55,12 @@ function waitForAnimationFrame() {
   });
 }
 
-function waitForTimeout(ms: number) {
-  return new Promise<void>(resolve => {
-    window.setTimeout(resolve, ms);
-  });
-}
-
-function waitForPageLoad() {
-  if (document.readyState === 'complete') {
-    return Promise.resolve();
-  }
-
-  return new Promise<void>(resolve => {
-    const onLoad = () => {
-      window.removeEventListener('load', onLoad);
-      resolve();
-    };
-
-    window.addEventListener('load', onLoad);
-  });
-}
-
-function findRenderedHashTarget(targetId: string, scope: HashTargetScope = 'any'): HTMLElement | null {
+function findRenderedHashTarget(targetId: string, excludeModal = false): HTMLElement | null {
   const selector = `#${CSS.escape(targetId)}`;
 
   const matches = getModernRoot()?.querySelectorAll<HTMLElement>(selector) ?? [];
   for (const match of matches) {
-    if (scope === 'main-thread' && match.closest('.sub-thread-modal')) {
+    if (excludeModal && match.closest('.sub-thread-modal')) {
       continue;
     }
 
@@ -108,23 +71,27 @@ function findRenderedHashTarget(targetId: string, scope: HashTargetScope = 'any'
 }
 
 function getMainPageScrollAnchor(target: HTMLElement): HTMLElement {
-  return target.querySelector<HTMLElement>('.comment-node__author')
-    ?? target.querySelector<HTMLElement>('.comment-node__deleted-meta')
-    ?? target.querySelector<HTMLElement>('.comment-node__age-link')
-    ?? target.querySelector<HTMLElement>('.comment-node__header')
+  return target.querySelector<HTMLElement>('.comment-node__header')
     ?? target.querySelector<HTMLElement>('.comments-page__comment-meta')
     ?? target;
 }
 
+type HashTargetMatch = {
+  element: HTMLElement;
+  targetId: string;
+};
+
 async function waitForRenderedHashTarget(
-  targetId: string,
+  targetIds: string[],
   attempts = 36,
-  scope: HashTargetScope = 'any',
-): Promise<HTMLElement | null> {
+  excludeModal = false,
+): Promise<HashTargetMatch | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const target = findRenderedHashTarget(targetId, scope);
-    if (target) {
-      return target;
+    for (const targetId of targetIds) {
+      const element = findRenderedHashTarget(targetId, excludeModal);
+      if (element) {
+        return { element, targetId };
+      }
     }
 
     await waitForAnimationFrame();
@@ -134,60 +101,15 @@ async function waitForRenderedHashTarget(
 }
 
 function getMainThreadHashTargetCandidates(targetId: string, path: string[] | null): string[] {
-  const candidates = path ? [...path].reverse() : [];
+  const candidates = [targetId, ...(path ? [...path].reverse() : [])];
 
-  if (!candidates.includes(targetId)) {
-    candidates.unshift(targetId);
-  }
-
-  return candidates;
+  return [...new Set(candidates)];
 }
 
-async function waitForRenderedMainThreadHashTarget(
-  targetId: string,
-  path: string[] | null,
-  attempts = 36,
-): Promise<{ element: HTMLElement; targetId: string } | null> {
-  const candidates = getMainThreadHashTargetCandidates(targetId, path);
-
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    for (const candidateId of candidates) {
-      const target = findRenderedHashTarget(candidateId, 'main-thread');
-      if (target) {
-        return {
-          element: target,
-          targetId: candidateId,
-        };
-      }
-    }
-
-    await waitForAnimationFrame();
-  }
-
-  return null;
-}
-
-function scrollMainPageTarget(target: HTMLElement, alignToTopEdge = false) {
-  const scrollContainer = getScrollContainer();
-  const offset = alignToTopEdge ? 0 : getFragmentScrollOffset();
+function scrollMainPageTarget(target: HTMLElement) {
   const scrollAnchor = getMainPageScrollAnchor(target);
-  scrollAnchor.style.scrollMarginTop = `${Math.ceil(offset)}px`;
-
-  if (!scrollContainer || alignToTopEdge) {
-    scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
-    return;
-  }
-
-  const containerRect = scrollContainer.getBoundingClientRect();
-  const targetRect = scrollAnchor.getBoundingClientRect();
-  const desiredScrollTop = scrollContainer.scrollTop + (targetRect.top - containerRect.top) - offset;
-  const maxScrollTop = Math.max(0, scrollContainer.scrollHeight - scrollContainer.clientHeight);
-
-  scrollContainer.scrollTo({
-    top: Math.min(Math.max(0, desiredScrollTop), maxScrollTop),
-    left: 0,
-    behavior: 'auto',
-  });
+  scrollAnchor.style.scrollMarginTop = '0px';
+  scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
 }
 
 function logFragmentWarning(
@@ -196,101 +118,6 @@ function logFragmentWarning(
 ) {
   commentsLogger.warn(`Fragment scroll warning: ${reason}`, details);
   debugLog(`fragment:${reason}`, details);
-}
-
-function getMainPageScrollMetrics(target: HTMLElement, alignToTopEdge = false) {
-  const scrollContainer = getScrollContainer();
-  const fragmentOffset = alignToTopEdge ? 0 : getFragmentScrollOffset();
-  const scrollAnchor = getMainPageScrollAnchor(target);
-  const containerTop = Math.round(scrollContainer?.getBoundingClientRect().top ?? 0);
-  const actualTop = Math.round(scrollAnchor.getBoundingClientRect().top);
-  const expectedTop = Math.round(containerTop + fragmentOffset);
-  const delta = actualTop - expectedTop;
-  const rootScrollTop = Math.round(scrollContainer?.scrollTop ?? 0);
-  const rootMaxScrollTop = Math.max(
-    0,
-    (scrollContainer?.scrollHeight ?? 0) - (scrollContainer?.clientHeight ?? 0),
-  );
-  const isClampedAtTop = delta > FRAGMENT_SCROLL_TOLERANCE && rootScrollTop <= 1;
-  const isClampedAtBottom = delta < -FRAGMENT_SCROLL_TOLERANCE && rootScrollTop >= rootMaxScrollTop - 1;
-
-  return {
-    actualTop,
-    expectedTop,
-    delta,
-    fragmentOffset,
-    rootScrollTop,
-    rootMaxScrollTop,
-    isClampedAtTop,
-    isClampedAtBottom,
-  };
-}
-
-async function verifyMainPageScroll(targetId: string, pathLength: number, alignToTopEdge = false) {
-  const selector = `#${CSS.escape(targetId)}`;
-  let lastMetrics: ReturnType<typeof getMainPageScrollMetrics> | null = null;
-
-  for (let attempt = 0; attempt < FRAGMENT_SCROLL_SETTLE_ATTEMPTS; attempt += 1) {
-    const target = getModernRoot()?.querySelector<HTMLElement>(selector) ?? null;
-    if (!target) {
-      logFragmentWarning('target-missing-after-scroll', {
-        targetId,
-        pathLength,
-        readyState: document.readyState,
-        isMobile: window.matchMedia('(max-width: 640px)').matches,
-        domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
-        scrollY: Math.round(window.scrollY),
-        attempt,
-      });
-      return;
-    }
-
-    scrollMainPageTarget(target, alignToTopEdge);
-
-    await waitForAnimationFrame();
-    await waitForAnimationFrame();
-    await waitForTimeout(80);
-
-    lastMetrics = getMainPageScrollMetrics(target, alignToTopEdge);
-
-    if (lastMetrics.isClampedAtTop || lastMetrics.isClampedAtBottom) {
-      if (isDebugMode()) {
-        debugLog('fragment:scroll-clamped', {
-          targetId,
-          pathLength,
-          attempt,
-          ...lastMetrics,
-          clampedAt: lastMetrics.isClampedAtTop ? 'top' : 'bottom',
-        });
-      }
-      return;
-    }
-
-    if (Math.abs(lastMetrics.delta) <= FRAGMENT_SCROLL_TOLERANCE) {
-      if (isDebugMode()) {
-        debugLog('fragment:scroll-success', {
-          targetId,
-          pathLength,
-          attempt,
-          scrollY: Math.round(window.scrollY),
-          ...lastMetrics,
-        });
-      }
-      return;
-    }
-  }
-
-  if (lastMetrics && Math.abs(lastMetrics.delta) > FRAGMENT_SCROLL_TOLERANCE) {
-    logFragmentWarning('scroll-offset-mismatch', {
-      targetId,
-      pathLength,
-      readyState: document.readyState,
-      isMobile: window.matchMedia('(max-width: 640px)').matches,
-      attempts: FRAGMENT_SCROLL_SETTLE_ATTEMPTS,
-      scrollY: Math.round(window.scrollY),
-      ...lastMetrics,
-    });
-  }
 }
 
 function findCommentPath(
@@ -331,28 +158,23 @@ async function syncHashPath() {
 
   hashPathIds.value = nextHashPathIds;
 
-  await waitForPageLoad();
   await nextTick();
-  await waitForAnimationFrame();
-  await waitForAnimationFrame();
 
-  const targetEl = await waitForRenderedHashTarget(targetId);
-  const mainThreadTarget = targetEl?.closest('.sub-thread-modal')
-    ? await waitForRenderedMainThreadHashTarget(targetId, path)
-    : targetEl
-      ? { element: targetEl, targetId }
-      : await waitForRenderedMainThreadHashTarget(targetId, path);
+  const target = await waitForRenderedHashTarget([targetId]);
+  const mainThreadTarget = await waitForRenderedHashTarget(
+    getMainThreadHashTargetCandidates(targetId, path),
+    36,
+    true,
+  );
 
   mainThreadHashTargetId.value = mainThreadTarget?.targetId ?? null;
 
   if (mainThreadTarget) {
-    const alignToTopEdge = true;
-    scrollMainPageTarget(mainThreadTarget.element, alignToTopEdge);
-    await verifyMainPageScroll(mainThreadTarget.targetId, path?.length ?? 0, alignToTopEdge);
+    scrollMainPageTarget(mainThreadTarget.element);
     return;
   }
 
-  if (!targetEl) {
+  if (!target) {
     logFragmentWarning('target-not-found', {
       targetId,
       pathLength: path?.length ?? 0,

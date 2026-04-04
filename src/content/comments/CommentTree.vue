@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref, watch, type Ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from './fragmentState';
 
-const COMMENT_HASH_PATH_IDS_KEY = 'comment-hash-path-ids';
 const PROGRESSIVE_RENDER_THRESHOLD = 600;
 const INITIAL_RENDER_BUDGET = 240;
 const FRAME_RENDER_BUDGET = 400;
@@ -12,7 +12,12 @@ const props = defineProps<{
   comments: CommentNodeType[];
 }>();
 
-const hashPathIds = inject<Ref<Set<string>>>(COMMENT_HASH_PATH_IDS_KEY, ref(new Set()));
+const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
+  hashPathIds: ref(new Set<string>()),
+  hashTargetId: ref<string | null>(null),
+  mainThreadHashTargetId: ref<string | null>(null),
+});
+const { hashPathIds } = fragmentState;
 
 const totalCommentCount = computed(() =>
   props.comments.reduce((sum, comment) => sum + comment.descendantCount + 1, 0),
