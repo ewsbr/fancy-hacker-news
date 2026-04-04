@@ -1,7 +1,7 @@
 {
-  "name": "refined-hacker-news",
+  "name": "fancy-hn",
   "version": "1.0.0",
-  "description": "A browser extension that replaces the Hacker News UI with a refined, modern design.",
+  "description": "A browser extension that replaces the Hacker News UI with a cleaner, more modern design.",
   "packageManager": "pnpm@10.30.1",
   "scripts": {
     "dev": "BUILD_TARGET=content vite build --watch",

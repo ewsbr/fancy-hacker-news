@@ -20,7 +20,7 @@ function scrollToTop() {
 }
 
 onMounted(() => {
-  scrollContainer = document.getElementById('refined-hn-root');
+  scrollContainer = document.getElementById('fancy-hn-root');
   syncVisibility();
   scrollContainer?.addEventListener('scroll', syncVisibility, { passive: true });
 });

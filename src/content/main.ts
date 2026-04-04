@@ -78,7 +78,7 @@ function restoreInitialFragment() {
     return;
   }
 
-  const host = document.getElementById('refined-hn-root');
+  const host = document.getElementById('fancy-hn-root');
   const target = host?.querySelector<HTMLElement>(`#${CSS.escape(location.hash.slice(1))}`);
   target?.scrollIntoView();
 }
@@ -132,7 +132,7 @@ function resetInitialHashScroll() {
 // cleanupOriginalBody, so parsing would fail. Detect this by checking for the root
 // element we create, and reload the page to restore the clean server-rendered DOM.
 function mountApp() {
-  if (document.getElementById('refined-hn-root')) {
+  if (document.getElementById('fancy-hn-root')) {
     window.location.reload();
     return;
   }
@@ -158,8 +158,8 @@ function mountApp() {
     // 2. Hide original HN content with one rule instead of mutating each body child.
     timeline.step('hide-original-dom', () => {
       hideOriginalStyle = document.createElement('style');
-      hideOriginalStyle.id = 'refined-hn-hide-original';
-      hideOriginalStyle.textContent = 'body > :not(#refined-hn-root) { display: none !important; }';
+      hideOriginalStyle.id = 'fancy-hn-hide-original';
+      hideOriginalStyle.textContent = 'body > :not(#fancy-hn-root) { display: none !important; }';
       document.head.appendChild(hideOriginalStyle);
     });
   
@@ -175,7 +175,7 @@ function mountApp() {
     // Create mount host
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
-      nextHost.id = 'refined-hn-root';
+      nextHost.id = 'fancy-hn-root';
       preventLegacyHnClickHandling(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
@@ -263,7 +263,7 @@ function mountApp() {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.
     mainLogger.error('Failed to render', e);
-    document.getElementById('refined-hn-hide-original')?.remove();
+    document.getElementById('fancy-hn-hide-original')?.remove();
     hideOriginalStyle = null;
   }
 }

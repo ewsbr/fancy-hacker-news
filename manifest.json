@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Refined Hacker News",
+  "name": "Fancy HackerNews",
   "version": "0.1.0",
-  "description": "Replaces the HackerNews UI with a cleaner, more modern design.",
+  "description": "Replaces the Hacker News UI with a cleaner, more modern design.",
 
   "permissions": ["storage"],
 
@@ -33,7 +33,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "hackernews-modern-ui@extension",
+      "id": "fancy-hn@extension",
       "data_collection_permissions": {
         "required": ["none"]
       },

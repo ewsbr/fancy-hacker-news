@@ -1,4 +1,4 @@
-# Refined Hacker News — Agent Guide
+# Fancy HackerNews — Agent Guide
 
 A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every Hacker News page using a Vue 3 app mounted directly into the document body. All data comes from parsing the original HN page DOM — no API calls, no SPA routing.
 
@@ -34,9 +34,9 @@ pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 
 1. **Parse** — call `parseHeader(document)` + `resolveRoute(location)` against the live HN DOM, then parse page-specific data
 2. **Hide** — inject a one-rule `<style>` that hides all original body children
-3. **Root Element** — create `div#refined-hn-root` in the document body; compiled CSS is loaded separately by the manifest as a content-script stylesheet
+3. **Root Element** — create `div#fancy-hn-root` in the document body; compiled CSS is loaded separately by the manifest as a content-script stylesheet
 4. **Mount** — `createApp(App)`, provide `header`, `route`, `pageData`, `renderTime` via `app.provide()`
-5. **Render** — Vue renders the full UI inside `#refined-hn-root`; original HN nodes are stripped from the DOM after first paint
+5. **Render** — Vue renders the full UI inside `#fancy-hn-root`; original HN nodes are stripped from the DOM after first paint
 
 If anything throws, the original HN page is left visible (graceful fallback).
 
@@ -131,19 +131,19 @@ src/
 - **No fetch / no API** — all data is parsed from the original HN DOM before Vue mounts.
 - **No SPA navigation** — `resolveRoute` is a pure read of `location` on page load only. All links and forms are native HTML pointing at HN's own servers.
 - **CSRF tokens preserved** — `auth=` params in links and `hmac` hidden fields are taken verbatim from the parsed DOM — never hardcoded or fabricated.
-- **CSS isolation** — all Vue output and CSS lives inside the `#refined-hn-root` container; it avoids affecting original HN elements through component scoping and careful selector choice (no shadow DOM used).
+- **CSS isolation** — all Vue output and CSS lives inside the `#fancy-hn-root` container; it avoids affecting original HN elements through component scoping and careful selector choice (no shadow DOM used).
 - **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM class names.
 - **CSS ships as a real stylesheet** — Vite emits `dist/content/assets/style.css`, and `manifest.json` injects it as a content-script stylesheet.
 - **JS asset URLs are extension-aware** — Vite's `renderBuiltUrl` hook emits `chrome.runtime.getURL(...)` for JS-hosted assets so imported images resolve from the extension origin instead of the host page.
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
 - **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
-- **Re-injection guard** — on extension reload into an already-modified tab, `mountApp()` detects `#refined-hn-root` already present and calls `window.location.reload()` to restore the clean server-rendered DOM before re-parsing.
+- **Re-injection guard** — on extension reload into an already-modified tab, `mountApp()` detects `#fancy-hn-root` already present and calls `window.location.reload()` to restore the clean server-rendered DOM before re-parsing.
 
 ---
 
 ## Themes
 
-Four themes toggled via `data-theme` attribute on `#refined-hn-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties on `#refined-hn-root` / `#refined-hn-root[data-theme="..."]` in `main.scss`. Persisted via `chrome.storage.local`.
+Four themes toggled via `data-theme` attribute on `#fancy-hn-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties on `#fancy-hn-root` / `#fancy-hn-root[data-theme="..."]` in `main.scss`. Persisted via `chrome.storage.local`.
 
 ---
 

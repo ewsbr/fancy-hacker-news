@@ -68,7 +68,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Teleport to="#refined-hn-root">
+  <Teleport to="#fancy-hn-root">
     <div class="sub-thread-modal" @click="onOverlayClick" role="dialog" aria-modal="true">
       <div class="sub-thread-modal__panel">
         <div class="sub-thread-modal__header">

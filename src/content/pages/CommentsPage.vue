@@ -46,7 +46,7 @@ const fragmentState: CommentFragmentState = {
 provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
 
 function getModernRoot(): HTMLElement | null {
-  return document.getElementById('refined-hn-root');
+  return document.getElementById('fancy-hn-root');
 }
 
 function waitForAnimationFrame() {

@@ -1,4 +1,4 @@
-# Refined Hacker News
+# Fancy HackerNews
 
 A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every Hacker News page using Vue 3. Data is parsed from the original HN HTML before the page is displayed — there are no API calls and no SPA routing.
 
@@ -17,7 +17,7 @@ The content script (`src/content/main.ts`) runs at `document_end`:
 
 1. Parses the original HN DOM — header, route, and page-specific data
 2. Hides all original body children via an injected `<style>` rule
-3. Mounts a Vue app into a fresh `div#refined-hn-root`
+3. Mounts a Vue app into a fresh `div#fancy-hn-root`
 4. Strips the original HN nodes after first paint
 
 If anything throws, the original page is left untouched.

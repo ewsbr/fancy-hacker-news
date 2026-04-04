@@ -3,7 +3,7 @@
 @import url("@fontsource-variable/manrope");
 @import url("@fontsource-variable/jetbrains-mono");
 
-#refined-hn-root {
+#fancy-hn-root {
   --font-body: "Atkinson Hyperlegible Next Variable", system-ui, sans-serif;
   --font-title: "Manrope Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", "Fira Mono", Consolas, monospace;
@@ -26,7 +26,7 @@
   --color-chrome-border: var(--color-border);
 }
 
-#refined-hn-root[data-theme="dark"] {
+#fancy-hn-root[data-theme="dark"] {
   --color-bg: #1e1e1e;
   --color-surface: #252526;
   --color-accent: #ff6600;
@@ -42,7 +42,7 @@
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
 }
 
-#refined-hn-root[data-theme="nord"] {
+#fancy-hn-root[data-theme="nord"] {
   --color-bg: #2e3440;
   --color-surface: #3b4252;
   --color-accent: #88c0d0;
@@ -58,7 +58,7 @@
   --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
 }
 
-#refined-hn-root[data-theme="amoled"] {
+#fancy-hn-root[data-theme="amoled"] {
   --color-bg: #000000;
   --color-surface: #000000;
   --color-accent: #ff6600;
@@ -76,7 +76,7 @@
   --color-chrome-border: #1f1f1f;
 }
 
-#refined-hn-root {
+#fancy-hn-root {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
@@ -129,7 +129,7 @@ pre {
 }
 
 /* Utility: accent-top card container shared by stories/threads/comments pages */
-#refined-hn-root .hn-content-card {
+#fancy-hn-root .hn-content-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-top: 3px solid var(--color-accent);
@@ -138,14 +138,14 @@ pre {
   overflow: hidden;
 }
 
-#refined-hn-root[data-theme="amoled"] .hn-content-card {
+#fancy-hn-root[data-theme="amoled"] .hn-content-card {
   background: #000000;
   border-color: #1c1c1c;
   box-shadow: none;
 }
 
 @media (max-width: 640px) {
-  #refined-hn-root .hn-content-card {
+  #fancy-hn-root .hn-content-card {
     border-left: none;
     border-right: none;
     border-radius: 0;

@@ -30,14 +30,14 @@ interface ObservedPerformanceEntry {
 }
 
 interface DebugWindow extends Window {
-  __REFINED_HN_DEBUG_ENTRIES__?: DebugEntry[];
-  __REFINED_HN_DEBUG_MEASURE_COUNTER__?: number;
-  __REFINED_HN_DEBUG_PERFORMANCE_OBSERVERS__?: PerformanceObserver[];
-  __REFINED_HN_OBSERVED_PERFORMANCE_ENTRIES__?: ObservedPerformanceEntry[];
+  __FANCY_HN_DEBUG_ENTRIES__?: DebugEntry[];
+  __FANCY_HN_DEBUG_MEASURE_COUNTER__?: number;
+  __FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__?: PerformanceObserver[];
+  __FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__?: ObservedPerformanceEntry[];
 }
 
 const DEBUG_SEARCH_PARAM = 'debug';
-const DEBUG_TIMING_PREFIX = 'refined-hn:';
+const DEBUG_TIMING_PREFIX = 'fancy-hn:';
 const LOGGER_STYLES = {
   badge: 'background:#ff6600;color:#2b1707;padding:1px 6px;font-weight:800',
   scope: 'color:#7c2d12;font-weight:700',
@@ -64,7 +64,7 @@ function formatLogPrefix(scope: string, level: LogLevel, message: string): strin
 
   if (!normalizedScope || normalizedScope === normalizedLevel) {
     return [
-      `%cRefined HN%c ${level.toUpperCase()}%c ${message}`,
+      `%cFancy HN%c ${level.toUpperCase()}%c ${message}`,
       LOGGER_STYLES.badge,
       LOGGER_STYLES[level],
       LOGGER_STYLES.message,
@@ -72,7 +72,7 @@ function formatLogPrefix(scope: string, level: LogLevel, message: string): strin
   }
 
   return [
-    `%cRefined HN%c ${scope}%c ${level.toUpperCase()}%c ${message}`,
+    `%cFancy HN%c ${scope}%c ${level.toUpperCase()}%c ${message}`,
     LOGGER_STYLES.badge,
     LOGGER_STYLES.scope,
     LOGGER_STYLES[level],
@@ -156,21 +156,21 @@ export function isDebugMode(): boolean {
 
 function entries(): DebugEntry[] {
   const currentWindow = debugWindow();
-  currentWindow.__REFINED_HN_DEBUG_ENTRIES__ ||= [];
-  return currentWindow.__REFINED_HN_DEBUG_ENTRIES__;
+  currentWindow.__FANCY_HN_DEBUG_ENTRIES__ ||= [];
+  return currentWindow.__FANCY_HN_DEBUG_ENTRIES__;
 }
 
 function observedPerformanceEntries(): ObservedPerformanceEntry[] {
   const currentWindow = debugWindow();
-  currentWindow.__REFINED_HN_OBSERVED_PERFORMANCE_ENTRIES__ ||= [];
-  return currentWindow.__REFINED_HN_OBSERVED_PERFORMANCE_ENTRIES__;
+  currentWindow.__FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__ ||= [];
+  return currentWindow.__FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__;
 }
 
 function disconnectDebugPerformanceObservers() {
   const currentWindow = debugWindow();
-  const observers = currentWindow.__REFINED_HN_DEBUG_PERFORMANCE_OBSERVERS__ ?? [];
+  const observers = currentWindow.__FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__ ?? [];
   observers.forEach(observer => observer.disconnect());
-  currentWindow.__REFINED_HN_DEBUG_PERFORMANCE_OBSERVERS__ = [];
+  currentWindow.__FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__ = [];
 }
 
 function ensureDebugPerformanceObservers() {
@@ -179,7 +179,7 @@ function ensureDebugPerformanceObservers() {
   }
 
   const currentWindow = debugWindow();
-  if ((currentWindow.__REFINED_HN_DEBUG_PERFORMANCE_OBSERVERS__?.length ?? 0) > 0) {
+  if ((currentWindow.__FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__?.length ?? 0) > 0) {
     return;
   }
 
@@ -210,7 +210,7 @@ function ensureDebugPerformanceObservers() {
     }
   }
 
-  currentWindow.__REFINED_HN_DEBUG_PERFORMANCE_OBSERVERS__ = observers;
+  currentWindow.__FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__ = observers;
 }
 
 function clearDebugTimingEntries() {
@@ -229,8 +229,8 @@ function clearDebugTimingEntries() {
 
 function nextDebugMeasureId(): number {
   const currentWindow = debugWindow();
-  currentWindow.__REFINED_HN_DEBUG_MEASURE_COUNTER__ = (currentWindow.__REFINED_HN_DEBUG_MEASURE_COUNTER__ ?? 0) + 1;
-  return currentWindow.__REFINED_HN_DEBUG_MEASURE_COUNTER__;
+  currentWindow.__FANCY_HN_DEBUG_MEASURE_COUNTER__ = (currentWindow.__FANCY_HN_DEBUG_MEASURE_COUNTER__ ?? 0) + 1;
+  return currentWindow.__FANCY_HN_DEBUG_MEASURE_COUNTER__;
 }
 
 function roundTiming(value: number): number {
@@ -298,9 +298,9 @@ export function clearDebugEntries() {
     return;
   }
 
-  debugWindow().__REFINED_HN_DEBUG_ENTRIES__ = [];
-  debugWindow().__REFINED_HN_DEBUG_MEASURE_COUNTER__ = 0;
-  debugWindow().__REFINED_HN_OBSERVED_PERFORMANCE_ENTRIES__ = [];
+  debugWindow().__FANCY_HN_DEBUG_ENTRIES__ = [];
+  debugWindow().__FANCY_HN_DEBUG_MEASURE_COUNTER__ = 0;
+  debugWindow().__FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__ = [];
   clearDebugTimingEntries();
   disconnectDebugPerformanceObservers();
   ensureDebugPerformanceObservers();
