@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TopNotice Variants</title>
+  <style>
+    /* ── Theme tokens (light) ─────────────────────────────────── */
+    :root {
+      --color-bg: #f6f6ef;
+      --color-surface: #ffffff;
+      --color-accent: #ff6600;
+      --color-text: #111111;
+      --color-text-muted: #555555;
+      --color-border: #cccccc;
+      --shadow-elevation: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -2px rgba(0,0,0,.025);
+      --font-body: system-ui, sans-serif;
+      --font-title: system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--color-bg);
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--color-text);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* ── Card (stories list stub) ─────────────────────────────── */
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-top: 3px solid var(--color-accent);
+      border-radius: 4px;
+      box-shadow: var(--shadow-elevation);
+      overflow: hidden;
+    }
+    .card__row {
+      padding: 0.5rem 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .card__row:not(:last-child) {
+      border-bottom: 1px solid var(--color-border);
+    }
+    .card__title { font-size: 1.02rem; font-weight: 600; }
+    .card__meta  { font-size: 0.82rem; color: var(--color-text-muted); }
+
+    /* ── Shared inner content reset ────────────────────────────── */
+    /* The HN HTML has inline margin-left:36px, margin-top/bottom on its inner
+       divs, meant for its table layout. All variants override these. */
+    .top-notice div[style], .top-notice p { margin: 0 !important; }
+    .top-notice a { color: var(--color-accent); text-decoration: none; }
+    .top-notice a:hover { text-decoration: underline; }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 1 – Current (border box, original)
+    ──────────────────────────────────────────────────────────── */
+    .v1.top-notice {
+      margin-bottom: 0.4rem;
+      padding: 0.3rem 0.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: 3px;
+      color: var(--color-text-muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 2 – Plain caption (no box, no border)
+    ──────────────────────────────────────────────────────────── */
+    .v2.top-notice {
+      margin-bottom: 0.35rem;
+      color: var(--color-text-muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 3 – Left-bar accent (blockquote-style)
+    ──────────────────────────────────────────────────────────── */
+    .v3.top-notice {
+      margin-bottom: 0.4rem;
+      padding: 0.25rem 0.5rem;
+      border-left: 2px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 4 – Tight row, bottom-border only
+       (as if it were the first row of the card but outside it)
+    ──────────────────────────────────────────────────────────── */
+    .v4-wrapper {
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      box-shadow: var(--shadow-elevation);
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+    .v4.top-notice {
+      padding: 0.45rem 0.6rem;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+    /* Card below shares wrapper — remove redundant top styling */
+    .v4-wrapper .card {
+      border: none;
+      border-top: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    .v4-wrapper .card-inner {
+      border-top: 3px solid var(--color-accent);
+    }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 5 – Pill / chip badge
+    ──────────────────────────────────────────────────────────── */
+    .v5.top-notice {
+      display: inline-block;
+      margin-bottom: 0.45rem;
+      padding: 0.2rem 0.55rem;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      color: var(--color-text-muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+    /* For multi-paragraph pill, stack them */
+    .v5.top-notice .inner { display: flex; flex-direction: column; gap: 0.1rem; }
+
+    /* ────────────────────────────────────────────────────────────
+       VARIANT 6 – Seamless header row (inside card)
+    ──────────────────────────────────────────────────────────── */
+    .v6.top-notice {
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
+    /* nav links slightly bolder for discoverability */
+    .v6.top-notice .hnmore a { font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<!-- The raw HTML content we're working with -->
+<script id="notice-content" type="text/template">
+  <div style="margin-left:36px; margin-top:6px; margin-bottom:14px">
+    Stories from April 4, 2026 (UTC)
+    <div style="margin-top:9px">
+      Go back a <span class="hnmore"><a href="#">day</a></span>,
+      <span class="hnmore"><a href="#">month</a></span>, or
+      <span class="hnmore"><a href="#">year</a></span>.
+      Go forward a <span class="hnmore"><a href="#">day</a></span>.
+    </div>
+  </div>
+</script>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 1 — Current (thin border box)</h2>
+  <aside class="top-notice v1"></aside>
+  <div class="card">
+    <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+    <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+    <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 2 — Plain caption (no box)</h2>
+  <aside class="top-notice v2"></aside>
+  <div class="card">
+    <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+    <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+    <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 3 — Left-bar accent</h2>
+  <aside class="top-notice v3"></aside>
+  <div class="card">
+    <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+    <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+    <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 4 — Unified frame (notice + card in same wrapper)</h2>
+  <div class="v4-wrapper">
+    <aside class="top-notice v4"></aside>
+    <div class="card">
+      <div class="card-inner">
+        <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+        <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+        <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 5 — Pill / chip</h2>
+  <aside class="top-notice v5"><span class="inner"></span></aside>
+  <div class="card">
+    <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+    <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+    <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+  </div>
+</section>
+
+<!-- ────────────────────────────────────────────────────── -->
+<section>
+  <h2>Variant 6 — Seamless header row (inside card, no bg)</h2>
+  <div class="card" style="border-radius: 4px 4px 0 0;">
+    <aside class="top-notice v6"></aside>
+    <div class="card__row"><span class="card__title">Ask HN: How do you manage information overload?</span><span class="card__meta">312 points · 4 hours ago · 178 comments</span></div>
+    <div class="card__row"><span class="card__title">The collapse of SVB and what it means for startups</span><span class="card__meta">894 points · 6 hours ago · 401 comments</span></div>
+    <div class="card__row"><span class="card__title">Quine in Rust using proc macros</span><span class="card__meta">210 points · 2 hours ago · 43 comments</span></div>
+  </div>
+</section>
+
+<script>
+  // Inject the same HN HTML content into every variant
+  const tpl = document.getElementById('notice-content').innerHTML.trim();
+  document.querySelectorAll('.top-notice:not(.v5)').forEach(el => el.innerHTML = tpl);
+
+  // Variant 5 pill: inject into inner span
+  const pill = document.querySelector('.top-notice.v5 .inner');
+  if (pill) pill.innerHTML = tpl;
+</script>
+</body>
+</html>
