@@ -6,6 +6,40 @@ export interface ParsedStaticPage {
   contentHtml: string;
 }
 
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
+
+function isStandaloneLegacyHeadingParagraph(paragraph: Element): boolean {
+  let boldCount = 0;
+
+  for (const node of Array.from(paragraph.childNodes)) {
+    if (node.nodeType === TEXT_NODE) {
+      if (node.textContent?.trim()) {
+        return false;
+      }
+      continue;
+    }
+
+    if (node.nodeType !== ELEMENT_NODE) {
+      return false;
+    }
+
+    const element = node as Element;
+    if (element.tagName === 'BR') {
+      continue;
+    }
+
+    if (element.tagName === 'B') {
+      boldCount += 1;
+      continue;
+    }
+
+    return false;
+  }
+
+  return boldCount === 1;
+}
+
 function extractBodyFallbackHtml(doc: Document): string {
   const body = doc.body;
   if (!body) {
@@ -32,22 +66,33 @@ function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
     el.remove();
   }
 
-  // On legacy pages all section headings are bare <b> elements.
-  // Promote the first to <h1> (page title) and the rest to <h2>.
-  const bolds = Array.from(clone.querySelectorAll('b'));
-  bolds.forEach((b, i) => {
-    const heading = doc.createElement(i === 0 ? 'h1' : 'h2');
-    if ((b as HTMLElement).id) heading.id = (b as HTMLElement).id;
-    heading.textContent = b.textContent ?? '';
-    b.replaceWith(heading);
+  // On legacy pages section headings are either bare <b> elements or
+  // paragraphs that only contain a single <b>. Mixed-content paragraphs
+  // like "<p><b>Missing From This List?</b> If you reported..." should
+  // stay as paragraphs so trailing text is preserved.
+  const headingSources = Array.from(clone.querySelectorAll('b, p')).filter(el => {
+    if (el.tagName === 'P') {
+      return isStandaloneLegacyHeadingParagraph(el);
+    }
+
+    return !el.closest('p');
   });
 
-  // <b> tags that follow a <p> separator end up inside <p> elements in the parsed DOM.
-  // h1/h2 cannot be children of <p>, so hoist them out to avoid invalid nesting that
-  // causes the browser to insert empty <p> stubs when v-html re-parses the serialized HTML.
-  for (const heading of Array.from(clone.querySelectorAll('p > h1, p > h2'))) {
-    heading.parentElement!.replaceWith(heading);
-  }
+  // Promote the first heading to <h1> (page title) and the rest to <h2>.
+  headingSources.forEach((source, i) => {
+    const heading = doc.createElement(i === 0 ? 'h1' : 'h2');
+    const sourceBold =
+      source.tagName === 'P'
+        ? Array.from(source.children).find(child => child.tagName === 'B') ?? source
+        : source;
+
+    if ((sourceBold as HTMLElement).id) {
+      heading.id = (sourceBold as HTMLElement).id;
+    }
+
+    heading.textContent = sourceBold.textContent ?? '';
+    source.replaceWith(heading);
+  });
 
   // Strip remaining empty paragraphs (lone <br> or pure whitespace) left by the
   // old separator-style markup.
