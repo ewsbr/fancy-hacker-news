@@ -69,6 +69,13 @@ export function resolveRoute(loc: Location): RouteDescriptor {
     };
   }
 
+  if (path === '/latest') {
+    return {
+      page: 'newcomments',
+      params: { id: sp.get('id') ?? '' },
+    };
+  }
+
   if (path === '/item') return { page: 'item', params: { id: sp.get('id') ?? '' } };
   if (path === '/reply') return { page: 'reply', params: { id: sp.get('id') ?? '', goto: sp.get('goto') ?? '' } };
   if (path === '/user') return { page: 'user', params: { id: sp.get('id') ?? '' } };
@@ -86,6 +93,8 @@ export function resolveRoute(loc: Location): RouteDescriptor {
 
   if (path === '/submit') return { page: 'submit', params: {} };
   if (path === '/formatdoc') return { page: 'formatdoc', params: {} };
+  if (path === '/lists') return { page: 'lists', params: {} };
+  if (path === '/topcolors') return { page: 'topcolors', params: {} };
   if (path === '/leaders') return { page: 'leaders', params: {} };
   if (path === '/delete-confirm') return { page: 'delete-confirm', params: {} };
   if (AUTH_PAGES.has(path)) return { page: 'login', params: {} };

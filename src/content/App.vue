@@ -15,6 +15,8 @@ import SubmitPage from './pages/SubmitPage.vue';
 import ReplyPage from './pages/ReplyPage.vue';
 import FormatDocPage from './pages/FormatDocPage.vue';
 import LeadersPage from './pages/LeadersPage.vue';
+import ListsPage from './pages/ListsPage.vue';
+import TopColorsPage from './pages/TopColorsPage.vue';
 import DeleteConfirmPage from './pages/DeleteConfirmPage.vue';
 
 const route = inject<RouteDescriptor>('route')!;
@@ -34,6 +36,8 @@ const PAGE_MAP: Record<string, Component> = {
   reply: ReplyPage,
   formatdoc: FormatDocPage,
   leaders: LeadersPage,
+  lists: ListsPage,
+  topcolors: TopColorsPage,
   'delete-confirm': DeleteConfirmPage,
 };
 

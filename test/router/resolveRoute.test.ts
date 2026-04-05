@@ -25,4 +25,11 @@ describe('resolveRoute', () => {
       params: {},
     });
   });
+
+  it('routes latest thread views to the flat comment renderer', () => {
+    expect(resolveRoute(makeLocation('/latest?id=42009039'))).toEqual({
+      page: 'newcomments',
+      params: { id: '42009039' },
+    });
+  });
 });

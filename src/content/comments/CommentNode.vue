@@ -50,6 +50,7 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
+const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.node.id)}`);
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
@@ -57,13 +58,14 @@ const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value 
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
-const hasHeaderNav = !!(
-  props.node.navLinks.root
+const hasHeaderNav = computed(() => !!(
+  latestUrl.value
+  || props.node.navLinks.root
   || props.node.navLinks.parent
   || props.node.navLinks.prev
   || props.node.navLinks.next
   || props.node.navLinks.context
-);
+));
 const shouldProgressivelyRenderChildren = !props.inModal && props.node.descendantCount > SUBTREE_PROGRESSIVE_THRESHOLD;
 const visibleChildCount = ref(props.node.children.length);
 
@@ -265,6 +267,7 @@ watch(
               <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__nav-link">prev</a>
               <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__nav-link">next</a>
               <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__nav-link">context</a>
+              <a :href="latestUrl" class="comment-node__nav-link">latest</a>
             </div>
           </div>
         </div>
@@ -297,6 +300,7 @@ watch(
                 <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__mobile-nav-link">prev</a>
                 <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__mobile-nav-link">next</a>
                 <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__mobile-nav-link">context</a>
+                <a :href="latestUrl" class="comment-node__mobile-nav-link">latest</a>
               </div>
             </div>
           </div>

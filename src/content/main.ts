@@ -28,6 +28,8 @@ import { parseSubmitPage } from '@/parsers/submit';
 import { parseReplyPage } from '@/parsers/reply';
 import { parseLeadersPage } from '@/parsers/leaders';
 import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
+import { parseListsPage } from '@/parsers/lists';
+import { parseTopColorsPage } from '@/parsers/topColors';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -53,6 +55,8 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'formatdoc') return parseStaticPage(doc);
   if (page === 'leaders') return parseLeadersPage(doc);
   if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);
+  if (page === 'lists') return parseListsPage(doc);
+  if (page === 'topcolors') return parseTopColorsPage(doc);
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);
@@ -73,6 +77,12 @@ function cleanupOriginalBody(host: HTMLElement) {
 
   hideOriginalStyle?.remove();
   hideOriginalStyle = null;
+}
+
+function isolateFromLegacyClickHandlers(host: HTMLElement) {
+  host.addEventListener('click', event => {
+    event.stopPropagation();
+  });
 }
 
 function restoreInitialFragment() {
@@ -165,11 +175,12 @@ function mountApp() {
       document.head.appendChild(hideOriginalStyle);
     });
   
-    // 3. Strip HN's stylesheets to prevent bleed-in
-    const removedStylesheetCount = timeline.step('remove-source-styles', () => {
-      const styleNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc)'));
-      styleNodes.forEach(el => el.remove());
-      return styleNodes.length;
+    // 3. Strip HN's source assets so legacy styles and click handlers do not
+    // interfere with the extension UI after parse.
+    const removedSourceAssetCount = timeline.step('remove-source-assets', () => {
+      const sourceNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc), script'));
+      sourceNodes.forEach(el => el.remove());
+      return sourceNodes.length;
     }, () => ({ headNodeCount: document.head.childElementCount }));
   
     // CSS is now injected by the browser via manifest.json
@@ -178,6 +189,7 @@ function mountApp() {
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
       nextHost.id = 'fancy-hn-root';
+      isolateFromLegacyClickHandlers(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
     });
@@ -248,7 +260,7 @@ function mountApp() {
           route: route.page,
           totalRenderMs: Math.round(performance.now() - t0),
           bodyChildrenBeforeCleanup: originalBodyChildrenCount,
-          removedStylesheetCount,
+          removedSourceAssetCount,
           isMobileLayout,
           ...itemSummary,
         });

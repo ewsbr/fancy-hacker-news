@@ -15,6 +15,7 @@ const props = defineProps<{
 
 const isFavorited = computed(() => props.item.favoriteUrl?.includes('un=t') ?? false);
 const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
+const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}`);
 </script>
 
 <template>
@@ -62,6 +63,11 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
               <template v-if="item.pastUrl">
                 <MetaSep />
                 <a :href="item.pastUrl" class="story-detail__action">past</a>
+              </template>
+
+              <template v-if="item.id">
+                <MetaSep />
+                <a :href="latestUrl" class="story-detail__action">latest</a>
               </template>
 
               <template v-if="item.favoriteUrl">

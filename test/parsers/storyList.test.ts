@@ -210,6 +210,32 @@ describe('story list fixtures', () => {
     });
   });
 
+  it('parses latest thread views with the flat comment parser', async () => {
+    const doc = await loadFixtureDocument('comments/latest.html');
+    const page = parseNewComments(doc);
+
+    expect(page.introHtml).toBeNull();
+    expect(page.moreLink).toBeNull();
+    expect(page.comments[0]).toMatchObject({
+      id: '42021015',
+      author: 'janalsncm',
+      age: 'on Nov 1, 2024',
+      onStory: {
+        title: 'Model Distillation in the API',
+        link: 'item?id=42009039',
+      },
+    });
+    expect(page.comments.find(comment => comment.id === '42010428')).toMatchObject({
+      id: '42010428',
+      author: 'mentalically',
+      authorIsNew: true,
+      grayLevel: 'cdd',
+      isDead: true,
+      isFlagged: false,
+      isDeleted: false,
+    });
+  });
+
   it('parses dead comments from the item-page comment tree fixture', async () => {
     const doc = await loadFixtureDocument('story-artemis-withdead.html');
     const page = parseItemPage(doc);

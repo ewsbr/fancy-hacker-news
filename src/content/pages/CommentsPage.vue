@@ -30,6 +30,7 @@ const commentItemDomId = computed(() => {
 });
 
 const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('un=t') ?? false);
+const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
 
 const totalCommentCount = computed(() => {
   if (!pageData) return 0;
@@ -273,6 +274,10 @@ onUnmounted(() => {
                 <template v-if="pageData.item.flagUrl">
                   <MetaSep />
                   <FlagButton :href="pageData.item.flagUrl" :flag-target="pageData.item" />
+                </template>
+                <template v-if="latestUrl">
+                  <MetaSep />
+                  <a :href="latestUrl" class="comments-page__comment-action">latest</a>
                 </template>
               </div>
               <div class="comments-page__comment-body">
