@@ -28,6 +28,16 @@ pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 
 ---
 
+## Primary Docs
+
+- `README.md` — contributor-facing project overview and local loading/build instructions
+- `EXTENSION.md` — main Firefox-facing extension description and known quirks
+- `DESIGNSYSTEM.md` — shared UI contract for breakpoints, typography, spacing, and interaction rules
+
+Update `DESIGNSYSTEM.md` whenever you materially change breakpoints, shared mobile sizing, action-row behavior, badge sizing, or tap-target conventions.
+
+---
+
 ## How It Works (Entry Point Flow)
 
 `src/content/main.ts` runs at `document_end` as the content script:
@@ -92,6 +102,7 @@ src/
 │       ├── Badge.vue         # status badges: new, dead, flagged, downvoted, job
 │       ├── CommentActions.vue # vote/reply/edit/delete/flag action row for comments
 │       ├── FlagButton.vue    # flag link with confirmation
+│       ├── FragmentLinkButton.vue # permalink/hash copy button for comments
 │       ├── MetaSep.vue       # separator dot between meta items
 │       ├── Pagination.vue    # "More" / prev-next pagination link
 │       ├── PollOptions.vue   # poll option rows with vote bars
@@ -139,6 +150,16 @@ src/
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
 - **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
 - **Re-injection guard** — on extension reload into an already-modified tab, `mountApp()` detects `#fancy-hn-root` already present and calls `window.location.reload()` to restore the clean server-rendered DOM before re-parsing.
+- **Respect source quirks** — if Hacker News emits inconsistent navigation or visibility state, document it before “fixing” it in the parser/UI. Do not silently diverge from source behavior without an explicit product decision.
+
+---
+
+## Responsive Rules
+
+- **Primary mobile breakpoint is `640px`** — this is the default cutoff for mobile density, tap targets, metadata sizing, and card edge treatment.
+- **Primary medium/sidebar breakpoint is `768px`** — use this for navigation collapse and larger structural layout shifts.
+- **Treat other breakpoints as legacy/layout-specific** — existing values like `980`, `720`, `480`, and `380` should not become new defaults.
+- **Standardize before adding** — if a new responsive rule seems necessary, first check whether `640px` or `768px` can express the behavior cleanly.
 
 ---
 

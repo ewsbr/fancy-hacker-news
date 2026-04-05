@@ -154,7 +154,7 @@ const socialLinks = [
   font-family: var(--font-title);
 
   // Theme overrides
-  #fancy-hn-root:not([data-theme]) & {
+  #fancy-hn-root[data-theme="dark"] & {
     background: #000000;
     color: #f5f5ee;
 
@@ -402,7 +402,7 @@ const socialLinks = [
     color: var(--color-text-muted);
     opacity: 0.6;
 
-    #fancy-hn-root:not([data-theme]) & {
+    #fancy-hn-root[data-theme="dark"] & {
       color: #f5f5ee;
       opacity: 0.5;
     }

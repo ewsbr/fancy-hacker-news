@@ -56,28 +56,38 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
 
             <div class="story-detail__actions">
               <template v-if="item.hideUrl">
-                <MetaSep />
-                <a :href="item.hideUrl" class="story-detail__action">hide</a>
+                <span class="story-detail__action-item">
+                  <MetaSep class="story-detail__action-sep" />
+                  <a :href="item.hideUrl" class="story-detail__action">hide</a>
+                </span>
               </template>
 
               <template v-if="item.pastUrl">
-                <MetaSep />
-                <a :href="item.pastUrl" class="story-detail__action">past</a>
+                <span class="story-detail__action-item">
+                  <MetaSep class="story-detail__action-sep" />
+                  <a :href="item.pastUrl" class="story-detail__action">past</a>
+                </span>
               </template>
 
               <template v-if="item.id">
-                <MetaSep />
-                <a :href="latestUrl" class="story-detail__action">latest</a>
+                <span class="story-detail__action-item">
+                  <MetaSep class="story-detail__action-sep" />
+                  <a :href="latestUrl" class="story-detail__action">latest</a>
+                </span>
               </template>
 
               <template v-if="item.favoriteUrl">
-                <MetaSep />
-                <a :href="item.favoriteUrl" class="story-detail__action">{{ isFavorited ? 'un-favorite' : 'favorite' }}</a>
+                <span class="story-detail__action-item">
+                  <MetaSep class="story-detail__action-sep" />
+                  <a :href="item.favoriteUrl" class="story-detail__action">{{ isFavorited ? 'un-favorite' : 'favorite' }}</a>
+                </span>
               </template>
 
               <template v-if="item.flagUrl">
-                <MetaSep />
-                <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" :flag-target="item" />
+                <span class="story-detail__action-item">
+                  <MetaSep class="story-detail__action-sep" />
+                  <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" :flag-target="item" />
+                </span>
               </template>
             </div>
           </div>
@@ -154,6 +164,13 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
   &__actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  &__action-item {
+    display: inline-flex;
+    align-items: center;
     gap: 0.3rem;
   }
 
@@ -180,16 +197,38 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
 
 @media (max-width: 640px) {
   .story-detail {
+    &__main {
+      padding: 0.9rem 0.85rem 1.15rem;
+    }
+
+    &__layout {
+      gap: 0.5rem;
+    }
+
     &__title {
-      font-size: 1.05rem;
+      font-size: 1.16rem;
+      line-height: 1.34;
     }
 
     &__meta {
-      column-gap: 0.3rem;
+      margin-top: 0.2rem;
+      column-gap: 0.55rem;
+      row-gap: 0.22rem;
+      font-size: 0.96rem;
     }
 
     &__actions {
-      flex-wrap: wrap;
+      flex-basis: 100%;
+      margin-top: 0.16rem;
+      gap: 0.6rem;
+    }
+
+    &__action-item {
+      gap: 0.35rem;
+    }
+
+    &__action-sep {
+      display: none;
     }
   }
 }

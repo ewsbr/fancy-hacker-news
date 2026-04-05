@@ -34,6 +34,7 @@ import App from './App.vue';
 import '@/styles/main.scss';
 
 const mainLogger = createLogger('main');
+const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
 
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
@@ -77,6 +78,16 @@ function cleanupOriginalBody(host: HTMLElement) {
 
   hideOriginalStyle?.remove();
   hideOriginalStyle = null;
+}
+
+function applyBootstrappedTheme(host: HTMLElement) {
+  const theme = document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY];
+  if (!theme || theme === 'light') {
+    host.removeAttribute('data-theme');
+    return;
+  }
+
+  host.setAttribute('data-theme', theme);
 }
 
 function isolateFromLegacyClickHandlers(host: HTMLElement) {
@@ -189,6 +200,7 @@ function mountApp() {
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
       nextHost.id = 'fancy-hn-root';
+      applyBootstrappedTheme(nextHost);
       isolateFromLegacyClickHandlers(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;

@@ -15,6 +15,7 @@ import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
+import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 
 const commentsLogger = createLogger('comments');
@@ -255,6 +256,8 @@ onUnmounted(() => {
                     {{ pageData.item.age }}
                   </a>
                   <Badge variant="deleted" label="Deleted" />
+                  <MetaSep />
+                  <FragmentLinkButton :target-id="pageData.item.id" />
                 </template>
                 <template v-else>
                   <AuthorByline
@@ -266,6 +269,8 @@ onUnmounted(() => {
                   />
                   <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
                   <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
+                  <MetaSep />
+                  <FragmentLinkButton :target-id="pageData.item.id" />
                 </template>
                 <template v-if="pageData.item.favoriteUrl">
                   <MetaSep />
@@ -446,6 +451,15 @@ onUnmounted(() => {
     font-size: 0.875rem;
     color: var(--color-text-muted);
     border-top: 1px solid var(--color-border);
+  }
+
+  @media (max-width: 640px) {
+    &__comment-meta {
+      column-gap: 0.55rem;
+      row-gap: 0.22rem;
+      font-size: 0.96rem;
+      margin-bottom: 0.7rem;
+    }
   }
 }
 

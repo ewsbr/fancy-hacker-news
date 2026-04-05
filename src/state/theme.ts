@@ -9,9 +9,14 @@ import { ref, watch, type Ref } from 'vue';
 export type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
 
 const THEMES: ThemeName[] = ['light', 'dark', 'nord', 'amoled'];
-const STORAGE_KEY = 'fancy-hn-theme';
+export const STORAGE_KEY = 'fancy-hn-theme';
+const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
 
 let _shared: ReturnType<typeof createTheme> | null = null;
+
+function isThemeName(value: unknown): value is ThemeName {
+  return typeof value === 'string' && (THEMES as string[]).includes(value);
+}
 
 function detectSystem(): ThemeName {
   return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
@@ -19,8 +24,14 @@ function detectSystem(): ThemeName {
     : 'light';
 }
 
+function getBootstrappedTheme(): ThemeName {
+  const theme = document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY];
+  return isThemeName(theme) ? theme : detectSystem();
+}
+
 function applyToHost(theme: ThemeName) {
   const host = document.getElementById('fancy-hn-root');
+  document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY] = theme;
   if (!host) return;
   if (theme === 'light') {
     host.removeAttribute('data-theme');
@@ -30,14 +41,14 @@ function applyToHost(theme: ThemeName) {
 }
 
 function createTheme() {
-  const theme = ref<ThemeName>(detectSystem());
+  const theme = ref<ThemeName>(getBootstrappedTheme());
 
   // Load persisted preference
   try {
     chrome.storage.local.get(STORAGE_KEY, (result) => {
       const stored = result[STORAGE_KEY] as unknown;
-      if (typeof stored === 'string' && (THEMES as string[]).includes(stored)) {
-        theme.value = stored as ThemeName;
+      if (isThemeName(stored)) {
+        theme.value = stored;
       }
     });
   } catch {

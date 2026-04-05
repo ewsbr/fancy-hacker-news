@@ -2,7 +2,9 @@
 import type { CommentNode } from '@/parsers/item';
 import Badge from '@/content/shared/Badge.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 const props = defineProps<{
   node: CommentNode;
@@ -62,13 +64,34 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
         </div>
       </template>
 
-      <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.next || node.navLinks.prev || node.navLinks.context)" class="comment-header__nav">
-      <MetaSep />
+      <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
+        <MetaSep />
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
-        <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-header__nav-link" title="Previous">prev</a>
-        <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-header__nav-link" title="Next">next</a>
         <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-header__nav-link" title="Context">context</a>
+      </div>
+
+      <div class="comment-header__controls">
+        <MetaSep />
+        <a
+          v-if="!node.isDeleted && !isCollapsed && node.navLinks.prev"
+          :href="node.navLinks.prev"
+          class="comment-header__icon-link"
+          title="Previous comment"
+          aria-label="Previous comment"
+        >
+          <ChevronLeft :size="14" aria-hidden="true" />
+        </a>
+        <FragmentLinkButton :target-id="node.id" />
+        <a
+          v-if="!node.isDeleted && !isCollapsed && node.navLinks.next"
+          :href="node.navLinks.next"
+          class="comment-header__icon-link"
+          title="Next comment"
+          aria-label="Next comment"
+        >
+          <ChevronRight :size="14" aria-hidden="true" />
+        </a>
       </div>
     </div>
   </div>
@@ -163,6 +186,12 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     }
   }
 
+  &__controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   &__nav-link {
     position: relative;
     color: inherit;
@@ -180,10 +209,56 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     }
   }
 
+  &__icon-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.72;
+    line-height: 0;
+    transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+    }
+
+    &:hover {
+      color: var(--color-text);
+      opacity: 1;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+  }
+
   &__deleted {
     font-style: italic;
     color: var(--color-text-muted);
     opacity: 0.6;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 0.96rem;
+    column-gap: 0.45rem;
+    row-gap: 0.28rem;
+
+    &__toggle {
+      font-size: 0.86rem;
+    }
+
+    &__info {
+      column-gap: 0.6rem;
+      row-gap: 0.22rem;
+    }
+
+    &__controls {
+      gap: 0.7rem;
+    }
   }
 }
 </style>

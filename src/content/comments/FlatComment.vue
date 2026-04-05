@@ -6,6 +6,7 @@ import MetaSep from '@/content/shared/MetaSep.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
 import Badge from '@/content/shared/Badge.vue';
+import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 
 defineProps<{
   comment: FlatCommentType;
@@ -21,6 +22,8 @@ defineProps<{
           <MetaSep />
           <a :href="comment.ageLink" class="flat-comment__age">{{ comment.age }}</a>
           <Badge variant="deleted" label="Deleted" />
+          <MetaSep />
+          <FragmentLinkButton :target-id="comment.id" />
         </template>
         <template v-else>
           <AuthorByline
@@ -32,6 +35,8 @@ defineProps<{
           />
           <Badge v-if="comment.isDead" variant="dead" label="Dead" />
           <Badge v-if="comment.isFlagged" variant="flagged" label="Flagged" />
+          <MetaSep />
+          <FragmentLinkButton :target-id="comment.id" />
         </template>
       </div>
 
@@ -121,9 +126,13 @@ defineProps<{
 
     &__header {
       display: grid;
-      row-gap: 0.1rem;
-      margin-bottom: 0.15rem;
-      font-size: 0.9rem;
+      row-gap: 0.18rem;
+      margin-bottom: 0.22rem;
+      font-size: 1rem;
+    }
+
+    &__meta {
+      gap: 0.55rem;
     }
 
     &__story-sep {

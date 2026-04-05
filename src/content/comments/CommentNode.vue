@@ -5,7 +5,8 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-import { MessageSquare } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-vue-next';
+import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 
 const MOBILE_MODAL_DEPTH = 4;
@@ -258,16 +259,38 @@ watch(
                   {{ downvoteOpacity }}
                 </span>
               </div>
+
             </template>
 
             <div v-if="!node.isDeleted && !isCollapsed && hasHeaderNav" class="comment-node__nav">
               <MetaSep />
+              <a :href="latestUrl" class="comment-node__nav-link">latest</a>
               <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__nav-link">root</a>
               <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__nav-link">parent</a>
-              <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__nav-link">prev</a>
-              <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__nav-link">next</a>
               <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__nav-link">context</a>
-              <a :href="latestUrl" class="comment-node__nav-link">latest</a>
+            </div>
+
+            <div class="comment-node__controls">
+              <MetaSep />
+              <a
+                v-if="!node.isDeleted && !isCollapsed && node.navLinks.prev"
+                :href="node.navLinks.prev"
+                class="comment-node__icon-link"
+                title="Previous comment"
+                aria-label="Previous comment"
+              >
+                <ChevronLeft :size="14" aria-hidden="true" />
+              </a>
+              <FragmentLinkButton :target-id="node.id" />
+              <a
+                v-if="!node.isDeleted && !isCollapsed && node.navLinks.next"
+                :href="node.navLinks.next"
+                class="comment-node__icon-link"
+                title="Next comment"
+                aria-label="Next comment"
+              >
+                <ChevronRight :size="14" aria-hidden="true" />
+              </a>
             </div>
           </div>
         </div>
@@ -293,15 +316,6 @@ watch(
                 :flag-url="node.flagUrl"
                 :flag-target="node"
               />
-
-              <div v-if="!node.isDeleted && hasHeaderNav" class="comment-node__mobile-nav">
-                <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__mobile-nav-link">root</a>
-                <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__mobile-nav-link">parent</a>
-                <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__mobile-nav-link">prev</a>
-                <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__mobile-nav-link">next</a>
-                <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__mobile-nav-link">context</a>
-                <a :href="latestUrl" class="comment-node__mobile-nav-link">latest</a>
-              </div>
             </div>
           </div>
         </template>
@@ -527,6 +541,12 @@ watch(
     }
   }
 
+  &__controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   &__nav-link {
     position: relative;
     color: inherit;
@@ -541,6 +561,33 @@ watch(
     &:hover {
       color: var(--color-text);
       text-decoration: none;
+    }
+  }
+
+  &__icon-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.72;
+    line-height: 0;
+    transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -6px;
+    }
+
+    &:hover {
+      color: var(--color-text);
+      opacity: 1;
+      text-decoration: none;
+      transform: translateY(-1px);
     }
   }
 
@@ -646,42 +693,24 @@ watch(
     }
   }
 
-  &__mobile-nav {
-    display: none;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
-    opacity: 0.5;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 1;
+  @media (max-width: 640px) {
+    &__header {
+      font-size: 0.96rem;
+      column-gap: 0.45rem;
+      row-gap: 0.28rem;
     }
 
-    @media (max-width: 640px) {
-      display: flex;
-    }
-  }
-
-  &__mobile-nav-link {
-    position: relative;
-    color: inherit;
-    text-decoration: none;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -5px -4px;
+    &__toggle {
+      font-size: 0.86rem;
     }
 
-    &:hover {
-      color: var(--color-text);
-      text-decoration: none;
+    &__header-info {
+      column-gap: 0.6rem;
+      row-gap: 0.22rem;
+    }
+
+    &__controls {
+      gap: 0.7rem;
     }
   }
 

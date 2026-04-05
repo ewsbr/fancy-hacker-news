@@ -23,5 +23,10 @@ defineProps<{ site: string | null }>();
       color: var(--color-text);
     }
   }
+
+  @media (max-width: 640px) {
+    margin-left: 0.4rem;
+    font-size: 0.94rem;
+  }
 }
 </style>

@@ -26,6 +26,11 @@ If anything throws, the original page is left untouched.
 
 Four themes switchable from the header: **light** (default), **dark**, **nord**, **amoled**. Persisted in `chrome.storage.local`.
 
+## Project Docs
+
+- `EXTENSION.md` — browser-facing extension description and known quirks
+- `DESIGNSYSTEM.md` — shared design-system guidance for breakpoints, sizing, spacing, and interaction rules
+
 ## Commands
 
 ```bash
@@ -92,6 +97,7 @@ src/
 │       ├── Badge.vue
 │       ├── CommentActions.vue
 │       ├── FlagButton.vue
+│       ├── FragmentLinkButton.vue
 │       ├── MetaSep.vue
 │       ├── Pagination.vue
 │       ├── PollOptions.vue
@@ -133,3 +139,8 @@ src/
 | Chrome / Chromium | 88 |
 | Edge | 88 |
 
+## Responsive Defaults
+
+- `640px` is the primary mobile breakpoint
+- `768px` is the primary medium/sidebar breakpoint
+- Other breakpoints in the repo currently exist for older/footer/profile-specific layouts and should not be treated as the default pattern for new work
