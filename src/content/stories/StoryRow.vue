@@ -10,8 +10,8 @@ defineProps<{ story: Story }>();
 </script>
 
 <template>
-  <article class="story-row">
-    <StoryRank :rank="story.rank" />
+  <article class="story-row" :class="{ 'story-row--unranked': story.rank === null }">
+    <StoryRank v-if="story.rank !== null" :rank="story.rank" />
     <VoteButton :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
     <div class="story-row__body">
       <div class="story-row__title-line">
@@ -45,6 +45,11 @@ defineProps<{ story: Story }>();
 
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-border);
+  }
+
+  &--unranked {
+    grid-template-columns: 1.25rem 1fr;
+    padding-left: 0.5rem;
   }
 
   &__body {
@@ -82,6 +87,11 @@ defineProps<{ story: Story }>();
     grid-template-columns: 1.5rem 1.1rem 1fr;
     gap: 0 0.3rem;
     padding: 0.5rem 0.375rem 0.5rem 0.375rem;
+
+    &--unranked {
+      grid-template-columns: 1.1rem 1fr;
+      padding-left: 0.5rem;
+    }
   }
 }
 </style>

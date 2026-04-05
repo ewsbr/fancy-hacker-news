@@ -4,7 +4,7 @@ import {
 
 export interface Story {
   id: string;
-  rank: number;
+  rank: number | null;
   title: string;
   url: string | null;
   site: string | null;
@@ -26,12 +26,21 @@ export interface Story {
 }
 
 export interface ParsedStoryList {
+  introHtml: string | null;
   stories: Story[];
   moreLink: string | null;
   startRank: number;
 }
 
 export function parseStoryList(doc: Document): ParsedStoryList {
+  const bigbox = doc.querySelector('#bigbox > td');
+  const introHtml = bigbox
+    ? Array.from(bigbox.children)
+      .filter(child => child.tagName !== 'TABLE')
+      .map(child => child.outerHTML)
+      .join('')
+      .trim() || null
+    : null;
   const stories: Story[] = [];
 
   for (const row of doc.querySelectorAll<HTMLElement>('tr.athing.submission')) {
@@ -40,7 +49,8 @@ export function parseStoryList(doc: Document): ParsedStoryList {
 
     // Rank
     const rankText = textOf(row.querySelector('td.title > span.rank')).replace('.', '');
-    const rank = parseInt(rankText, 10) || 0;
+    const parsedRank = parseInt(rankText, 10);
+    const rank = Number.isNaN(parsedRank) ? null : parsedRank;
 
     // Title + URL
     const titleLineEl = row.querySelector('span.titleline');
@@ -112,5 +122,5 @@ export function parseStoryList(doc: Document): ParsedStoryList {
   const moreLink = findMoreLink(doc);
   const startRank = stories[0]?.rank ?? 1;
 
-  return { stories, moreLink, startRank };
+  return { introHtml, stories, moreLink, startRank };
 }

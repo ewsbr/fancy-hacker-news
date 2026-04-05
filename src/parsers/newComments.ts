@@ -21,11 +21,20 @@ export interface FlatComment {
 }
 
 export interface ParsedNewComments {
+  introHtml: string | null;
   comments: FlatComment[];
   moreLink: string | null;
 }
 
 export function parseNewComments(doc: Document): ParsedNewComments {
+  const bigbox = doc.querySelector('#bigbox > td');
+  const introHtml = bigbox
+    ? Array.from(bigbox.children)
+      .filter(child => child.tagName !== 'TABLE')
+      .map(child => child.outerHTML)
+      .join('')
+      .trim() || null
+    : null;
   const rows = Array.from(doc.querySelectorAll<HTMLTableRowElement>('tr.athing'));
   const comments: FlatComment[] = [];
 
@@ -79,5 +88,5 @@ export function parseNewComments(doc: Document): ParsedNewComments {
     comments.push(comment);
   }
 
-  return { comments, moreLink: findMoreLink(doc) };
+  return { introHtml, comments, moreLink: findMoreLink(doc) };
 }

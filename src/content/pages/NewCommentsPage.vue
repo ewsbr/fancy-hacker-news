@@ -3,12 +3,15 @@ import { inject } from 'vue';
 import type { ParsedNewComments } from '@/parsers/newComments';
 import FlatComment from '@/content/comments/FlatComment.vue';
 import Pagination from '@/content/shared/Pagination.vue';
+import TopNotice from '@/content/shared/TopNotice.vue';
 
 const pageData = inject<ParsedNewComments>('pageData')!;
 </script>
 
 <template>
   <div class="new-comments">
+    <TopNotice v-if="pageData.introHtml" :html="pageData.introHtml" />
+
     <div class="new-comments__list hn-content-card">
       <FlatComment 
         v-for="comment in pageData.comments" 

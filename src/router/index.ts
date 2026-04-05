@@ -10,7 +10,12 @@ export interface RouteDescriptor {
 
 const STORY_LISTS = new Set([
   '/', '/news', '/newest', '/front', '/ask', '/show', '/jobs',
-  '/shownew', '/pool', '/active', '/best', '/bestcomments', '/noobstories',
+  '/shownew', '/pool', '/active', '/best', '/noobstories',
+  '/asknew', '/classic', '/invited', '/launches',
+]);
+
+const COMMENT_LISTS = new Set([
+  '/newcomments', '/noobcomments', '/bestcomments', '/highlights',
 ]);
 
 const STORY_TYPE: Record<string, string> = {
@@ -25,8 +30,11 @@ const STORY_TYPE: Record<string, string> = {
   '/pool': 'pool',
   '/active': 'active',
   '/best': 'best',
-  '/bestcomments': 'bestcomments',
   '/noobstories': 'noobstories',
+  '/asknew': 'asknew',
+  '/classic': 'classic',
+  '/invited': 'invited',
+  '/launches': 'launches',
 };
 
 const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
@@ -54,8 +62,12 @@ export function resolveRoute(loc: Location): RouteDescriptor {
     return { page: 'stories', params: { type: STORY_TYPE[path] } };
   }
 
-  if (path === '/newcomments') return { page: 'newcomments', params: {} };
-  if (path === '/noobcomments') return { page: 'newcomments', params: { type: 'noob' } };
+  if (COMMENT_LISTS.has(path)) {
+    return {
+      page: 'newcomments',
+      params: path === '/noobcomments' ? { type: 'noob' } : {},
+    };
+  }
 
   if (path === '/item') return { page: 'item', params: { id: sp.get('id') ?? '' } };
   if (path === '/reply') return { page: 'reply', params: { id: sp.get('id') ?? '', goto: sp.get('goto') ?? '' } };

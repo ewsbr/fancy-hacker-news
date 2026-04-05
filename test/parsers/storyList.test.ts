@@ -42,6 +42,7 @@ describe('story list fixtures', () => {
     const lastStory = storyList.stories[storyList.stories.length - 1];
 
     expect(storyList.startRank).toBe(1);
+    expect(storyList.introHtml).toBeNull();
     expect(storyList.stories).toHaveLength(30);
     expect(storyList.moreLink).toBe('?p=2');
     expect(firstStory).toMatchObject({
@@ -61,6 +62,26 @@ describe('story list fixtures', () => {
       rank: 30,
       commentCount: 2,
     });
+  });
+
+  it('parses unranked stories without synthesizing numeric ranks', async () => {
+    const doc = await loadFixtureDocument('stories/invited.html');
+    const storyList = parseStoryList(doc);
+
+    expect(storyList.stories[0]).toMatchObject({
+      id: '47438169',
+      rank: null,
+      title: 'An FAQ on Reinforcement Learning Environments',
+    });
+    expect(storyList.moreLink).toBe('invited?next=44981802');
+  });
+
+  it('preserves intro content for story list variants like best', async () => {
+    const doc = await loadFixtureDocument('stories/best.html');
+    const storyList = parseStoryList(doc);
+
+    expect(storyList.introHtml).toContain('Most-upvoted stories of the last 48 hours');
+    expect(storyList.introHtml).toContain('best?h=24');
   });
 
   it('detects dead stories when the status marker sits outside the title link', async () => {
@@ -174,6 +195,18 @@ describe('story list fixtures', () => {
       isFlagged: false,
       isDeleted: false,
       bodyHtml: 'still visible body',
+    });
+  });
+
+  it('preserves intro content for comment list variants like bestcomments', async () => {
+    const doc = await loadFixtureDocument('comments/bestcomments.html');
+    const page = parseNewComments(doc);
+
+    expect(page.introHtml).toContain('Most-upvoted comments of the last 48 hours');
+    expect(page.introHtml).toContain('bestcomments?h=24');
+    expect(page.comments[0]).toMatchObject({
+      id: '47633987',
+      author: 'jesse_dot_id',
     });
   });
 

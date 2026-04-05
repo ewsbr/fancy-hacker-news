@@ -90,6 +90,35 @@ const contentHtml = computed(() =>
       padding-left: 1.5rem;
     }
 
+    :deep(table) {
+      width: 100%;
+      margin-bottom: 1rem;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      border-radius: 0.35rem;
+    }
+
+    :deep(td),
+    :deep(th) {
+      padding: 0.5rem 0.7rem;
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    :deep(tr:last-child td),
+    :deep(tr:last-child th) {
+      border-bottom: 0;
+    }
+
+    :deep(td[bgcolor]),
+    :deep(td[style*="background"]),
+    :deep(td[style*="background-color"]) {
+      min-width: 4rem;
+    }
+
     :deep(ul) {
       list-style: disc;
     }
