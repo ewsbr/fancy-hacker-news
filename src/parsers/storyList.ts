@@ -1,5 +1,5 @@
 import {
-  textOf, hrefOf, parseScore, parseCommentCount, isNewUser, parseAge, findMoreLink, parseStoryTitleStatus,
+  textOf, hrefOf, parseScore, parseCommentCount, isNewUser, parseAge, findMoreLink, parseStoryTitleStatus, findUnvoteHref,
 } from './utils';
 
 export interface Story {
@@ -93,7 +93,7 @@ export function parseStoryList(doc: Document): ParsedStoryList {
       commentCount = parseCommentCount(textOf(commentAnchor));
 
       // Unvote link (JS-populated; almost always null on parse)
-      voteUn = hrefOf(sublineEl.querySelector<HTMLAnchorElement>(`span#unv_${id} a`));
+      voteUn = findUnvoteHref(sublineEl);
     }
 
     stories.push({

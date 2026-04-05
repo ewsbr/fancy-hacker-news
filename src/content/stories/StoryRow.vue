@@ -12,7 +12,7 @@ defineProps<{ story: Story }>();
 <template>
   <article class="story-row">
     <StoryRank :rank="story.rank" />
-    <VoteButton :href="story.voteUp" />
+    <VoteButton :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
     <div class="story-row__body">
       <div class="story-row__title-line">
         <a

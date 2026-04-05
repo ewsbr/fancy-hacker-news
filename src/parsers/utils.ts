@@ -14,6 +14,12 @@ export const attrOf = (el: Element | null | undefined, name: string): string | n
 export const hrefOf = (el: Element | null | undefined): string | null =>
   attrOf(el, 'href');
 
+/** Find an unvote href within the current row or container. */
+export function findUnvoteHref(scope: ParentNode | null | undefined): string | null {
+  if (!scope) return null;
+  return hrefOf(scope.querySelector('a[href^="vote?"][href*="how=un"]'));
+}
+
 /** "123 points" → 123 */
 export function parseScore(text: string | null | undefined): number | null {
   const m = text?.match(/(\d+)\s+points?/);

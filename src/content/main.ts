@@ -7,7 +7,7 @@
  * 4. Create root host
  * 5. Mount Vue app with parsed data via provide/inject
  */
-import { createApp, ref } from 'vue';
+import { createApp, reactive, ref } from 'vue';
 import {
   clearDebugEntries,
   createDebugTimeline,
@@ -60,17 +60,19 @@ function parsePageData(page: string, doc: Document): unknown {
 
 let hideOriginalStyle: HTMLStyleElement | null = null;
 
+function makeReactive<T>(value: T): T {
+  if (typeof value === 'object' && value !== null) {
+    return reactive(value as object) as T;
+  }
+
+  return value;
+}
+
 function cleanupOriginalBody(host: HTMLElement) {
   document.body.replaceChildren(host);
 
   hideOriginalStyle?.remove();
   hideOriginalStyle = null;
-}
-
-function preventLegacyHnClickHandling(host: HTMLElement) {
-  host.addEventListener('click', event => {
-    event.stopPropagation();
-  });
 }
 
 function restoreInitialFragment() {
@@ -147,7 +149,7 @@ function mountApp() {
     // 1. Parse from original DOM before hiding anything
     const header = timeline.step('parse-header', () => parseHeader(document));
     const route = timeline.step('resolve-route', () => resolveRoute(location));
-    const pageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
+    const pageData = timeline.step(`parse-page:${route.page}`, () => makeReactive(parsePageData(route.page, document)));
   
     if (route.page === 'item') {
       timeline.step('prepare-item-hash-state', () => {
@@ -176,7 +178,6 @@ function mountApp() {
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
       nextHost.id = 'fancy-hn-root';
-      preventLegacyHnClickHandling(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
     });

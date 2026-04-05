@@ -1,21 +1,46 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import type { FlagActionTarget } from '@/content/shared/useHnActions';
+import { useHnActions } from '@/content/shared/useHnActions';
+
 const props = defineProps<{
   href: string;
   /** Whether this is an unflag action (detected from URL containing un=t) */
   isUnflag?: boolean;
+  flagTarget?: FlagActionTarget | null;
 }>();
 
-function handleClick(e: Event) {
-  const action = props.isUnflag ? 'unflag' : 'flag';
+const { isBusy, submitFlag } = useHnActions();
+
+const isUnflagAction = computed(
+  () => props.flagTarget?.isFlagged ?? props.isUnflag ?? props.href.includes('un=t'),
+);
+
+function handleClick(event: MouseEvent) {
+  const action = isUnflagAction.value ? 'unflag' : 'flag';
   if (!window.confirm(`Are you sure you want to ${action} this?`)) {
-    e.preventDefault();
+    event.preventDefault();
+    return;
   }
+
+  if (!props.flagTarget) {
+    return;
+  }
+
+  event.preventDefault();
+  void submitFlag(props.flagTarget);
 }
 </script>
 
 <template>
-  <a :href="href" class="flag-button" @click="handleClick">
-    {{ isUnflag ? 'unflag' : 'flag' }}
+  <a
+    :href="href"
+    class="flag-button"
+    :class="{ 'flag-button--busy': isBusy }"
+    :aria-disabled="isBusy ? 'true' : undefined"
+    @click="handleClick"
+  >
+    {{ isUnflagAction ? 'unflag' : 'flag' }}
   </a>
 </template>
 
@@ -28,6 +53,11 @@ function handleClick(e: Event) {
   &:hover {
     color: var(--color-text);
     text-decoration: underline;
+  }
+
+  &--busy {
+    opacity: 0.6;
+    pointer-events: none;
   }
 }
 </style>

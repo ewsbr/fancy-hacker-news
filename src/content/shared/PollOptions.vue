@@ -35,7 +35,7 @@ const totalVotes = computed(() => {
       class="poll-options__item"
     >
       <div class="poll-options__vote">
-        <VoteButton :href="opt.voteUp" />
+        <VoteButton :href="opt.voteUp" :vote-un-href="opt.voteUn" :vote-target="opt" />
       </div>
       <div class="poll-options__content">
         <div class="poll-options__text">{{ opt.text }}</div>

@@ -3,41 +3,73 @@ import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
+import type { FlagActionTarget, VoteActionTarget } from '@/content/shared/useHnActions';
+import { useHnActions } from '@/content/shared/useHnActions';
 
 const props = defineProps<{
+  itemId?: string;
   voteUp?: string | null;
   voteUn?: string | null;
   voteDown?: string | null;
+  voteTarget?: VoteActionTarget | null;
   replyLink?: string | null;
   editUrl?: string | null;
   deleteUrl?: string | null;
   flagUrl?: string | null;
+  flagTarget?: FlagActionTarget | null;
 }>();
 
+const { isBusy, submitVote } = useHnActions();
 const hasVoteActions = computed(() => !!(props.voteUp || props.voteUn || props.voteDown));
 const hasReplyAction = computed(() => !!props.replyLink);
 const hasEditAction = computed(() => !!props.editUrl);
 const hasDeleteAction = computed(() => !!props.deleteUrl);
+
+function handleVoteClick(event: MouseEvent, href: string | null | undefined, direction: 'up' | 'down' | 'un') {
+  if (!props.voteTarget || !href) {
+    return;
+  }
+
+  event.preventDefault();
+  void submitVote(props.voteTarget, href, direction);
+}
 </script>
 
 <template>
   <div class="comment-actions">
     <div v-if="hasVoteActions" class="comment-actions__votes">
       <a
-        v-if="voteUp || voteUn"
-        :href="voteUn || voteUp || undefined"
+        v-if="voteUp && !voteUn"
+        :href="voteUp"
         class="comment-actions__vote comment-actions__vote--up"
-        :class="{ 'comment-actions__vote--active': !!voteUn }"
-        :title="voteUn ? 'unvote' : 'upvote'"
+        :class="{ 'comment-actions__vote--busy': isBusy }"
+        title="upvote"
+        :aria-disabled="isBusy ? 'true' : undefined"
+        @click="handleVoteClick($event, voteUp, 'up')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-        <span>{{ voteUn ? 'unvote' : 'upvote' }}</span>
+        <span>upvote</span>
+      </a>
+      <a
+        v-if="voteUn"
+        :href="voteUn"
+        class="comment-actions__vote comment-actions__vote--up comment-actions__vote--active"
+        :class="{ 'comment-actions__vote--busy': isBusy }"
+        title="unvote"
+        :aria-disabled="isBusy ? 'true' : undefined"
+        @click="handleVoteClick($event, voteUn, 'un')"
+      >
+        <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+        <span>unvote</span>
       </a>
       <a
         v-if="voteDown"
         :href="voteDown"
         class="comment-actions__vote comment-actions__vote--down"
+        :class="{ 'comment-actions__vote--busy': isBusy }"
         title="downvote"
+        :aria-disabled="isBusy ? 'true' : undefined"
+        @click="handleVoteClick($event, voteDown, 'down')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
         <span>downvote</span>
@@ -58,7 +90,7 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
     </template>
     <template v-if="flagUrl">
       <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
-      <FlagButton :href="flagUrl" />
+      <FlagButton :href="flagUrl" :flag-target="flagTarget" />
     </template>
   </div>
 </template>
@@ -113,11 +145,25 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
       color: var(--color-accent);
     }
 
+    &--hidden {
+      display: none;
+    }
+
     &--down {
       .lucide {
         transform: rotate(180deg);
       }
     }
+
+    &--busy {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
+
+  &__unvote-slot {
+    display: inline-flex;
+    align-items: center;
   }
 
   &__link {

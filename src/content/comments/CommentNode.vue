@@ -3,6 +3,7 @@ import { computed, inject, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
+import CommentActions from '@/content/shared/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 import { MessageSquare } from 'lucide-vue-next';
 import MetaSep from '@/content/shared/MetaSep.vue';
@@ -56,12 +57,6 @@ const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value 
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
-const isUnvoted = computed(() => !!props.node.voteUn);
-const voteHref = computed(() => props.node.voteUn || props.node.voteUp || undefined);
-const hasVoteActions = computed(() => !!(voteHref.value || props.node.voteDown));
-const hasReplyAction = computed(() => !!props.node.replyLink);
-const hasEditAction = computed(() => !!props.node.editUrl);
-const hasDeleteAction = computed(() => !!props.node.deleteUrl);
 const hasHeaderNav = !!(
   props.node.navLinks.root
   || props.node.navLinks.parent
@@ -69,7 +64,6 @@ const hasHeaderNav = !!(
   || props.node.navLinks.next
   || props.node.navLinks.context
 );
-const flagLabel = computed(() => (props.node.flagUrl?.includes('un=t') ? 'unflag' : 'flag'));
 const shouldProgressivelyRenderChildren = !props.inModal && props.node.descendantCount > SUBTREE_PROGRESSIVE_THRESHOLD;
 const visibleChildCount = ref(props.node.children.length);
 
@@ -156,16 +150,6 @@ const visibleChildren = computed(() =>
 
 function toggleCollapse() {
   userCollapsed.value = !isCollapsed.value;
-}
-
-function confirmFlagAction(event: Event) {
-  if (!props.node.flagUrl) {
-    return;
-  }
-
-  if (!window.confirm(`Are you sure you want to ${flagLabel.value} this?`)) {
-    event.preventDefault();
-  }
 }
 
 if (childrenInModal) {
@@ -294,27 +278,18 @@ watch(
             />
 
             <div class="comment-node__actions">
-              <div v-if="hasVoteActions" class="comment-node__votes">
-                <a
-                  v-if="voteHref"
-                  :href="voteHref"
-                  class="comment-node__vote comment-node__vote--up"
-                  :class="{ 'comment-node__vote--active': isUnvoted }"
-                  :title="isUnvoted ? 'unvote' : 'upvote'"
-                >
-                  <span class="comment-node__vote-chevron" aria-hidden="true"></span>
-                  <span>{{ isUnvoted ? 'unvote' : 'upvote' }}</span>
-                </a>
-                <a
-                  v-if="node.voteDown"
-                  :href="node.voteDown"
-                  class="comment-node__vote comment-node__vote--down"
-                  title="downvote"
-                >
-                  <span class="comment-node__vote-chevron" aria-hidden="true"></span>
-                  <span>downvote</span>
-                </a>
-              </div>
+              <CommentActions
+                :item-id="node.id"
+                :vote-up="node.voteUp"
+                :vote-un="node.voteUn"
+                :vote-down="node.voteDown"
+                :vote-target="node"
+                :reply-link="node.replyLink"
+                :edit-url="node.editUrl"
+                :delete-url="node.deleteUrl"
+                :flag-url="node.flagUrl"
+                :flag-target="node"
+              />
 
               <div v-if="!node.isDeleted && hasHeaderNav" class="comment-node__mobile-nav">
                 <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__mobile-nav-link">root</a>
@@ -323,23 +298,6 @@ watch(
                 <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__mobile-nav-link">next</a>
                 <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__mobile-nav-link">context</a>
               </div>
-
-              <template v-if="node.replyLink">
-                <MetaSep v-if="hasVoteActions" />
-                <a :href="node.replyLink" class="comment-node__action-link">reply</a>
-              </template>
-              <template v-if="node.editUrl">
-                <MetaSep v-if="hasVoteActions || hasReplyAction" />
-                <a :href="node.editUrl" class="comment-node__action-link">edit</a>
-              </template>
-              <template v-if="node.deleteUrl">
-                <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction" />
-                <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
-              </template>
-              <template v-if="node.flagUrl">
-                <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
-                <a :href="node.flagUrl" class="comment-node__action-link" @click="confirmFlagAction">{{ flagLabel }}</a>
-              </template>
             </div>
           </div>
         </template>
@@ -641,9 +599,18 @@ watch(
       color: var(--color-accent);
     }
 
+    &--hidden {
+      display: none;
+    }
+
     &--down .comment-node__vote-chevron {
       transform: rotate(180deg);
     }
+  }
+
+  &__unvote-slot {
+    display: inline-flex;
+    align-items: center;
   }
 
   &__vote-chevron {

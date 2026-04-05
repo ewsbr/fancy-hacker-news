@@ -1,6 +1,7 @@
 import {
   attrOf,
   extractRichTextHtml,
+  findUnvoteHref,
   hrefOf,
   isNewUser,
   parseCommentBody,
@@ -25,6 +26,7 @@ export interface PollOption {
   text: string;
   score: number | null;
   voteUp: string | null;
+  voteUn: string | null;
 }
 
 export interface ItemDetail {
@@ -156,7 +158,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     const votelinks = athing?.querySelector('td.votelinks');
     parsedItem.voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
     parsedItem.voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-    parsedItem.voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
+    parsedItem.voteUn = findUnvoteHref(fatitem);
 
     if (isStory) {
       const titleline = athing?.querySelector('.titleline');
@@ -257,13 +259,14 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       if (!commentTd) continue;
       const text = commentTd.textContent?.trim() || '';
       const voteUp = hrefOf(row.querySelector('td.votelinks a[href^="vote?"]'));
+      const voteUn = findUnvoteHref(row);
 
       // Score is in the next sibling tr's td.default span.score
       const nextRow = row.nextElementSibling;
       const scoreText = textOf(nextRow?.querySelector('.score'));
       const score = parseScore(scoreText);
 
-      options.push({ id, text, score, voteUp });
+      options.push({ id, text, score, voteUp, voteUn });
     }
     return options;
   }, () => ({}));
@@ -314,7 +317,7 @@ export function parseItemPage(doc: Document): ParsedItemPage {
       const votelinks = tr.querySelector('td.votelinks');
       const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
       const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-      const voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
+      const voteUn = findUnvoteHref(tr);
 
       const commentEl = tr.querySelector('.comment');
       const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');

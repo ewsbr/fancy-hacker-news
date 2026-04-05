@@ -1,13 +1,20 @@
+import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { parseHeader } from '@/parsers/header';
 import { parseItemPage } from '@/parsers/item';
 import { parseNewComments } from '@/parsers/newComments';
+import { parseThreadsPage } from '@/parsers/threads';
 import { parseStoryList } from '@/parsers/storyList';
 import { loadFixtureDocument } from '../helpers/loadFixture';
 
 function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): ReturnType<typeof parseItemPage>['comments'] {
   return nodes.flatMap(node => [node, ...flattenComments(node.children)]);
+}
+
+async function loadFixtureHtml(name: string): Promise<string> {
+  const fixtureUrl = new URL(`../fixtures/${name}`, import.meta.url);
+  return readFile(fixtureUrl, 'utf8');
 }
 
 describe('story list fixtures', () => {
@@ -105,6 +112,40 @@ describe('story list fixtures', () => {
     });
   });
 
+  it('parses story unvote links on item pages when HN renders them outside td.votelinks', () => {
+    const dom = new JSDOM(`
+      <table class="fatitem">
+        <tr class="athing submission" id="123">
+          <td class="title"><span class="rank"></span></td>
+          <td class="votelinks">
+            <a href="vote?id=123&amp;how=up&amp;auth=upauth&amp;goto=item%3Fid%3D123"><div class="votearrow"></div></a>
+          </td>
+          <td class="title">
+            <span class="titleline"><a href="https://example.com/story">Example story</a></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"></td>
+          <td class="subtext">
+            <span class="subline">
+              <span class="score" id="score_123">42 points</span>
+              by <a href="user?id=pg" class="hnuser">pg</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=123">1 hour ago</a></span>
+              <span id="unv_123"> | <a id="un_123" href="vote?id=123&amp;how=un&amp;auth=unauth&amp;goto=item%3Fid%3D123&amp;js=t">unvote</a></span>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <table class="comment-tree"></table>
+    `);
+
+    const page = parseItemPage(dom.window.document);
+
+    expect(page.item.voteUp).toContain('how=up');
+    expect(page.item.voteUn).toContain('how=un');
+    expect(page.item.voteUn).toContain('js=t');
+  });
+
   it('tracks dead status for flat comments on new comments pages', () => {
     const dom = new JSDOM(`
       <table>
@@ -152,5 +193,108 @@ describe('story list fixtures', () => {
         isDeleted: false,
       });
     }
+  });
+
+  it('parses comment unvote links from wrapped item-page rows', async () => {
+    const rowHtml = await loadFixtureHtml('unvote.html');
+    const dom = new JSDOM(`
+      <table class="fatitem">
+        <tr class="athing submission" id="999">
+          <td class="title"><span class="rank"></span></td>
+          <td class="votelinks"></td>
+          <td class="title">
+            <span class="titleline"><a href="https://example.com/story">Example story</a></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"></td>
+          <td class="subtext">
+            <span class="subline">
+              <span class="score" id="score_999">42 points</span>
+              by <a href="user?id=pg" class="hnuser">pg</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=999">1 hour ago</a></span>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <table class="comment-tree"><tbody>${rowHtml}</tbody></table>
+    `);
+
+    const page = parseItemPage(dom.window.document);
+
+    expect(page.comments).toHaveLength(1);
+    expect(page.comments[0]).toMatchObject({
+      id: '47652278',
+      voteUp: expect.stringContaining('how=up'),
+      voteUn: expect.stringContaining('how=un'),
+    });
+  });
+
+  it('parses flat comment unvote links when they are rendered in the header span', () => {
+    const dom = new JSDOM(`
+      <table>
+        <tr class="athing" id="456">
+          <td class="votelinks">
+            <a href="vote?id=456&amp;how=up&amp;auth=upauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+          </td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span id="unv_456"> | <a id="un_456" href="vote?id=456&amp;how=un&amp;auth=unauth&amp;goto=newcomments&amp;js=t">unvote</a></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment">
+              <div class="commtext c00">still visible body</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(dom.window.document);
+
+    expect(page.comments[0]).toMatchObject({
+      id: '456',
+      voteUp: expect.stringContaining('how=up'),
+      voteUn: expect.stringContaining('how=un'),
+    });
+  });
+
+  it('parses thread unvote links when they are rendered in the header span', () => {
+    const dom = new JSDOM(`
+      <title>alice's comments | Hacker News</title>
+      <table>
+        <tr class="athing comtr" id="456">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="0"><img src="s.gif" height="1" width="0"></td>
+            <td class="votelinks">
+              <a href="vote?id=456&amp;how=up&amp;auth=upauth&amp;goto=threads%3Fid%3Dalice"><div class="votearrow"></div></a>
+            </td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=alice" class="hnuser">alice</a>
+                <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+                <span id="unv_456"> | <a id="un_456" href="vote?id=456&amp;how=un&amp;auth=unauth&amp;goto=threads%3Fid%3Dalice&amp;js=t">unvote</a></span>
+                <span class="navs"><a href="#123">root</a></span>
+                <span class="onstory"><a href="item?id=123">Example story</a></span>
+              </span>
+              <div class="comment">
+                <div class="commtext c00">still visible body</div>
+                <div class="reply"><p><font size="1"><u><a href="reply?id=456">reply</a></u></font></p></div>
+              </div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseThreadsPage(dom.window.document);
+
+    expect(page.threads[0]).toMatchObject({
+      id: '456',
+      voteUp: expect.stringContaining('how=up'),
+      voteUn: expect.stringContaining('how=un'),
+    });
   });
 });

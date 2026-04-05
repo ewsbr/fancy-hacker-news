@@ -1,5 +1,5 @@
 import type { CommentPlaceholderKind } from './utils';
-import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink, findUnvoteHref } from './utils';
 
 export interface FlatComment {
   id: string;
@@ -45,7 +45,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
     const votelinks = tr.querySelector('td.votelinks');
     const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
     const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-    const voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
+    const voteUn = findUnvoteHref(tr);
 
     const commentEl = tr.querySelector('div.comment');
     const commtext = commentEl?.querySelector('div.commtext') ?? tr.querySelector('div.commtext');

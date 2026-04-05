@@ -272,7 +272,7 @@ onUnmounted(() => {
                 </template>
                 <template v-if="pageData.item.flagUrl">
                   <MetaSep />
-                  <FlagButton :href="pageData.item.flagUrl" />
+                  <FlagButton :href="pageData.item.flagUrl" :flag-target="pageData.item" />
                 </template>
               </div>
               <div class="comments-page__comment-body">
@@ -284,9 +284,11 @@ onUnmounted(() => {
               </div>
               <CommentActions
                 class="comments-page__comment-actions"
+                :item-id="pageData.item.id"
                 :vote-up="pageData.item.voteUp"
                 :vote-un="pageData.item.voteUn"
                 :vote-down="pageData.item.voteDown"
+                :vote-target="pageData.item"
               />
             </div>
           </div>

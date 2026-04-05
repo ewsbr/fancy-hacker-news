@@ -22,7 +22,7 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
     <div class="story-detail__main">
       <div class="story-detail__layout">
         <div class="story-detail__vote">
-          <VoteButton :href="item.voteUp" />
+          <VoteButton :href="item.voteUp" :vote-un-href="item.voteUn" :item-id="item.id" :vote-target="item" />
         </div>
         
         <div class="story-detail__content">
@@ -71,7 +71,7 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 
               <template v-if="item.flagUrl">
                 <MetaSep />
-                <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" />
+                <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" :flag-target="item" />
               </template>
             </div>
           </div>

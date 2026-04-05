@@ -63,11 +63,14 @@ function toggleCollapse() {
           />
           
           <CommentActions
+            :item-id="node.id"
             :vote-up="node.voteUp"
             :vote-un="node.voteUn"
             :vote-down="node.voteDown"
+            :vote-target="node"
             :reply-link="node.replyLink"
             :flag-url="node.flagUrl"
+            :flag-target="node"
           />
 
           <div v-if="hasHeaderNav" class="comment-node__mobile-nav">

@@ -50,9 +50,11 @@ defineProps<{
     </div>
     
     <CommentActions
+      :item-id="comment.id"
       :vote-up="comment.voteUp"
       :vote-un="comment.voteUn"
       :vote-down="comment.voteDown"
+      :vote-target="comment"
     />
   </div>
 </template>

@@ -1,25 +1,58 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
+import type { VoteActionTarget } from '@/content/shared/useHnActions';
+import { useHnActions } from '@/content/shared/useHnActions';
 
-defineProps<{ href: string | null }>();
+const props = defineProps<{
+  href: string | null;
+  voteUnHref?: string | null;
+  itemId?: string;
+  voteTarget?: VoteActionTarget | null;
+}>();
+
+const { isBusy, submitVote } = useHnActions();
+
+const currentHref = computed(() => props.voteUnHref || props.href || null);
+const currentDirection = computed(() => (props.voteUnHref ? 'un' : 'up'));
+
+function handleClick(event: MouseEvent) {
+  if (!props.voteTarget || !currentHref.value) {
+    return;
+  }
+
+  event.preventDefault();
+  void submitVote(props.voteTarget, currentHref.value, currentDirection.value);
+}
 </script>
 
 <template>
-  <a
-    v-if="href"
-    :href="href"
-    class="vote-btn"
-    title="upvote"
-    aria-label="upvote"
-  >
-    <Triangle :size="13" fill="currentColor" :stroke-width="0" />
-  </a>
-  <span v-else class="vote-btn vote-btn--inactive" aria-hidden="true">
-    <Triangle :size="13" fill="currentColor" :stroke-width="0" />
+  <span class="vote-btn-slot">
+    <a
+      v-if="currentHref"
+      :href="currentHref"
+      class="vote-btn"
+      :class="{ 'vote-btn--active': !!voteUnHref, 'vote-btn--busy': isBusy }"
+      :title="voteUnHref ? 'unvote' : 'upvote'"
+      :aria-label="voteUnHref ? 'unvote' : 'upvote'"
+      :aria-disabled="isBusy ? 'true' : undefined"
+      @click="handleClick"
+    >
+      <Triangle :size="13" fill="currentColor" :stroke-width="0" />
+    </a>
+    <span v-else class="vote-btn vote-btn--inactive" aria-hidden="true">
+      <Triangle :size="13" fill="currentColor" :stroke-width="0" />
+    </span>
   </span>
 </template>
 
 <style scoped lang="scss">
+.vote-btn-slot {
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 .vote-btn {
   position: relative;
   display: inline-flex;
@@ -53,6 +86,19 @@ defineProps<{ href: string | null }>();
   &--inactive {
     opacity: 0.2;
     pointer-events: none;
+  }
+
+  &--active {
+    color: var(--color-accent);
+  }
+
+  &--busy {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &--hidden {
+    display: none;
   }
 }
 </style>

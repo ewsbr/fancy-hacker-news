@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink } from './utils';
+import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink, findUnvoteHref } from './utils';
 import type { CommentNode } from './item';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
@@ -65,7 +65,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
     const votelinks = tr.querySelector('td.votelinks');
     const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
     const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-    const voteUn = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=un"]'));
+    const voteUn = findUnvoteHref(tr);
 
     const commentEl = tr.querySelector('.comment');
     const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
@@ -73,9 +73,14 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
     const grayLevel = parseGrayLevel(commtext);
 
     const replyDiv = commentEl?.querySelector('.reply');
-    const replyLink = hrefOf(replyDiv?.querySelector('a'));
-
     const navs = comhead?.querySelector('.navs');
+    const replyLink = hrefOf(replyDiv?.querySelector('a'));
+    const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
+      || hrefOf(navs?.querySelector('a[href^="flag?"]'));
+    const editUrl = hrefOf(navs?.querySelector('a[href^="edit?"]'))
+      || hrefOf(replyDiv?.querySelector('a[href^="edit?"]'));
+    const deleteUrl = hrefOf(navs?.querySelector('a[href^="delete-confirm?"]'))
+      || hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
     const navAnchors = navs ? Array.from(navs.querySelectorAll('a')) : [];
 
     const navLinksObj = {
@@ -114,9 +119,9 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
       voteUp,
       voteDown,
       voteUn,
-      flagUrl: null,
-      editUrl: null,
-      deleteUrl: null,
+      flagUrl,
+      editUrl,
+      deleteUrl,
       replyLink,
       isDeleted: commentBody.placeholderKind === 'deleted',
       descendantCount: 0,
