@@ -60,14 +60,14 @@ onUnmounted(() => {
   padding: 0;
   background: transparent;
   box-shadow: none;
-  color: color-mix(in srgb, var(--color-text) 84%, transparent);
+  color: #ffffff;
   cursor: pointer;
-  transition: transform 0.18s ease, color 0.18s ease, opacity 0.18s ease;
-  opacity: 0.82;
+  mix-blend-mode: difference;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  opacity: 0.92;
 
   &:hover {
     transform: translateY(-2px);
-    color: var(--color-accent);
     opacity: 1;
   }
 

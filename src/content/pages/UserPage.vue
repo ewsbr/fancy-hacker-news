@@ -43,7 +43,7 @@ const user = inject<ParsedUserPage>('pageData')!;
             <div class="user-page__field">
               <span class="user-page__label">
                 Email
-                <Tooltip content="Your email address for notifications and account recovery.">
+                <Tooltip content="Your email address for notifications and account recovery. This is only visible to you.">
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
@@ -394,7 +394,6 @@ const user = inject<ParsedUserPage>('pageData')!;
     min-width: 100px;
     font-size: 0.85rem;
     color: var(--color-text-muted);
-    text-transform: capitalize;
     padding-top: 0.2rem;
     display: inline-flex;
     align-items: center;
