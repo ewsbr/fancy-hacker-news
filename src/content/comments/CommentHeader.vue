@@ -43,6 +43,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
         <span class="comment-header__deleted">[deleted]</span>
         <MetaSep />
         <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">{{ node.age }}</a>
+        <Badge variant="deleted" label="Deleted" />
       </template>
 
       <template v-else>

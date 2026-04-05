@@ -31,12 +31,14 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
               :is="item.url ? 'a' : 'span'" 
               :href="item.url" 
               class="story-detail__title"
+              :class="{ 'story-detail__title--dead': item.isDead }"
             >
               {{ item.title }}
             </component>
             <StorySiteLink :site="item.site" />
             <Badge v-if="item.isDead" variant="dead" label="Dead" />
             <Badge v-if="item.isFlagged" variant="flagged" label="Flagged" />
+            <Badge v-if="item.isDeleted" variant="deleted" label="Deleted" />
           </div>
 
           <div class="story-detail__meta">
@@ -118,6 +120,13 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
     font-weight: 700;
     color: var(--color-text);
     text-decoration: none;
+
+    &--dead {
+      text-decoration-line: line-through;
+      text-decoration-thickness: 1.5px;
+      text-decoration-color: color-mix(in srgb, currentColor 72%, transparent);
+      text-decoration-skip-ink: none;
+    }
   }
 
   &__meta {

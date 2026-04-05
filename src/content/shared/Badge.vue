@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type BadgeVariant = 'new' | 'dead' | 'flagged' | 'downvoted' | 'job' | 'default';
+type BadgeVariant = 'new' | 'dead' | 'flagged' | 'deleted' | 'downvoted' | 'job' | 'default';
 
 defineProps<{
   variant?: BadgeVariant;
@@ -56,6 +56,12 @@ defineProps<{
     background: color-mix(in srgb, #ff3e00 10%, transparent);
     color: #ff3e00;
     border-color: color-mix(in srgb, #ff3e00 20%, transparent);
+  }
+
+  &--deleted {
+    background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+    color: var(--color-text-muted);
+    border-color: color-mix(in srgb, var(--color-text-muted) 18%, transparent);
   }
 
   &--downvoted {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
+import type { ParsedHeader } from '@/parsers/header';
 import type { ParsedItemPage } from '@/parsers/item';
 import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
 import { createLogger, debugLog } from '@/debug';
@@ -19,6 +20,7 @@ import MetaSep from '@/content/shared/MetaSep.vue';
 const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
+const header = inject<ParsedHeader>('header');
 const commentItemDomId = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
     return null;
@@ -32,6 +34,22 @@ const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('
 const totalCommentCount = computed(() => {
   if (!pageData) return 0;
   return pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
+});
+
+const storyReplyState = computed<'dead' | 'login' | 'unavailable' | null>(() => {
+  if (!pageData || pageData.item.type !== 'story' || pageData.replyForm) {
+    return null;
+  }
+
+  if (pageData.item.isDead) {
+    return 'dead';
+  }
+
+  if (!header?.user) {
+    return 'login';
+  }
+
+  return 'unavailable';
 });
 
 const hashPathIds = ref<Set<string>>(new Set());
@@ -235,6 +253,7 @@ onUnmounted(() => {
                   >
                     {{ pageData.item.age }}
                   </a>
+                  <Badge variant="deleted" label="Deleted" />
                 </template>
                 <template v-else>
                   <AuthorByline
@@ -278,15 +297,23 @@ onUnmounted(() => {
       <div v-if="pageData.replyForm" class="comments-page__form-wrapper">
         <CommentForm :form="pageData.replyForm" />
       </div>
-      <div v-else-if="pageData.item.type === 'story'" class="comments-page__login-prompt">
+      <div v-else-if="storyReplyState === 'dead'" class="comments-page__thread-state">
+        <Badge variant="dead" label="Dead" />
+        <span>This thread is dead. You can't post a comment.</span>
+      </div>
+      <div v-else-if="storyReplyState === 'login'" class="comments-page__login-prompt">
         <a href="login">Log in</a> to post a comment.
+      </div>
+      <div v-else-if="storyReplyState === 'unavailable'" class="comments-page__thread-state">
+        Commenting is unavailable on this thread.
       </div>
 
       <!-- Tree -->
       <div v-if="totalCommentCount > 0" class="comments-page__comments-header">
         {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
       </div>
-      <CommentTree :comments="pageData.comments" />
+      <CommentTree v-if="totalCommentCount > 0" :comments="pageData.comments" />
+      <div v-else class="comments-page__empty-state">No comments yet.</div>
     </div>
   </div>
 </template>
@@ -387,6 +414,16 @@ onUnmounted(() => {
     }
   }
 
+  &__thread-state {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+  }
+
   &__comments-header {
     padding: 0.6rem 1rem 0rem;
     font-size: 0.8rem;
@@ -394,6 +431,13 @@ onUnmounted(() => {
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    border-top: 1px solid var(--color-border);
+  }
+
+  &__empty-state {
+    padding: 0.85rem 1rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
     border-top: 1px solid var(--color-border);
   }
 }

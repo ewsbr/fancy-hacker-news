@@ -41,6 +41,13 @@ export interface ParsedAge {
   link: string;
 }
 
+export interface ParsedStatusText {
+  cleanText: string;
+  isDead: boolean;
+  isFlagged: boolean;
+  isDeleted: boolean;
+}
+
 /** Extract age text + ISO timestamp from span.age. */
 export function parseAge(ageSpan: Element | null | undefined): ParsedAge {
   if (!ageSpan) return { text: '', timestamp: '', link: '' };
@@ -73,6 +80,38 @@ export interface ParsedCommentBody {
   placeholderKind: CommentPlaceholderKind | null;
 }
 
+const STATUS_TOKEN_PATTERN = /\[(dead|flagged|deleted)\]/gi;
+
+export function parseStatusText(text: string | null | undefined): ParsedStatusText {
+  const sourceText = text?.trim() ?? '';
+  const markers = Array.from(sourceText.matchAll(STATUS_TOKEN_PATTERN)).map(match => match[1].toLowerCase());
+
+  return {
+    cleanText: sourceText.replace(STATUS_TOKEN_PATTERN, '').replace(/\s+/g, ' ').trim(),
+    isDead: markers.includes('dead'),
+    isFlagged: markers.includes('flagged'),
+    isDeleted: markers.includes('deleted'),
+  };
+}
+
+export function parseStoryTitleStatus(titleLine: Element | null | undefined): ParsedStatusText {
+  if (!titleLine) {
+    return {
+      cleanText: '',
+      isDead: false,
+      isFlagged: false,
+      isDeleted: false,
+    };
+  }
+
+  const clone = titleLine.cloneNode(true) as Element;
+  for (const siteBit of clone.querySelectorAll('.sitebit')) {
+    siteBit.remove();
+  }
+
+  return parseStatusText(textOf(clone));
+}
+
 function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
   const normalized = text.trim();
   if (normalized === '[flagged]') return 'flagged';
@@ -82,13 +121,15 @@ function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
 
 const QUOTED_HTML_PATTERN = /(^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
 const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
 
 function getFirstLeafText(node: Node): Text | null {
   for (const child of Array.from(node.childNodes)) {
-    if (child.nodeType === Node.TEXT_NODE && (child.textContent || '').trim()) {
+    if (child.nodeType === TEXT_NODE && (child.textContent || '').trim()) {
       return child as Text;
     }
-    if (child.nodeType === Node.ELEMENT_NODE) {
+    if (child.nodeType === ELEMENT_NODE) {
       const found = getFirstLeafText(child);
       if (found) return found;
     }
@@ -99,8 +140,8 @@ function getFirstLeafText(node: Node): Text | null {
 const INLINE_TAGS = new Set(['I', 'B', 'EM', 'STRONG', 'A', 'CODE', 'SPAN', 'U', 'S', 'FONT']);
 
 function isInlineNode(node: Node): boolean {
-  if (node.nodeType === Node.TEXT_NODE) return true;
-  if (node.nodeType === Node.ELEMENT_NODE) return INLINE_TAGS.has((node as Element).nodeName);
+  if (node.nodeType === TEXT_NODE) return true;
+  if (node.nodeType === ELEMENT_NODE) return INLINE_TAGS.has((node as Element).nodeName);
   return false;
 }
 
@@ -123,7 +164,7 @@ function normalizeQuotedContent(container: Element, doc: Document): void {
   while (i < nodes.length) {
     const node = nodes[i];
 
-    if (node.nodeType === Node.TEXT_NODE && QUOTED_TEXT_PATTERN.test(node.textContent || '')) {
+    if (node.nodeType === TEXT_NODE && QUOTED_TEXT_PATTERN.test(node.textContent || '')) {
       const paragraph = doc.createElement('p');
       const stripped = (node.textContent || '').replace(QUOTED_TEXT_PATTERN, '');
       if (stripped) {

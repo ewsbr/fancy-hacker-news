@@ -20,6 +20,7 @@ defineProps<{
           <span class="flat-comment__deleted">[deleted]</span>
           <MetaSep />
           <a :href="comment.ageLink" class="flat-comment__age">{{ comment.age }}</a>
+          <Badge variant="deleted" label="Deleted" />
         </template>
         <template v-else>
           <AuthorByline
@@ -29,6 +30,7 @@ defineProps<{
             :age-link="comment.ageLink"
             :age="comment.age"
           />
+          <Badge v-if="comment.isDead" variant="dead" label="Dead" />
           <Badge v-if="comment.isFlagged" variant="flagged" label="Flagged" />
         </template>
       </div>

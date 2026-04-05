@@ -11,6 +11,7 @@ export interface FlatComment {
   bodyHtml: string;
   placeholderKind: CommentPlaceholderKind | null;
   grayLevel: string | null;
+  isDead: boolean;
   isFlagged: boolean;
   isDeleted: boolean;
   onStory: { title: string; link: string };
@@ -50,6 +51,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
     const commtext = commentEl?.querySelector('div.commtext') ?? tr.querySelector('div.commtext');
     const commentBody = parseCommentBody(commentEl ?? commtext);
     const grayLevel = parseGrayLevel(commtext);
+    const isDead = comhead?.textContent?.includes('[dead]') ?? false;
     const isFlagged = comhead?.textContent?.includes('[flagged]') ?? false;
 
     const comment: FlatComment = {
@@ -62,6 +64,7 @@ export function parseNewComments(doc: Document): ParsedNewComments {
       bodyHtml: commentBody.html,
       placeholderKind: commentBody.placeholderKind,
       grayLevel,
+      isDead,
       isFlagged: isFlagged || commentBody.placeholderKind === 'flagged',
       isDeleted: commentBody.placeholderKind === 'deleted',
       onStory: {

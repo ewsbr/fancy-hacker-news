@@ -1,5 +1,5 @@
 import {
-  textOf, hrefOf, parseScore, parseCommentCount, isNewUser, parseAge, findMoreLink,
+  textOf, hrefOf, parseScore, parseCommentCount, isNewUser, parseAge, findMoreLink, parseStoryTitleStatus,
 } from './utils';
 
 export interface Story {
@@ -22,6 +22,7 @@ export interface Story {
   voteUn: string | null;
   isDead: boolean;
   isFlagged: boolean;
+  isDeleted: boolean;
 }
 
 export interface ParsedStoryList {
@@ -44,7 +45,9 @@ export function parseStoryList(doc: Document): ParsedStoryList {
     // Title + URL
     const titleLineEl = row.querySelector('span.titleline');
     const titleAnchor = titleLineEl?.querySelector('a') ?? null;
-    const title = textOf(titleAnchor);
+    const rawTitle = textOf(titleAnchor);
+    const titleStatus = parseStoryTitleStatus(titleLineEl);
+    const title = titleStatus.cleanText || rawTitle || '[deleted]';
     const url = hrefOf(titleAnchor);
 
     // Site domain
@@ -93,18 +96,16 @@ export function parseStoryList(doc: Document): ParsedStoryList {
       voteUn = hrefOf(sublineEl.querySelector<HTMLAnchorElement>(`span#unv_${id} a`));
     }
 
-    const isDead = title.includes('[dead]');
-    const isFlagged = title.includes('[flagged]');
-    const cleanTitle = title.replace('[dead]', '').replace('[flagged]', '').trim();
-
     stories.push({
-      id, rank, title: cleanTitle, url, site,
+      id, rank, title, url, site,
       score, author, authorIsNew,
       age, ageTimestamp, ageLink,
       commentCount, commentLink,
       isJob, hideUrl,
       voteUp, voteUn,
-      isDead, isFlagged,
+      isDead: titleStatus.isDead,
+      isFlagged: titleStatus.isFlagged,
+      isDeleted: titleStatus.isDeleted,
     });
   }
 

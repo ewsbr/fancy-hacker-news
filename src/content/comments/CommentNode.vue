@@ -248,6 +248,7 @@ watch(
               <span class="comment-node__deleted-meta">[deleted]</span>
               <MetaSep />
               <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
+              <span class="comment-node__badge comment-node__badge--deleted">Deleted</span>
             </template>
 
             <template v-else>
@@ -525,6 +526,12 @@ watch(
       background: color-mix(in srgb, #ff3e00 10%, transparent);
       color: #ff3e00;
       border-color: color-mix(in srgb, #ff3e00 20%, transparent);
+    }
+
+    &--deleted {
+      background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+      color: var(--color-text-muted);
+      border-color: color-mix(in srgb, var(--color-text-muted) 18%, transparent);
     }
 
     &--downvoted {

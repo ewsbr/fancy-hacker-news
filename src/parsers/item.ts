@@ -7,6 +7,7 @@ import {
   parseAge,
   parseGrayLevel,
   parseScore,
+  parseStoryTitleStatus,
   textOf,
 } from './utils';
 import { debugLog, debugMeasure } from '@/debug';
@@ -160,9 +161,13 @@ export function parseItemPage(doc: Document): ParsedItemPage {
     if (isStory) {
       const titleline = athing?.querySelector('.titleline');
       const primaryLink = titleline?.querySelector('a');
-      parsedItem.title = textOf(primaryLink);
+      const titleStatus = parseStoryTitleStatus(titleline);
+      parsedItem.title = titleStatus.cleanText || textOf(primaryLink) || (titleStatus.isDeleted ? '[deleted]' : null);
       parsedItem.url = hrefOf(primaryLink);
       parsedItem.site = textOf(titleline?.querySelector('.sitestr'));
+      parsedItem.isDead = titleStatus.isDead;
+      parsedItem.isFlagged = titleStatus.isFlagged;
+      parsedItem.isDeleted = titleStatus.isDeleted;
 
       const subtext = fatitem.querySelectorAll('tr')[1]?.querySelector('.subtext');
       parsedItem.score = parseScore(textOf(subtext?.querySelector('.score')));

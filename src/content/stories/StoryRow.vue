@@ -18,10 +18,12 @@ defineProps<{ story: Story }>();
         <a
           :href="story.url ?? `item?id=${story.id}`"
           class="story-row__title"
+          :class="{ 'story-row__title--dead': story.isDead }"
         >{{ story.title }}</a>
         <StorySiteLink :site="story.site" />
         <Badge v-if="story.isDead" variant="dead" label="Dead" />
         <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
+        <Badge v-if="story.isDeleted" variant="deleted" label="Deleted" />
         <Badge v-if="story.isJob" variant="job" label="Job" />
       </div>
       <StoryMeta :story="story" />
@@ -66,6 +68,13 @@ defineProps<{ story: Story }>();
 
     &:visited {
       color: var(--color-text-muted);
+    }
+
+    &--dead {
+      text-decoration-line: line-through;
+      text-decoration-thickness: 1.5px;
+      text-decoration-color: color-mix(in srgb, currentColor 72%, transparent);
+      text-decoration-skip-ink: none;
     }
   }
 
