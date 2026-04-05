@@ -8,12 +8,12 @@ import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/forms/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-import VoteButton from '@/content/shared/VoteButton.vue';
 import Badge from '@/content/shared/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import CommentActions from '@/content/shared/CommentActions.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 
 const commentsLogger = createLogger('comments');
@@ -223,9 +223,6 @@ onUnmounted(() => {
 
           <!-- Comment: vote + content -->
           <div class="comments-page__comment-layout">
-            <div class="comments-page__comment-vote">
-              <VoteButton :href="pageData.item.voteUp" />
-            </div>
             <div class="comments-page__comment-content">
               <div class="comments-page__comment-meta">
                 <template v-if="pageData.item.isDeleted">
@@ -266,6 +263,12 @@ onUnmounted(() => {
                   :placeholder-kind="pageData.item.placeholderKind"
                 />
               </div>
+              <CommentActions
+                class="comments-page__comment-actions"
+                :vote-up="pageData.item.voteUp"
+                :vote-un="pageData.item.voteUn"
+                :vote-down="pageData.item.voteDown"
+              />
             </div>
           </div>
 
@@ -357,6 +360,10 @@ onUnmounted(() => {
     font-size: 0.95rem;
     line-height: 1.55;
     color: var(--color-text);
+  }
+
+  &__comment-actions {
+    margin-top: 0.4rem;
   }
 
   &__form-wrapper {
