@@ -16,13 +16,22 @@ export interface HeaderUser {
 
 export interface ParsedHeader {
   navLinks: NavLink[];
+  hasAuthControls: boolean;
   user: HeaderUser | null;
+  loginUrl: string | null;
   logoutUrl: string | null;
 }
 
 export function parseHeader(doc: Document): ParsedHeader {
-  // First span.pagetop contains site name + nav links
-  const navSpan = doc.querySelector('span.pagetop');
+  const headerTable = doc.querySelector<HTMLTableElement>(
+    '#hnmain > tbody > tr:first-child > td > table, #hnmain > tr:first-child > td > table',
+  );
+  const headerRow = headerTable?.rows[0] ?? null;
+  const navCell = headerRow?.cells[1] ?? null;
+  const authCell = headerRow && headerRow.cells.length >= 3 ? headerRow.cells[headerRow.cells.length - 1] : null;
+
+  // First header content cell contains site name + nav links
+  const navSpan = navCell?.querySelector('span.pagetop') ?? null;
   const navLinks: NavLink[] = [];
 
   if (navSpan) {
@@ -38,10 +47,12 @@ export function parseHeader(doc: Document): ParsedHeader {
     }
   }
 
-  // User info from second span.pagetop
-  const meLink = doc.querySelector('a#me[href^="user?id="]');
-  const karmaSpan = doc.querySelector('span#karma');
-  const logoutLink = doc.querySelector('a#logout[href^="logout?auth="]');
+  // The top-right auth cell is optional on some HN pages.
+  const authSpan = authCell?.querySelector('span.pagetop') ?? authCell;
+  const meLink = authSpan?.querySelector('a#me[href^="user?id="]') ?? null;
+  const karmaSpan = authSpan?.querySelector('span#karma') ?? null;
+  const loginLink = authSpan?.querySelector('a[href^="login"]') ?? null;
+  const logoutLink = authSpan?.querySelector('a#logout[href^="logout?auth="]') ?? null;
 
   const user: HeaderUser | null = meLink
     ? {
@@ -52,7 +63,9 @@ export function parseHeader(doc: Document): ParsedHeader {
 
   return {
     navLinks,
+    hasAuthControls: !!authCell && authSpan !== null && textOf(authSpan).length > 0,
     user,
+    loginUrl: loginLink ? hrefOf(loginLink) : null,
     logoutUrl: logoutLink ? hrefOf(logoutLink) : null,
   };
 }

@@ -92,7 +92,7 @@ onUnmounted(() => {
       />
 
       <div class="site-header__controls">
-        <div class="site-header__user-controls">
+        <div v-if="header.hasAuthControls" class="site-header__user-controls">
           <template v-if="header.user">
             <strong>
               <a :href="`user?id=${header.user.name}`">{{ header.user.name }}</a>
@@ -103,7 +103,7 @@ onUnmounted(() => {
               <a :href="header.logoutUrl">logout</a>
             </template>
           </template>
-          <a v-else href="login">login</a>
+          <a v-else-if="header.loginUrl" :href="header.loginUrl">login</a>
         </div>
 
         <ThemeToggle />
