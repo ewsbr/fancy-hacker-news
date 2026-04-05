@@ -14,6 +14,7 @@ import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 const commentsLogger = createLogger('comments');
 
@@ -229,7 +230,7 @@ onUnmounted(() => {
               <div class="comments-page__comment-meta">
                 <template v-if="pageData.item.isDeleted">
                   <span class="comments-page__comment-deleted">[deleted]</span>
-                  <span class="comments-page__comment-sep">&middot;</span>
+                  <MetaSep />
                   <a
                     :href="pageData.item.ageLink"
                     :title="pageData.item.ageTimestamp"
@@ -250,11 +251,11 @@ onUnmounted(() => {
                   <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
                 </template>
                 <template v-if="pageData.item.favoriteUrl">
-                  <span class="comments-page__comment-sep">&middot;</span>
+                  <MetaSep />
                   <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
                 </template>
                 <template v-if="pageData.item.flagUrl">
-                  <span class="comments-page__comment-sep">&middot;</span>
+                  <MetaSep />
                   <FlagButton :href="pageData.item.flagUrl" />
                 </template>
               </div>
@@ -322,13 +323,6 @@ onUnmounted(() => {
     font-size: 0.82rem;
     color: var(--color-text-muted);
     margin-bottom: 0.6rem;
-  }
-
-  &__comment-sep {
-    color: var(--color-border);
-    font-weight: 900;
-    font-size: 1.1rem;
-    user-select: none;
   }
 
   &__comment-action {

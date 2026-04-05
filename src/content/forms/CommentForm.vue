@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ReplyForm } from '@/parsers/item';
 import { Send } from 'lucide-vue-next';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 defineProps<{
   form: ReplyForm;
@@ -32,7 +33,7 @@ defineProps<{
         <Send :size="13" class="comment-form__icon" />
         {{ form.submitLabel }}
       </button>
-      <span class="comment-form__sep">&middot;</span>
+      <MetaSep />
       <a href="formatdoc" class="comment-form__help" target="_blank" rel="noopener noreferrer">formatting help</a>
     </div>
   </form>
@@ -120,13 +121,6 @@ defineProps<{
   &__icon {
     color: var(--color-accent);
     transition: color 0.1s ease;
-  }
-
-  &__sep {
-    color: var(--color-border);
-    font-weight: 900;
-    font-size: 1.1rem;
-    user-select: none;
   }
 
   &__help {

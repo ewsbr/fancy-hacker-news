@@ -4,6 +4,7 @@ import type { ParsedHeader } from '@/parsers/header';
 import YLogo from '@/assets/ycombinator.svg';
 import ThemeToggle from '../shared/ThemeToggle.vue';
 import { Menu } from 'lucide-vue-next';
+import MetaSep from '../shared/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
@@ -98,7 +99,7 @@ onUnmounted(() => {
             </strong>
             <span>({{ header.user.karma }})</span>
             <template v-if="header.logoutUrl">
-              <span class="site-header__divider" aria-hidden="true">&middot;</span>
+              <MetaSep />
               <a :href="header.logoutUrl">logout</a>
             </template>
           </template>
@@ -234,12 +235,6 @@ onUnmounted(() => {
     a:hover {
       color: var(--color-accent);
     }
-  }
-
-  &__divider {
-    color: var(--color-text-muted);
-    opacity: 0.6;
-    font-weight: 900;
   }
 
   @media (max-width: 768px) {

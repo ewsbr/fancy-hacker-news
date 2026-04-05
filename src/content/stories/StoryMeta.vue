@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import type { Story } from '@/parsers/storyList';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
 
@@ -79,13 +80,24 @@ function formatComments(count: number | null): string {
 }
 
 .story-meta__comments {
+  position: relative;
   font-weight: 600;
   color: var(--color-text) !important;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -5px -4px;
+  }
 }
 
 .story-meta__action {
+  color: inherit;
+  text-decoration: none;
+
   &:hover {
     color: var(--color-text);
+    text-decoration: underline;
   }
 }
 </style>

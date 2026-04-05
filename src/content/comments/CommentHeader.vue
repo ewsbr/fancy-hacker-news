@@ -80,7 +80,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   align-items: center;
   column-gap: 0.35rem;
   row-gap: 0.2rem;
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   color: var(--color-text-muted);
 
   &__badges {
@@ -106,11 +106,18 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     background: none;
     border: none;
     padding: 0;
+    position: relative;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-text-muted);
     transition: color 0.15s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+    }
 
     &:hover, &:focus {
       color: var(--color-accent);
@@ -136,8 +143,9 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   &__nav {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.7rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -155,12 +163,19 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   }
 
   &__nav-link {
+    position: relative;
     color: inherit;
     text-decoration: none;
 
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
+
     &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
+      color: var(--color-text);
+      text-decoration: none;
     }
   }
 

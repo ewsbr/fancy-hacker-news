@@ -71,7 +71,7 @@ defineProps<{
     flex-wrap: wrap;
     column-gap: 0.5rem;
     row-gap: 0.2rem;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     margin-bottom: 0.25rem;
   }
 
@@ -119,6 +119,7 @@ defineProps<{
       display: grid;
       row-gap: 0.1rem;
       margin-bottom: 0.15rem;
+      font-size: 0.9rem;
     }
 
     &__story-sep {

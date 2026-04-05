@@ -12,10 +12,10 @@ defineProps<{ href: string | null }>();
     title="upvote"
     aria-label="upvote"
   >
-    <Triangle :size="12" fill="currentColor" :stroke-width="0" />
+    <Triangle :size="13" fill="currentColor" :stroke-width="0" />
   </a>
   <span v-else class="vote-btn vote-btn--inactive" aria-hidden="true">
-    <Triangle :size="12" fill="currentColor" :stroke-width="0" />
+    <Triangle :size="13" fill="currentColor" :stroke-width="0" />
   </span>
 </template>
 
@@ -32,16 +32,16 @@ defineProps<{ href: string | null }>();
   &::before {
     content: "";
     position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
 
     @media (max-width: 640px) {
-      top: -10px;
-      left: -10px;
-      right: -10px;
-      bottom: -10px;
+      top: -12px;
+      left: -12px;
+      right: -12px;
+      bottom: -12px;
     }
   }
 

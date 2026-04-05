@@ -68,20 +68,22 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
   margin-top: 0.2rem;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-text-muted);
 
   &__votes {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.7rem;
     margin-right: 0.1rem;
   }
 
   &__vote {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.25rem;
     color: var(--color-text-muted);
@@ -90,14 +92,12 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
     font-weight: 600;
     text-transform: lowercase;
     position: relative;
+    text-decoration: none;
 
     &::before {
       content: "";
       position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
+      inset: -5px;
     }
 
     &:hover {
@@ -121,8 +121,15 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
   }
 
   &__link {
+    position: relative;
     color: inherit;
     text-decoration: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
 
     &:hover {
       color: var(--color-text);
@@ -131,6 +138,16 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
 
     &--delete:hover {
       color: #ff3e00;
+    }
+  }
+
+  :deep(.flag-button) {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
     }
   }
 }

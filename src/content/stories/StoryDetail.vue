@@ -7,6 +7,7 @@ import VoteButton from '@/content/shared/VoteButton.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import StorySiteLink from '@/content/shared/StorySiteLink.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 const props = defineProps<{
   item: ItemDetail;
@@ -52,22 +53,22 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 
             <div class="story-detail__actions">
               <template v-if="item.hideUrl">
-                <span class="story-detail__sep">&middot;</span>
+                <MetaSep />
                 <a :href="item.hideUrl" class="story-detail__action">hide</a>
               </template>
 
               <template v-if="item.pastUrl">
-                <span class="story-detail__sep">&middot;</span>
+                <MetaSep />
                 <a :href="item.pastUrl" class="story-detail__action">past</a>
               </template>
 
               <template v-if="item.favoriteUrl">
-                <span class="story-detail__sep">&middot;</span>
+                <MetaSep />
                 <a :href="item.favoriteUrl" class="story-detail__action">{{ isFavorited ? 'un-favorite' : 'favorite' }}</a>
               </template>
 
               <template v-if="item.flagUrl">
-                <span class="story-detail__sep">&middot;</span>
+                <MetaSep />
                 <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" />
               </template>
             </div>
@@ -139,14 +140,6 @@ const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
     display: flex;
     align-items: center;
     gap: 0.3rem;
-  }
-
-  &__sep {
-    color: var(--color-border);
-    font-weight: 900;
-    font-size: 1.1rem;
-    user-select: none;
-    line-height: 1;
   }
 
   &__action {

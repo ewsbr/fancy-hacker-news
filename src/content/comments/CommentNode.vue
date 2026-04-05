@@ -5,6 +5,7 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 import { MessageSquare } from 'lucide-vue-next';
+import MetaSep from '@/content/shared/MetaSep.vue';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -245,7 +246,7 @@ watch(
           <div class="comment-node__header-info">
             <template v-if="node.isDeleted">
               <span class="comment-node__deleted-meta">[deleted]</span>
-              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <MetaSep />
               <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
             </template>
 
@@ -253,10 +254,10 @@ watch(
               <a :href="`user?id=${node.author}`" class="comment-node__author">{{ node.author }}</a>
               <span v-if="node.authorIsNew" class="comment-node__badge comment-node__badge--new" title="New user">New</span>
               <template v-if="node.score != null">
-                <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <MetaSep />
                 <span class="comment-node__score">{{ node.score }} {{ node.score === 1 ? 'point' : 'points' }}</span>
               </template>
-              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <MetaSep />
               <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
 
               <div v-if="node.isDead || node.isFlagged || downvoteOpacity" class="comment-node__badges">
@@ -273,7 +274,7 @@ watch(
             </template>
 
             <div v-if="!node.isDeleted && !isCollapsed && hasHeaderNav" class="comment-node__nav">
-              <span class="comment-node__sep" aria-hidden="true">&middot;</span>
+              <MetaSep />
               <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__nav-link">root</a>
               <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__nav-link">parent</a>
               <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__nav-link">prev</a>
@@ -314,20 +315,28 @@ watch(
                 </a>
               </div>
 
+              <div v-if="!node.isDeleted && hasHeaderNav" class="comment-node__mobile-nav">
+                <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__mobile-nav-link">root</a>
+                <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__mobile-nav-link">parent</a>
+                <a v-if="node.navLinks.prev" :href="node.navLinks.prev" class="comment-node__mobile-nav-link">prev</a>
+                <a v-if="node.navLinks.next" :href="node.navLinks.next" class="comment-node__mobile-nav-link">next</a>
+                <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__mobile-nav-link">context</a>
+              </div>
+
               <template v-if="node.replyLink">
-                <span v-if="hasVoteActions" class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <MetaSep v-if="hasVoteActions" />
                 <a :href="node.replyLink" class="comment-node__action-link">reply</a>
               </template>
               <template v-if="node.editUrl">
-                <span v-if="hasVoteActions || hasReplyAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <MetaSep v-if="hasVoteActions || hasReplyAction" />
                 <a :href="node.editUrl" class="comment-node__action-link">edit</a>
               </template>
               <template v-if="node.deleteUrl">
-                <span v-if="hasVoteActions || hasReplyAction || hasEditAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction" />
                 <a :href="node.deleteUrl" class="comment-node__action-link comment-node__action-link--delete">delete</a>
               </template>
               <template v-if="node.flagUrl">
-                <span v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" class="comment-node__sep" aria-hidden="true">&middot;</span>
+                <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
                 <a :href="node.flagUrl" class="comment-node__action-link" @click="confirmFlagAction">{{ flagLabel }}</a>
               </template>
             </div>
@@ -406,7 +415,7 @@ watch(
     align-items: center;
     column-gap: 0.35rem;
     row-gap: 0.2rem;
-    font-size: 0.8rem;
+    font-size: 0.84rem;
     color: var(--color-text-muted);
   }
 
@@ -416,11 +425,18 @@ watch(
     background: none;
     border: none;
     padding: 0;
+    position: relative;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-text-muted);
     transition: color 0.15s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+    }
 
     &:hover,
     &:focus {
@@ -468,13 +484,6 @@ watch(
   &__score {
     color: inherit;
     font-weight: 500;
-  }
-
-  &__sep {
-    color: var(--color-text-muted);
-    font-weight: 900;
-    user-select: none;
-    opacity: 0.6;
   }
 
   &__badges {
@@ -530,8 +539,9 @@ watch(
   &__nav {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.7rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -549,12 +559,19 @@ watch(
   }
 
   &__nav-link {
+    position: relative;
     color: inherit;
     text-decoration: none;
 
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
+
     &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
+      color: var(--color-text);
+      text-decoration: none;
     }
   }
 
@@ -577,7 +594,7 @@ watch(
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--color-text-muted);
     flex-wrap: wrap;
@@ -586,12 +603,13 @@ watch(
   &__votes {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.7rem;
     margin-right: 0.1rem;
   }
 
   &__vote {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.25rem;
     color: var(--color-text-muted);
@@ -604,10 +622,7 @@ watch(
     &::before {
       content: "";
       position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
+      inset: -5px;
     }
 
     &:hover {
@@ -633,8 +648,15 @@ watch(
   }
 
   &__action-link {
+    position: relative;
     color: inherit;
     text-decoration: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
 
     &:hover {
       color: var(--color-text);
@@ -643,6 +665,45 @@ watch(
 
     &--delete:hover {
       color: #ff3e00;
+    }
+  }
+
+  &__mobile-nav {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      display: flex;
+    }
+  }
+
+  &__mobile-nav-link {
+    position: relative;
+    color: inherit;
+    text-decoration: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: none;
     }
   }
 
