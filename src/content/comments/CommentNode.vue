@@ -586,7 +586,7 @@ watch(
   }
 
   &__body-wrapper {
-    margin-top: 0.2rem;
+    margin-top: 0.1rem;
   }
 
   &__actions {
