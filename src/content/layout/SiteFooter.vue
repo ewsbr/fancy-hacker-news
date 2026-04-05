@@ -15,15 +15,44 @@ import {
 const renderTime = inject<Ref<number>>('renderTime', ref(0));
 const openSearch = inject<() => void>('openSearch');
 
-const links = [
-  { text: 'Guidelines', href: 'newsguidelines.html' },
-  { text: 'FAQ', href: 'newsfaq.html' },
-  { text: 'Lists', href: 'lists' },
-  { text: 'API', href: 'https://github.com/HackerNews/API', external: true },
-  { text: 'Security', href: 'security.html' },
-  { text: 'Legal', href: 'https://www.ycombinator.com/legal/', external: true },
-  { text: 'Apply to YC', href: 'https://www.ycombinator.com/apply/', external: true },
-  { text: 'Contact', href: 'mailto:hn@ycombinator.com' },
+interface FooterLink {
+  text: string;
+  href: string;
+  external?: boolean;
+}
+
+interface FooterColumn {
+  title: string;
+  links: FooterLink[];
+}
+
+const footerColumns: FooterColumn[] = [
+  {
+    title: 'Docs',
+    links: [
+      { text: 'Welcome', href: 'newswelcome.html' },
+      { text: 'Guidelines', href: 'newsguidelines.html' },
+      { text: 'FAQ', href: 'newsfaq.html' },
+      { text: 'Formatting', href: 'formatdoc' },
+      { text: 'Show HN', href: 'showhn.html' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { text: 'Lists', href: 'lists' },
+      { text: 'API', href: 'https://github.com/HackerNews/API', external: true },
+      { text: 'Security', href: 'security.html' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { text: 'Legal', href: 'https://www.ycombinator.com/legal/', external: true },
+      { text: 'Apply to YC', href: 'https://www.ycombinator.com/apply/', external: true },
+      { text: 'Contact', href: 'mailto:hn@ycombinator.com' },
+    ],
+  },
 ];
 
 const socialLinks = [
@@ -46,29 +75,26 @@ const socialLinks = [
           </div>
         </div>
 
-        <div class="site-footer__nav">
-          <nav class="site-footer__links">
-            <template v-for="(link, i) in links" :key="link.text">
-              <a
-                :href="link.href"
-                :target="link.external ? '_blank' : undefined"
-                :rel="link.external ? 'noopener noreferrer' : undefined"
-                class="site-footer__link"
-              >{{ link.text }}</a>
-              <span v-if="i < links.length - 1" class="site-footer__sep">|</span>
-            </template>
-          </nav>
-
-          <button
-            type="button"
-            class="site-footer__search-trigger"
-            aria-label="Search Hacker News"
-            @click="openSearch?.()"
-          >
-            <Search :size="14" class="site-footer__search-icon" aria-hidden="true" />
-            <span class="site-footer__search-placeholder">Search HN…</span>
-            <Keycap :platform-modifier="true" :keys="['K']" />
-          </button>
+        <div class="site-footer__content">
+          <div class="site-footer__grid">
+            <div
+              v-for="column in footerColumns"
+              :key="column.title"
+              class="site-footer__column"
+            >
+              <h4 class="site-footer__column-title">{{ column.title }}</h4>
+              <ul class="site-footer__link-list">
+                <li v-for="link in column.links" :key="link.text">
+                  <a
+                    :href="link.href"
+                    :target="link.external ? '_blank' : undefined"
+                    :rel="link.external ? 'noopener noreferrer' : undefined"
+                    class="site-footer__link"
+                  >{{ link.text }}</a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -99,6 +125,19 @@ const socialLinks = [
               <component :is="social.icon" :size="20" />
             </a>
           </div>
+        </div>
+
+        <div class="site-footer__bottom-right">
+          <button
+            type="button"
+            class="site-footer__search-trigger"
+            aria-label="Search Hacker News"
+            @click="openSearch?.()"
+          >
+            <Search :size="14" class="site-footer__search-icon" aria-hidden="true" />
+            <span class="site-footer__search-placeholder">Search HN…</span>
+            <Keycap :platform-modifier="true" :keys="['K']" />
+          </button>
         </div>
       </div>
     </div>
@@ -138,6 +177,11 @@ const socialLinks = [
 
     .site-footer__tagline {
       color: #f5f5ee;
+    }
+
+    .site-footer__column-title {
+      color: #f5f5ee;
+      opacity: 0.9;
     }
 
     .site-footer__copyright {
@@ -227,7 +271,7 @@ const socialLinks = [
     gap: 3rem;
     margin-bottom: 3rem;
 
-    @media (max-width: 768px) {
+    @media (max-width: 980px) {
       flex-direction: column;
       gap: 2rem;
     }
@@ -235,6 +279,19 @@ const socialLinks = [
 
   &__brand {
     flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.25rem;
+
+    @media (max-width: 980px) {
+      width: 100%;
+      align-items: stretch;
+    }
   }
 
   &__logo {
@@ -254,23 +311,37 @@ const socialLinks = [
     letter-spacing: -0.01em;
   }
 
-  &__nav {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1rem;
+  &__grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem 2rem;
 
-    @media (max-width: 768px) {
-      align-items: flex-start;
+    @media (max-width: 720px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 380px) {
+      grid-template-columns: 1fr;
     }
   }
 
-  &__links {
+  &__column-title {
+    margin-bottom: 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  &__link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.5rem;
+    flex-direction: column;
+    gap: 0.45rem;
   }
 
   &__link {
@@ -283,13 +354,6 @@ const socialLinks = [
       color: var(--color-accent);
       text-decoration: none;
     }
-  }
-
-  &__sep {
-    color: var(--color-text-muted);
-    opacity: 0.4;
-    font-size: 0.875rem;
-    user-select: none;
   }
 
   &__search-trigger {
@@ -367,6 +431,15 @@ const socialLinks = [
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  &__bottom-right {
+    display: flex;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      width: 100%;
+    }
   }
 
   &__metadata {

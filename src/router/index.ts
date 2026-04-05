@@ -31,7 +31,13 @@ const STORY_TYPE: Record<string, string> = {
 
 const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
 
-const STATIC_PAGES = new Set(['/newsfaq.html', '/newsguidelines.html']);
+const STATIC_PAGES = new Set([
+  '/newsfaq.html',
+  '/newsguidelines.html',
+  '/newswelcome.html',
+  '/showhn.html',
+  '/security.html',
+]);
 
 const USER_LISTS = new Map<string, string>([
   ['/submitted', 'submitted'],
