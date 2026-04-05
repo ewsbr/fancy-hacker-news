@@ -46,4 +46,31 @@ describe('static page parser', () => {
     );
     expect(page.contentHtml).not.toContain('<h2>Missing From This List?</h2>');
   });
+
+  it('preserves table cell background attributes for static color tables', () => {
+    const doc = new JSDOM(`
+      <html>
+        <body>
+          <table id="hnmain">
+            <tr id="bigbox">
+              <td>
+                <div>Custom Colors</div>
+                <table>
+                  <tr>
+                    <td>#ff6600</td>
+                    <td bgcolor="#ff6600"></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `).window.document;
+
+    const page = parseStaticPage(doc);
+
+    expect(page.contentHtml).toContain('Custom Colors');
+    expect(page.contentHtml).toContain('bgcolor="#ff6600"');
+  });
 });
