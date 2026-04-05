@@ -143,6 +143,6 @@ onUnmounted(() => {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.25rem;
 }
 </style>
