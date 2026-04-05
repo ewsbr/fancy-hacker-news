@@ -13,7 +13,7 @@ function formatKarma(n: number): string {
   <div class="leaders-page">
     <h1 class="leaders-page__title">Leaders</h1>
 
-    <ol class="leaders-list">
+    <ol v-if="page.entries.length" class="leaders-list">
       <li
         v-for="entry in page.entries"
         :key="entry.rank"
@@ -30,6 +30,9 @@ function formatKarma(n: number): string {
         </span>
       </li>
     </ol>
+    <div v-else class="leaders-page__empty-state hn-content-card hn-empty-state">
+      No leaders found.
+    </div>
   </div>
 </template>
 
@@ -43,6 +46,10 @@ function formatKarma(n: number): string {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--color-text);
+  }
+
+  &__empty-state {
+    max-width: 28rem;
   }
 }
 

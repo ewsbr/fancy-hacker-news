@@ -149,7 +149,7 @@ const socialLinks = [
   margin-top: 2rem;
   padding: 4rem 1.5rem 3rem;
   background: var(--color-surface);
-  border-top: 3px solid var(--color-accent);
+  border-top: 4px solid var(--color-accent);
   color: var(--color-text);
   font-family: var(--font-title);
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
-import type { VoteActionTarget } from '@/content/shared/useHnActions';
-import { useHnActions } from '@/content/shared/useHnActions';
+import type { VoteActionTarget } from '@/content/composables/useHnActions';
+import { useHnActions } from '@/content/composables/useHnActions';
 
 const props = defineProps<{
   href: string | null;

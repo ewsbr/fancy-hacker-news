@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { useHnActions } from '@/content/shared/useHnActions';
+import { useHnActions } from '@/content/composables/useHnActions';
 
 describe('useHnActions', () => {
   let dom: JSDOM;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { FlagActionTarget } from '@/content/shared/useHnActions';
-import { useHnActions } from '@/content/shared/useHnActions';
+import type { FlagActionTarget } from '@/content/composables/useHnActions';
+import { useHnActions } from '@/content/composables/useHnActions';
 
 const props = defineProps<{
   href: string;
