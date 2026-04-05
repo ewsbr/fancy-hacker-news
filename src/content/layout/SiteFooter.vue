@@ -149,7 +149,7 @@ const socialLinks = [
   margin-top: 2rem;
   padding: 4rem 1.5rem 3rem;
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-accent);
   color: var(--color-text);
   font-family: var(--font-title);
 
@@ -157,7 +157,6 @@ const socialLinks = [
   #fancy-hn-root:not([data-theme]) & {
     background: #000000;
     color: #f5f5ee;
-    border-top: none;
 
     .site-footer__link {
       color: #f5f5ee;
@@ -229,14 +228,8 @@ const socialLinks = [
     }
   }
 
-  #fancy-hn-root[data-theme="dark"] &,
-  #fancy-hn-root[data-theme="nord"] & {
-    border-top: 2px solid var(--color-border);
-  }
-
   #fancy-hn-root[data-theme="amoled"] & {
     background: #0a0a0a;
-    border-top: 3px solid var(--color-accent);
     box-shadow: 0 -10px 40px -10px rgba(255, 102, 0, 0.15);
 
     .site-footer__search-trigger {

@@ -63,7 +63,7 @@ defineProps<{
 .flat-comment {
   padding: 0.75rem 0;
   margin: 0 0.75rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-divider);
 
   &:first-child {
     border-top: 0;
