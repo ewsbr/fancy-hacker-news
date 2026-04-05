@@ -11,8 +11,6 @@ import { posix, resolve } from 'path';
  *   pnpm build:content      → content script only
  *   pnpm build:background   → background/service-worker only
  */
-const TARGET = process.env.BUILD_TARGET ?? 'content';
-
 const entries = {
   content: {
     entry: resolve(import.meta.dirname, 'src/content/main.ts'),
@@ -30,9 +28,16 @@ const entries = {
   },
 };
 
+type BuildTarget = keyof typeof entries;
+type RenderBuiltUrlContext = {
+  hostType: 'js' | 'css' | 'html';
+  type: 'asset' | 'public';
+};
+
+const TARGET: BuildTarget = process.env.BUILD_TARGET === 'background' ? 'background' : 'content';
 const cfg = entries[TARGET];
 
-function renderExtensionAssetUrl(filename, { hostType, type }) {
+function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBuiltUrlContext) {
   if (TARGET !== 'content') {
     return undefined;
   }

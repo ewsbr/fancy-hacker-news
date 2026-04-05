@@ -10,6 +10,8 @@
     "build:background": "BUILD_TARGET=background vite build",
     "build:firefox": "BUILD_TARGET=content vite build --mode firefox && BUILD_TARGET=background vite build --mode firefox",
     "build:chromium": "BUILD_TARGET=content vite build --mode chromium && BUILD_TARGET=background vite build --mode chromium",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "vue-tsc --noEmit"
   },
   "keywords": [],
@@ -18,11 +20,14 @@
   "type": "module",
   "devDependencies": {
     "@types/chrome": "^0.1.38",
+    "@types/jsdom": "^28.0.1",
+    "@types/node": "^25.5.2",
     "@vitejs/plugin-vue": "^6.0.5",
     "jsdom": "^29.0.1",
     "sass": "^1.98.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
+    "vitest": "4.1.2",
     "vue-tsc": "^3.2.6"
   },
   "dependencies": {
