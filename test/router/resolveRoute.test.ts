@@ -14,6 +14,16 @@ describe('resolveRoute', () => {
     }
   });
 
+  it('routes site filter pages to the stories renderer with the site filter intact', () => {
+    expect(resolveRoute(makeLocation('/from?site=twitter.com'))).toEqual({
+      page: 'stories',
+      params: {
+        type: 'from',
+        site: 'twitter.com',
+      },
+    });
+  });
+
   it('routes comment list variants to the flat comment renderer', () => {
     expect(resolveRoute(makeLocation('/bestcomments'))).toEqual({
       page: 'newcomments',

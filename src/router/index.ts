@@ -11,7 +11,7 @@ export interface RouteDescriptor {
 const STORY_LISTS = new Set([
   '/', '/news', '/newest', '/front', '/ask', '/show', '/jobs',
   '/shownew', '/pool', '/active', '/best', '/noobstories',
-  '/asknew', '/classic', '/invited', '/launches',
+  '/asknew', '/classic', '/invited', '/launches', '/from',
 ]);
 
 const COMMENT_LISTS = new Set([
@@ -35,6 +35,7 @@ const STORY_TYPE: Record<string, string> = {
   '/classic': 'classic',
   '/invited': 'invited',
   '/launches': 'launches',
+  '/from': 'from',
 };
 
 const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
@@ -59,7 +60,10 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   const sp = new URLSearchParams(loc.search);
 
   if (STORY_LISTS.has(path)) {
-    return { page: 'stories', params: { type: STORY_TYPE[path] } };
+    const params: Record<string, string> = { type: STORY_TYPE[path] };
+    const site = sp.get('site');
+    if (site !== null) params.site = site;
+    return { page: 'stories', params };
   }
 
   if (COMMENT_LISTS.has(path)) {

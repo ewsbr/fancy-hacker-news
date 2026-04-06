@@ -15,6 +15,14 @@ defineProps<{ href: string | null }>();
   margin-top: -1px;
   background: var(--color-surface);
 
+  @media (max-width: 640px) {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+
   &__more {
     display: block;
     padding: 0.75rem 0.5rem;

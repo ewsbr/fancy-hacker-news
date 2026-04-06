@@ -26,6 +26,11 @@ pnpm dev            # watch mode (content script only)
 pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 ```
 
+## Commit Conventions
+
+- Use Conventional Commits for git history, e.g. `fix: handle from routes` or `feat: add leaders page parser`.
+- Keep the subject line focused on the shipped behavior, in imperative mood.
+
 ---
 
 ## Primary Docs
