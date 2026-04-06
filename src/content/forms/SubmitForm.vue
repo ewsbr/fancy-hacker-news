@@ -3,25 +3,28 @@ import { Send, HelpCircle } from 'lucide-vue-next';
 import Tooltip from '@/content/shared/Tooltip.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 
-defineProps<{
+const props = defineProps<{
   form: NonNullable<ParsedSubmitPage['form']>;
+  modelValue: Record<string, string>;
+  placeholders: Record<string, string>;
 }>();
 
-const FIELD_META: Record<string, { label: string; description: string; placeholder: string; rows?: number }> = {
+const emit = defineEmits<{
+  'update:modelValue': [value: Record<string, string>];
+}>();
+
+const FIELD_META: Record<string, { label: string; description: string; rows?: number }> = {
   title: {
     label: 'Title',
     description: 'Keep it specific and faithful to the source. Hacker News titles work best when they stay under 80 characters.',
-    placeholder: 'What should the thread be called?',
   },
   url: {
     label: 'URL',
     description: 'Leave this blank for an Ask HN or discussion post. For link posts, use the canonical URL when possible.',
-    placeholder: 'https://example.com/article',
   },
   text: {
     label: 'Text',
     description: 'Optional for link posts, required for discussion-style submissions. This appears at the top of the thread.',
-    placeholder: 'Add context, caveats, or the question you want people to discuss.',
     rows: 8,
   },
 };
@@ -30,8 +33,19 @@ function getFieldMeta(name: string) {
   return FIELD_META[name] ?? {
     label: name.charAt(0).toUpperCase() + name.slice(1),
     description: 'Fill out this field exactly as Hacker News expects it.',
-    placeholder: '',
   };
+}
+
+function handleFieldInput(name: string, event: Event) {
+  const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
+  if (!target) {
+    return;
+  }
+
+  emit('update:modelValue', {
+    ...props.modelValue,
+    [name]: target.value,
+  });
 }
 </script>
 
@@ -49,17 +63,16 @@ function getFieldMeta(name: string) {
           </Tooltip>
         </div>
 
-        <p class="submit-form__hint">{{ getFieldMeta(field.name).description }}</p>
-
         <div class="submit-form__input-wrapper">
           <textarea
             v-if="field.type === 'textarea'"
             :id="`submit-${field.name}`"
             :name="field.name"
-            :value="field.value"
+            :value="modelValue[field.name] ?? field.value"
             class="submit-form__textarea"
             :rows="getFieldMeta(field.name).rows ?? 6"
-            :placeholder="getFieldMeta(field.name).placeholder"
+            :placeholder="placeholders[field.name] ?? ''"
+            @input="handleFieldInput(field.name, $event)"
           ></textarea>
           
           <input
@@ -67,10 +80,11 @@ function getFieldMeta(name: string) {
             :type="field.type"
             :id="`submit-${field.name}`"
             :name="field.name"
-            :value="field.value"
+            :value="modelValue[field.name] ?? field.value"
             class="submit-form__input"
-            :placeholder="getFieldMeta(field.name).placeholder"
+            :placeholder="placeholders[field.name] ?? ''"
             :autofocus="field.name === 'title'"
+            @input="handleFieldInput(field.name, $event)"
           />
         </div>
       </div>
@@ -99,7 +113,7 @@ function getFieldMeta(name: string) {
   &__field {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
   
   &__field-head {
@@ -118,12 +132,6 @@ function getFieldMeta(name: string) {
   &__label-help {
     color: var(--color-text-muted);
     flex-shrink: 0;
-  }
-
-  &__hint {
-    color: var(--color-text-muted);
-    font-size: 0.81rem;
-    line-height: 1.5;
   }
   
   &__input-wrapper {
@@ -196,6 +204,7 @@ function getFieldMeta(name: string) {
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
+    white-space: nowrap;
 
     @media (max-width: 640px) {
       width: 100%;
