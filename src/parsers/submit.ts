@@ -15,6 +15,7 @@ export interface ParsedSubmitPage {
     fnid: string;
     fnop: string;
     fields: SubmitField[];
+    bookmarkletHref: string | null;
   } | null;
   isLoggedOut: boolean;
 }
@@ -28,6 +29,7 @@ export function parseSubmitPage(doc: Document): ParsedSubmitPage {
 
   const fnid = attrOf(form.querySelector('input[name="fnid"]'), 'value') || '';
   const fnop = attrOf(form.querySelector('input[name="fnop"]'), 'value') || '';
+  const bookmarkletHref = attrOf(form.querySelector('a[href]'), 'href') || null;
 
   // Collect visible user-editable fields (exclude hidden fields and submit button)
   const fields: SubmitField[] = [];
@@ -49,6 +51,7 @@ export function parseSubmitPage(doc: Document): ParsedSubmitPage {
       fnid,
       fnop,
       fields,
+      bookmarkletHref,
     },
     isLoggedOut: false,
   };

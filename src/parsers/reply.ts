@@ -5,7 +5,14 @@ export interface ParsedReplyPage {
   parent: {
     author: string;
     age: string;
+    ageLink: string;
     bodyHtml: string;
+    parentLink: string | null;
+    contextLink: string | null;
+    onStory: {
+      title: string;
+      link: string;
+    } | null;
   } | null;
   replyForm: {
     action: string;
@@ -28,11 +35,25 @@ export function parseReplyPage(doc: Document): ParsedReplyPage {
   const authorEl = comhead?.querySelector('a.hnuser');
   const ageInfo = parseAge(comhead?.querySelector('span.age'));
   const commtext = parentTr?.querySelector('div.commtext');
+  const navs = comhead?.querySelector('span.navs') ?? null;
+  const onStoryLink = navs?.querySelector<HTMLAnchorElement>('span.onstory a') ?? null;
+  const navLinks = Array.from(navs?.querySelectorAll<HTMLAnchorElement>('a') ?? []);
+  const parentLink = navLinks.find(link => link.textContent?.trim() === 'parent') ?? null;
+  const contextLink = navLinks.find(link => link.textContent?.trim() === 'context') ?? null;
 
   const parent = {
     author: textOf(authorEl),
     age: ageInfo.text,
+    ageLink: ageInfo.link,
     bodyHtml: extractRichTextHtml(commtext),
+    parentLink: attrOf(parentLink, 'href') || null,
+    contextLink: attrOf(contextLink, 'href') || null,
+    onStory: onStoryLink
+      ? {
+          title: textOf(onStoryLink),
+          link: attrOf(onStoryLink, 'href') || '',
+        }
+      : null,
   };
 
   // Reply form

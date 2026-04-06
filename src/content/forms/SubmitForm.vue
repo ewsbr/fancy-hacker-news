@@ -1,9 +1,38 @@
 <script setup lang="ts">
+import { Send, HelpCircle } from 'lucide-vue-next';
+import Tooltip from '@/content/shared/Tooltip.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 
 defineProps<{
   form: NonNullable<ParsedSubmitPage['form']>;
 }>();
+
+const FIELD_META: Record<string, { label: string; description: string; placeholder: string; rows?: number }> = {
+  title: {
+    label: 'Title',
+    description: 'Keep it specific and faithful to the source. Hacker News titles work best when they stay under 80 characters.',
+    placeholder: 'What should the thread be called?',
+  },
+  url: {
+    label: 'URL',
+    description: 'Leave this blank for an Ask HN or discussion post. For link posts, use the canonical URL when possible.',
+    placeholder: 'https://example.com/article',
+  },
+  text: {
+    label: 'Text',
+    description: 'Optional for link posts, required for discussion-style submissions. This appears at the top of the thread.',
+    placeholder: 'Add context, caveats, or the question you want people to discuss.',
+    rows: 8,
+  },
+};
+
+function getFieldMeta(name: string) {
+  return FIELD_META[name] ?? {
+    label: name.charAt(0).toUpperCase() + name.slice(1),
+    description: 'Fill out this field exactly as Hacker News expects it.',
+    placeholder: '',
+  };
+}
 </script>
 
 <template>
@@ -13,8 +42,15 @@ defineProps<{
 
     <div class="submit-form__fields">
       <div v-for="field in form.fields" :key="field.name" class="submit-form__field">
-        <label :for="`submit-${field.name}`" class="submit-form__label">{{ field.name }}:</label>
-        
+        <div class="submit-form__field-head">
+          <label :for="`submit-${field.name}`" class="submit-form__label">{{ getFieldMeta(field.name).label }}</label>
+          <Tooltip :content="getFieldMeta(field.name).description">
+            <HelpCircle :size="12" class="submit-form__label-help" />
+          </Tooltip>
+        </div>
+
+        <p class="submit-form__hint">{{ getFieldMeta(field.name).description }}</p>
+
         <div class="submit-form__input-wrapper">
           <textarea
             v-if="field.type === 'textarea'"
@@ -22,7 +58,8 @@ defineProps<{
             :name="field.name"
             :value="field.value"
             class="submit-form__textarea"
-            rows="5"
+            :rows="getFieldMeta(field.name).rows ?? 6"
+            :placeholder="getFieldMeta(field.name).placeholder"
           ></textarea>
           
           <input
@@ -32,15 +69,18 @@ defineProps<{
             :name="field.name"
             :value="field.value"
             class="submit-form__input"
+            :placeholder="getFieldMeta(field.name).placeholder"
+            :autofocus="field.name === 'title'"
           />
         </div>
       </div>
-      
-      <div class="submit-form__field">
-        <div class="submit-form__label"></div>
-        <div class="submit-form__input-wrapper">
-          <button type="submit" class="submit-form__button">submit</button>
-        </div>
+
+      <div class="submit-form__footer">
+        <p class="submit-form__footnote">Link posts can include optional context. Discussion posts should usually use title plus text.</p>
+        <button type="submit" class="submit-form__button">
+          <Send :size="14" class="submit-form__button-icon" />
+          submit post
+        </button>
       </div>
     </div>
   </form>
@@ -48,64 +88,146 @@ defineProps<{
 
 <style scoped lang="scss">
 .submit-form {
-  max-width: 600px;
-  margin-top: 1rem;
+  width: 100%;
   
   &__fields {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.35rem;
   }
   
   &__field {
     display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
   }
   
+  &__field-head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
   &__label {
-    width: 6rem;
-    padding-top: 0.5rem;
-    text-align: right;
-    padding-right: 1rem;
+    color: var(--color-text);
+    font-family: var(--font-title);
+    font-size: 0.94rem;
+    font-weight: 700;
+  }
+
+  &__label-help {
     color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  &__hint {
+    color: var(--color-text-muted);
+    font-size: 0.81rem;
+    line-height: 1.5;
   }
   
   &__input-wrapper {
-    flex: 1;
-    min-width: 0;
+    width: 100%;
   }
   
   &__input, &__textarea {
     width: 100%;
-    background: var(--color-bg);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: 4px;
     color: var(--color-text);
-    padding: 0.5rem;
+    padding: 0.75rem 0.85rem;
     font-size: 0.95rem;
     outline: none;
+    line-height: 1.5;
+    transition: border-color 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+
+    &::placeholder {
+      color: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+    }
+    
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-border) 35%, var(--color-text) 65%);
+    }
     
     &:focus {
       border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
     }
   }
   
   &__textarea {
     resize: vertical;
-    font-family: var(--font-mono);
+    min-height: 10rem;
+    font-family: inherit;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.25rem;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__footnote {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
   
   &__button {
-    background: var(--color-border);
+    background: var(--color-surface);
     color: var(--color-text);
-    border: none;
-    padding: 0.5rem 1.5rem;
-    font-weight: bold;
-    font-size: 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.7rem 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-title);
+    font-size: 0.86rem;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+
+    @media (max-width: 640px) {
+      width: 100%;
+    }
 
     &:hover {
-      background: var(--color-text);
-      color: var(--color-bg);
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: white;
+    }
+
+    &:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      outline: none;
+    }
+  }
+
+  &__button-icon {
+    color: var(--color-accent);
+    transition: color 0.1s ease;
+  }
+
+  &__button:hover &__button-icon {
+    color: white;
+  }
+
+  @media (max-width: 640px) {
+    &__input,
+    &__textarea {
+      font-size: 1rem;
+      padding: 0.85rem 0.95rem;
     }
   }
 }

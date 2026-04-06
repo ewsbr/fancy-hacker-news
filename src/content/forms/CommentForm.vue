@@ -3,10 +3,15 @@ import type { ReplyForm } from '@/parsers/item';
 import { Send } from 'lucide-vue-next';
 import MetaSep from '@/content/shared/MetaSep.vue';
 
-defineProps<{
+withDefaults(defineProps<{
   form: ReplyForm;
   autofocus?: boolean;
-}>();
+  placeholder?: string;
+  rows?: number;
+}>(), {
+  placeholder: 'Add your comment...',
+  rows: 5,
+});
 </script>
 
 <template>
@@ -18,10 +23,10 @@ defineProps<{
     <div class="comment-form__field">
       <textarea 
         name="text" 
-        rows="5"
+        :rows="rows"
         :autofocus="autofocus"
         class="comment-form__input"
-        placeholder="Add your comment..."
+        :placeholder="placeholder"
       ></textarea>
     </div>
     
