@@ -114,12 +114,11 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
       color: var(--color-text);
       text-decoration: underline;
     }
-
+  }
 
   &__back-icon {
     color: var(--color-accent);
     flex-shrink: 0;
-  }
   }
   
   &__parent-meta {
