@@ -62,6 +62,10 @@ defineProps<{ story: Story }>();
   &__title-line {
     display: inline;
     line-height: 1.35;
+
+    :deep(.badge) {
+      margin-left: 0.35rem;
+    }
   }
 
   &__title {

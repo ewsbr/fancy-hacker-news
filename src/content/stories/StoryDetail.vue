@@ -128,6 +128,10 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
   &__header {
     line-height: 1.3;
     padding-top: 0.1rem;
+
+    :deep(.badge) {
+      margin-left: 0.35rem;
+    }
   }
 
   &__title {
