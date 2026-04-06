@@ -196,5 +196,40 @@ function handleVoteClick(event: MouseEvent, href: string | null | undefined, dir
       inset: -5px -4px;
     }
   }
+
+  @media (max-width: 640px) {
+    gap: 0.9rem;
+    font-size: 0.98rem;
+
+    &__votes {
+      gap: 1rem;
+    }
+
+    &__vote {
+      gap: 0.4rem;
+      font-size: 0.96rem;
+
+      &::before {
+        inset: -10px -9px;
+      }
+
+      .lucide {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    &__link {
+      font-size: 0.96rem;
+
+      &::before {
+        inset: -10px -8px;
+      }
+    }
+
+    :deep(.flag-button)::before {
+      inset: -10px -8px;
+    }
+  }
 }
 </style>

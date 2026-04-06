@@ -142,6 +142,7 @@ Themes:
 - Mobile metadata rows should be larger overall because they carry tapping interactions
 - Trailing icon controls should be rendered last
 - For mobile, compact icon clusters are acceptable; long text navigation links are not
+- Mobile comment action rows should also scale up primary actions like upvote and reply with larger text and larger invisible hit targets
 
 ### Comment Navigation
 
