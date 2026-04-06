@@ -42,4 +42,16 @@ describe('resolveRoute', () => {
       params: { id: '42009039' },
     });
   });
+
+  it('routes logged-out action gates to the login renderer', () => {
+    expect(resolveRoute(makeLocation('/hide?id=42009039'))).toEqual({
+      page: 'login',
+      params: {},
+    });
+
+    expect(resolveRoute(makeLocation('/fave?id=42009039'))).toEqual({
+      page: 'login',
+      params: {},
+    });
+  });
 });

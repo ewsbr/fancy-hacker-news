@@ -38,7 +38,15 @@ const STORY_TYPE: Record<string, string> = {
   '/from': 'from',
 };
 
-const AUTH_PAGES = new Set(['/login', '/comment', '/changepw', '/forgot', '/vote']);
+const AUTH_PAGES = new Set([
+  '/login',
+  '/comment',
+  '/changepw',
+  '/forgot',
+  '/vote',
+  '/hide',
+  '/fave',
+]);
 
 const STATIC_PAGES = new Set([
   '/newsfaq.html',

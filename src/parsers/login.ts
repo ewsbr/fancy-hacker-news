@@ -3,6 +3,9 @@
  */
 import { textOf } from './utils';
 
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
+
 export interface FormField {
   label: string;
   name: string;
@@ -26,13 +29,44 @@ export interface ParsedLoginPage {
   forms: LoginForm[];
 }
 
+function extractAuthMessage(doc: Document): string | null {
+  const body = doc.body;
+  if (!body) {
+    return null;
+  }
+
+  const parts: string[] = [];
+
+  for (const node of Array.from(body.childNodes)) {
+    if (node.nodeType === TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        parts.push(text);
+      }
+      continue;
+    }
+
+    if (node.nodeType !== ELEMENT_NODE) {
+      continue;
+    }
+
+    const element = node as Element;
+    if (element.tagName === 'BR') {
+      if (parts.length > 0) {
+        break;
+      }
+      continue;
+    }
+
+    break;
+  }
+
+  return parts.length > 0 ? parts.join(' ') : null;
+}
+
 export function parseLoginPage(doc: Document): ParsedLoginPage {
   const path = location.pathname;
-
-  // Extract "You have to be logged in to X." message, if present
-  const bodyText = doc.body?.textContent?.trim() || '';
-  const authMsgMatch = bodyText.match(/^You have to be logged in to ([^.]+)\./i);
-  const authMessage = authMsgMatch ? authMsgMatch[0] : null;
+  const authMessage = extractAuthMessage(doc);
 
   let variant: ParsedLoginPage['variant'] = authMessage ? 'auth-gate' : 'login';
   let title = authMessage ?? 'Login';
