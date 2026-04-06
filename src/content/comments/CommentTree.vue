@@ -3,10 +3,15 @@ import { computed, inject, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-
-const PROGRESSIVE_RENDER_THRESHOLD = 600;
-const INITIAL_RENDER_BUDGET = 240;
-const FRAME_RENDER_BUDGET = 400;
+import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
+import { debugLog, recordBatchFrame } from '@/debug';
+import {
+  nextVisibleNodeCount,
+  requiredVisibleNodeCount,
+  ROOT_FRAME_RENDER_BUDGET,
+  ROOT_INITIAL_RENDER_BUDGET,
+  shouldProgressivelyRenderRoots,
+} from './progressiveRender';
 
 const props = defineProps<{
   comments: CommentNodeType[];
@@ -18,49 +23,18 @@ const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   mainThreadHashTargetId: ref<string | null>(null),
 });
 const { hashPathIds } = fragmentState;
+const initialRenderPainted = inject(INITIAL_RENDER_PAINTED_KEY, ref(true));
 
 const totalCommentCount = computed(() =>
   props.comments.reduce((sum, comment) => sum + comment.descendantCount + 1, 0),
 );
-const shouldProgressivelyRender = computed(() => totalCommentCount.value > PROGRESSIVE_RENDER_THRESHOLD);
+const shouldProgressivelyRender = computed(() => shouldProgressivelyRenderRoots(totalCommentCount.value));
 const renderedRootCount = ref(props.comments.length);
 
 let batchFrameId: number | null = null;
 
-function nextRootCount(startIndex: number, budget: number): number {
-  let spent = 0;
-  let nextIndex = startIndex;
-
-  while (nextIndex < props.comments.length) {
-    const root = props.comments[nextIndex];
-    const cost = root.descendantCount + 1;
-
-    if (nextIndex > startIndex && spent + cost > budget) {
-      break;
-    }
-
-    spent += cost;
-    nextIndex += 1;
-
-    if (spent >= budget) {
-      break;
-    }
-  }
-
-  return nextIndex;
-}
-
 function requiredRootCount(): number {
-  let requiredCount = 0;
-
-  for (let index = 0; index < props.comments.length; index += 1) {
-    const root = props.comments[index];
-    if (root.expandForHash || hashPathIds.value.has(root.id)) {
-      requiredCount = index + 1;
-    }
-  }
-
-  return requiredCount;
+  return requiredVisibleNodeCount(props.comments, hashPathIds.value);
 }
 
 function extendRenderedRoots(budget: number) {
@@ -69,7 +43,7 @@ function extendRenderedRoots(budget: number) {
     return;
   }
 
-  const nextCount = nextRootCount(renderedRootCount.value, budget);
+  const nextCount = nextVisibleNodeCount(props.comments, renderedRootCount.value, budget);
   renderedRootCount.value = Math.min(
     props.comments.length,
     Math.max(nextCount, requiredRootCount()),
@@ -77,13 +51,26 @@ function extendRenderedRoots(budget: number) {
 }
 
 function queueNextBatch() {
-  if (!shouldProgressivelyRender.value || renderedRootCount.value >= props.comments.length || batchFrameId !== null) {
+  if (
+    !shouldProgressivelyRender.value
+    || !initialRenderPainted.value
+    || renderedRootCount.value >= props.comments.length
+    || batchFrameId !== null
+  ) {
     return;
   }
 
   batchFrameId = requestAnimationFrame(() => {
     batchFrameId = null;
-    extendRenderedRoots(FRAME_RENDER_BUDGET);
+    const beforeCount = renderedRootCount.value;
+    const startedAt = performance.now();
+    extendRenderedRoots(ROOT_FRAME_RENDER_BUDGET);
+    recordBatchFrame('comments:root-batches', {
+      durationMs: performance.now() - startedAt,
+      beforeCount,
+      afterCount: renderedRootCount.value,
+      totalCount: props.comments.length,
+    });
     queueNextBatch();
   });
 }
@@ -91,7 +78,7 @@ function queueNextBatch() {
 if (shouldProgressivelyRender.value) {
   renderedRootCount.value = Math.min(
     props.comments.length,
-    Math.max(nextRootCount(0, INITIAL_RENDER_BUDGET), requiredRootCount()),
+    Math.max(nextVisibleNodeCount(props.comments, 0, ROOT_INITIAL_RENDER_BUDGET), requiredRootCount()),
   );
 }
 
@@ -118,8 +105,29 @@ watch(
 );
 
 onMounted(() => {
+  if (shouldProgressivelyRender.value) {
+    debugLog('comments:root-progressive-render-init', {
+      totalCommentCount: totalCommentCount.value,
+      initialRenderedRootCount: renderedRootCount.value,
+      totalRootCount: props.comments.length,
+      initialPaintComplete: initialRenderPainted.value,
+    });
+  }
+
   queueNextBatch();
 });
+
+watch(
+  initialRenderPainted,
+  painted => {
+    if (!painted) {
+      return;
+    }
+
+    queueNextBatch();
+  },
+  { immediate: true },
+);
 
 onUnmounted(() => {
   if (batchFrameId !== null) {

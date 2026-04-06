@@ -13,6 +13,7 @@ interface Logger {
 
 interface DebugTimeline {
   step<T>(label: string, fn: () => T, details?: () => DebugDetails): T;
+  stepAsync<T>(label: string, fn: () => Promise<T>, details?: () => DebugDetails): Promise<T>;
   log(label: string, details?: DebugDetails): void;
 }
 
@@ -29,11 +30,25 @@ interface ObservedPerformanceEntry {
   durationMs: number;
 }
 
+interface BatchSummary {
+  label: string;
+  frameCount: number;
+  framesBeforeFirstPaint: number;
+  totalDurationMs: number;
+  maxDurationMs: number;
+  totalItemsAdded: number;
+  maxItemsAdded: number;
+  lastVisibleCount: number;
+  totalCount: number;
+}
+
 interface DebugWindow extends Window {
   __FANCY_HN_DEBUG_ENTRIES__?: DebugEntry[];
   __FANCY_HN_DEBUG_MEASURE_COUNTER__?: number;
   __FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__?: PerformanceObserver[];
   __FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__?: ObservedPerformanceEntry[];
+  __FANCY_HN_DEBUG_BATCH_SUMMARIES__?: Record<string, BatchSummary>;
+  __FANCY_HN_DEBUG_FIRST_CONTENT_PAINTED__?: boolean;
 }
 
 const DEBUG_SEARCH_PARAM = 'debug';
@@ -166,6 +181,16 @@ function observedPerformanceEntries(): ObservedPerformanceEntry[] {
   return currentWindow.__FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__;
 }
 
+function batchSummaries(): Record<string, BatchSummary> {
+  const currentWindow = debugWindow();
+  currentWindow.__FANCY_HN_DEBUG_BATCH_SUMMARIES__ ||= {};
+  return currentWindow.__FANCY_HN_DEBUG_BATCH_SUMMARIES__;
+}
+
+function getBatchSummaryList(): BatchSummary[] {
+  return Object.values(batchSummaries());
+}
+
 function disconnectDebugPerformanceObservers() {
   const currentWindow = debugWindow();
   const observers = currentWindow.__FANCY_HN_DEBUG_PERFORMANCE_OBSERVERS__ ?? [];
@@ -256,6 +281,21 @@ function recordUserTiming<T>(label: string, fn: () => T): T {
   }
 }
 
+async function recordUserTimingAsync<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const id = nextDebugMeasureId();
+  const startMark = `${measureName(label)}#${id}:start`;
+  const endMark = `${measureName(label)}#${id}:end`;
+
+  performance.mark(startMark);
+
+  try {
+    return await fn();
+  } finally {
+    performance.mark(endMark);
+    performance.measure(measureName(label), startMark, endMark);
+  }
+}
+
 function getLatestUserTimingDuration(label: string): number | null {
   const measures = performance.getEntriesByName(measureName(label), 'measure');
   const latestMeasure = measures[measures.length - 1];
@@ -301,6 +341,8 @@ export function clearDebugEntries() {
   debugWindow().__FANCY_HN_DEBUG_ENTRIES__ = [];
   debugWindow().__FANCY_HN_DEBUG_MEASURE_COUNTER__ = 0;
   debugWindow().__FANCY_HN_OBSERVED_PERFORMANCE_ENTRIES__ = [];
+  debugWindow().__FANCY_HN_DEBUG_BATCH_SUMMARIES__ = {};
+  debugWindow().__FANCY_HN_DEBUG_FIRST_CONTENT_PAINTED__ = false;
   clearDebugTimingEntries();
   disconnectDebugPerformanceObservers();
   ensureDebugPerformanceObservers();
@@ -327,6 +369,81 @@ export function debugMeasure<T>(
   return result;
 }
 
+export async function debugMeasureAsync<T>(
+  label: string,
+  fn: () => Promise<T>,
+  details?: () => DebugDetails,
+): Promise<T> {
+  if (!isDebugMode()) {
+    return fn();
+  }
+
+  const result = await recordUserTimingAsync(label, fn);
+  const duration = getLatestUserTimingDuration(label);
+
+  entries().push({
+    label,
+    duration: duration ?? 0,
+    details: details?.(),
+  });
+
+  return result;
+}
+
+export function markFirstContentPainted() {
+  if (!isDebugMode()) {
+    return;
+  }
+
+  debugWindow().__FANCY_HN_DEBUG_FIRST_CONTENT_PAINTED__ = true;
+}
+
+export function recordBatchFrame(
+  label: string,
+  details: {
+    durationMs: number;
+    beforeCount: number;
+    afterCount: number;
+    totalCount: number;
+  },
+) {
+  if (!isDebugMode()) {
+    return;
+  }
+
+  const summaries = batchSummaries();
+  const summary = summaries[label] ?? {
+    label,
+    frameCount: 0,
+    framesBeforeFirstPaint: 0,
+    totalDurationMs: 0,
+    maxDurationMs: 0,
+    totalItemsAdded: 0,
+    maxItemsAdded: 0,
+    lastVisibleCount: 0,
+    totalCount: details.totalCount,
+  };
+  const itemsAdded = Math.max(0, details.afterCount - details.beforeCount);
+
+  summary.frameCount += 1;
+  summary.totalDurationMs += details.durationMs;
+  summary.maxDurationMs = Math.max(summary.maxDurationMs, details.durationMs);
+  summary.totalItemsAdded += itemsAdded;
+  summary.maxItemsAdded = Math.max(summary.maxItemsAdded, itemsAdded);
+  summary.lastVisibleCount = details.afterCount;
+  summary.totalCount = details.totalCount;
+
+  if (!debugWindow().__FANCY_HN_DEBUG_FIRST_CONTENT_PAINTED__) {
+    summary.framesBeforeFirstPaint += 1;
+  }
+
+  summaries[label] = summary;
+}
+
+export function hasRecordedBatchFrames(): boolean {
+  return getBatchSummaryList().some(summary => summary.frameCount > 0);
+}
+
 export function debugLog(label: string, details?: DebugDetails) {
   debugLogger.debug(label, details);
 }
@@ -342,6 +459,9 @@ export function createDebugTimeline(scope: string): DebugTimeline {
     step(label, fn, details) {
       return debugMeasure(scopedLabel(label), fn, details);
     },
+    stepAsync(label, fn, details) {
+      return debugMeasureAsync(scopedLabel(label), fn, details);
+    },
     log(label, details) {
       debugLog(scopedLabel(label), details);
     },
@@ -356,6 +476,20 @@ export function flushDebugSession(summary?: DebugDetails) {
   const currentEntries = entries();
   const userTimingRows = getUserTimingRows();
   const observedPerformanceRows = getObservedPerformanceRows();
+  const currentBatchSummaries = getBatchSummaryList()
+    .map(summary => ({
+      label: summary.label,
+      frameCount: summary.frameCount,
+      framesBeforeFirstPaint: summary.framesBeforeFirstPaint,
+      totalDurationMs: roundTiming(summary.totalDurationMs),
+      avgDurationMs: summary.frameCount > 0 ? roundTiming(summary.totalDurationMs / summary.frameCount) : 0,
+      maxDurationMs: roundTiming(summary.maxDurationMs),
+      totalItemsAdded: summary.totalItemsAdded,
+      maxItemsAdded: summary.maxItemsAdded,
+      lastVisibleCount: summary.lastVisibleCount,
+      totalCount: summary.totalCount,
+    }))
+    .sort((left, right) => left.label.localeCompare(right.label));
   const navigationTimingSummary = getNavigationTimingSummary();
 
   debugLogger.groupCollapsed(`session ${location.pathname}${location.search}`);
@@ -376,6 +510,11 @@ export function flushDebugSession(summary?: DebugDetails) {
   if (observedPerformanceRows.length > 0) {
     debugLogger.info('observed performance entries');
     debugLogger.table(observedPerformanceRows);
+  }
+
+  if (currentBatchSummaries.length > 0) {
+    debugLogger.info('progressive batch summaries');
+    debugLogger.table(currentBatchSummaries);
   }
 
   if (navigationTimingSummary) {

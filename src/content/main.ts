@@ -13,7 +13,9 @@ import {
   createDebugTimeline,
   createLogger,
   flushDebugSession,
+  hasRecordedBatchFrames,
   isDebugMode,
+  markFirstContentPainted,
 } from '@/debug';
 import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
@@ -30,6 +32,7 @@ import { parseLeadersPage } from '@/parsers/leaders';
 import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
+import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -158,6 +161,24 @@ function resetInitialHashScroll() {
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
+function waitForAnimationFrame() {
+  return new Promise<void>(resolve => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
+async function waitForBatchDebugData(maxFrames: number) {
+  for (let frame = 0; frame < maxFrames; frame += 1) {
+    if (hasRecordedBatchFrames()) {
+      return frame;
+    }
+
+    await waitForAnimationFrame();
+  }
+
+  return maxFrames;
+}
+
 // Re-injection guard: when the extension is reloaded while a tab is already open
 // (common in Firefox during development), the new content script is injected into
 // the already-modified DOM. The original HN nodes have been removed by
@@ -224,11 +245,12 @@ function mountApp() {
     }
   
     // 4. Mount Vue app with parsed data
-    // renderTime is a reactive ref so it can be updated after the first paint.
-    // We provide it before mounting so the component tree has a reference to it,
-    // then update the value after the first requestAnimationFrame — which fires
-    // just before the browser paints — giving us a true end-to-end elapsed time.
+    // renderTime is a reactive ref so it can be updated after the first visible
+    // paint. We provide it before mounting so the component tree has a reference
+    // to it, then fill it after two animation frames to ensure the browser has
+    // had a chance to paint the mounted UI.
     const renderTime = ref(0);
+    const initialRenderPainted = ref(false);
   
     const app = createApp(App);
     app.provide('header', header);
@@ -237,10 +259,15 @@ function mountApp() {
     app.provide('pageData', pageData);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
+    app.provide(INITIAL_RENDER_PAINTED_KEY, initialRenderPainted);
     timeline.step('app-mount', () => {
       app.mount(mountPoint);
     });
-    requestAnimationFrame(() => {
+    void (async () => {
+      await timeline.stepAsync('first-frame-ready', async () => {
+        await waitForAnimationFrame();
+      });
+
       timeline.step('restore-initial-fragment', () => {
         // Item pages handle fragment scrolling in CommentsPage.vue (which
         // accounts for modals intercepting deeply nested comments).
@@ -250,7 +277,32 @@ function mountApp() {
         }
         restoreInitialFragment();
       });
-      renderTime.value = Math.round(performance.now() - t0);
+
+      await timeline.stepAsync('first-content-paint', async () => {
+        await waitForAnimationFrame();
+      }, () => ({
+        hostChildCount: host.childElementCount,
+        hostTextLength: host.textContent?.trim().length ?? 0,
+        renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
+      }));
+
+      markFirstContentPainted();
+      initialRenderPainted.value = true;
+      const firstContentPaintMs = Math.round(performance.now() - t0);
+      renderTime.value = firstContentPaintMs;
+
+      await timeline.stepAsync('post-first-paint-batch-frame', async () => {
+        await waitForAnimationFrame();
+      }, () => ({
+        renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
+      }));
+
+      const batchDebugWaitFrames = await timeline.stepAsync('batch-debug-sync', async () => (
+        waitForBatchDebugData(3)
+      ), () => ({
+        renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
+        hasRecordedBatchFrames: hasRecordedBatchFrames(),
+      }));
   
       if (isDebugMode()) {
         const itemSummary = route.page === 'item'
@@ -279,7 +331,9 @@ function mountApp() {
         });
         flushDebugSession({
           route: route.page,
-          totalRenderMs: Math.round(performance.now() - t0),
+          firstContentPaintMs,
+          debugFlushMs: Math.round(performance.now() - t0),
+          batchDebugWaitFrames,
           bodyChildrenBeforeCleanup: originalBodyChildrenCount,
           removedSourceAssetCount,
           isMobileLayout,
@@ -292,7 +346,7 @@ function mountApp() {
           cleanupOriginalBody(host);
         }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
       }, 0);
-    });
+    })();
   } catch (e) {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.

@@ -5,16 +5,22 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
+import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
 import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-vue-next';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
+import { recordBatchFrame } from '@/debug';
+import {
+  CHILD_FRAME_RENDER_BUDGET,
+  CHILD_INITIAL_RENDER_BUDGET,
+  nextVisibleNodeCount,
+  requiredVisibleNodeCount,
+  shouldProgressivelyRenderChildren as shouldBatchChildren,
+} from './progressiveRender';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
-const SUBTREE_PROGRESSIVE_THRESHOLD = 160;
-const INITIAL_CHILD_BUDGET = 120;
-const FRAME_CHILD_BUDGET = 240;
 const DOWNVOTE_LABELS: Record<string, string> = {
   c5a: '1/9',
   c73: '2/9',
@@ -40,6 +46,7 @@ const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   mainThreadHashTargetId: ref<string | null>(null),
 });
 const { hashPathIds, hashTargetId, mainThreadHashTargetId } = fragmentState;
+const initialRenderPainted = inject(INITIAL_RENDER_PAINTED_KEY, ref(true));
 
 const userCollapsed = ref(
   props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
@@ -68,45 +75,13 @@ const hasHeaderNav = computed(() => !!(
   || props.node.navLinks.next
   || props.node.navLinks.context
 ));
-const shouldProgressivelyRenderChildren = !props.inModal && props.node.descendantCount > SUBTREE_PROGRESSIVE_THRESHOLD;
+const shouldProgressivelyRenderChildren = shouldBatchChildren(props.node.descendantCount, props.inModal);
 const visibleChildCount = ref(props.node.children.length);
 
 let childBatchFrameId: number | null = null;
 
-function nextChildCount(startIndex: number, budget: number): number {
-  let spent = 0;
-  let nextIndex = startIndex;
-
-  while (nextIndex < props.node.children.length) {
-    const child = props.node.children[nextIndex];
-    const cost = child.descendantCount + 1;
-
-    if (nextIndex > startIndex && spent + cost > budget) {
-      break;
-    }
-
-    spent += cost;
-    nextIndex += 1;
-
-    if (spent >= budget) {
-      break;
-    }
-  }
-
-  return nextIndex;
-}
-
 function requiredChildCount(): number {
-  let requiredCount = 0;
-
-  for (let index = 0; index < props.node.children.length; index += 1) {
-    const child = props.node.children[index];
-    if (child.expandForHash || hashPathIds.value.has(child.id)) {
-      requiredCount = index + 1;
-    }
-  }
-
-  return requiredCount;
+  return requiredVisibleNodeCount(props.node.children, hashPathIds.value);
 }
 
 function extendVisibleChildren(budget: number) {
@@ -115,7 +90,7 @@ function extendVisibleChildren(budget: number) {
     return;
   }
 
-  const nextCount = nextChildCount(visibleChildCount.value, budget);
+  const nextCount = nextVisibleNodeCount(props.node.children, visibleChildCount.value, budget);
   visibleChildCount.value = Math.min(
     props.node.children.length,
     Math.max(nextCount, requiredChildCount()),
@@ -125,6 +100,7 @@ function extendVisibleChildren(budget: number) {
 function queueNextChildBatch() {
   if (
     !shouldProgressivelyRenderChildren
+    || !initialRenderPainted.value
     || visibleChildCount.value >= props.node.children.length
     || isCollapsed.value
     || childBatchFrameId !== null
@@ -134,7 +110,15 @@ function queueNextChildBatch() {
 
   childBatchFrameId = requestAnimationFrame(() => {
     childBatchFrameId = null;
-    extendVisibleChildren(FRAME_CHILD_BUDGET);
+    const beforeCount = visibleChildCount.value;
+    const startedAt = performance.now();
+    extendVisibleChildren(CHILD_FRAME_RENDER_BUDGET);
+    recordBatchFrame('comments:child-batches', {
+      durationMs: performance.now() - startedAt,
+      beforeCount,
+      afterCount: visibleChildCount.value,
+      totalCount: props.node.children.length,
+    });
     queueNextChildBatch();
   });
 }
@@ -142,7 +126,7 @@ function queueNextChildBatch() {
 if (shouldProgressivelyRenderChildren) {
   visibleChildCount.value = Math.min(
     props.node.children.length,
-    Math.max(nextChildCount(0, INITIAL_CHILD_BUDGET), requiredChildCount()),
+    Math.max(nextVisibleNodeCount(props.node.children, 0, CHILD_INITIAL_RENDER_BUDGET), requiredChildCount()),
   );
 }
 
@@ -167,6 +151,18 @@ if (childrenInModal) {
     { immediate: true },
   );
 }
+
+watch(
+  initialRenderPainted,
+  painted => {
+    if (!painted || isCollapsed.value) {
+      return;
+    }
+
+    queueNextChildBatch();
+  },
+  { immediate: true },
+);
 
 watch(
   isCollapsed,
