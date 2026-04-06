@@ -52,7 +52,10 @@ function parsePageData(page: string, doc: Document): unknown {
     const submitPage = parseSubmitPage(doc);
     return submitPage.form ? submitPage : parseLoginPage(doc);
   }
-  if (page === 'reply') return parseReplyPage(doc);
+  if (page === 'reply') {
+    const replyPage = parseReplyPage(doc);
+    return replyPage.isLoggedOut ? parseLoginPage(doc) : replyPage;
+  }
   if (page === 'formatdoc') return parseStaticPage(doc);
   if (page === 'leaders') return parseLeadersPage(doc);
   if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);

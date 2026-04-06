@@ -26,4 +26,36 @@ describe('login page parser', () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it('parses reply auth-gate messages from the source body', () => {
+    const dom = new JSDOM(`
+      <html>
+        <body>
+          You have to be logged in to reply.<br><br>
+          <center>
+            <form action="login" method="post">
+              <input type="hidden" name="goto" value="reply?id=47633987&amp;goto=item%3Fid%3D47633396%2347633987">
+              <input type="text" name="acct">
+              <input type="password" name="pw">
+              <input type="submit" value="login">
+            </form>
+          </center>
+        </body>
+      </html>
+    `, {
+      url: 'https://news.ycombinator.com/reply?id=47633987&goto=item%3Fid%3D47633396%2347633987',
+    });
+
+    vi.stubGlobal('location', dom.window.location);
+    try {
+      const page = parseLoginPage(dom.window.document);
+
+      expect(page.variant).toBe('auth-gate');
+      expect(page.title).toBe('You have to be logged in to reply.');
+      expect(page.authMessage).toBe('You have to be logged in to reply.');
+      expect(page.forms[0]?.submitLabel).toBe('login');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });

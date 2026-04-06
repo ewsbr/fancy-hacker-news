@@ -67,6 +67,10 @@ const pageComponent = computed(() => {
     return LoginPage;
   }
 
+  if (route.page === 'reply' && isLoginPageData(pageData)) {
+    return LoginPage;
+  }
+
   if (route.page === 'static' && isSubmitPageData(pageData)) {
     return SubmitPage;
   }
