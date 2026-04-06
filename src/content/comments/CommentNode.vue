@@ -8,6 +8,7 @@ import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/f
 import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-vue-next';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
+import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -231,36 +232,18 @@ watch(
           </button>
 
           <div class="comment-node__header-info">
-            <template v-if="node.isDeleted">
-              <span class="comment-node__deleted-meta">[deleted]</span>
-              <MetaSep />
-              <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
-              <span class="comment-node__badge comment-node__badge--deleted">Deleted</span>
-            </template>
-
-            <template v-else>
-              <a :href="`user?id=${node.author}`" class="comment-node__author">{{ node.author }}</a>
-              <span v-if="node.authorIsNew" class="comment-node__badge comment-node__badge--new" title="New user">New</span>
-              <template v-if="node.score != null">
-                <MetaSep />
-                <span class="comment-node__score">{{ node.score }} {{ node.score === 1 ? 'point' : 'points' }}</span>
-              </template>
-              <MetaSep />
-              <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-node__age-link">{{ node.age }}</a>
-
-              <div v-if="node.isDead || node.isFlagged || downvoteOpacity" class="comment-node__badges">
-                <span v-if="node.isDead" class="comment-node__badge comment-node__badge--dead">Dead</span>
-                <span v-if="node.isFlagged" class="comment-node__badge comment-node__badge--flagged">Flagged</span>
-                <span
-                  v-if="downvoteOpacity"
-                  class="comment-node__badge comment-node__badge--downvoted"
-                  title="Downvoted level"
-                >
-                  {{ downvoteOpacity }}
-                </span>
-              </div>
-
-            </template>
+            <CommentUserMeta
+              :author="node.author"
+              :author-is-new="node.authorIsNew"
+              :score="node.score"
+              :age-link="node.ageLink"
+              :age="node.age"
+              :age-timestamp="node.ageTimestamp"
+              :is-deleted="node.isDeleted"
+              :is-dead="node.isDead"
+              :is-flagged="node.isFlagged"
+              :downvote-label="downvoteOpacity"
+            />
 
             <div v-if="!node.isDeleted && !isCollapsed && hasHeaderNav" class="comment-node__nav">
               <MetaSep />
@@ -271,7 +254,7 @@ watch(
             </div>
 
             <div class="comment-node__controls">
-              <MetaSep />
+              <MetaSep class="comment-node__controls-sep" />
               <a
                 v-if="!node.isDeleted && !isCollapsed && node.navLinks.prev"
                 :href="node.navLinks.prev"
@@ -397,6 +380,7 @@ watch(
   }
 
   &__toggle {
+    align-self: flex-start;
     margin-right: 0.15rem;
     cursor: pointer;
     background: none;
@@ -545,6 +529,8 @@ watch(
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 
   &__nav-link {
@@ -711,6 +697,10 @@ watch(
 
     &__controls {
       gap: 0.7rem;
+    }
+
+    &__controls-sep {
+      display: none;
     }
   }
 

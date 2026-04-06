@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { ParsedDeleteConfirmPage } from '@/parsers/deleteConfirm';
-import AuthorByline from '@/content/shared/AuthorByline.vue';
+import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
@@ -20,7 +20,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
     <div v-if="pageData.item" class="delete-confirm-page__card hn-content-card">
       <div class="delete-confirm-page__comment">
         <div class="delete-confirm-page__meta">
-          <AuthorByline
+          <CommentUserMeta
             :author="pageData.item.author"
             :author-is-new="pageData.item.isNewUser"
             :age-link="pageData.item.ageLink"

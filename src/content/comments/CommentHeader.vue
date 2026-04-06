@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { CommentNode } from '@/parsers/item';
-import Badge from '@/content/shared/Badge.vue';
-import AuthorByline from '@/content/shared/AuthorByline.vue';
+import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
@@ -41,28 +40,18 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     </button>
 
     <div class="comment-header__info">
-      <template v-if="node.isDeleted">
-        <span class="comment-header__deleted">[deleted]</span>
-        <MetaSep />
-        <a :href="node.ageLink" :title="node.ageTimestamp" class="comment-header__age">{{ node.age }}</a>
-        <Badge variant="deleted" label="Deleted" />
-      </template>
-
-      <template v-else>
-        <AuthorByline
-          :author="node.author"
-          :author-is-new="node.authorIsNew"
-          :score="node.score"
-          :age-link="node.ageLink"
-          :age="node.age"
-          :age-timestamp="node.ageTimestamp"
-        />
-        <div class="comment-header__badges" v-if="node.isDead || node.isFlagged || downvoteOpacity">
-          <Badge v-if="node.isDead" variant="dead" label="Dead" />
-          <Badge v-if="node.isFlagged" variant="flagged" label="Flagged" />
-          <Badge v-if="downvoteOpacity" variant="downvoted" :label="downvoteOpacity" title="Downvoted level" />
-        </div>
-      </template>
+      <CommentUserMeta
+        :author="node.author"
+        :author-is-new="node.authorIsNew"
+        :score="node.score"
+        :age-link="node.ageLink"
+        :age="node.age"
+        :age-timestamp="node.ageTimestamp"
+        :is-deleted="node.isDeleted"
+        :is-dead="node.isDead"
+        :is-flagged="node.isFlagged"
+        :downvote-label="downvoteOpacity"
+      />
 
       <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
         <MetaSep />
@@ -72,7 +61,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
       </div>
 
       <div class="comment-header__controls">
-        <MetaSep />
+        <MetaSep class="comment-header__controls-sep" />
         <a
           v-if="!node.isDeleted && !isCollapsed && node.navLinks.prev"
           :href="node.navLinks.prev"
@@ -107,24 +96,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   font-size: 0.84rem;
   color: var(--color-text-muted);
 
-  &__badges {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    align-self: center;
-  }
-
-  &__age {
-    text-decoration: none;
-    color: inherit;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
   &__toggle {
+    align-self: flex-start;
     margin-right: 0.15rem;
     cursor: pointer;
     background: none;
@@ -190,6 +163,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
 
   &__nav-link {
@@ -236,12 +211,6 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     }
   }
 
-  &__deleted {
-    font-style: italic;
-    color: var(--color-text-muted);
-    opacity: 0.6;
-  }
-
   @media (max-width: 640px) {
     font-size: 0.96rem;
     column-gap: 0.45rem;
@@ -258,6 +227,10 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
     &__controls {
       gap: 0.7rem;
+    }
+
+    &__controls-sep {
+      display: none;
     }
   }
 }

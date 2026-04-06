@@ -3,6 +3,7 @@ import { inject, ref, computed } from 'vue';
 import { ArrowRight, UserPlus, HelpCircle, ArrowLeft } from 'lucide-vue-next';
 import type { ParsedLoginPage } from '@/parsers/login';
 import YLogo from '@/assets/ycombinator.svg';
+import NoticeBanner from '@/content/shared/NoticeBanner.vue';
 
 const page = inject<ParsedLoginPage>('pageData')!;
 
@@ -67,9 +68,7 @@ function getPlaceholder(label: string) {
       </header>
 
       <!-- Form Card -->
-      <div v-if="page.authMessage" class="login-message">
-        {{ page.authMessage }}
-      </div>
+      <NoticeBanner v-if="page.authMessage" :message="page.authMessage" />
 
       <main class="login-card">
         <div v-if="!currentForm" class="login-card__empty">
@@ -207,16 +206,6 @@ function getPlaceholder(label: string) {
     height: 44px;
     background: var(--color-accent);
   }
-}
-
-.login-message {
-  padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-text);
-  font-size: 0.85rem;
-  text-align: center;
 }
 
 .login-card {

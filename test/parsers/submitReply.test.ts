@@ -9,9 +9,27 @@ describe('submit and reply parsers', () => {
     const page = parseSubmitPage(doc);
 
     expect(page.isLoggedOut).toBe(false);
+    expect(page.warningMessage).toBeNull();
     expect(page.form).toMatchObject({
       action: '/r',
       bookmarkletHref: 'bookmarklet.html',
+      fields: [
+        { name: 'title', type: 'text' },
+        { name: 'url', type: 'url' },
+        { name: 'text', type: 'textarea' },
+      ],
+    });
+  });
+
+  it('parses submit validation warnings from x pages', async () => {
+    const doc = await loadFixtureDocument('stories/x.html');
+    const page = parseSubmitPage(doc);
+
+    expect(page.isLoggedOut).toBe(false);
+    expect(page.warningMessage).toBe("That's not a valid title.");
+    expect(page.form).toMatchObject({
+      action: '/r',
+      fnop: 'submit-page',
       fields: [
         { name: 'title', type: 'text' },
         { name: 'url', type: 'url' },

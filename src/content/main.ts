@@ -58,6 +58,12 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);
   if (page === 'lists') return parseListsPage(doc);
   if (page === 'topcolors') return parseTopColorsPage(doc);
+  if (location.pathname === '/x') {
+    const submitPage = parseSubmitPage(doc);
+    if (submitPage.form) {
+      return submitPage;
+    }
+  }
   // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
   // parse the content so the component always receives a valid ParsedStaticPage.
   return parseStaticPage(doc);

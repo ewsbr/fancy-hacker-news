@@ -3,6 +3,7 @@ import { computed, inject, ref } from 'vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 import SubmitForm from '@/content/forms/SubmitForm.vue';
 import StoryRow from '@/content/stories/StoryRow.vue';
+import NoticeBanner from '@/content/shared/NoticeBanner.vue';
 import type { Story } from '@/parsers/storyList';
 
 const SUBMIT_PLACEHOLDERS = [
@@ -144,6 +145,8 @@ const previewStory = computed<Story>(() => ({
             <span v-if="pageData.form.bookmarkletHref" class="submit-page__utility-sep">/</span>
             <a href="newsguidelines.html" class="submit-page__utility-link">guidelines</a>
           </div>
+
+          <NoticeBanner v-if="pageData.warningMessage" :message="pageData.warningMessage" role="alert" />
         </div>
       </header>
 
@@ -170,7 +173,7 @@ const previewStory = computed<Story>(() => ({
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   &__identity {

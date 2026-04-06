@@ -3,6 +3,7 @@ import { inject, computed, type Component } from 'vue';
 import { TooltipProvider } from 'reka-ui';
 import type { RouteDescriptor } from '@/router';
 import type { ParsedLoginPage } from '@/parsers/login';
+import type { ParsedSubmitPage } from '@/parsers/submit';
 import AppShell from './layout/AppShell.vue';
 import StoriesPage from './pages/StoriesPage.vue';
 import CommentsPage from './pages/CommentsPage.vue';
@@ -49,6 +50,14 @@ function isLoginPageData(value: unknown): value is ParsedLoginPage {
   return 'variant' in value && 'forms' in value && 'title' in value;
 }
 
+function isSubmitPageData(value: unknown): value is ParsedSubmitPage {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  return 'isLoggedOut' in value && 'form' in value && 'warningMessage' in value;
+}
+
 const pageComponent = computed(() => {
   if (route.page === 'favorites' || route.page === 'upvoted') {
     return route.params.comments === 't' ? NewCommentsPage : StoriesPage;
@@ -56,6 +65,10 @@ const pageComponent = computed(() => {
 
   if (route.page === 'submit' && isLoginPageData(pageData)) {
     return LoginPage;
+  }
+
+  if (route.page === 'static' && isSubmitPageData(pageData)) {
+    return SubmitPage;
   }
 
   return PAGE_MAP[route.page] ?? StaticPage;

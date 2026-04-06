@@ -13,7 +13,7 @@ import Badge from '@/content/shared/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
-import AuthorByline from '@/content/shared/AuthorByline.vue';
+import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
@@ -245,45 +245,32 @@ onUnmounted(() => {
           <div class="comments-page__comment-layout">
             <div class="comments-page__comment-content">
               <div class="comments-page__comment-meta">
-                <template v-if="pageData.item.isDeleted">
-                  <span class="comments-page__comment-deleted">[deleted]</span>
-                  <MetaSep />
-                  <a
-                    :href="pageData.item.ageLink"
-                    :title="pageData.item.ageTimestamp"
-                    class="comments-page__comment-age"
-                  >
-                    {{ pageData.item.age }}
-                  </a>
-                  <Badge variant="deleted" label="Deleted" />
-                  <MetaSep />
+                <CommentUserMeta
+                  :author="pageData.item.author"
+                  :author-is-new="pageData.item.authorIsNew"
+                  :age-link="pageData.item.ageLink"
+                  :age="pageData.item.age"
+                  :age-timestamp="pageData.item.ageTimestamp"
+                  :is-deleted="pageData.item.isDeleted"
+                  :is-dead="pageData.item.isDead"
+                  :is-flagged="pageData.item.isFlagged"
+                />
+                <div class="comments-page__comment-meta-actions">
+                  <MetaSep class="comments-page__comment-meta-actions-sep" />
+                  <template v-if="pageData.item.favoriteUrl">
+                    <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
+                    <MetaSep v-if="pageData.item.flagUrl || latestUrl" />
+                  </template>
+                  <template v-if="pageData.item.flagUrl">
+                    <FlagButton :href="pageData.item.flagUrl" :flag-target="pageData.item" />
+                    <MetaSep v-if="latestUrl" />
+                  </template>
+                  <template v-if="latestUrl">
+                    <a :href="latestUrl" class="comments-page__comment-action">latest</a>
+                    <MetaSep />
+                  </template>
                   <FragmentLinkButton :target-id="pageData.item.id" />
-                </template>
-                <template v-else>
-                  <AuthorByline
-                    :author="pageData.item.author"
-                    :author-is-new="pageData.item.authorIsNew"
-                    :age-link="pageData.item.ageLink"
-                    :age="pageData.item.age"
-                    :age-timestamp="pageData.item.ageTimestamp"
-                  />
-                  <Badge v-if="pageData.item.isDead" variant="dead" label="Dead" />
-                  <Badge v-if="pageData.item.isFlagged" variant="flagged" label="Flagged" />
-                  <MetaSep />
-                  <FragmentLinkButton :target-id="pageData.item.id" />
-                </template>
-                <template v-if="pageData.item.favoriteUrl">
-                  <MetaSep />
-                  <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
-                </template>
-                <template v-if="pageData.item.flagUrl">
-                  <MetaSep />
-                  <FlagButton :href="pageData.item.flagUrl" :flag-target="pageData.item" />
-                </template>
-                <template v-if="latestUrl">
-                  <MetaSep />
-                  <a :href="latestUrl" class="comments-page__comment-action">latest</a>
-                </template>
+                </div>
               </div>
               <div class="comments-page__comment-body">
                 <CommentBody
@@ -378,21 +365,13 @@ onUnmounted(() => {
     }
   }
 
-  &__comment-deleted,
-  &__comment-age {
-    color: var(--color-text-muted);
-  }
-
-  &__comment-deleted {
-    font-style: italic;
-  }
-
-  &__comment-age {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
+  &__comment-meta-actions {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    column-gap: 0.35rem;
+    row-gap: 0.1rem;
+    white-space: nowrap;
   }
 
   &__comment-body {
@@ -459,6 +438,15 @@ onUnmounted(() => {
       row-gap: 0.22rem;
       font-size: 0.96rem;
       margin-bottom: 0.7rem;
+    }
+
+    &__comment-meta-actions {
+      column-gap: 0.55rem;
+      row-gap: 0.22rem;
+    }
+
+    &__comment-meta-actions-sep {
+      display: none;
     }
   }
 }

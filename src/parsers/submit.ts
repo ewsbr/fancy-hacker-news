@@ -18,18 +18,41 @@ export interface ParsedSubmitPage {
     bookmarkletHref: string | null;
   } | null;
   isLoggedOut: boolean;
+  warningMessage: string | null;
+}
+
+function extractWarningMessage(form: HTMLFormElement): string | null {
+  const container = form.closest('#bigbox > td') ?? form.parentElement;
+  if (!container) {
+    return null;
+  }
+
+  const parts: string[] = [];
+  for (const node of Array.from(container.childNodes)) {
+    if (node === form) {
+      break;
+    }
+
+    const text = node.textContent?.replace(/\s+/g, ' ').trim();
+    if (text) {
+      parts.push(text);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' ') : null;
 }
 
 export function parseSubmitPage(doc: Document): ParsedSubmitPage {
   const form = doc.querySelector<HTMLFormElement>('form[action="/r"]');
 
   if (!form) {
-    return { form: null, isLoggedOut: true };
+    return { form: null, isLoggedOut: true, warningMessage: null };
   }
 
   const fnid = attrOf(form.querySelector('input[name="fnid"]'), 'value') || '';
   const fnop = attrOf(form.querySelector('input[name="fnop"]'), 'value') || '';
   const bookmarkletHref = attrOf(form.querySelector('a[href]'), 'href') || null;
+  const warningMessage = extractWarningMessage(form);
 
   // Collect visible user-editable fields (exclude hidden fields and submit button)
   const fields: SubmitField[] = [];
@@ -54,5 +77,6 @@ export function parseSubmitPage(doc: Document): ParsedSubmitPage {
       bookmarkletHref,
     },
     isLoggedOut: false,
+    warningMessage,
   };
 }

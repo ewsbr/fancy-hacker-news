@@ -4,8 +4,7 @@ import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
-import AuthorByline from '@/content/shared/AuthorByline.vue';
-import Badge from '@/content/shared/Badge.vue';
+import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 
 defineProps<{
@@ -17,32 +16,23 @@ defineProps<{
   <div class="flat-comment" :id="comment.id">
     <div class="flat-comment__header">
       <div class="flat-comment__meta">
-        <template v-if="comment.isDeleted">
-          <span class="flat-comment__deleted">[deleted]</span>
-          <MetaSep />
-          <a :href="comment.ageLink" class="flat-comment__age">{{ comment.age }}</a>
-          <Badge variant="deleted" label="Deleted" />
-          <MetaSep />
-          <FragmentLinkButton :target-id="comment.id" />
-        </template>
-        <template v-else>
-          <AuthorByline
-            :author="comment.author"
-            :author-is-new="comment.authorIsNew"
-            :score="comment.score"
-            :age-link="comment.ageLink"
-            :age="comment.age"
-          />
-          <Badge v-if="comment.isDead" variant="dead" label="Dead" />
-          <Badge v-if="comment.isFlagged" variant="flagged" label="Flagged" />
-          <MetaSep />
-          <FragmentLinkButton :target-id="comment.id" />
-        </template>
+        <CommentUserMeta
+          :author="comment.author"
+          :author-is-new="comment.authorIsNew"
+          :score="comment.score"
+          :age-link="comment.ageLink"
+          :age="comment.age"
+          :is-deleted="comment.isDeleted"
+          :is-dead="comment.isDead"
+          :is-flagged="comment.isFlagged"
+        />
       </div>
 
       <div class="flat-comment__story">
         <MetaSep class="flat-comment__story-sep" />
         <OnStoryHeader label="on" :href="comment.onStory.link" :title="comment.onStory.title" />
+        <MetaSep />
+        <FragmentLinkButton :target-id="comment.id" />
       </div>
     </div>
     
@@ -101,23 +91,6 @@ defineProps<{
   
   &__body {
     margin-left: 0;
-  }
-
-  &__deleted,
-  &__age {
-    color: var(--color-text-muted);
-  }
-
-  &__deleted {
-    font-style: italic;
-  }
-
-  &__age {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 
   @media (max-width: 640px) {
