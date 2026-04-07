@@ -3,6 +3,7 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { X } from 'lucide-vue-next';
+import { waitForAnimationFrames } from '@/content/utils/wait';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -17,8 +18,7 @@ const bodyRef = ref<HTMLElement | null>(null);
 
 async function scrollToTargetComment(targetId: string) {
   await nextTick();
-  await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
-  await new Promise(resolve => requestAnimationFrame(() => resolve(null)));
+  await waitForAnimationFrames(2);
 
   const target = bodyRef.value?.querySelector<HTMLElement>(`#${CSS.escape(targetId)}`) ?? null;
   if (!target) {

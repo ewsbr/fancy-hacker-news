@@ -17,6 +17,7 @@ import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
+import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 
 const commentsLogger = createLogger('comments');
 
@@ -68,12 +69,6 @@ provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
 
 function getModernRoot(): HTMLElement | null {
   return document.getElementById('fancy-hn-root');
-}
-
-function waitForAnimationFrame() {
-  return new Promise<void>(resolve => {
-    requestAnimationFrame(() => resolve());
-  });
 }
 
 function findRenderedHashTarget(targetId: string, excludeModal = false): HTMLElement | null {
@@ -180,6 +175,7 @@ async function syncHashPath() {
   hashPathIds.value = nextHashPathIds;
 
   await nextTick();
+  await waitForLayoutToSettle();
 
   const target = await waitForRenderedHashTarget([targetId]);
   const mainThreadTarget = await waitForRenderedHashTarget(
@@ -191,6 +187,8 @@ async function syncHashPath() {
   mainThreadHashTargetId.value = mainThreadTarget?.targetId ?? null;
 
   if (mainThreadTarget) {
+    scrollMainPageTarget(mainThreadTarget.element);
+    await waitForAnimationFrame();
     scrollMainPageTarget(mainThreadTarget.element);
     return;
   }

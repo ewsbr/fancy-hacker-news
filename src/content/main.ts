@@ -31,6 +31,7 @@ import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
 import { makeItemPageReactive } from '@/state/itemPageState';
+import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -161,12 +162,6 @@ function resetInitialHashScroll() {
   }
 
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-}
-
-function waitForAnimationFrame() {
-  return new Promise<void>(resolve => {
-    requestAnimationFrame(() => resolve());
-  });
 }
 
 // Re-injection guard: when the extension is reloaded while a tab is already open
