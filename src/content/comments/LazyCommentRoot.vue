@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { MessageSquareMore } from 'lucide-vue-next';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import { parseCommentThreadRowsHtml } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
@@ -16,12 +17,11 @@ const loadError = ref<string | null>(null);
 
 const replyLabel = computed(() => {
   const count = props.node.descendantCount;
-  return `${count} ${count === 1 ? 'reply' : 'replies'}`;
+  return `Load thread (${count} ${count === 1 ? 'reply' : 'replies'})`;
 });
 
 async function loadThread() {
-  const lazyThread = props.node.lazyThread;
-  if (!lazyThread || isLoading.value) {
+  if (!props.node.lazyThread || isLoading.value || loadedRoot.value) {
     return;
   }
 
@@ -29,7 +29,7 @@ async function loadThread() {
   loadError.value = null;
 
   try {
-    const parsedRoot = parseCommentThreadRowsHtml(lazyThread.rowsHtml);
+    const parsedRoot = parseCommentThreadRowsHtml(props.node.lazyThread.rowsHtml);
     if (!parsedRoot) {
       loadError.value = 'Failed to load this thread.';
       return;
@@ -42,21 +42,10 @@ async function loadThread() {
     isLoading.value = false;
   }
 }
-
-function unloadThread() {
-  loadedRoot.value = null;
-  loadError.value = null;
-}
 </script>
 
 <template>
   <div class="lazy-comment-root">
-    <div v-if="loadedRoot" class="lazy-comment-root__loaded-controls">
-      <button type="button" class="lazy-comment-root__toggle" @click="unloadThread">
-        Unload thread
-      </button>
-    </div>
-
     <CommentNode
       v-if="loadedRoot"
       :node="loadedRoot"
@@ -70,11 +59,12 @@ function unloadThread() {
       <div class="lazy-comment-root__load-row">
         <button
           type="button"
-          class="lazy-comment-root__toggle"
+          class="lazy-comment-root__thread-btn"
           :disabled="isLoading"
           @click="loadThread"
         >
-          {{ isLoading ? 'Loading thread...' : `Load thread (${replyLabel})` }}
+          <MessageSquareMore :size="13" aria-hidden="true" class="lazy-comment-root__icon" />
+          {{ replyLabel }}
         </button>
       </div>
 
@@ -85,25 +75,28 @@ function unloadThread() {
 
 <style scoped lang="scss">
 .lazy-comment-root {
-  &__loaded-controls,
   &__load-row {
-    margin: 0.35rem 0 0.8rem 1rem;
+    margin: 0.35rem 0 0.8rem;
   }
 
-  &__toggle {
+  &__thread-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     border: 1px solid var(--color-border);
-    background: color-mix(in srgb, var(--color-surface) 94%, var(--color-accent) 6%);
-    color: var(--color-text);
-    border-radius: 999px;
-    padding: 0.32rem 0.78rem;
+    background: none;
+    color: var(--color-text-muted);
+    border-radius: 20px;
+    padding: 0.45rem 0.75rem;
     font: inherit;
-    font-size: 0.82rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
 
     &:hover:not(:disabled),
     &:focus-visible {
-      border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+      border-color: var(--color-accent);
       color: var(--color-accent);
       outline: none;
     }
@@ -114,22 +107,20 @@ function unloadThread() {
     }
   }
 
+  &__icon {
+    flex: 0 0 auto;
+  }
+
   &__error {
-    margin: -0.3rem 0 0.8rem 1rem;
+    margin: -0.3rem 0 0.8rem;
     color: #b42318;
     font-size: 0.82rem;
   }
 
   @media (max-width: 640px) {
-    &__loaded-controls,
-    &__load-row,
-    &__error {
-      margin-left: 0;
-    }
-
-    &__toggle {
-      font-size: 0.94rem;
-      padding: 0.46rem 0.92rem;
+    &__thread-btn {
+      font-size: 0.86rem;
+      padding: 0.5rem 0.82rem;
     }
   }
 }

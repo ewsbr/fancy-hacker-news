@@ -390,6 +390,82 @@ describe('story list fixtures', () => {
     });
   });
 
+  it('does not create lazy loaders for roots with no replies', () => {
+    const dom = new JSDOM(`
+      <table class="fatitem">
+        <tr class="athing submission" id="999">
+          <td class="title"><span class="rank"></span></td>
+          <td class="votelinks"></td>
+          <td class="title">
+            <span class="titleline"><a href="https://example.com/story">Example story</a></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"></td>
+          <td class="subtext">
+            <span class="subline">
+              <span class="score" id="score_999">42 points</span>
+              by <a href="user?id=pg" class="hnuser">pg</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=999">1 hour ago</a></span>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <table class="comment-tree"><tbody>
+        <tr class="athing comtr" id="solo">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="0"><img src="s.gif" height="1" width="0"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=solo" class="hnuser">solo</a>
+                <span class="age" title="2026-04-05T12:00:00"><a href="item?id=solo">1 hour ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">standalone root</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+        <tr class="athing comtr" id="branch">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="0"><img src="s.gif" height="1" width="0"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=branch" class="hnuser">branch</a>
+                <span class="age" title="2026-04-05T12:05:00"><a href="item?id=branch">55 minutes ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">branch root</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+        <tr class="athing comtr" id="leaf">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="1"><img src="s.gif" height="1" width="40"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=leaf" class="hnuser">leaf</a>
+                <span class="age" title="2026-04-05T12:10:00"><a href="item?id=leaf">50 minutes ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">leaf reply</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+      </tbody></table>
+    `);
+
+    const page = parseItemPage(dom.window.document, {
+      extremeThreadCommentThreshold: 1,
+    });
+
+    expect(page.comments[0]).toMatchObject({
+      id: 'solo',
+      descendantCount: 0,
+    });
+    expect(page.comments[0].lazyThread).toBeNull();
+    expect(page.comments[1].lazyThread?.totalCommentCount).toBe(2);
+  });
+
   it('parses flat comment unvote links when they are rendered in the header span', () => {
     const dom = new JSDOM(`
       <table>

@@ -326,7 +326,7 @@ function createRootShell(rows: Element[]): CommentNode {
   const shell = parseCommentRow(rows[0]);
   shell.children = [];
   shell.descendantCount = Math.max(0, rows.length - 1);
-  shell.lazyThread = createDeferredCommentThread(rows);
+  shell.lazyThread = rows.length > 1 ? createDeferredCommentThread(rows) : null;
   return shell;
 }
 
