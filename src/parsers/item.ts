@@ -71,7 +71,7 @@ export interface ReplyForm {
 
 export interface DeferredCommentThread {
   totalCommentCount: number;
-  rowsHtml: string[];
+  html: string;
 }
 
 export interface ParseItemPageOptions {
@@ -318,7 +318,7 @@ function splitCommentRowsIntoRootSlices(
 function createDeferredCommentThread(rows: Element[]): DeferredCommentThread {
   return {
     totalCommentCount: rows.length,
-    rowsHtml: rows.map(row => row.outerHTML),
+    html: rows.map(row => row.outerHTML).join(''),
   };
 }
 
@@ -354,9 +354,9 @@ export function parseCommentThreadRows(comtrs: Element[]): CommentNode[] {
   return annotateCommentDescendants(buildCommentTree(comtrs).comments);
 }
 
-export function parseCommentThreadRowsHtml(rowsHtml: string[], doc: Document = document): CommentNode | null {
+export function parseCommentThreadHtml(html: string, doc: Document = document): CommentNode | null {
   const tbody = doc.createElement('tbody');
-  tbody.innerHTML = rowsHtml.join('');
+  tbody.innerHTML = html;
   const rows = Array.from(tbody.querySelectorAll('tr.athing.comtr'));
   const [root] = parseCommentThreadRows(rows);
   return root ?? null;

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { MessageSquareMore } from 'lucide-vue-next';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
-import { parseCommentThreadRowsHtml } from '@/parsers/item';
+import { parseCommentThreadHtml } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 
 const props = defineProps<{
@@ -29,7 +29,7 @@ async function loadThread() {
   loadError.value = null;
 
   try {
-    const parsedRoot = parseCommentThreadRowsHtml(props.node.lazyThread.rowsHtml);
+    const parsedRoot = parseCommentThreadHtml(props.node.lazyThread.html);
     if (!parsedRoot) {
       loadError.value = 'Failed to load this thread.';
       return;

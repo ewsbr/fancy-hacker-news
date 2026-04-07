@@ -21,7 +21,30 @@ The simplification pass has already removed the comment batching and the eager p
 - [src/parsers/item.ts](/home/ews/WebstormProjects/hackernews/src/parsers/item.ts) now switches to root-shell parsing above the extreme-thread threshold and only eagerly parses the hash-target root when needed
 - [src/content/comments/LazyCommentRoot.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/LazyCommentRoot.vue) loads and unloads root subtrees on demand
 
+The deferred root payload has also been compacted to a single HTML blob per root slice instead of an array of row strings.
+
 That means the next performance work is no longer scheduler tuning or first-pass shell loading. It is refinement of the large-thread mode.
+
+## Current Read On Large Threads
+
+After the shell-mode and payload-compression passes, the large Trump thread is roughly in this shape:
+
+- first load is materially better than the original fully-rendered thread path
+- memory is much lower because unopened roots are not mounted as full subtrees
+- the remaining startup cost is now mostly shell UI mount, not full-tree parsing
+
+The representative trace now looks like:
+
+- `main:parse-page:item`: about `238ms`
+- `main:app-mount`: about `350ms`
+- `summary.firstContentPaintMs`: about `649ms`
+- `renderedCommentNodeCount`: `297`
+
+Interpretation:
+
+- parser work is now in a reasonable range
+- shell rendering is the next obvious bottleneck
+- the remaining meaningful wins should come from making unopened shells cheaper, not from adding more scheduling
 
 ## Measured Reality
 
@@ -252,8 +275,20 @@ Completed in initial form:
 Still open:
 
 1. Decide whether `Load next 10 roots` is preferable to per-root loading for keyboard-heavy users.
-2. Decide whether unloading should remain manual or also happen automatically when a loaded thread is collapsed.
-3. Re-measure the large real-world threads and tune the threshold if needed.
+2. Re-measure the large real-world threads and tune the threshold if needed.
+3. Consider whether loaded roots should stay resident forever or be discarded only under explicit memory pressure.
+
+Next likely win:
+
+1. Replace the unopened-root `CommentNode` render with a dedicated minimal shell in [src/content/comments/LazyCommentRoot.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/LazyCommentRoot.vue).
+2. Limit unopened shells to:
+   - author
+   - age
+   - lightweight status markers
+   - reply count
+   - short plain-text preview or no preview
+   - one `Load thread (...)` button
+3. Keep the full [src/content/comments/CommentNode.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/CommentNode.vue) path only for already-loaded roots.
 
 Expected result:
 
