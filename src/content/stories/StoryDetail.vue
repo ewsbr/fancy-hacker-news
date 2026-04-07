@@ -107,7 +107,7 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
 
   &__main {
     padding: 0.75rem 0.75rem 1rem;
-    background: color-mix(in srgb, var(--color-surface) 98%, var(--color-accent) 2%);
+    background: var(--color-accent-surface-subtle);
   }
 
   &__layout {
@@ -144,7 +144,7 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
     &--dead {
       text-decoration-line: line-through;
       text-decoration-thickness: 1.5px;
-      text-decoration-color: color-mix(in srgb, currentColor 72%, transparent);
+      text-decoration-color: currentColor;
       text-decoration-skip-ink: none;
     }
   }

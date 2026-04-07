@@ -49,7 +49,7 @@ const portalTarget = document.getElementById('fancy-hn-root');
   line-height: 1;
 
   &:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    outline: 2px solid var(--color-focus-ring-strong);
     outline-offset: 3px;
     border-radius: 999px;
   }

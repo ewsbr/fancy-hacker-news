@@ -176,8 +176,8 @@ onUnmounted(() => {
     user-select: none;
 
     &:hover {
-      border-color: color-mix(in srgb, var(--color-accent) 42%, var(--color-chrome-border));
-      background: color-mix(in srgb, var(--color-accent) 10%, var(--color-chrome-surface));
+      border-color: var(--color-accent);
+      background: var(--color-bg);
       color: var(--color-text);
     }
   }
@@ -194,7 +194,7 @@ onUnmounted(() => {
 
   &__nav-link {
     white-space: nowrap;
-    color: color-mix(in srgb, var(--color-text) 85%, transparent);
+    color: var(--color-text-muted);
     transition: all 0.15s ease;
 
     &:hover {
@@ -223,7 +223,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    color: color-mix(in srgb, var(--color-text) 75%, transparent);
+    color: var(--color-text-muted);
     transition: all 0.15s ease;
 
     strong,

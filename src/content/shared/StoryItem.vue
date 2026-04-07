@@ -81,7 +81,7 @@ const domainUrl = computed(() => props.story.domainUrl ?? (props.story.domain ? 
   padding: 0.75rem 0.6rem;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-text) 4%);
+    background: var(--color-row-hover);
   }
 
   &:not(:last-child) {
@@ -120,7 +120,7 @@ const domainUrl = computed(() => props.story.domainUrl ?? (props.story.domain ? 
     }
 
     &:hover {
-      color: color-mix(in srgb, var(--color-text) 60%, var(--color-accent) 40%);
+      color: var(--color-accent-muted);
       text-decoration: none;
     }
   }

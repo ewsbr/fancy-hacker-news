@@ -48,11 +48,11 @@ const page = inject<ParsedListsPage>('pageData')!;
     }
 
     &:nth-child(even) {
-      background: color-mix(in srgb, var(--color-surface) 96%, var(--color-text) 4%);
+      background: var(--color-row-alt);
     }
 
     &:hover {
-      background: color-mix(in srgb, var(--color-surface) 93%, var(--color-text) 7%);
+      background: var(--color-row-hover);
     }
   }
 

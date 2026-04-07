@@ -125,39 +125,55 @@ const previewStory = computed<Story>(() => ({
 <template>
   <div class="submit-page">
     <template v-if="pageData.form">
-      <header class="submit-page__header">
-        <div class="submit-page__identity">
-          <p class="submit-page__eyebrow">submit</p>
+      <section class="submit-page__stack">
+        <p class="submit-page__section-label">Submit</p>
+
+        <header class="submit-page__header">
           <h1 class="submit-page__title">Submit a link or start a discussion</h1>
           <p class="submit-page__lede">
-            Use the URL field for link posts. Leave it blank for discussion posts. Add text for context.
+            Keep the form compact and let the content do the work. Use the URL field for link posts,
+            leave it blank for discussion posts, and add text only when context helps the thread.
           </p>
 
           <div class="submit-page__utility-links">
-            <a
-              v-if="pageData.form.bookmarkletHref"
-              :href="pageData.form.bookmarkletHref"
-              class="submit-page__utility-link"
-              rel="nofollow"
-            >
-              bookmarklet
-            </a>
-            <span v-if="pageData.form.bookmarkletHref" class="submit-page__utility-sep">/</span>
             <a href="newsguidelines.html" class="submit-page__utility-link">guidelines</a>
+            <template v-if="pageData.form.bookmarkletHref">
+              <span class="submit-page__utility-sep">/</span>
+              <a
+                :href="pageData.form.bookmarkletHref"
+                class="submit-page__utility-link"
+                rel="nofollow"
+              >
+                bookmarklet
+              </a>
+            </template>
           </div>
+        </header>
 
-          <NoticeBanner v-if="pageData.warningMessage" :message="pageData.warningMessage" role="alert" />
-        </div>
-      </header>
+        <NoticeBanner
+          v-if="pageData.warningMessage"
+          :message="pageData.warningMessage"
+          role="alert"
+          class="submit-page__notice"
+        />
 
-      <section class="submit-page__panel submit-page__panel--form hn-content-card">
-        <div class="submit-page__preview" aria-label="front page preview">
-          <StoryRow :story="previewStory" />
-        </div>
+        <section class="submit-page__preview" aria-label="front page preview">
+          <div class="submit-page__preview-head">
+            <span class="submit-page__preview-label">Preview</span>
+          </div>
+          <div class="submit-page__preview-card">
+            <StoryRow :story="previewStory" />
+          </div>
+        </section>
 
-        <div class="submit-page__panel-body">
-          <SubmitForm v-model="draft" :form="pageData.form" :placeholders="formPlaceholders" />
-        </div>
+        <section class="submit-page__form-shell">
+          <SubmitForm
+            v-model="draft"
+            :form="pageData.form"
+            :placeholders="formPlaceholders"
+            variant="utility"
+          />
+        </section>
       </section>
     </template>
   </div>
@@ -165,50 +181,35 @@ const previewStory = computed<Story>(() => ({
 
 <style scoped lang="scss">
 .submit-page {
-  max-width: 980px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 1.5rem 0 3rem;
+  padding: 1.35rem 0 3rem;
 
-  &__header {
+  &__stack {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.9rem;
   }
 
-  &__identity {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  &__eyebrow {
-    font-size: 0.72rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+  &__section-label {
+    display: inline-flex;
+    width: fit-content;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid var(--color-accent);
     color: var(--color-accent);
-  }
-
-  &__title {
     font-family: var(--font-title);
-    font-size: clamp(1.7rem, 3vw, 2.35rem);
-    line-height: 1.05;
-    color: var(--color-text);
-  }
-
-  &__lede {
-    font-size: 1rem;
-    line-height: 1.65;
-    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   &__utility-links {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.45rem;
-    color: var(--color-text-muted);
+    gap: 0.4rem;
+    color: var(--color-text);
     font-family: var(--font-title);
     font-size: 0.75rem;
     font-weight: 600;
@@ -221,7 +222,7 @@ const previewStory = computed<Story>(() => ({
     text-decoration: none;
 
     &:hover {
-      color: var(--color-text);
+      color: var(--color-accent);
       text-decoration: underline;
     }
   }
@@ -230,43 +231,110 @@ const previewStory = computed<Story>(() => ({
     opacity: 0.5;
   }
 
-  &__panel {
-    overflow: hidden;
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
   }
 
-  &__panel--form {
-    border-radius: 4px;
+  &__title {
+    font-family: var(--font-title);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    line-height: 1.15;
+    color: var(--color-text);
+  }
+
+  &__lede {
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--color-text-muted);
+  }
+
+  &__notice {
+    :deep(.notice-banner) {
+      padding: 0.8rem 0;
+      border: 0;
+      border-top: 1px solid var(--color-divider);
+      border-bottom: 1px solid var(--color-divider);
+      border-radius: 0;
+      background: transparent;
+      text-align: left;
+    }
   }
 
   &__preview {
-    border-bottom: 1px solid var(--color-border);
-    background: color-mix(in srgb, var(--color-surface) 97%, var(--color-accent) 3%);
+    padding: 0.15rem 0 0.1rem;
+  }
 
-    :deep(.story-row) {
-      border-bottom: 0;
-      padding-right: 0.6rem;
+  &__preview-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.8rem;
+    padding: 0.45rem 0 0.45rem;
+    margin-bottom: 0.1rem;
+    border-bottom: 1px solid var(--color-divider);
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
 
-      &:hover {
-        background: transparent;
-      }
+  &__preview-label {
+    color: var(--color-text);
+    font-family: var(--font-title);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__preview :deep(.story-row) {
+    padding: 0.4rem 0 0.45rem;
+    border-bottom: 0;
+
+    &:hover {
+      background: transparent;
     }
   }
 
-  &__panel-body {
-    padding: 1rem 1.1rem 1.1rem;
+  &__preview-card {
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  &__preview :deep(.story-row__title) {
+    font-size: 0.98rem;
+  }
+
+  &__preview :deep(.story-meta) {
+    font-size: 0.78rem;
+  }
+
+  &__form-shell {
+    padding-top: 0.1rem;
   }
 
   @media (max-width: 640px) {
+    max-width: none;
     padding-top: 1rem;
 
-    &__panel--form,
-    &__panel {
-      border-radius: 0;
+    &__stack {
+      gap: 0.8rem;
     }
 
-    &__panel-body {
-      padding-left: 0.95rem;
-      padding-right: 0.95rem;
+    &__preview :deep(.story-row) {
+      padding-right: 0.2rem;
+    }
+
+    &__preview-card :deep(.story-row) {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+
+    &__notice {
+      :deep(.notice-banner) {
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+      }
     }
   }
 }

@@ -54,7 +54,7 @@ const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
     }
 
     &:focus-visible {
-      outline: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+      outline: 1px solid var(--color-focus-ring-strong);
       outline-offset: 3px;
     }
   }

@@ -51,12 +51,30 @@ function extractBodyFallbackHtml(doc: Document): string {
   return clone.innerHTML.trim();
 }
 
+function normalizeBookmarkletMarkup(contentEl: Element): void {
+  for (const link of Array.from(contentEl.querySelectorAll('a[href^="javascript:"]'))) {
+    const href = link.getAttribute('href') ?? '';
+    if (!href.includes('submitlink?u=')) {
+      continue;
+    }
+
+    link.classList.add('hn-bookmarklet-link');
+    link.removeAttribute('style');
+
+    const centeredContainer = link.closest('center');
+    if (centeredContainer) {
+      centeredContainer.classList.add('hn-bookmarklet-cta');
+    }
+  }
+}
+
 /**
  * Normalize the content of older HN static pages (e.g. newsguidelines.html)
  * that use a legacy table layout with <b> tags as section headers.
  */
 function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
   const clone = contentEl.cloneNode(true) as Element;
+  normalizeBookmarkletMarkup(clone);
 
   // Remove the YC banner image (the old pages had a 500px header image).
   clone.querySelector('a > img')?.parentElement?.remove();
@@ -114,13 +132,21 @@ export function parseStaticPage(doc: Document): ParsedStaticPage {
     if (bigboxTd) {
       // Some pages (formatdoc, newsfaq) nest their text inside span.admin > table > td.
       const innerTd = bigboxTd.querySelector('span.admin td');
-      return { contentHtml: (innerTd ?? bigboxTd).innerHTML };
+      const clone = (innerTd ?? bigboxTd).cloneNode(true) as Element;
+      normalizeBookmarkletMarkup(clone);
+      return { contentHtml: clone.innerHTML };
     }
 
     // Fallback: last TD in the hnmain rows (original behaviour).
     const tds = mainTable.querySelectorAll(':scope > tbody > tr > td, :scope > tr > td');
     const contentTd = tds.length > 1 ? tds[tds.length - 1] : null;
-    return { contentHtml: contentTd?.innerHTML ?? '' };
+    if (!contentTd) {
+      return { contentHtml: '' };
+    }
+
+    const clone = contentTd.cloneNode(true) as Element;
+    normalizeBookmarkletMarkup(clone);
+    return { contentHtml: clone.innerHTML };
   }
 
   // Legacy format (e.g. newsguidelines.html) — no #hnmain, plain center/table layout.

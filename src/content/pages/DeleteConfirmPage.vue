@@ -154,7 +154,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
       color: var(--color-text);
 
       &:hover {
-        background: color-mix(in srgb, var(--color-surface) 70%, var(--color-border) 30%);
+        background: var(--color-row-hover);
       }
     }
   }

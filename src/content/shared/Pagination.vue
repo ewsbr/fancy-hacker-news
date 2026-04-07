@@ -31,7 +31,7 @@ defineProps<{ href: string | null }>();
     font-weight: 600;
 
     &:hover {
-      background: color-mix(in srgb, var(--color-surface) 92%, var(--color-text) 8%);
+      background: var(--color-bg);
       text-decoration: none;
     }
   }

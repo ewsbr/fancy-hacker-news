@@ -341,34 +341,34 @@ if (childrenInModal) {
     text-transform: uppercase;
 
     &--new {
-      background: color-mix(in srgb, var(--color-new-user) 15%, transparent);
+      background: var(--color-status-new-bg);
       color: var(--color-new-user);
-      border-color: color-mix(in srgb, var(--color-new-user) 30%, transparent);
+      border-color: var(--color-status-new-border);
     }
 
     &--dead {
-      background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+      background: var(--color-status-muted-bg);
       color: var(--color-text-muted);
-      border-color: color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+      border-color: var(--color-status-muted-border);
       text-decoration: line-through;
     }
 
     &--flagged {
-      background: color-mix(in srgb, #ff3e00 10%, transparent);
-      color: #ff3e00;
-      border-color: color-mix(in srgb, #ff3e00 20%, transparent);
+      background: var(--color-danger-bg);
+      color: var(--color-danger);
+      border-color: var(--color-danger-border);
     }
 
     &--deleted {
-      background: color-mix(in srgb, var(--color-text-muted) 8%, transparent);
+      background: var(--color-status-muted-subtle-bg);
       color: var(--color-text-muted);
-      border-color: color-mix(in srgb, var(--color-text-muted) 18%, transparent);
+      border-color: var(--color-status-muted-subtle-border);
     }
 
     &--downvoted {
-      background: color-mix(in srgb, var(--color-downvoted) 15%, transparent);
+      background: var(--color-status-downvoted-bg);
       color: var(--color-downvoted);
-      border-color: color-mix(in srgb, var(--color-downvoted) 30%, transparent);
+      border-color: var(--color-status-downvoted-border);
       text-transform: none;
       font-weight: 600;
     }

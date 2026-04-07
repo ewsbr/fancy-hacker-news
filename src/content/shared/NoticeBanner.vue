@@ -16,7 +16,7 @@ withDefaults(defineProps<{
 <style scoped lang="scss">
 .notice-banner {
   padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
+  background: var(--color-accent-surface);
   border: 1px solid var(--color-border);
   border-radius: 4px;
   color: var(--color-text);

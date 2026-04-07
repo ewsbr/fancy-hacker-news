@@ -40,7 +40,7 @@ defineProps<{ story: Story }>();
   padding: 0.5rem 0.6rem 0.5rem 0;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-surface) 95%, var(--color-text) 5%);
+    background: var(--color-bg);
   }
 
   &:not(:last-child) {
@@ -82,7 +82,7 @@ defineProps<{ story: Story }>();
     &--dead {
       text-decoration-line: line-through;
       text-decoration-thickness: 1.5px;
-      text-decoration-color: color-mix(in srgb, currentColor 72%, transparent);
+      text-decoration-color: currentColor;
       text-decoration-skip-ink: none;
     }
   }

@@ -73,4 +73,15 @@ describe('static page parser', () => {
     expect(page.contentHtml).toContain('Custom Colors');
     expect(page.contentHtml).toContain('bgcolor="#ff6600"');
   });
+
+  it('normalizes bookmarklet call-to-action links on legacy static pages', async () => {
+    const doc = await loadFixtureDocument('static/bookmarklet.html');
+    const page = parseStaticPage(doc);
+
+    expect(page.contentHtml).toContain('class="hn-bookmarklet-cta"');
+    expect(page.contentHtml).toContain('class="hn-bookmarklet-link"');
+    expect(page.contentHtml).toContain('post to HN</a>');
+    expect(page.contentHtml).not.toContain('font-size: 2em');
+    expect(page.contentHtml).not.toContain('color: #777');
+  });
 });

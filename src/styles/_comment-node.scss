@@ -17,7 +17,7 @@
       left: -10px;
       width: 10px;
       background: inherit;
-      border-left: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+      border-left: 2px solid var(--color-accent-line);
       animation: highlight-line-fade 5s forwards;
     }
   }
@@ -75,8 +75,8 @@
 
   @keyframes highlight-fade {
     0%, 80% {
-      background: color-mix(in srgb, var(--color-accent) 3%, transparent);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 3%, transparent);
+      background: var(--color-accent-highlight);
+      box-shadow: 0 0 0 4px var(--color-accent-highlight);
     }
     100% {
       background: transparent;

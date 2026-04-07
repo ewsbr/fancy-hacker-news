@@ -179,13 +179,13 @@ const activeTheme = () => themes.find(t => t.name === theme.value)!;
     transition: border-color 0.15s, background 0.15s;
 
     &:hover {
-      border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+      border-color: var(--color-accent-badge-border);
       background: var(--color-bg);
     }
 
     &--active {
       border-color: var(--color-accent);
-      background: color-mix(in srgb, var(--color-accent) 8%, var(--color-code-bg));
+      background: var(--color-accent-surface);
 
       .theme-toggle__card-swatch {
         box-shadow: 0 0 0 2px var(--color-surface),

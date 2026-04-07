@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { Send, HelpCircle } from 'lucide-vue-next';
 import Tooltip from '@/content/shared/Tooltip.vue';
+import MetaSep from '@/content/shared/MetaSep.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   form: NonNullable<ParsedSubmitPage['form']>;
   modelValue: Record<string, string>;
   placeholders: Record<string, string>;
-}>();
+  variant?: 'default' | 'utility';
+}>(), {
+  variant: 'default',
+});
 
 const emit = defineEmits<{
   'update:modelValue': [value: Record<string, string>];
@@ -50,7 +54,11 @@ function handleFieldInput(name: string, event: Event) {
 </script>
 
 <template>
-  <form :action="form.action" method="post" class="submit-form">
+  <form
+    :action="form.action"
+    method="post"
+    :class="['submit-form', { 'submit-form--utility': variant === 'utility' }]"
+  >
     <input type="hidden" name="fnid" :value="form.fnid" />
     <input type="hidden" name="fnop" :value="form.fnop" />
 
@@ -90,11 +98,12 @@ function handleFieldInput(name: string, event: Event) {
       </div>
 
       <div class="submit-form__footer">
-        <p class="submit-form__footnote">Link posts can include optional context. Discussion posts should usually use title plus text.</p>
         <button type="submit" class="submit-form__button">
           <Send :size="14" class="submit-form__button-icon" />
           submit post
         </button>
+        <MetaSep />
+        <a href="formatdoc" class="submit-form__help" target="_blank" rel="noopener noreferrer">formatting help</a>
       </div>
     </div>
   </form>
@@ -151,16 +160,17 @@ function handleFieldInput(name: string, event: Event) {
     transition: border-color 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
 
     &::placeholder {
-      color: color-mix(in srgb, var(--color-text-muted) 75%, transparent);
+      color: var(--color-text-muted);
+      opacity: 0.75;
     }
     
     &:hover {
-      border-color: color-mix(in srgb, var(--color-border) 35%, var(--color-text) 65%);
+      border-color: var(--color-divider);
     }
     
     &:focus {
       border-color: var(--color-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
   
@@ -173,20 +183,12 @@ function handleFieldInput(name: string, event: Event) {
   &__footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
     padding-top: 0.25rem;
 
     @media (max-width: 640px) {
-      flex-direction: column;
-      align-items: stretch;
+      flex-wrap: wrap;
     }
-  }
-
-  &__footnote {
-    color: var(--color-text-muted);
-    font-size: 0.8rem;
-    line-height: 1.5;
   }
   
   &__button {
@@ -218,7 +220,7 @@ function handleFieldInput(name: string, event: Event) {
 
     &:focus {
       border-color: var(--color-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
       outline: none;
     }
   }
@@ -232,11 +234,80 @@ function handleFieldInput(name: string, event: Event) {
     color: white;
   }
 
+  &__help {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: underline;
+    }
+  }
+
+  &--utility {
+    .submit-form__fields {
+      gap: 0.65rem;
+    }
+
+    .submit-form__field {
+      gap: 0.4rem;
+    }
+
+    .submit-form__field-head {
+      justify-content: flex-start;
+      gap: 0.4rem 0.65rem;
+      padding-bottom: 0.05rem;
+    }
+
+    .submit-form__label {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .submit-form__label-help {
+      color: var(--color-text-muted);
+    }
+
+    .submit-form__input,
+    .submit-form__textarea {
+      background: var(--color-surface);
+      border-radius: 3px;
+      box-shadow: none;
+    }
+
+    .submit-form__textarea {
+      min-height: 8.75rem;
+    }
+
+    .submit-form__footer {
+      align-items: center;
+      padding-top: 0;
+    }
+
+    .submit-form__button {
+      padding: 0.58rem 0.88rem;
+      font-size: 0.78rem;
+    }
+  }
+
   @media (max-width: 640px) {
     &__input,
     &__textarea {
       font-size: 1rem;
       padding: 0.85rem 0.95rem;
+    }
+
+    &--utility {
+      .submit-form__field-head {
+        align-items: center;
+      }
+
+      .submit-form__footer {
+        padding-top: 0;
+      }
     }
   }
 }

@@ -268,7 +268,7 @@ function getPlaceholder(label: string) {
     &:focus {
       outline: none;
       border-color: var(--color-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 
@@ -294,7 +294,7 @@ function getPlaceholder(label: string) {
   &__submit {
     width: 100%;
     padding: 0.6rem 1rem;
-    background: color-mix(in srgb, var(--color-accent) 90%, black);
+    background: var(--color-accent-strong);
     color: #fff;
     border: 1px solid transparent;
     border-radius: 4px;

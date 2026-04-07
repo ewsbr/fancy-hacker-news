@@ -76,7 +76,7 @@ onUnmounted(() => {
     position: fixed;
     inset: 0;
     z-index: 1000;
-    background: color-mix(in srgb, var(--color-bg) 50%, transparent);
+    background: var(--color-overlay);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     display: flex;
@@ -94,8 +94,7 @@ onUnmounted(() => {
     border-radius: 10px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    box-shadow: 0 8px 32px color-mix(in srgb, #000 22%, transparent),
-                0 2px 8px color-mix(in srgb, #000 12%, transparent);
+    box-shadow: var(--shadow-modal);
     overflow: hidden;
     animation: search-modal-slide-in 0.15s ease;
   }

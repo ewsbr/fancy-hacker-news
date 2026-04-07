@@ -55,6 +55,45 @@ const contentHtml = computed(() =>
       }
     }
 
+    :deep(.hn-bookmarklet-cta) {
+      display: flex;
+      justify-content: center;
+      margin: 1.1rem 0 1.25rem;
+    }
+
+    :deep(.hn-bookmarklet-link) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 11.5rem;
+      padding: 0.78rem 1.15rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: var(--color-surface);
+      color: var(--color-text);
+      font-family: var(--font-title);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: grab;
+      transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease, transform 0.1s ease;
+
+      &:hover {
+        background: var(--color-accent);
+        border-color: var(--color-accent);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        cursor: grabbing;
+        transform: translateY(0);
+      }
+    }
+
     :deep(p) {
       margin-bottom: 0.75rem;
       line-height: 1.625;
@@ -153,6 +192,13 @@ const contentHtml = computed(() =>
       border-left: 3px solid var(--color-quote-border);
       color: var(--color-text-muted);
       font-style: italic;
+    }
+
+    @media (max-width: 640px) {
+      :deep(.hn-bookmarklet-link) {
+        width: 100%;
+        min-width: 0;
+      }
     }
   }
 

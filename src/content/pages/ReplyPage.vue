@@ -85,7 +85,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
     padding: 1rem 1.1rem 1.1rem;
 
     &--composer {
-      border-top: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
+      border-top: 1px solid var(--color-divider);
     }
   }
 
@@ -142,7 +142,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   }
   
   &__parent-body {
-    border-top: 1px solid color-mix(in srgb, var(--color-border) 88%, transparent);
+    border-top: 1px solid var(--color-divider);
     padding-top: 0.9rem;
   }
 

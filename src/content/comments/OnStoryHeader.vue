@@ -27,7 +27,7 @@ defineProps<{
   &--block {
     display: block;
     padding: 0.6rem 0.75rem 0.55rem;
-    background: color-mix(in srgb, var(--color-surface) 96%, var(--color-accent) 4%);
+    background: var(--color-accent-surface);
     border-bottom: 1px solid var(--color-border);
 
     .on-story-header__label {

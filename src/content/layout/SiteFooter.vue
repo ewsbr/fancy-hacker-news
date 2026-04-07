@@ -370,7 +370,7 @@ const socialLinks = [
     }
 
     &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--color-accent) 78%, white 22%);
+      outline: 2px solid var(--color-focus-ring-strong);
       outline-offset: 2px;
     }
   }

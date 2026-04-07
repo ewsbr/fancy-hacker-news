@@ -250,8 +250,8 @@ const user = inject<ParsedUserPage>('pageData')!;
     letter-spacing: 0.05em;
     padding: 0.1rem 0.4rem;
     border-radius: 3px;
-    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+    background: var(--color-accent-badge-bg);
+    border: 1px solid var(--color-accent-badge-border);
     color: var(--color-accent);
   }
 
@@ -325,7 +325,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     &:focus {
       outline: none;
       border-color: var(--color-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 
@@ -449,7 +449,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     &:focus {
       outline: none;
       border-color: var(--color-accent);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 
@@ -494,7 +494,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     &:focus {
       border-color: var(--color-accent);
       outline: none;
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 

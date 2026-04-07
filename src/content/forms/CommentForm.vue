@@ -71,13 +71,13 @@ withDefaults(defineProps<{
     }
 
     &:hover {
-      border-color: color-mix(in srgb, var(--color-border) 40%, var(--color-text) 60%);
+      border-color: var(--color-divider);
     }
 
     &:focus {
       border-color: var(--color-accent);
       outline: none;
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 
@@ -119,7 +119,7 @@ withDefaults(defineProps<{
     &:focus {
       border-color: var(--color-accent);
       outline: none;
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 15%, transparent);
+      box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
 
