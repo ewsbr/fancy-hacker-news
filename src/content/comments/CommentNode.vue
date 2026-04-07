@@ -18,6 +18,11 @@ import {
   requiredVisibleNodeCount,
   shouldProgressivelyRenderChildren as shouldBatchChildren,
 } from './progressiveRender';
+import {
+  COMMENT_ACTION_STATE_KEY,
+  createCommentActionStateStore,
+  getCommentActionState,
+} from '@/state/itemPageState';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -45,6 +50,7 @@ const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashTargetId: ref<string | null>(null),
   mainThreadHashTargetId: ref<string | null>(null),
 });
+const commentActionStates = inject(COMMENT_ACTION_STATE_KEY, createCommentActionStateStore());
 const { hashPathIds, hashTargetId, mainThreadHashTargetId } = fragmentState;
 const initialRenderPainted = inject(INITIAL_RENDER_PAINTED_KEY, ref(true));
 
@@ -52,6 +58,7 @@ const userCollapsed = ref(
   props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
 );
 const isModalOpen = ref(false);
+const actionState = getCommentActionState(commentActionStates, props.node);
 
 const currentDepth = props.depth ?? 0;
 const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
@@ -237,7 +244,7 @@ watch(
               :age-timestamp="node.ageTimestamp"
               :is-deleted="node.isDeleted"
               :is-dead="node.isDead"
-              :is-flagged="node.isFlagged"
+              :is-flagged="actionState.isFlagged"
               :downvote-label="downvoteOpacity"
             />
 
@@ -286,14 +293,14 @@ watch(
               <CommentActions
                 :item-id="node.id"
                 :vote-up="node.voteUp"
-                :vote-un="node.voteUn"
+                :vote-un="actionState.voteUn"
                 :vote-down="node.voteDown"
-                :vote-target="node"
+                :vote-target="actionState"
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
-                :flag-url="node.flagUrl"
-                :flag-target="node"
+                :flag-url="actionState.flagUrl"
+                :flag-target="actionState"
               />
             </div>
           </div>

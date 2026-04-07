@@ -33,6 +33,7 @@ import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
 import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
+import { makeItemPageReactive } from '@/state/itemPageState';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -200,13 +201,19 @@ function mountApp() {
     // 1. Parse from original DOM before hiding anything
     const header = timeline.step('parse-header', () => parseHeader(document));
     const route = timeline.step('resolve-route', () => resolveRoute(location));
-    const pageData = timeline.step(`parse-page:${route.page}`, () => makeReactive(parsePageData(route.page, document)));
+    const parsedPageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
   
     if (route.page === 'item') {
       timeline.step('prepare-item-hash-state', () => {
-        prepareInitialItemHashState(pageData as ParsedItemPage);
+        prepareInitialItemHashState(parsedPageData as ParsedItemPage);
       });
     }
+
+    const pageData = timeline.step('reactive-page-data', () => (
+      route.page === 'item'
+        ? makeItemPageReactive(parsedPageData as ParsedItemPage)
+        : makeReactive(parsedPageData)
+    ));
   
     // 2. Hide original HN content with one rule instead of mutating each body child.
     timeline.step('hide-original-dom', () => {
