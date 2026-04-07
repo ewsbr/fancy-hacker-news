@@ -1,0 +1,78 @@
+@mixin apply-theme-tokens($selector) {
+  #{$selector} {
+    --font-body: "Atkinson Hyperlegible Next Variable", system-ui, sans-serif;
+    --font-title: "Manrope Variable", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono Variable", "Fira Mono", Consolas, monospace;
+
+    --color-bg: #f6f6ef;
+    --color-surface: #fffefa;
+    --color-accent: #ff6600;
+    --color-text: #111111;
+    --color-text-muted: #555555;
+    --color-border: #cccccc;
+    --color-divider: #c8c8c8;
+    --color-code-bg: #f0f0e8;
+    --color-quote-border: #ff6600;
+    --color-quote-bg: #f7f7f7;
+    --color-downvoted: #b0b0b0;
+    --color-new-user: #3c963c;
+    --color-accent-muted: #bf4d00;
+    --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+    --fragment-scroll-offset: 16px;
+    --color-chrome-surface: var(--color-surface);
+    --color-chrome-border: var(--color-border);
+  }
+
+  #{$selector}[data-theme="dark"] {
+    --color-bg: #1e1e1e;
+    --color-surface: #252526;
+    --color-accent: #ff6600;
+    --color-text: #e3e3e3;
+    --color-text-muted: #a4a4a4;
+    --color-border: #333333;
+    --color-divider: #4a4a4a;
+    --color-code-bg: #1a1a1a;
+    --color-quote-border: #ff6600;
+    --color-quote-bg: #282829;
+    --color-downvoted: #666666;
+    --color-new-user: #5cb85c;
+    --color-accent-muted: #ff9060;
+    --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  #{$selector}[data-theme="nord"] {
+    --color-bg: #2e3440;
+    --color-surface: #3b4252;
+    --color-accent: #88c0d0;
+    --color-text: #eceff4;
+    --color-text-muted: #b4bfd0;
+    --color-border: #56617a;
+    --color-divider: #6a7690;
+    --color-code-bg: #434c5e;
+    --color-quote-border: #88c0d0;
+    --color-quote-bg: #3d4456;
+    --color-downvoted: #616e88;
+    --color-new-user: #a3be8c;
+    --color-accent-muted: #9ac8d6;
+    --shadow-elevation: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  #{$selector}[data-theme="amoled"] {
+    --color-bg: #000000;
+    --color-surface: #000000;
+    --color-accent: #ff6600;
+    --color-text: #e0e0e0;
+    --color-text-muted: #989898;
+    --color-border: #404040;
+    --color-divider: #5a5a5a;
+    --color-code-bg: #080808;
+    --color-quote-border: #ff6600;
+    --color-quote-bg: #080808;
+    --color-downvoted: #555555;
+    --color-new-user: #5cb85c;
+    --color-accent-muted: #ff8c50;
+    --shadow-elevation: none;
+    --color-chrome-surface: #080808;
+    --color-chrome-border: #1f1f1f;
+  }
+}

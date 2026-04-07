@@ -25,8 +25,11 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "concepts/**/*.ts",
+    "concepts/**/*.vue",
     "test/**/*.ts",
+    "concepts/vite.config.ts",
     "vitest.config.ts"
   ],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "concepts/dist"]
 }
