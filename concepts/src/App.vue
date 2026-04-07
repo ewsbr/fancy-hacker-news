@@ -56,26 +56,19 @@ onMounted(() => {
 <template>
   <main class="concept-app">
     <header class="concept-app__hero">
-      <div>
-        <h1 class="concept-app__title">Concepts</h1>
-        <p class="concept-app__hint">Internal variants browser.</p>
-      </div>
+      <h1 class="concept-app__title">Concepts</h1>
 
-      <div class="concept-app__hero-controls">
-        <div class="theme-switcher" aria-label="theme switcher">
-          <button
-            v-for="theme in themes"
-            :key="theme.name"
-            type="button"
-            class="theme-switcher__button"
-            :class="{ 'is-active': activeTheme === theme.name }"
-            @click="activeTheme = theme.name"
-          >
-            {{ theme.label }}
-          </button>
-        </div>
-
-        <span class="concept-app__command">pnpm concepts:dev</span>
+      <div class="theme-switcher" aria-label="theme switcher">
+        <button
+          v-for="theme in themes"
+          :key="theme.name"
+          type="button"
+          class="theme-switcher__button"
+          :class="{ 'is-active': activeTheme === theme.name }"
+          @click="activeTheme = theme.name"
+        >
+          {{ theme.label }}
+        </button>
       </div>
     </header>
 
