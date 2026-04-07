@@ -5,24 +5,10 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
 import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-vue-next';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
-import { recordBatchFrame } from '@/debug';
-import {
-  CHILD_FRAME_RENDER_BUDGET,
-  CHILD_INITIAL_RENDER_BUDGET,
-  nextVisibleNodeCount,
-  requiredVisibleNodeCount,
-  shouldProgressivelyRenderChildren as shouldBatchChildren,
-} from './progressiveRender';
-import {
-  COMMENT_ACTION_STATE_KEY,
-  createCommentActionStateStore,
-  getCommentActionState,
-} from '@/state/itemPageState';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -50,15 +36,12 @@ const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashTargetId: ref<string | null>(null),
   mainThreadHashTargetId: ref<string | null>(null),
 });
-const commentActionStates = inject(COMMENT_ACTION_STATE_KEY, createCommentActionStateStore());
 const { hashPathIds, hashTargetId, mainThreadHashTargetId } = fragmentState;
-const initialRenderPainted = inject(INITIAL_RENDER_PAINTED_KEY, ref(true));
 
 const userCollapsed = ref(
   props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
 );
 const isModalOpen = ref(false);
-const actionState = getCommentActionState(commentActionStates, props.node);
 
 const currentDepth = props.depth ?? 0;
 const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
@@ -66,7 +49,15 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
-const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.node.id)}`);
+const latestUrl = `latest?id=${encodeURIComponent(props.node.id)}`;
+const hasHeaderNav = !!(
+  latestUrl
+  || props.node.navLinks.root
+  || props.node.navLinks.parent
+  || props.node.navLinks.prev
+  || props.node.navLinks.next
+  || props.node.navLinks.context
+);
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
@@ -74,74 +65,6 @@ const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value 
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
-const hasHeaderNav = computed(() => !!(
-  latestUrl.value
-  || props.node.navLinks.root
-  || props.node.navLinks.parent
-  || props.node.navLinks.prev
-  || props.node.navLinks.next
-  || props.node.navLinks.context
-));
-const shouldProgressivelyRenderChildren = shouldBatchChildren(props.node.descendantCount, props.inModal);
-const visibleChildCount = ref(props.node.children.length);
-
-let childBatchFrameId: number | null = null;
-
-function requiredChildCount(): number {
-  return requiredVisibleNodeCount(props.node.children, hashPathIds.value);
-}
-
-function extendVisibleChildren(budget: number) {
-  if (!shouldProgressivelyRenderChildren || visibleChildCount.value >= props.node.children.length || isCollapsed.value) {
-    visibleChildCount.value = props.node.children.length;
-    return;
-  }
-
-  const nextCount = nextVisibleNodeCount(props.node.children, visibleChildCount.value, budget);
-  visibleChildCount.value = Math.min(
-    props.node.children.length,
-    Math.max(nextCount, requiredChildCount()),
-  );
-}
-
-function queueNextChildBatch() {
-  if (
-    !shouldProgressivelyRenderChildren
-    || !initialRenderPainted.value
-    || visibleChildCount.value >= props.node.children.length
-    || isCollapsed.value
-    || childBatchFrameId !== null
-  ) {
-    return;
-  }
-
-  childBatchFrameId = requestAnimationFrame(() => {
-    childBatchFrameId = null;
-    const beforeCount = visibleChildCount.value;
-    const startedAt = performance.now();
-    extendVisibleChildren(CHILD_FRAME_RENDER_BUDGET);
-    recordBatchFrame('comments:child-batches', {
-      durationMs: performance.now() - startedAt,
-      beforeCount,
-      afterCount: visibleChildCount.value,
-      totalCount: props.node.children.length,
-    });
-    queueNextChildBatch();
-  });
-}
-
-if (shouldProgressivelyRenderChildren) {
-  visibleChildCount.value = Math.min(
-    props.node.children.length,
-    Math.max(nextVisibleNodeCount(props.node.children, 0, CHILD_INITIAL_RENDER_BUDGET), requiredChildCount()),
-  );
-}
-
-const visibleChildren = computed(() =>
-  shouldProgressivelyRenderChildren && !isCollapsed.value
-    ? props.node.children.slice(0, visibleChildCount.value)
-    : props.node.children,
-);
 
 function toggleCollapse() {
   userCollapsed.value = !isCollapsed.value;
@@ -158,59 +81,6 @@ if (childrenInModal) {
     { immediate: true },
   );
 }
-
-watch(
-  initialRenderPainted,
-  painted => {
-    if (!painted || isCollapsed.value) {
-      return;
-    }
-
-    queueNextChildBatch();
-  },
-  { immediate: true },
-);
-
-watch(
-  isCollapsed,
-  collapsed => {
-    if (!shouldProgressivelyRenderChildren) {
-      return;
-    }
-
-    if (collapsed) {
-      if (childBatchFrameId !== null) {
-        cancelAnimationFrame(childBatchFrameId);
-        childBatchFrameId = null;
-      }
-      return;
-    }
-
-    const nextRequiredChildCount = requiredChildCount();
-    if (nextRequiredChildCount > visibleChildCount.value) {
-      visibleChildCount.value = nextRequiredChildCount;
-    }
-
-    queueNextChildBatch();
-  },
-  { immediate: true },
-);
-
-watch(
-  () => hashPathIds.value,
-  () => {
-    if (!shouldProgressivelyRenderChildren || isCollapsed.value) {
-      return;
-    }
-
-    const nextRequiredChildCount = requiredChildCount();
-    if (nextRequiredChildCount > visibleChildCount.value) {
-      visibleChildCount.value = nextRequiredChildCount;
-    }
-
-    queueNextChildBatch();
-  },
-);
 </script>
 
 <template>
@@ -244,7 +114,7 @@ watch(
               :age-timestamp="node.ageTimestamp"
               :is-deleted="node.isDeleted"
               :is-dead="node.isDead"
-              :is-flagged="actionState.isFlagged"
+              :is-flagged="node.isFlagged"
               :downvote-label="downvoteOpacity"
             />
 
@@ -293,14 +163,12 @@ watch(
               <CommentActions
                 :item-id="node.id"
                 :vote-up="node.voteUp"
-                :vote-un="actionState.voteUn"
+                :vote-un="node.voteUn"
                 :vote-down="node.voteDown"
-                :vote-target="actionState"
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
-                :flag-url="actionState.flagUrl"
-                :flag-target="actionState"
+                :flag-url="node.flagUrl"
               />
             </div>
           </div>
@@ -327,7 +195,7 @@ watch(
         <button class="comment-node__line" title="Collapse thread" @click="toggleCollapse"></button>
         <div class="comment-node__children">
           <CommentNode
-            v-for="child in visibleChildren"
+            v-for="child in node.children"
             :key="child.id"
             :node="child"
             :depth="currentDepth + 1"

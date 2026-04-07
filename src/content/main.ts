@@ -13,9 +13,7 @@ import {
   createDebugTimeline,
   createLogger,
   flushDebugSession,
-  hasRecordedBatchFrames,
   isDebugMode,
-  markFirstContentPainted,
 } from '@/debug';
 import { resolveRoute } from '@/router';
 import { parseHeader } from '@/parsers/header';
@@ -32,7 +30,6 @@ import { parseLeadersPage } from '@/parsers/leaders';
 import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
-import { INITIAL_RENDER_PAINTED_KEY } from '@/state/initialRender';
 import { makeItemPageReactive } from '@/state/itemPageState';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -43,7 +40,11 @@ const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
   if (page === 'stories') return parseStoryList(doc);
-  if (page === 'item') return parseItemPage(doc);
+  if (page === 'item') {
+    return parseItemPage(doc, {
+      initialHashTargetId: location.hash.slice(1) || null,
+    });
+  }
   if (page === 'user') return parseUserPage(doc);
   if (page === 'threads') return parseThreadsPage(doc);
   if (page === 'newcomments') return parseNewComments(doc);
@@ -168,18 +169,6 @@ function waitForAnimationFrame() {
   });
 }
 
-async function waitForBatchDebugData(maxFrames: number) {
-  for (let frame = 0; frame < maxFrames; frame += 1) {
-    if (hasRecordedBatchFrames()) {
-      return frame;
-    }
-
-    await waitForAnimationFrame();
-  }
-
-  return maxFrames;
-}
-
 // Re-injection guard: when the extension is reloaded while a tab is already open
 // (common in Firefox during development), the new content script is injected into
 // the already-modified DOM. The original HN nodes have been removed by
@@ -257,7 +246,6 @@ function mountApp() {
     // to it, then fill it after two animation frames to ensure the browser has
     // had a chance to paint the mounted UI.
     const renderTime = ref(0);
-    const initialRenderPainted = ref(false);
   
     const app = createApp(App);
     app.provide('header', header);
@@ -266,7 +254,6 @@ function mountApp() {
     app.provide('pageData', pageData);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
-    app.provide(INITIAL_RENDER_PAINTED_KEY, initialRenderPainted);
     timeline.step('app-mount', () => {
       app.mount(mountPoint);
     });
@@ -293,23 +280,8 @@ function mountApp() {
         renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
       }));
 
-      markFirstContentPainted();
-      initialRenderPainted.value = true;
       const firstContentPaintMs = Math.round(performance.now() - t0);
       renderTime.value = firstContentPaintMs;
-
-      await timeline.stepAsync('post-first-paint-batch-frame', async () => {
-        await waitForAnimationFrame();
-      }, () => ({
-        renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
-      }));
-
-      const batchDebugWaitFrames = await timeline.stepAsync('batch-debug-sync', async () => (
-        waitForBatchDebugData(3)
-      ), () => ({
-        renderedCommentNodeCount: host.querySelectorAll('.comment-node').length,
-        hasRecordedBatchFrames: hasRecordedBatchFrames(),
-      }));
   
       if (isDebugMode()) {
         const itemSummary = route.page === 'item'
@@ -340,7 +312,6 @@ function mountApp() {
           route: route.page,
           firstContentPaintMs,
           debugFlushMs: Math.round(performance.now() - t0),
-          batchDebugWaitFrames,
           bodyChildrenBeforeCleanup: originalBodyChildrenCount,
           removedSourceAssetCount,
           isMobileLayout,

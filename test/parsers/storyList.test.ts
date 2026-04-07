@@ -289,6 +289,107 @@ describe('story list fixtures', () => {
     });
   });
 
+  it('uses root shells for extreme threads while eagerly parsing the hash-target root', () => {
+    const dom = new JSDOM(`
+      <table class="fatitem">
+        <tr class="athing submission" id="999">
+          <td class="title"><span class="rank"></span></td>
+          <td class="votelinks"></td>
+          <td class="title">
+            <span class="titleline"><a href="https://example.com/story">Example story</a></span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2"></td>
+          <td class="subtext">
+            <span class="subline">
+              <span class="score" id="score_999">42 points</span>
+              by <a href="user?id=pg" class="hnuser">pg</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=999">1 hour ago</a></span>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <table class="comment-tree"><tbody>
+        <tr class="athing comtr" id="c1">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="0"><img src="s.gif" height="1" width="0"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=alice" class="hnuser">alice</a>
+                <span class="age" title="2026-04-05T12:00:00"><a href="item?id=c1">1 hour ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">root one</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+        <tr class="athing comtr" id="c2">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="1"><img src="s.gif" height="1" width="40"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=bob" class="hnuser">bob</a>
+                <span class="age" title="2026-04-05T12:05:00"><a href="item?id=c2">55 minutes ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">child one</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+        <tr class="athing comtr" id="c3">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="0"><img src="s.gif" height="1" width="0"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=carol" class="hnuser">carol</a>
+                <span class="age" title="2026-04-05T12:10:00"><a href="item?id=c3">50 minutes ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">root two</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+        <tr class="athing comtr" id="c4">
+          <td><table border="0"><tbody><tr>
+            <td class="ind" indent="1"><img src="s.gif" height="1" width="40"></td>
+            <td class="votelinks"></td>
+            <td class="default">
+              <span class="comhead">
+                <a href="user?id=dave" class="hnuser">dave</a>
+                <span class="age" title="2026-04-05T12:15:00"><a href="item?id=c4">45 minutes ago</a></span>
+              </span>
+              <div class="comment"><div class="commtext c00">child two</div></div>
+            </td>
+          </tr></tbody></table></td>
+        </tr>
+      </tbody></table>
+    `);
+
+    const page = parseItemPage(dom.window.document, {
+      extremeThreadCommentThreshold: 2,
+      initialHashTargetId: 'c4',
+    });
+
+    expect(page.comments).toHaveLength(2);
+    expect(page.comments[0]).toMatchObject({
+      id: 'c1',
+      descendantCount: 1,
+      children: [],
+    });
+    expect(page.comments[0].lazyThread?.totalCommentCount).toBe(2);
+
+    expect(page.comments[1]).toMatchObject({
+      id: 'c3',
+      descendantCount: 1,
+    });
+    expect(page.comments[1].lazyThread).toBeNull();
+    expect(page.comments[1].children[0]).toMatchObject({
+      id: 'c4',
+      bodyHtml: 'child two',
+    });
+  });
+
   it('parses flat comment unvote links when they are rendered in the header span', () => {
     const dom = new JSDOM(`
       <table>

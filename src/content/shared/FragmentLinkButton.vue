@@ -1,26 +1,9 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
 import { Hash } from 'lucide-vue-next';
 
 const props = defineProps<{
   targetId: string;
 }>();
-
-const copied = ref(false);
-let copiedTimer: ReturnType<typeof setTimeout> | null = null;
-
-function setCopiedState() {
-  copied.value = true;
-
-  if (copiedTimer) {
-    clearTimeout(copiedTimer);
-  }
-
-  copiedTimer = setTimeout(() => {
-    copied.value = false;
-    copiedTimer = null;
-  }, 1200);
-}
 
 function buildPermalink(targetId: string) {
   const permalink = new URL(window.location.href);
@@ -46,25 +29,18 @@ async function copyPermalink() {
 
   try {
     await navigator.clipboard.writeText(permalink.toString());
-    setCopiedState();
   } catch {
     // clipboard may be unavailable; keep the fragment update
   }
 }
-
-onBeforeUnmount(() => {
-  if (copiedTimer) {
-    clearTimeout(copiedTimer);
-  }
-});
 </script>
 
 <template>
   <button
     type="button"
     class="fragment-link-button"
-    :title="copied ? 'Permalink copied' : 'Copy permalink to this comment'"
-    :aria-label="copied ? 'Permalink copied' : 'Copy permalink to this comment'"
+    title="Copy permalink to this comment"
+    aria-label="Copy permalink to this comment"
     @click="copyPermalink"
   >
     <Hash :size="14" aria-hidden="true" />

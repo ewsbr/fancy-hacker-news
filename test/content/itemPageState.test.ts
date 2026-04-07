@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isReactive } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
-import {
-  createCommentActionStateStore,
-  getCommentActionState,
-  makeItemPageReactive,
-} from '@/state/itemPageState';
+import { makeItemPageReactive } from '@/state/itemPageState';
 
 function buildItemPage(): ParsedItemPage {
   return {
@@ -128,22 +124,5 @@ describe('itemPageState', () => {
     expect(isReactive(reactivePageData.comments[0].children)).toBe(false);
     expect(isReactive(reactivePageData.comments[0].children[0])).toBe(false);
     expect(isReactive(reactivePageData.comments[0].navLinks)).toBe(false);
-  });
-
-  it('reuses reactive action islands per comment id', () => {
-    const pageData = buildItemPage();
-    const store = createCommentActionStateStore();
-
-    const firstState = getCommentActionState(store, pageData.comments[0]);
-    firstState.voteUn = 'vote?id=comment-1&how=un';
-    firstState.flagUrl = 'flag?id=comment-1&un=t';
-    firstState.isFlagged = true;
-
-    const secondState = getCommentActionState(store, pageData.comments[0]);
-
-    expect(firstState).toBe(secondState);
-    expect(secondState.voteUn).toBe('vote?id=comment-1&how=un');
-    expect(secondState.flagUrl).toBe('flag?id=comment-1&un=t');
-    expect(secondState.isFlagged).toBe(true);
   });
 });

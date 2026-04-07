@@ -17,7 +17,6 @@ import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
-import { COMMENT_ACTION_STATE_KEY, createCommentActionStateStore } from '@/state/itemPageState';
 
 const commentsLogger = createLogger('comments');
 
@@ -66,7 +65,6 @@ const fragmentState: CommentFragmentState = {
 };
 
 provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
-provide(COMMENT_ACTION_STATE_KEY, createCommentActionStateStore());
 
 function getModernRoot(): HTMLElement | null {
   return document.getElementById('fancy-hn-root');
