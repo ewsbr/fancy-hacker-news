@@ -67,6 +67,7 @@ function parsePageData(page: string, doc: Document): unknown {
   if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);
   if (page === 'lists') return parseListsPage(doc);
   if (page === 'topcolors') return parseTopColorsPage(doc);
+  if (page === 'notfound') return null;
   if (location.pathname === '/x') {
     const submitPage = parseSubmitPage(doc);
     if (submitPage.form) {
@@ -184,7 +185,18 @@ function mountApp() {
   
     // 1. Parse from original DOM before hiding anything
     const header = timeline.step('parse-header', () => parseHeader(document));
-    const route = timeline.step('resolve-route', () => resolveRoute(location));
+    const route = timeline.step('resolve-route', () => {
+      const resolved = resolveRoute(location);
+      // HN sends HTTP 200 for all missing pages; the body is just "Unknown."
+      // Detect this and use a dedicated page rather than falling through to StaticPage.
+      if (document.body.textContent?.trim() === 'Unknown.') {
+        return {
+          page: 'notfound',
+          params: { path: location.pathname + location.search },
+        };
+      }
+      return resolved;
+    });
     const parsedPageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
   
     if (route.page === 'item') {

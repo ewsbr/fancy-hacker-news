@@ -19,6 +19,7 @@ import LeadersPage from './pages/LeadersPage.vue';
 import ListsPage from './pages/ListsPage.vue';
 import TopColorsPage from './pages/TopColorsPage.vue';
 import DeleteConfirmPage from './pages/DeleteConfirmPage.vue';
+import NotFoundPage from './pages/NotFoundPage.vue';
 
 const route = inject<RouteDescriptor>('route')!;
 const pageData = inject<unknown>('pageData');
@@ -40,6 +41,7 @@ const PAGE_MAP: Record<string, Component> = {
   lists: ListsPage,
   topcolors: TopColorsPage,
   'delete-confirm': DeleteConfirmPage,
+  'notfound': NotFoundPage,
 };
 
 function isLoginPageData(value: unknown): value is ParsedLoginPage {
