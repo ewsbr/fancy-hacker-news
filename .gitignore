@@ -21,6 +21,7 @@ Thumbs.db
 
 .idea/
 .vscode/
+.codex
 
 web-ext-artifacts/
 *.zip
