@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue';
+import StripedTableCard from '@/content/shared/StripedTableCard.vue';
 import type { ParsedListsPage } from '@/parsers/lists';
 
 const page = inject<ParsedListsPage>('pageData')!;
@@ -9,17 +10,17 @@ const page = inject<ParsedListsPage>('pageData')!;
   <div class="lists-page">
     <h1 class="lists-page__title">Lists</h1>
 
-    <div class="lists-page__card hn-content-card">
+    <StripedTableCard class="lists-page__card">
       <div
         v-for="entry in page.entries"
         :key="entry.href"
-        class="lists-page__row"
+        class="lists-page__entry striped-table-card__row"
       >
         <a class="lists-page__name" :href="entry.href">{{ entry.name }}</a>
         <span class="lists-page__sep" aria-hidden="true">—</span>
         <div class="lists-page__desc" v-html="entry.descriptionHtml" />
       </div>
-    </div>
+    </StripedTableCard>
   </div>
 </template>
 
@@ -36,24 +37,11 @@ const page = inject<ParsedListsPage>('pageData')!;
     color: var(--color-text);
   }
 
-  &__row {
+  &__entry {
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
     padding: 0.45rem 0.75rem;
-    border-bottom: 1px solid var(--color-border);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:nth-child(even) {
-      background: var(--color-row-alt);
-    }
-
-    &:hover {
-      background: var(--color-row-hover);
-    }
   }
 
   &__name {
