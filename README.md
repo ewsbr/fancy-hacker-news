@@ -1,6 +1,6 @@
 # Fancy HackerNews
 
-A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every Hacker News page using Vue 3. Data is parsed from the original HN HTML before the page is displayed — there are no API calls and no SPA routing.
+A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders Hacker News pages using Vue 3. Initial page data is parsed from the original HN HTML before the page is displayed, then interactive controls keep using HN's own URLs/endpoints. There is no SPA routing.
 
 ## Stack
 
@@ -8,17 +8,21 @@ A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every 
 - TypeScript with strict mode and `vue-tsc`
 - Raw SCSS with scoped component styles and BEM naming
 - Vite 8 IIFE builds for content and background scripts
+- Vitest for fixture-based parser and UI-state tests
 - Fontsource variable fonts: Atkinson Hyperlegible Next, Manrope, JetBrains Mono
 - `lucide-vue-next` icons
+- `reka-ui` for shared tooltip primitives
 
 ## How It Works
 
 The content script (`src/content/main.ts`) runs at `document_end`:
 
 1. Parses the original HN DOM — header, route, and page-specific data
-2. Hides all original body children via an injected `<style>` rule
-3. Mounts a Vue app into a fresh `div#fancy-hn-root`
-4. Strips the original HN nodes after first paint
+2. Detects HN's literal `Unknown.` response and routes it to a dedicated 404 page
+3. Hides the original body children and removes HN source assets
+4. Mounts a Vue app into a fresh `div#fancy-hn-root`
+5. Renders shared shell UI such as the search modal, `Cmd/Ctrl+K` search shortcut, and scroll-to-top control
+6. Strips the original HN nodes after first paint
 
 If anything throws, the original page is left untouched.
 
@@ -29,7 +33,8 @@ Four themes switchable from the header: **light** (default), **dark**, **nord**,
 ## Project Docs
 
 - `EXTENSION.md` — browser-facing extension description and known quirks
-- `DESIGNSYSTEM.md` — shared design-system guidance for breakpoints, sizing, spacing, and interaction rules
+- `DESIGNSYSTEM.md` — shared design-system guidance for breakpoints, sizing, spacing, pagination, and interaction rules
+- `AGENTS.md` — repo-specific implementation guide for coding agents and contributors working close to the architecture
 
 ## Commands
 
@@ -37,6 +42,13 @@ Four themes switchable from the header: **light** (default), **dark**, **nord**,
 pnpm build       # production build (content + background)
 pnpm dev         # watch mode (content script only)
 pnpm typecheck   # vue-tsc --noEmit
+pnpm test        # run Vitest once
+pnpm test:watch  # run Vitest in watch mode
+
+# design concepts playground
+pnpm concepts:dev
+pnpm concepts:build
+pnpm concepts:preview
 ```
 
 ## Loading Locally
@@ -59,22 +71,28 @@ src/
 │   ├── main.ts
 │   ├── anti-fouc.js
 │   ├── App.vue
+│   ├── composables/
+│   │   └── useHnActions.ts
 │   ├── layout/
 │   │   ├── AppShell.vue
 │   │   ├── SiteHeader.vue
 │   │   └── SiteFooter.vue
 │   ├── pages/
-│   │   ├── StoriesPage.vue      # /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
-│   │   ├── CommentsPage.vue     # /item?id=…
-│   │   ├── UserPage.vue         # /user?id=…
-│   │   ├── ThreadsPage.vue      # /threads?id=…
-│   │   ├── NewCommentsPage.vue  # /newcomments, /noobcomments
-│   │   ├── SubmitPage.vue       # /submit
-│   │   ├── ReplyPage.vue        # /reply?id=…
-│   │   ├── FormatDocPage.vue    # /formatdoc
-│   │   ├── LeadersPage.vue      # /leaders
-│   │   ├── LoginPage.vue        # /login, /changepw, /forgot, /vote
-│   │   └── StaticPage.vue       # /newsfaq, /newsguidelines, catch-all
+│   │   ├── StoriesPage.vue       # /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
+│   │   ├── CommentsPage.vue      # /item?id=…
+│   │   ├── UserPage.vue          # /user?id=…
+│   │   ├── ThreadsPage.vue       # /threads?id=…
+│   │   ├── NewCommentsPage.vue   # /newcomments, /noobcomments, favorites?comments=t
+│   │   ├── SubmitPage.vue        # /submit
+│   │   ├── ReplyPage.vue         # /reply?id=…
+│   │   ├── FormatDocPage.vue     # /formatdoc
+│   │   ├── LeadersPage.vue       # /leaders
+│   │   ├── ListsPage.vue         # /lists
+│   │   ├── TopColorsPage.vue     # /topcolors
+│   │   ├── DeleteConfirmPage.vue # /delete-confirm
+│   │   ├── LoginPage.vue         # /login, /changepw, /forgot, /vote
+│   │   ├── NotFoundPage.vue      # dedicated 404 page for HN's `Unknown.` response
+│   │   └── StaticPage.vue        # /newsfaq, /newsguidelines, catch-all
 │   ├── stories/
 │   │   ├── StoryRow.vue
 │   │   ├── StoryRank.vue
@@ -86,6 +104,7 @@ src/
 │   │   ├── CommentHeader.vue
 │   │   ├── CommentBody.vue
 │   │   ├── FlatComment.vue
+│   │   ├── LazyCommentRoot.vue
 │   │   ├── OnStoryHeader.vue
 │   │   ├── SubThreadModal.vue
 │   │   └── ThreadNode.vue
@@ -96,16 +115,24 @@ src/
 │       ├── AuthorByline.vue
 │       ├── Badge.vue
 │       ├── CommentActions.vue
+│       ├── CommentUserMeta.vue
 │       ├── FlagButton.vue
 │       ├── FragmentLinkButton.vue
+│       ├── Keycap.vue
 │       ├── MetaSep.vue
+│       ├── NoticeBanner.vue
 │       ├── Pagination.vue
 │       ├── PollOptions.vue
 │       ├── RichText.vue
+│       ├── ScrollToTopButton.vue
 │       ├── SearchModal.vue
+│       ├── SearchTrigger.vue
 │       ├── StorySiteLink.vue
+│       ├── StripedTableCard.vue
 │       ├── ThemeToggle.vue
 │       ├── Tooltip.vue
+│       ├── TopNotice.vue
+│       ├── UserCollectionHeader.vue
 │       └── VoteButton.vue
 ├── parsers/
 │   ├── utils.ts
@@ -119,17 +146,28 @@ src/
 │   ├── newComments.ts
 │   ├── submit.ts
 │   ├── reply.ts
-│   └── leaders.ts
+│   ├── leaders.ts
+│   ├── deleteConfirm.ts
+│   ├── lists.ts
+│   └── topColors.ts
 ├── router/
 │   └── index.ts
 ├── state/
 │   ├── fragmentState.ts
+│   ├── itemPageState.ts
 │   ├── theme.ts
 │   └── useIsMobile.ts
 └── styles/
     ├── main.scss
+    ├── _theme-tokens.scss
     └── _comment-node.scss
 ```
+
+## Testing
+
+- HTML fixtures live in `test/fixtures/`
+- Parser and content behavior tests run through Vitest and `jsdom`
+- Prefer fixture-driven parsing tests over live network requests when adding parser coverage
 
 ## Browser Support
 

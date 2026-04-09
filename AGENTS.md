@@ -1,6 +1,6 @@
 # Fancy HackerNews — Agent Guide
 
-A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every Hacker News page using a Vue 3 app mounted directly into the document body. All data comes from parsing the original HN page DOM — no API calls, no SPA routing.
+A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders Hacker News pages using a Vue 3 app mounted directly into the document body. Initial page data is parsed from the original HN DOM before mount; interactive controls then use HN's own URLs/endpoints, and search opens Algolia in a new tab. There is still no SPA routing.
 
 ---
 
@@ -12,8 +12,10 @@ A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every 
 | Language | TypeScript (strict mode, `vue-tsc` for type checking) |
 | Styling | Raw SCSS with a global theme/reset layer plus scoped component styles (BEM naming) |
 | Build | Vite 8 IIFE build, separate content + background targets |
+| Testing | Vitest + fixture-based DOM parsing tests |
 | Package manager | pnpm |
 | Icons | `lucide-vue-next` |
+| UI primitives | `reka-ui` (`TooltipProvider`) |
 | Fonts | Atkinson Hyperlegible Next, Manrope, JetBrains Mono (Fontsource variable packages) |
 
 ---
@@ -24,11 +26,13 @@ A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders every 
 pnpm build          # build content + background scripts
 pnpm dev            # watch mode (content script only)
 pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
+pnpm test           # run Vitest once
+pnpm concepts:dev   # run the design concepts playground
 ```
 
 ## Commit Conventions
 
-- Use Conventional Commits for git history, e.g. `fix: handle from routes` or `feat: add leaders page parser`.
+- Use Conventional Commits for git history, e.g. `fix: handle from routes` or `feat: add 404 page`.
 - Keep the subject line focused on the shipped behavior, in imperative mood.
 
 ---
@@ -36,24 +40,27 @@ pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 ## Primary Docs
 
 - `README.md` — contributor-facing project overview and local loading/build instructions
-- `EXTENSION.md` — main Firefox-facing extension description and known quirks
-- `DESIGNSYSTEM.md` — shared UI contract for breakpoints, typography, spacing, and interaction rules
+- `EXTENSION.md` — browser-facing extension description and known quirks
+- `DESIGNSYSTEM.md` — shared UI contract for breakpoints, typography, spacing, pagination, and interaction rules
 
-Update `DESIGNSYSTEM.md` whenever you materially change breakpoints, shared mobile sizing, action-row behavior, badge sizing, or tap-target conventions.
+Update `DESIGNSYSTEM.md` whenever you materially change breakpoints, shared mobile sizing, action-row behavior, attached-pagination treatment, badge sizing, or tap-target conventions.
 
 ---
 
-## How It Works (Entry Point Flow)
+## How It Works
 
 `src/content/main.ts` runs at `document_end` as the content script:
 
-1. **Parse** — call `parseHeader(document)` + `resolveRoute(location)` against the live HN DOM, then parse page-specific data
-2. **Hide** — inject a one-rule `<style>` that hides all original body children
-3. **Root Element** — create `div#fancy-hn-root` in the document body; compiled CSS is loaded separately by the manifest as a content-script stylesheet
-4. **Mount** — `createApp(App)`, provide `header`, `route`, `pageData`, `renderTime` via `app.provide()`
-5. **Render** — Vue renders the full UI inside `#fancy-hn-root`; original HN nodes are stripped from the DOM after first paint
+1. **Parse** — call `parseHeader(document)` + `resolveRoute(location)` against the live HN DOM, then parse page-specific data.
+2. **Detect special cases** — if HN returns its literal `Unknown.` body, route to the dedicated `notfound` page.
+3. **Prepare reactive state** — item pages pass through `makeItemPageReactive()` so very large comment trees avoid unnecessary deep reactivity work.
+4. **Hide / isolate** — inject a one-rule `<style>` that hides original body children, then remove HN source assets (`<link>`, `<style>`, `<script>`) so legacy styles and click handlers cannot interfere.
+5. **Root element** — create `div#fancy-hn-root` in the document body; compiled CSS is injected by the manifest as a content-script stylesheet.
+6. **Mount** — `createApp(App)`, provide `header`, `route`, `pageData`, `originalDoc`, `isMobileLayout`, and `renderTime` via `app.provide()`.
+7. **Shell UI** — `AppShell.vue` owns shared chrome: header, footer, search modal, `Cmd/Ctrl+K` shortcut, and scroll-to-top button.
+8. **Render / cleanup** — Vue renders inside `#fancy-hn-root`; original HN nodes are stripped from the DOM after first paint.
 
-If anything throws, the original HN page is left visible (graceful fallback).
+If anything throws, the original HN page is left visible.
 
 ---
 
@@ -69,90 +76,118 @@ src/
 │   ├── main.ts              # entry point: parse → hide → mount → cleanup
 │   ├── anti-fouc.js         # inline script injected before parse to suppress FOUC
 │   ├── App.vue              # root: reads route, selects page component via PAGE_MAP
+│   ├── composables/
+│   │   └── useHnActions.ts  # vote / flag actions against native HN endpoints
 │   ├── layout/
-│   │   ├── AppShell.vue     # header + <slot> + footer wrapper
-│   │   ├── SiteHeader.vue   # logo, nav links, user controls, search trigger, ThemeToggle
-│   │   └── SiteFooter.vue   # site links, tagline, search shortcut, metadata
+│   │   ├── AppShell.vue     # shell wrapper; search modal, Cmd/Ctrl+K, scroll-to-top
+│   │   ├── SiteHeader.vue   # logo, nav links, user controls, search trigger, theme toggle
+│   │   └── SiteFooter.vue   # site links, tagline, search trigger, metadata
 │   ├── pages/
-│   │   ├── StoriesPage.vue  # /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
-│   │   ├── CommentsPage.vue # /item?id=… — story header + full comment tree
-│   │   ├── UserPage.vue     # /user?id=… — profile, karma, about
-│   │   ├── ThreadsPage.vue  # /threads?id=… — flat thread list
-│   │   ├── NewCommentsPage.vue # /newcomments, /noobcomments, favorites?comments=t
-│   │   ├── SubmitPage.vue   # /submit — submission form
-│   │   ├── ReplyPage.vue    # /reply?id=… — single-comment reply form
-│   │   ├── FormatDocPage.vue # /formatdoc — formatting help
-│   │   ├── LeadersPage.vue  # /leaders — karma leaderboard
-│   │   ├── LoginPage.vue    # /login, /changepw, /forgot, /comment, /vote
-│   │   └── StaticPage.vue   # /newsfaq, /newsguidelines, catch-all
+│   │   ├── StoriesPage.vue       # story lists: /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
+│   │   ├── CommentsPage.vue      # /item?id=… — story header + threaded comments
+│   │   ├── UserPage.vue          # /user?id=… — profile, karma, about
+│   │   ├── ThreadsPage.vue       # /threads?id=… — flat thread list
+│   │   ├── NewCommentsPage.vue   # /newcomments, /noobcomments, favorites?comments=t
+│   │   ├── SubmitPage.vue        # /submit
+│   │   ├── ReplyPage.vue         # /reply?id=…
+│   │   ├── FormatDocPage.vue     # /formatdoc
+│   │   ├── LeadersPage.vue       # /leaders
+│   │   ├── ListsPage.vue         # /lists
+│   │   ├── TopColorsPage.vue     # /topcolors
+│   │   ├── DeleteConfirmPage.vue # /delete-confirm
+│   │   ├── LoginPage.vue         # /login, /changepw, /forgot, /comment, /vote
+│   │   ├── NotFoundPage.vue      # dedicated 404 UI for HN's `Unknown.` response
+│   │   └── StaticPage.vue        # /newsfaq, /newsguidelines, catch-all
 │   ├── stories/
-│   │   ├── StoryRow.vue     # single story: rank + vote + title + meta + badges
-│   │   ├── StoryRank.vue    # rank number display
-│   │   ├── StoryMeta.vue    # score, author, age, comments link, hide/fav actions
-│   │   └── StoryDetail.vue  # full story header for the item/comments page
+│   │   ├── StoryRow.vue
+│   │   ├── StoryRank.vue
+│   │   ├── StoryMeta.vue
+│   │   └── StoryDetail.vue
 │   ├── comments/
-│   │   ├── CommentTree.vue  # top-level comment list renderer
-│   │   ├── CommentNode.vue  # recursive node: collapse/expand, indent, threading
-│   │   ├── CommentHeader.vue # author, age, badges, nav arrows, collapse toggle
-│   │   ├── CommentBody.vue  # comment HTML with depth-based gray styling
-│   │   ├── FlatComment.vue  # single flattened comment row (for ThreadsPage / NewCommentsPage)
-│   │   ├── OnStoryHeader.vue # "N comments on: <title>" banner used in comment contexts
-│   │   ├── SubThreadModal.vue # modal overlay for viewing a sub-thread in context
-│   │   └── ThreadNode.vue   # comment row used inside SubThreadModal
+│   │   ├── CommentBody.vue
+│   │   ├── CommentHeader.vue
+│   │   ├── CommentNode.vue
+│   │   ├── CommentTree.vue
+│   │   ├── FlatComment.vue
+│   │   ├── LazyCommentRoot.vue   # lazy-expands deferred comment subtrees from pre-parsed HTML
+│   │   ├── OnStoryHeader.vue
+│   │   ├── SubThreadModal.vue
+│   │   └── ThreadNode.vue
 │   ├── forms/
-│   │   ├── CommentForm.vue  # inline reply form with CSRF fields
-│   │   └── SubmitForm.vue   # story submission form fields
+│   │   ├── CommentForm.vue
+│   │   └── SubmitForm.vue
+│   ├── utils/
+│   │   ├── emptyStates.ts
+│   │   ├── userCollectionIntro.ts
+│   │   └── wait.ts
 │   └── shared/
-│       ├── AuthorByline.vue  # author link + "new user" badge
-│       ├── Badge.vue         # status badges: new, dead, flagged, downvoted, job
-│       ├── CommentActions.vue # vote/reply/edit/delete/flag action row for comments
-│       ├── FlagButton.vue    # flag link with confirmation
-│       ├── FragmentLinkButton.vue # permalink/hash copy button for comments
-│       ├── MetaSep.vue       # separator dot between meta items
-│       ├── Pagination.vue    # "More" / prev-next pagination link
-│       ├── PollOptions.vue   # poll option rows with vote bars
-│       ├── RichText.vue      # HTML renderer with code/quote/link styles
-│       ├── SearchModal.vue   # Algolia search overlay (keyboard-triggered)
-│       ├── StorySiteLink.vue # external site domain badge next to story title
-│       ├── ThemeToggle.vue   # theme swatch picker (light/dark/nord/amoled)
-│       ├── Tooltip.vue       # hover tooltip wrapper
-│       └── VoteButton.vue    # upvote chevron button
+│       ├── AuthorByline.vue
+│       ├── Badge.vue
+│       ├── CommentActions.vue
+│       ├── CommentUserMeta.vue
+│       ├── FlagButton.vue
+│       ├── FragmentLinkButton.vue
+│       ├── Keycap.vue
+│       ├── MetaSep.vue
+│       ├── NoticeBanner.vue
+│       ├── Pagination.vue        # supports standalone + attached card-footer mode
+│       ├── PollOptions.vue
+│       ├── RichText.vue
+│       ├── ScrollToTopButton.vue
+│       ├── SearchModal.vue       # search overlay; submits to Algolia in a new tab
+│       ├── SearchTrigger.vue     # reusable search entry point; consumes injected `openSearch`
+│       ├── StoryItem.vue         # legacy story component; avoid for new work
+│       ├── StorySiteLink.vue
+│       ├── StripedTableCard.vue
+│       ├── ThemeToggle.vue
+│       ├── Tooltip.vue
+│       ├── TopNotice.vue
+│       ├── UserCollectionHeader.vue
+│       └── VoteButton.vue
 ├── parsers/
-│   ├── utils.ts             # textOf, attrOf, hrefOf, parseScore, parseAge, …
-│   ├── header.ts            # parseHeader(doc) → ParsedHeader
-│   ├── storyList.ts         # parseStoryList(doc) → ParsedStoryList
-│   ├── item.ts              # parseItemPage(doc) → ParsedItemPage (story + comment tree)
-│   ├── login.ts             # parseLoginPage(doc) → ParsedLoginPage
-│   ├── static.ts            # parseStaticPage(doc) → ParsedStaticPage
-│   ├── user.ts              # parseUserPage(doc) → ParsedUserPage
-│   ├── threads.ts           # parseThreadsPage(doc) → ParsedThreadsPage
-│   ├── newComments.ts       # parseNewComments(doc) → ParsedNewComments
-│   ├── submit.ts            # parseSubmitPage(doc) → ParsedSubmitPage
-│   ├── reply.ts             # parseReplyPage(doc) → ParsedReplyPage
-│   └── leaders.ts           # parseLeadersPage(doc) → ParsedLeadersPage
+│   ├── utils.ts
+│   ├── header.ts
+│   ├── storyList.ts
+│   ├── item.ts
+│   ├── login.ts
+│   ├── static.ts
+│   ├── user.ts
+│   ├── threads.ts
+│   ├── newComments.ts
+│   ├── submit.ts
+│   ├── reply.ts
+│   ├── leaders.ts
+│   ├── deleteConfirm.ts
+│   ├── lists.ts
+│   └── topColors.ts
 ├── router/
 │   └── index.ts             # resolveRoute(location) → RouteDescriptor (pure fn)
 ├── state/
-│   ├── fragmentState.ts      # shared comment fragment highlight/scroll injection state
-│   ├── theme.ts             # useTheme() composable — chrome.storage + data-theme attr
-│   └── useIsMobile.ts       # useIsMobile() composable — matchMedia(max-width: 640px)
+│   ├── fragmentState.ts
+│   ├── itemPageState.ts     # item-page reactivity/performance helpers
+│   ├── theme.ts
+│   └── useIsMobile.ts
 └── styles/
-    ├── main.scss            # font imports, theme CSS vars, global reset, shared utilities
-    └── _comment-node.scss   # comment indent/depth/collapse styles (imported by main.scss)
+    ├── main.scss
+    ├── _theme-tokens.scss
+    └── _comment-node.scss
 ```
 
 ---
 
 ## Architecture Rules
 
-- **No fetch / no API** — all data is parsed from the original HN DOM before Vue mounts.
+- **Initial page data comes from the original HN DOM** — parsers read the server-rendered page before mount. There is no custom backend or client-side route loading.
 - **No SPA navigation** — `resolveRoute` is a pure read of `location` on page load only. All links and forms are native HTML pointing at HN's own servers.
+- **Native HN actions stay native** — vote / flag interactions use HN's own URLs via `useHnActions.ts`; search opens Algolia in a separate tab.
 - **CSRF tokens preserved** — `auth=` params in links and `hmac` hidden fields are taken verbatim from the parsed DOM — never hardcoded or fabricated.
-- **CSS isolation** — all Vue output and CSS lives inside the `#fancy-hn-root` container; it avoids affecting original HN elements through component scoping and careful selector choice (no shadow DOM used).
-- **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM class names.
+- **CSS isolation** — all Vue output and CSS lives inside `#fancy-hn-root`; component styles stay scoped and avoid affecting the underlying HN page.
+- **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM-style naming.
 - **CSS ships as a real stylesheet** — Vite emits `dist/content/assets/style.css`, and `manifest.json` injects it as a content-script stylesheet.
 - **JS asset URLs are extension-aware** — Vite's `renderBuiltUrl` hook emits `chrome.runtime.getURL(...)` for JS-hosted assets so imported images resolve from the extension origin instead of the host page.
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
+- **Search UI is shell-owned** — `AppShell.vue` provides `openSearch`; `SearchTrigger.vue` consumes it, and `Cmd/Ctrl+K` should keep mapping to the same modal.
+- **Connected pagination is a shared pattern** — when `More` continues a list/card surface, keep it inside the same card shell and use `Pagination` with `attached`.
 - **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
 - **Re-injection guard** — on extension reload into an already-modified tab, `mountApp()` detects `#fancy-hn-root` already present and calls `window.location.reload()` to restore the clean server-rendered DOM before re-parsing.
 - **Respect source quirks** — if Hacker News emits inconsistent navigation or visibility state, document it before “fixing” it in the parser/UI. Do not silently diverge from source behavior without an explicit product decision.
@@ -170,19 +205,19 @@ src/
 
 ## Themes
 
-Four themes toggled via `data-theme` attribute on `#fancy-hn-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties on `#fancy-hn-root` / `#fancy-hn-root[data-theme="..."]` in `main.scss`. Persisted via `chrome.storage.local`.
+Four themes toggled via `data-theme` on `#fancy-hn-root`: `light` (default), `dark`, `nord`, `amoled`. Defined as CSS custom properties in `src/styles/_theme-tokens.scss` and applied in `src/styles/main.scss`. Persisted via `chrome.storage.local`.
 
 ---
 
 ## Parsers
 
-Each parser is a pure function `(doc: Document) → TypedModel`. All parsers are implemented:
+Each parser is a pure function `(doc: Document) → TypedModel`.
 
 | File | Function | Routes |
 |------|----------|--------|
 | `utils.ts` | shared helpers | — |
 | `header.ts` | `parseHeader` | all pages |
-| `storyList.ts` | `parseStoryList` | `/news`, `/ask`, `/show`, `/jobs`, `/submitted`, etc. |
+| `storyList.ts` | `parseStoryList` | `/news`, `/ask`, `/show`, `/jobs`, `/submitted`, `/hidden`, favorites stories |
 | `item.ts` | `parseItemPage` | `/item?id=` |
 | `login.ts` | `parseLoginPage` | `/login`, `/changepw`, `/forgot`, `/vote` |
 | `static.ts` | `parseStaticPage` | `/newsfaq`, `/newsguidelines`, `/formatdoc`, catch-all |
@@ -192,14 +227,17 @@ Each parser is a pure function `(doc: Document) → TypedModel`. All parsers are
 | `submit.ts` | `parseSubmitPage` | `/submit` |
 | `reply.ts` | `parseReplyPage` | `/reply?id=` |
 | `leaders.ts` | `parseLeadersPage` | `/leaders` |
+| `deleteConfirm.ts` | `parseDeleteConfirmPage` | `/delete-confirm` |
+| `lists.ts` | `parseListsPage` | `/lists` |
+| `topColors.ts` | `parseTopColorsPage` | `/topcolors` |
 
-Full parser specs (selectors, data models) are in [`plan/03-parsers.md`](plan/03-parsers.md).
+Full parser specs (selectors, data models) are in `plan/03-parsers.md`.
 
 ---
 
 ## Test Fixtures
 
-HTML snapshots of real HN pages live in `test/fixtures/`. Use these when building or testing parsers — do not make live network requests.
+HTML snapshots of real HN pages live in `test/fixtures/`. Use these when building or testing parsers — do not make live network requests for parser coverage.
 
 ---
 
