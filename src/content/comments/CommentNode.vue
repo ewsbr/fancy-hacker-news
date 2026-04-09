@@ -1,28 +1,15 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import CommentHeader from './CommentHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-import { ChevronLeft, ChevronRight, MessageSquare } from 'lucide-vue-next';
-import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
-import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
+import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
-const DOWNVOTE_LABELS: Record<string, string> = {
-  c5a: '1/9',
-  c73: '2/9',
-  c82: '3/9',
-  c88: '4/9',
-  c9c: '5/9',
-  cae: '6/9',
-  cbe: '7/9',
-  cce: '8/9',
-  cdd: '9/9',
-};
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -48,16 +35,7 @@ const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBI
 const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
-const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
 const latestUrl = `latest?id=${encodeURIComponent(props.node.id)}`;
-const hasHeaderNav = !!(
-  latestUrl
-  || props.node.navLinks.root
-  || props.node.navLinks.parent
-  || props.node.navLinks.prev
-  || props.node.navLinks.next
-  || props.node.navLinks.context
-);
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
@@ -95,61 +73,13 @@ if (childrenInModal) {
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
-        <div class="comment-node__header">
-          <button
-            class="comment-node__toggle"
-            :class="{ 'comment-node__toggle--collapsed': isCollapsed }"
-            @click="toggleCollapse"
-          >
-            {{ isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
-          </button>
-
-          <div class="comment-node__header-info">
-            <CommentUserMeta
-              :author="node.author"
-              :author-is-new="node.authorIsNew"
-              :score="node.score"
-              :age-link="node.ageLink"
-              :age="node.age"
-              :age-timestamp="node.ageTimestamp"
-              :is-deleted="node.isDeleted"
-              :is-dead="node.isDead"
-              :is-flagged="node.isFlagged"
-              :downvote-label="downvoteOpacity"
-            />
-
-            <div v-if="!node.isDeleted && !isCollapsed && hasHeaderNav" class="comment-node__nav">
-              <MetaSep />
-              <a :href="latestUrl" class="comment-node__nav-link">latest</a>
-              <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-node__nav-link">root</a>
-              <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-node__nav-link">parent</a>
-              <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-node__nav-link">context</a>
-            </div>
-
-            <div class="comment-node__controls">
-              <MetaSep class="comment-node__controls-sep" />
-              <a
-                v-if="!node.isDeleted && !isCollapsed && node.navLinks.prev"
-                :href="node.navLinks.prev"
-                class="comment-node__icon-link"
-                title="Previous comment"
-                aria-label="Previous comment"
-              >
-                <ChevronLeft :size="14" aria-hidden="true" />
-              </a>
-              <FragmentLinkButton :target-id="node.id" />
-              <a
-                v-if="!node.isDeleted && !isCollapsed && node.navLinks.next"
-                :href="node.navLinks.next"
-                class="comment-node__icon-link"
-                title="Next comment"
-                aria-label="Next comment"
-              >
-                <ChevronRight :size="14" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-        </div>
+        <CommentHeader
+          class="comment-node__header"
+          :node="node"
+          :is-collapsed="isCollapsed"
+          :latest-url="latestUrl"
+          @toggle="toggleCollapse"
+        />
 
         <template v-if="!isCollapsed">
           <div class="comment-node__body-wrapper">
@@ -238,224 +168,6 @@ if (childrenInModal) {
       border-left: 2px solid var(--color-accent);
       animation: highlight-line-fade 5s forwards;
     }
-  }
-
-  &__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.35rem;
-    row-gap: 0.2rem;
-    font-size: 0.84rem;
-    color: var(--color-text-muted);
-  }
-
-  &__toggle {
-    align-self: flex-start;
-    margin-right: 0.15rem;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    position: relative;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    transition: color 0.15s ease;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -4px;
-    }
-
-    &:hover,
-    &:focus {
-      color: var(--color-accent);
-      text-decoration: none;
-      outline: none;
-    }
-
-    &--collapsed {
-      color: var(--color-accent);
-    }
-  }
-
-  &__header-info {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: 0.5rem;
-    row-gap: 0.1rem;
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__author {
-    font-weight: 600;
-    color: var(--color-text);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: underline;
-    }
-  }
-
-  &__age-link {
-    color: inherit;
-    text-decoration: none;
-    font-weight: 500;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__score {
-    color: inherit;
-    font-weight: 500;
-  }
-
-  &__badges {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    align-self: center;
-  }
-
-  &__badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.1rem 0.35rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.05em;
-    border-radius: 2px;
-    white-space: nowrap;
-    border: 1px solid transparent;
-    text-transform: uppercase;
-
-    &--new {
-      background: var(--color-status-new-bg);
-      color: var(--color-new-user);
-      border-color: var(--color-status-new-border);
-    }
-
-    &--dead {
-      background: var(--color-status-muted-bg);
-      color: var(--color-text-muted);
-      border-color: var(--color-status-muted-border);
-      text-decoration: line-through;
-    }
-
-    &--flagged {
-      background: var(--color-danger-bg);
-      color: var(--color-danger);
-      border-color: var(--color-danger-border);
-    }
-
-    &--deleted {
-      background: var(--color-status-muted-subtle-bg);
-      color: var(--color-text-muted);
-      border-color: var(--color-status-muted-subtle-border);
-    }
-
-    &--downvoted {
-      background: var(--color-status-downvoted-bg);
-      color: var(--color-downvoted);
-      border-color: var(--color-status-downvoted-border);
-      text-transform: none;
-      font-weight: 600;
-    }
-  }
-
-  &__nav {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-muted);
-    opacity: 0.5;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 1;
-    }
-
-    @media (max-width: 640px) {
-      display: none;
-    }
-  }
-
-  &__controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-  }
-
-  &__nav-link {
-    position: relative;
-    color: inherit;
-    text-decoration: none;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -5px -4px;
-    }
-
-    &:hover {
-      color: var(--color-text);
-      text-decoration: none;
-    }
-  }
-
-  &__icon-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1rem;
-    height: 1rem;
-    color: inherit;
-    text-decoration: none;
-    opacity: 0.72;
-    line-height: 0;
-    transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -6px;
-    }
-
-    &:hover {
-      color: var(--color-text);
-      opacity: 1;
-      text-decoration: none;
-      transform: translateY(-1px);
-    }
-  }
-
-  &__deleted-meta,
-  &__deleted-label {
-    font-style: italic;
-    color: var(--color-text-muted);
-  }
-
-  &__deleted-meta {
-    opacity: 0.6;
   }
 
   &__body-wrapper {
@@ -547,31 +259,6 @@ if (childrenInModal) {
 
     &--delete:hover {
       color: #ff3e00;
-    }
-  }
-
-  @media (max-width: 640px) {
-    &__header {
-      font-size: 0.96rem;
-      column-gap: 0.45rem;
-      row-gap: 0.28rem;
-    }
-
-    &__toggle {
-      font-size: 0.86rem;
-    }
-
-    &__header-info {
-      column-gap: 0.6rem;
-      row-gap: 0.22rem;
-    }
-
-    &__controls {
-      gap: 0.7rem;
-    }
-
-    &__controls-sep {
-      display: none;
     }
   }
 

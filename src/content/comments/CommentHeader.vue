@@ -1,13 +1,35 @@
 <script setup lang="ts">
-import type { CommentNode } from '@/parsers/item';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/shared/MetaSep.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
+type CommentHeaderNode = {
+  id: string;
+  collapsedCount: number;
+  grayLevel?: string | null;
+  author: string;
+  authorIsNew?: boolean;
+  score?: number | null;
+  ageLink: string;
+  age: string;
+  ageTimestamp?: string | null;
+  isDeleted?: boolean;
+  isDead?: boolean;
+  isFlagged?: boolean;
+  navLinks: {
+    root?: string | null;
+    parent?: string | null;
+    context?: string | null;
+    prev?: string | null;
+    next?: string | null;
+  };
+};
+
 const props = defineProps<{
-  node: CommentNode;
+  node: CommentHeaderNode;
   isCollapsed: boolean;
+  latestUrl?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -26,7 +48,7 @@ const DOWNVOTE_LABELS: Record<string, string> = {
   cdd: '9/9',
 };
 
-const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] || null : null;
+const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel.toLowerCase()] || null : null;
 </script>
 
 <template>
@@ -53,8 +75,9 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
         :downvote-label="downvoteOpacity"
       />
 
-      <div v-if="!node.isDeleted && !isCollapsed && (node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
+      <div v-if="!node.isDeleted && !isCollapsed && (latestUrl || node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
         <MetaSep />
+        <a v-if="latestUrl" :href="latestUrl" class="comment-header__nav-link" title="Latest">latest</a>
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
         <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-header__nav-link" title="Context">context</a>
@@ -88,16 +111,25 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
 <style scoped lang="scss">
 .comment-header {
+  --comment-meta-font-size: 0.8125rem;
+  --comment-meta-line-height: 1.25rem;
+  --comment-toggle-font-size: 0.75rem;
+
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   column-gap: 0.35rem;
   row-gap: 0.2rem;
-  font-size: 0.84rem;
+  font-size: var(--comment-meta-font-size);
+  line-height: var(--comment-meta-line-height);
   color: var(--color-text-muted);
 
   &__toggle {
     align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--comment-meta-line-height);
     margin-right: 0.15rem;
     cursor: pointer;
     background: none;
@@ -105,8 +137,9 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     padding: 0;
     position: relative;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--comment-toggle-font-size);
     font-weight: 700;
+    line-height: 1;
     color: var(--color-text-muted);
     transition: color 0.15s ease;
 
@@ -212,13 +245,12 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   }
 
   @media (max-width: 640px) {
-    font-size: 0.96rem;
+    --comment-meta-font-size: 0.875rem;
+    --comment-meta-line-height: 1.375rem;
+    --comment-toggle-font-size: 0.8125rem;
+
     column-gap: 0.45rem;
     row-gap: 0.28rem;
-
-    &__toggle {
-      font-size: 0.86rem;
-    }
 
     &__info {
       column-gap: 0.6rem;

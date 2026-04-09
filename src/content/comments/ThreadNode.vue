@@ -5,7 +5,6 @@ import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
 
 const props = defineProps<{
   node: ThreadEntry;
@@ -33,20 +32,7 @@ function toggleCollapse() {
       <div class="comment-node__main">
         <OnStoryHeader v-if="node.onStory" class="comment-node__on-story" label="on" :href="node.onStory.link" :title="node.onStory.title" />
         
-        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse">
-          <!-- Inject additional nav links exactly as they appear in threads -->
-          <template #extra-nav>
-            <span v-if="node.navLinks.parent" class="comment-node__extra-nav">
-              <MetaSep /> <a :href="node.navLinks.parent">parent</a>
-            </span>
-            <span v-if="node.navLinks.next" class="comment-node__extra-nav">
-              <MetaSep /> <a :href="node.navLinks.next">next</a>
-            </span>
-            <span v-if="node.navLinks.context" class="comment-node__extra-nav">
-              <MetaSep /> <a :href="node.navLinks.context">context</a>
-            </span>
-          </template>
-        </CommentHeader>
+        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse" />
         
         <div v-if="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody
@@ -99,11 +85,6 @@ function toggleCollapse() {
 
   &__on-story {
     margin-bottom: 0.35rem;
-  }
-
-  &__extra-nav {
-    color: var(--color-border);
-    margin-left: 0.3rem;
   }
 
   &__thread {
