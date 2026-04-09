@@ -4,9 +4,8 @@ import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '../shared/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
 import YCombinatorLogo from '../shared/YCombinatorLogo.vue';
-import { Menu } from 'lucide-vue-next';
+import { Menu, Ribbon } from 'lucide-vue-next';
 import MetaSep from '../shared/MetaSep.vue';
-import { getLogoForegroundColor } from '../shared/logoContrast';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
@@ -15,7 +14,6 @@ const navMenu = ref<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
 const effectiveTopBarColor = computed(() => header.topBarColor);
-const effectiveTopBarForegroundColor = computed(() => getLogoForegroundColor(header.topBarColor));
 
 function closeNav() {
   navOpen.value = false;
@@ -50,7 +48,6 @@ onUnmounted(() => {
 <template>
   <header
     class="site-header"
-    :class="{ 'site-header--memorial': header.hasMemorialBar }"
     :style="{
       '--site-header-bar-color': effectiveTopBarColor,
     }"
@@ -59,20 +56,31 @@ onUnmounted(() => {
     <div class="site-header__container">
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
-          <YCombinatorLogo
-            v-if="header.hasCustomTopBarColor"
-            :size="22"
-            :color="effectiveTopBarColor"
-            :foreground-color="effectiveTopBarForegroundColor"
-            class="site-header__logo-img"
-          />
-          <img
-            v-else
-            :src="YLogo"
-            class="site-header__logo-img"
-            alt="Y Combinator Logo"
-          />
-          <span class="site-header__logo-text">Hacker News</span>
+          <span class="site-header__logo-wrap">
+            <YCombinatorLogo
+              v-if="header.hasCustomTopBarColor"
+              :size="24"
+              color="#000000"
+              foreground-color="#ffffff"
+              class="site-header__logo-img site-header__logo-img--custom"
+            />
+            <img
+              v-else
+              :src="YLogo"
+              class="site-header__logo-img"
+              alt="Y Combinator Logo"
+            />
+          </span>
+          <span class="site-header__logo-text">
+            Hacker News
+            <Ribbon
+              v-if="header.hasMemorialBar"
+              class="site-header__memorial-ribbon"
+              :size="16"
+              :stroke-width="2.1"
+              aria-hidden="true"
+            />
+          </span>
         </a>
 
         <div class="site-header__mobile-actions">
@@ -138,42 +146,16 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .site-header {
   --site-header-bar-color: #ff6600;
-  --site-header-memorial-texture-color: currentColor;
-  --site-header-memorial-texture-opacity: 0.14;
-  --site-header-memorial-texture-gap: 10px;
-  position: relative;
   border-bottom: 1px solid var(--color-chrome-border);
   background: var(--color-chrome-surface);
-  color: var(--color-text);
 
   &__accent {
-    position: relative;
-    z-index: 2;
     height: 4px;
     background: var(--site-header-bar-color);
   }
 
-  &--memorial {
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      opacity: var(--site-header-memorial-texture-opacity);
-      background-image: repeating-linear-gradient(
-        45deg,
-        var(--site-header-memorial-texture-color) 0,
-        var(--site-header-memorial-texture-color) 1px,
-        transparent 1px,
-        transparent var(--site-header-memorial-texture-gap)
-      );
-    }
-  }
-
   &__container {
     position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -200,15 +182,33 @@ onUnmounted(() => {
     }
   }
 
+  &__logo-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
   &__logo-img {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
   }
 
   &__logo-text {
+    position: relative;
+    display: inline-block;
     font-family: var(--font-title);
     font-weight: 600;
+  }
+
+  &__memorial-ribbon {
+    position: absolute;
+    top: -0.15rem;
+    right: -1rem;
+    color: #111111;
+    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.98))
+      drop-shadow(0 0 2px rgba(255, 255, 255, 0.82));
+    pointer-events: none;
   }
 
   &__mobile-actions {
@@ -304,7 +304,8 @@ onUnmounted(() => {
     &__mobile-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 0.75rem;
       width: 100%;
       position: relative;
       z-index: 110;
@@ -312,6 +313,7 @@ onUnmounted(() => {
 
     &__mobile-actions {
       display: flex;
+      margin-left: auto;
     }
 
     &__nav-toggle {
@@ -369,9 +371,17 @@ onUnmounted(() => {
     }
   }
 
+  #fancy-hn-root[data-theme="dark"] &,
+  #fancy-hn-root[data-theme="nord"] &,
   #fancy-hn-root[data-theme="amoled"] & {
-    --site-header-memorial-texture-opacity: 0.25;
-    --site-header-memorial-texture-gap: 8px;
+    .site-header__logo-img--custom {
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.88);
+    }
+
+    .site-header__memorial-ribbon {
+      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.98))
+        drop-shadow(0 0 3px rgba(255, 255, 255, 0.92));
+    }
   }
 }
 </style>

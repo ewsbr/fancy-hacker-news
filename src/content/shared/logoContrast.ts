@@ -72,8 +72,10 @@ export function getLogoForegroundColor(backgroundColor: string): '#000000' | '#f
   }
 
   const backgroundLuminance = relativeLuminance(parsedColor);
-  const whiteContrast = contrastRatio(backgroundLuminance, 1);
-  const blackContrast = contrastRatio(backgroundLuminance, 0);
+  if (backgroundLuminance >= 0.7) {
+    return '#000000';
+  }
 
-  return blackContrast >= whiteContrast ? '#000000' : '#ffffff';
+  const whiteContrast = contrastRatio(backgroundLuminance, 1);
+  return whiteContrast >= 2 ? '#ffffff' : '#000000';
 }

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import ListsConcepts from './components/ListsConcepts.vue';
+import MemorialBarConcepts from './components/MemorialBarConcepts.vue';
 import NotFoundConcepts from './components/NotFoundConcepts.vue';
 import SubmitConcepts from './components/SubmitConcepts.vue';
 import TopColorsConcepts from './components/TopColorsConcepts.vue';
 import TopNoticeConcepts from './components/TopNoticeConcepts.vue';
 
 type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
-type ConceptTabName = 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404';
+type ConceptTabName = 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404' | 'memorial-bar';
 
 const storageKey = 'fancy-hn-concepts-theme';
 const themes: Array<{ name: ThemeName; label: string }> = [
@@ -23,6 +24,7 @@ const tabs: Array<{ name: ConceptTabName; label: string }> = [
   { name: 'top-notice', label: 'top notice' },
   { name: 'top-colors', label: 'top colors' },
   { name: '404', label: '404' },
+  { name: 'memorial-bar', label: 'memorial bar' },
 ];
 
 const activeTheme = ref<ThemeName>('light');
@@ -92,5 +94,6 @@ onMounted(() => {
     <TopNoticeConcepts v-else-if="activeTab === 'top-notice'" />
     <TopColorsConcepts v-else-if="activeTab === 'top-colors'" />
     <NotFoundConcepts v-else-if="activeTab === '404'" />
+    <MemorialBarConcepts v-else-if="activeTab === 'memorial-bar'" />
   </main>
 </template>
