@@ -4,8 +4,8 @@ import type { RouteDescriptor } from '@/router';
 import type { ParsedStoryList } from '@/parsers/storyList';
 import StoryRow from '@/content/stories/StoryRow.vue';
 import Pagination from '@/content/ui/primitives/Pagination.vue';
-import TopNotice from '@/content/shared/TopNotice.vue';
-import UserCollectionHeader from '@/content/shared/UserCollectionHeader.vue';
+import TopNotice from '@/content/ui/helpers/TopNotice.vue';
+import UserCollectionHeader from '@/content/ui/helpers/UserCollectionHeader.vue';
 import { getStoryListEmptyMessage } from '@/content/utils/emptyStates';
 import { parseUserCollectionIntro } from '@/content/utils/userCollectionIntro';
 

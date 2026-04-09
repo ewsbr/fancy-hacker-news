@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import StripedTableCard from '@/content/shared/StripedTableCard.vue';
+import StripedTableCard from '@/content/ui/helpers/StripedTableCard.vue';
 import type { ParsedListsPage } from '@/parsers/lists';
 
 const page = inject<ParsedListsPage>('pageData')!;

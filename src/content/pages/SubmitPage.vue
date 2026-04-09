@@ -3,7 +3,7 @@ import { computed, inject, ref } from 'vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 import SubmitForm from '@/content/forms/SubmitForm.vue';
 import StoryRow from '@/content/stories/StoryRow.vue';
-import NoticeBanner from '@/content/shared/NoticeBanner.vue';
+import NoticeBanner from '@/content/ui/helpers/NoticeBanner.vue';
 import type { Story } from '@/parsers/storyList';
 
 const SUBMIT_PLACEHOLDERS = [

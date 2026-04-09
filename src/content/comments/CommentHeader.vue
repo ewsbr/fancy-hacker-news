@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
-import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
+import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 

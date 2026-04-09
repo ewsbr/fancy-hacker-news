@@ -5,7 +5,7 @@ import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
-import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
+import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
 
 defineProps<{
   comment: FlatCommentType;

@@ -15,7 +15,7 @@ import PollOptions from '@/content/ui/composites/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
 import CommentActions from '@/content/ui/composites/CommentActions.vue';
-import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
+import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 

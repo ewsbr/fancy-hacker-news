@@ -4,8 +4,8 @@ import type { RouteDescriptor } from '@/router';
 import type { ParsedNewComments } from '@/parsers/newComments';
 import FlatComment from '@/content/comments/FlatComment.vue';
 import Pagination from '@/content/ui/primitives/Pagination.vue';
-import TopNotice from '@/content/shared/TopNotice.vue';
-import UserCollectionHeader from '@/content/shared/UserCollectionHeader.vue';
+import TopNotice from '@/content/ui/helpers/TopNotice.vue';
+import UserCollectionHeader from '@/content/ui/helpers/UserCollectionHeader.vue';
 import { getCommentListEmptyMessage } from '@/content/utils/emptyStates';
 import { parseUserCollectionIntro } from '@/content/utils/userCollectionIntro';
 
