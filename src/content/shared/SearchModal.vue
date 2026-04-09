@@ -1,89 +1,106 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { nextTick, ref, watch } from 'vue';
+import {
+  DialogContent,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+} from 'reka-ui';
 import { Search, X } from 'lucide-vue-next';
 import Keycap from '@/content/shared/Keycap.vue';
-import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
 
-const emit = defineEmits<{ close: [] }>();
+const props = defineProps<{
+  open: boolean;
+}>();
+
+const emit = defineEmits<{
+  'update:open': [value: boolean];
+}>();
 
 const query = ref('');
-const inputRef = ref<HTMLInputElement>();
-const panelRef = ref<HTMLElement>();
-const previousFocus = ref<HTMLElement | null>(null);
-
-function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    emit('close');
-    return;
-  }
-
-  if (panelRef.value) {
-    trapFocusWithin(e, panelRef.value);
-  }
-}
+const inputRef = ref<HTMLInputElement | null>(null);
 
 function submit() {
   const q = query.value.trim();
   if (!q) return;
   window.open(`https://hn.algolia.com/?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
-  emit('close');
+  emit('update:open', false);
 }
 
-function onBackdropClick(e: MouseEvent) {
-  if ((e.target as HTMLElement).classList.contains('search-modal__backdrop')) {
-    emit('close');
+function onOpenAutoFocus(event: Event) {
+  event.preventDefault();
+  void nextTick(() => {
+    inputRef.value?.focus({ preventScroll: true });
+  });
+}
+
+watch(() => props.open, isOpen => {
+  if (!isOpen) {
+    query.value = '';
   }
-}
-
-onMounted(() => {
-  previousFocus.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  inputRef.value?.focus();
-  document.addEventListener('keydown', onKeydown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', onKeydown);
-  restoreFocus(previousFocus.value);
 });
 </script>
 
 <template>
-  <div class="search-modal">
-    <div class="search-modal__backdrop" @click="onBackdropClick">
-      <div ref="panelRef" class="search-modal__panel" role="dialog" aria-modal="true" aria-label="Search Hacker News">
-        <form class="search-modal__form" @submit.prevent="submit">
-          <Search :size="18" class="search-modal__form-icon" aria-hidden="true" />
-          <input
-            ref="inputRef"
-            v-model="query"
-            type="search"
-            class="search-modal__input"
-            placeholder="Search Hacker News…"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button
-            v-if="query"
-            type="button"
-            class="search-modal__clear"
-            aria-label="Clear"
-            @click="query = ''"
-          >
-            <X :size="15" />
-          </button>
-        </form>
-        <div class="search-modal__footer">
-          <span class="search-modal__footer-hint">
-            <Keycap>Enter</Keycap> to search on Algolia &nbsp;·&nbsp; <Keycap>Esc</Keycap> to close
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <DialogRoot :open="open" @update:open="emit('update:open', $event)">
+    <DialogPortal defer :to="EXTENSION_ROOT_SELECTOR">
+      <DialogOverlay class="search-modal__backdrop" @click.stop>
+        <DialogContent
+          class="search-modal__panel"
+          aria-describedby="undefined"
+          @click.stop
+          @open-auto-focus="onOpenAutoFocus"
+        >
+          <DialogTitle class="search-modal__sr-only">Search Hacker News</DialogTitle>
+
+          <form class="search-modal__form" @submit.prevent="submit">
+            <Search :size="18" class="search-modal__form-icon" aria-hidden="true" />
+            <input
+              ref="inputRef"
+              v-model="query"
+              type="search"
+              class="search-modal__input"
+              placeholder="Search Hacker News…"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              v-if="query"
+              type="button"
+              class="search-modal__clear"
+              aria-label="Clear"
+              @click="query = ''"
+            >
+              <X :size="15" />
+            </button>
+          </form>
+          <div class="search-modal__footer">
+            <span class="search-modal__footer-hint">
+              <Keycap>Enter</Keycap> to search on Algolia &nbsp;·&nbsp; <Keycap>Esc</Keycap> to close
+            </span>
+          </div>
+        </DialogContent>
+      </DialogOverlay>
+    </DialogPortal>
+  </DialogRoot>
 </template>
 
 <style scoped lang="scss">
 .search-modal {
+  &__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   &__backdrop {
     position: fixed;
     inset: 0;
@@ -101,8 +118,8 @@ onUnmounted(() => {
   }
 
   &__panel {
-    width: 100%;
     max-width: 560px;
+    width: 100%;
     border-radius: 10px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);

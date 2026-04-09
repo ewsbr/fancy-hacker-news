@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
+import {
+  DialogClose,
+  DialogContent,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+} from 'reka-ui';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { X } from 'lucide-vue-next';
 import { waitForAnimationFrames } from '@/content/utils/wait';
-import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -16,9 +24,7 @@ const emit = defineEmits<{
 }>();
 
 const bodyRef = ref<HTMLElement | null>(null);
-const panelRef = ref<HTMLElement | null>(null);
 const closeButtonRef = ref<HTMLButtonElement | null>(null);
-const previousFocus = ref<HTMLElement | null>(null);
 
 async function scrollToTargetComment(targetId: string) {
   await nextTick();
@@ -33,36 +39,26 @@ async function scrollToTargetComment(targetId: string) {
   header.scrollIntoView({ block: 'start' });
 }
 
-function onOverlayClick(e: MouseEvent) {
-  // Stop propagation to prevent HN's hn.js handlers from receiving click events
-  // on SVG elements (lucide icons), which crash because SVGAnimatedString has no .split().
-  e.stopPropagation();
-  if (e.target === e.currentTarget) {
+function onOpenChange(open: boolean) {
+  if (!open) {
     emit('close');
   }
 }
 
-function onKeyDown(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    emit('close');
-    return;
-  }
-
-  if (panelRef.value) {
-    trapFocusWithin(e, panelRef.value);
-  }
-}
-
-onMounted(async () => {
-  previousFocus.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  document.addEventListener('keydown', onKeyDown);
-
-  if (props.scrollToId) {
-    await scrollToTargetComment(props.scrollToId);
-  }
-
+function onOpenAutoFocus(event: Event) {
+  event.preventDefault();
   closeButtonRef.value?.focus({ preventScroll: true });
-});
+}
+
+watch(
+  () => props.node.id,
+  async () => {
+    if (props.scrollToId) {
+      await scrollToTargetComment(props.scrollToId);
+    }
+  },
+  { immediate: true },
+);
 
 watch(
   () => props.scrollToId,
@@ -75,31 +71,35 @@ watch(
   },
   { flush: 'post' },
 );
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', onKeyDown);
-  restoreFocus(previousFocus.value);
-});
 </script>
 
 <template>
-  <Teleport to="#fancy-hn-root">
-    <div class="sub-thread-modal" @click="onOverlayClick" role="dialog" aria-modal="true">
-      <div ref="panelRef" class="sub-thread-modal__panel" tabindex="-1">
-        <div class="sub-thread-modal__header">
-          <span class="sub-thread-modal__title">
-            Thread by <strong>{{ node.author }}</strong>
-          </span>
-          <button ref="closeButtonRef" class="sub-thread-modal__close" @click="emit('close')" aria-label="Close thread">
-            <X :size="18" />
-          </button>
-        </div>
-        <div class="sub-thread-modal__body" ref="bodyRef">
-          <CommentNode :node="node" :depth="0" :in-modal="true" />
-        </div>
-      </div>
-    </div>
-  </Teleport>
+  <DialogRoot :open="true" @update:open="onOpenChange">
+    <DialogPortal defer :to="EXTENSION_ROOT_SELECTOR">
+      <DialogOverlay class="sub-thread-modal" @click.stop>
+        <DialogContent
+          class="sub-thread-modal__panel"
+          aria-describedby="undefined"
+          @click.stop
+          @open-auto-focus="onOpenAutoFocus"
+        >
+          <div class="sub-thread-modal__header">
+            <DialogTitle as="span" class="sub-thread-modal__title">
+              Thread by <strong>{{ node.author }}</strong>
+            </DialogTitle>
+            <DialogClose as-child>
+              <button ref="closeButtonRef" class="sub-thread-modal__close" aria-label="Close thread">
+                <X :size="18" />
+              </button>
+            </DialogClose>
+          </div>
+          <div class="sub-thread-modal__body" ref="bodyRef">
+            <CommentNode :node="node" :depth="0" :in-modal="true" />
+          </div>
+        </DialogContent>
+      </DialogOverlay>
+    </DialogPortal>
+  </DialogRoot>
 </template>
 
 <style scoped lang="scss">

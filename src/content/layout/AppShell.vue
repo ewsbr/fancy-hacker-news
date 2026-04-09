@@ -4,20 +4,25 @@ import SiteHeader from './SiteHeader.vue';
 import SiteFooter from './SiteFooter.vue';
 import SearchModal from '../shared/SearchModal.vue';
 import ScrollToTopButton from '../shared/ScrollToTopButton.vue';
+import { isSearchShortcutEvent } from '@/content/utils/keyboard';
 
 const searchOpen = ref(false);
 
 function openSearch() {
-  searchOpen.value = true;
+  if (!searchOpen.value) {
+    searchOpen.value = true;
+  }
 }
 
 provide('openSearch', openSearch);
 
 function onGlobalKeydown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    openSearch();
+  if (!isSearchShortcutEvent(e) || searchOpen.value) {
+    return;
   }
+
+  e.preventDefault();
+  openSearch();
 }
 
 onMounted(() => document.addEventListener('keydown', onGlobalKeydown));
@@ -34,7 +39,7 @@ onUnmounted(() => document.removeEventListener('keydown', onGlobalKeydown));
     <ScrollToTopButton />
   </div>
 
-  <SearchModal v-if="searchOpen" @close="searchOpen = false" />
+  <SearchModal :open="searchOpen" @update:open="searchOpen = $event" />
 </template>
 
 <style scoped lang="scss">

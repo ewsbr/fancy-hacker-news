@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, type ComponentPublicInstance } from 'vue';
+import {
+  PopoverContent,
+  PopoverPortal,
+  PopoverRoot,
+  PopoverTrigger,
+} from 'reka-ui';
 import { Palette } from 'lucide-vue-next';
 import { useTheme, type ThemeName } from '@/state/theme';
-import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
 
 const { theme, setTheme } = useTheme();
 const open = ref(false);
-const triggerRef = ref<HTMLButtonElement | null>(null);
-const popoverRef = ref<HTMLElement | null>(null);
+const themeCardRefs = ref<Partial<Record<ThemeName, HTMLButtonElement | null>>>({});
 
 const themes: { name: ThemeName; label: string; bg: string; accent: string }[] = [
   { name: 'light',  label: 'Light',  bg: '#f6f6ef', accent: '#ff6600' },
@@ -23,81 +28,62 @@ function swatchStyle(t: (typeof themes)[number]) {
 function select(name: ThemeName) {
   setTheme(name);
   open.value = false;
-  nextTick(() => restoreFocus(triggerRef.value));
 }
 
-function onBlur(e: FocusEvent) {
-  const related = e.relatedTarget as HTMLElement | null;
-  const root = e.currentTarget as HTMLElement;
-  if (!root.contains(related)) open.value = false;
+function onOpenAutoFocus(event: Event) {
+  event.preventDefault();
+  void nextTick(() => {
+    const activeCard = themeCardRefs.value[theme.value];
+    const fallbackCard = themes
+      .map(item => themeCardRefs.value[item.name])
+      .find((card): card is HTMLButtonElement => card instanceof HTMLButtonElement);
+    (activeCard ?? fallbackCard)?.focus();
+  });
 }
 
-function onKeydown(e: KeyboardEvent) {
-  if (!open.value) {
-    return;
-  }
-
-  if (e.key === 'Escape') {
-    e.preventDefault();
-    open.value = false;
-    nextTick(() => restoreFocus(triggerRef.value));
-    return;
-  }
-
-  if (popoverRef.value) {
-    trapFocusWithin(e, popoverRef.value);
-  }
+function setThemeCardRef(
+  name: ThemeName,
+  el: Element | ComponentPublicInstance | null,
+) {
+  themeCardRefs.value[name] = el instanceof HTMLButtonElement ? el : null;
 }
 
 const activeTheme = () => themes.find(t => t.name === theme.value)!;
-
-watch(open, async isOpen => {
-  if (!isOpen) {
-    return;
-  }
-
-  await nextTick();
-  const activeCard = popoverRef.value?.querySelector<HTMLElement>('.theme-toggle__card--active')
-    ?? popoverRef.value?.querySelector<HTMLElement>('.theme-toggle__card');
-  activeCard?.focus();
-});
 </script>
 
 <template>
-  <div class="theme-toggle" @focusout="onBlur" @keydown="onKeydown">
-    <!-- Trigger: current swatch + label + palette icon -->
-    <button
-      ref="triggerRef"
-      type="button"
-      class="theme-toggle__trigger"
-      :aria-expanded="open"
-      aria-haspopup="dialog"
-      :aria-label="`${activeTheme().label} theme, change theme`"
-      @click="open = !open"
-    >
-      <span
-        class="theme-toggle__trigger-swatch"
-        :style="swatchStyle(activeTheme())"
-        aria-hidden="true"
-      />
-      <span class="theme-toggle__trigger-label">{{ activeTheme().label }}</span>
-      <Palette class="theme-toggle__palette-icon" :size="13" aria-hidden="true" />
-    </button>
+  <PopoverRoot v-model:open="open">
+    <PopoverTrigger as-child>
+      <button
+        type="button"
+        class="theme-toggle__trigger"
+        :aria-label="`${activeTheme().label} theme, change theme`"
+      >
+        <span
+          class="theme-toggle__trigger-swatch"
+          :style="swatchStyle(activeTheme())"
+          aria-hidden="true"
+        />
+        <span class="theme-toggle__trigger-label">{{ activeTheme().label }}</span>
+        <Palette class="theme-toggle__palette-icon" :size="13" aria-hidden="true" />
+      </button>
+    </PopoverTrigger>
 
-    <!-- Popover card -->
-    <Transition name="tt-pop">
-      <div
-        v-if="open"
-        ref="popoverRef"
+    <PopoverPortal defer :to="EXTENSION_ROOT_SELECTOR">
+      <PopoverContent
         class="theme-toggle__popover"
-        role="dialog"
-        aria-label="Theme selector"
+        side="bottom"
+        align="end"
+        :side-offset="8"
+        :collision-padding="12"
+        @open-auto-focus="onOpenAutoFocus"
       >
         <p class="theme-toggle__popover-title">Theme</p>
         <div class="theme-toggle__grid">
           <button
             v-for="item in themes"
             :key="item.name"
+            :ref="el => setThemeCardRef(item.name, el)"
             type="button"
             class="theme-toggle__card"
             :class="{ 'theme-toggle__card--active': theme === item.name }"
@@ -113,15 +99,13 @@ watch(open, async isOpen => {
             <span class="theme-toggle__card-label">{{ item.label }}</span>
           </button>
         </div>
-      </div>
-    </Transition>
-  </div>
+      </PopoverContent>
+    </PopoverPortal>
+  </PopoverRoot>
 </template>
 
 <style scoped lang="scss">
 .theme-toggle {
-  position: relative;
-
   // ── Trigger ─────────────────────────────────────────── 
   &__trigger {
     display: flex;
@@ -171,9 +155,6 @@ watch(open, async isOpen => {
 
   // ── Popover card ─────────────────────────────────────── 
   &__popover {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
     z-index: 200;
     width: 176px;
     padding: 0.65rem;
@@ -181,6 +162,7 @@ watch(open, async isOpen => {
     border-radius: 6px;
     background: var(--color-surface);
     box-shadow: var(--shadow-elevation), 0 12px 32px -6px rgba(0, 0, 0, 0.15);
+    animation: tt-pop-in 0.18s ease;
   }
 
   &__popover-title {
@@ -251,28 +233,17 @@ watch(open, async isOpen => {
       color: var(--color-accent);
     }
   }
+}
 
-  // ── Popover transition ───────────────────────────────── 
-  &.tt-pop-enter-active,
-  &.tt-pop-leave-active {
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-
-  &.tt-pop-enter-from,
-  &.tt-pop-leave-to {
+@keyframes tt-pop-in {
+  from {
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
   }
-}
 
-.tt-pop-enter-active,
-.tt-pop-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.tt-pop-enter-from,
-.tt-pop-leave-to {
-  opacity: 0;
-  transform: translateY(-6px) scale(0.97);
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 </style>
