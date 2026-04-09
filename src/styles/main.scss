@@ -1,10 +1,5 @@
 @use "./theme-tokens" as theme;
 
-@import url("@fontsource-variable/atkinson-hyperlegible-next");
-@import url("@fontsource-variable/atkinson-hyperlegible-next/wght-italic.css");
-@import url("@fontsource-variable/manrope");
-@import url("@fontsource-variable/jetbrains-mono");
-
 @include theme.apply-theme-tokens('#fancy-hn-root');
 
 #fancy-hn-root {

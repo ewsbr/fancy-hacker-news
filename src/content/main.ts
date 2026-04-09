@@ -32,6 +32,7 @@ import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
 import { makeItemPageReactive } from '@/state/itemPageState';
 import { getLogoForegroundColor } from '@/content/shared/logoContrast';
+import { primeExtensionFonts } from '@/content/utils/loadExtensionFonts';
 import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -183,7 +184,7 @@ function resetInitialHashScroll() {
 // the already-modified DOM. The original HN nodes have been removed by
 // cleanupOriginalBody, so parsing would fail. Detect this by checking for the root
 // element we create, and reload the page to restore the clean server-rendered DOM.
-function mountApp() {
+async function mountApp() {
   if (document.getElementById('fancy-hn-root')) {
     window.location.reload();
     return;
@@ -223,6 +224,10 @@ function mountApp() {
         ? makeItemPageReactive(parsedPageData as ParsedItemPage)
         : makeReactive(parsedPageData)
     ));
+
+    await timeline.stepAsync('prime-extension-fonts', async () => {
+      await primeExtensionFonts();
+    });
   
     // 2. Hide original HN content with one rule instead of mutating each body child.
     timeline.step('hide-original-dom', () => {
@@ -355,4 +360,4 @@ function mountApp() {
   }
 }
 
-mountApp();
+void mountApp();
