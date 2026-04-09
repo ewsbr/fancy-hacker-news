@@ -30,7 +30,6 @@ export const DEFAULT_TOP_BAR_COLOR = '#ff6600';
 const MEMORIAL_BAR_COLOR = '#000000';
 const HEADER_TEST_TOP_BAR_COLOR_PARAM = 'fhTopBarColor';
 const HEADER_TEST_MEMORIAL_BAR_PARAM = 'fhMemorialBar';
-const HEADER_TEST_MEMORIAL_BAR_COLOR_PARAM = 'fhMemorialBarColor';
 
 function normalizeColor(color: string | null | undefined): string | null {
   const value = color?.trim();
@@ -113,7 +112,6 @@ export function parseHeader(doc: Document): ParsedHeader {
   const searchParams = new URLSearchParams(doc.location?.search ?? '');
   const topBarColorOverride = normalizeColor(searchParams.get(HEADER_TEST_TOP_BAR_COLOR_PARAM));
   const memorialBarEnabledOverride = parseBooleanOverride(searchParams.get(HEADER_TEST_MEMORIAL_BAR_PARAM));
-  const memorialBarColorOverride = normalizeColor(searchParams.get(HEADER_TEST_MEMORIAL_BAR_COLOR_PARAM));
 
   const user: HeaderUser | null = meLink
     ? {
@@ -125,9 +123,7 @@ export function parseHeader(doc: Document): ParsedHeader {
   const topBarColor = topBarColorOverride ?? normalizeColor(attrOf(headerCell, 'bgcolor')) ?? DEFAULT_TOP_BAR_COLOR;
   const hasCustomTopBarColor = topBarColorOverride !== null || topBarColor !== DEFAULT_TOP_BAR_COLOR;
   const hasMemorialBar = memorialBarEnabledOverride ?? firstRowLooksLikeMemorialBar;
-  const memorialBarColor = hasMemorialBar
-    ? memorialBarColorOverride ?? (firstRowLooksLikeMemorialBar ? MEMORIAL_BAR_COLOR : MEMORIAL_BAR_COLOR)
-    : null;
+  const memorialBarColor = hasMemorialBar ? MEMORIAL_BAR_COLOR : null;
 
   return {
     navLinks,

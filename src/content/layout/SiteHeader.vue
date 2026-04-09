@@ -2,6 +2,7 @@
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '../shared/ThemeToggle.vue';
+import YLogo from '@/assets/ycombinator.svg';
 import YCombinatorLogo from '../shared/YCombinatorLogo.vue';
 import { Menu } from 'lucide-vue-next';
 import MetaSep from '../shared/MetaSep.vue';
@@ -13,10 +14,8 @@ const navToggle = ref<HTMLElement | null>(null);
 const navMenu = ref<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
-const effectiveTopBarColor = computed(() => header.hasCustomTopBarColor ? header.topBarColor : 'var(--color-accent)');
-const effectiveTopBarForegroundColor = computed(() => (
-  header.hasCustomTopBarColor ? getLogoForegroundColor(header.topBarColor) : 'var(--color-accent-contrast)'
-));
+const effectiveTopBarColor = computed(() => header.topBarColor);
+const effectiveTopBarForegroundColor = computed(() => getLogoForegroundColor(header.topBarColor));
 
 function closeNav() {
   navOpen.value = false;
@@ -51,20 +50,27 @@ onUnmounted(() => {
 <template>
   <header
     class="site-header"
+    :class="{ 'site-header--memorial': header.hasMemorialBar }"
     :style="{
       '--site-header-bar-color': effectiveTopBarColor,
-      '--site-header-memorial-color': header.memorialBarColor ?? '#000000',
     }"
   >
-    <div class="site-header__accent" aria-hidden="true" />
+    <div v-if="header.hasCustomTopBarColor" class="site-header__accent" aria-hidden="true" />
     <div class="site-header__container">
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
           <YCombinatorLogo
+            v-if="header.hasCustomTopBarColor"
             :size="22"
             :color="effectiveTopBarColor"
             :foreground-color="effectiveTopBarForegroundColor"
             class="site-header__logo-img"
+          />
+          <img
+            v-else
+            :src="YLogo"
+            class="site-header__logo-img"
+            alt="Y Combinator Logo"
           />
           <span class="site-header__logo-text">Hacker News</span>
         </a>
@@ -126,30 +132,48 @@ onUnmounted(() => {
         <ThemeToggle />
       </div>
     </div>
-    <div v-if="header.hasMemorialBar" class="site-header__memorial" aria-hidden="true" />
   </header>
 </template>
 
 <style scoped lang="scss">
 .site-header {
   --site-header-bar-color: #ff6600;
-  --site-header-memorial-color: #000000;
-
+  --site-header-memorial-texture-color: currentColor;
+  --site-header-memorial-texture-opacity: 0.14;
+  --site-header-memorial-texture-gap: 10px;
+  position: relative;
   border-bottom: 1px solid var(--color-chrome-border);
   background: var(--color-chrome-surface);
-
-  &__memorial {
-    height: 5px;
-    background: var(--site-header-memorial-color);
-  }
+  color: var(--color-text);
 
   &__accent {
+    position: relative;
+    z-index: 2;
     height: 4px;
     background: var(--site-header-bar-color);
   }
 
+  &--memorial {
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: var(--site-header-memorial-texture-opacity);
+      background-image: repeating-linear-gradient(
+        45deg,
+        var(--site-header-memorial-texture-color) 0,
+        var(--site-header-memorial-texture-color) 1px,
+        transparent 1px,
+        transparent var(--site-header-memorial-texture-gap)
+      );
+    }
+  }
+
   &__container {
     position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -343,6 +367,11 @@ onUnmounted(() => {
       border-top: 1px solid var(--color-border);
       padding-top: 0.75rem;
     }
+  }
+
+  #fancy-hn-root[data-theme="amoled"] & {
+    --site-header-memorial-texture-opacity: 0.25;
+    --site-header-memorial-texture-gap: 8px;
   }
 }
 </style>

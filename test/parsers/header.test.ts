@@ -75,7 +75,7 @@ describe('header parser', () => {
         </tbody>
       </table>
     `, {
-      url: 'https://news.ycombinator.com/news?fhTopBarColor=2FACED&fhMemorialBar=1&fhMemorialBarColor=111111',
+      url: 'https://news.ycombinator.com/news?fhTopBarColor=2FACED&fhMemorialBar=1',
     });
 
     const header = parseHeader(dom.window.document);
@@ -83,7 +83,7 @@ describe('header parser', () => {
     expect(header.topBarColor).toBe('#2faced');
     expect(header.hasCustomTopBarColor).toBe(true);
     expect(header.hasMemorialBar).toBe(true);
-    expect(header.memorialBarColor).toBe('#111111');
+    expect(header.memorialBarColor).toBe('#000000');
   });
 
   it('supports disabling a source memorial strip via query param', () => {
