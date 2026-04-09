@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
-import YLogo from '@/assets/ycombinator.svg';
 import ThemeToggle from '../shared/ThemeToggle.vue';
+import YCombinatorLogo from '../shared/YCombinatorLogo.vue';
 import { Menu } from 'lucide-vue-next';
 import MetaSep from '../shared/MetaSep.vue';
+import { getLogoForegroundColor } from '../shared/logoContrast';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
@@ -12,6 +13,10 @@ const navToggle = ref<HTMLElement | null>(null);
 const navMenu = ref<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
+const effectiveTopBarColor = computed(() => header.hasCustomTopBarColor ? header.topBarColor : 'var(--color-accent)');
+const effectiveTopBarForegroundColor = computed(() => (
+  header.hasCustomTopBarColor ? getLogoForegroundColor(header.topBarColor) : 'var(--color-accent-contrast)'
+));
 
 function closeNav() {
   navOpen.value = false;
@@ -44,11 +49,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="site-header">
+  <header
+    class="site-header"
+    :style="{
+      '--site-header-bar-color': effectiveTopBarColor,
+      '--site-header-memorial-color': header.memorialBarColor ?? '#000000',
+    }"
+  >
+    <div class="site-header__accent" aria-hidden="true" />
     <div class="site-header__container">
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
-          <img :src="YLogo" class="site-header__logo-img" alt="Y Combinator Logo" />
+          <YCombinatorLogo
+            :size="22"
+            :color="effectiveTopBarColor"
+            :foreground-color="effectiveTopBarForegroundColor"
+            class="site-header__logo-img"
+          />
           <span class="site-header__logo-text">Hacker News</span>
         </a>
 
@@ -109,13 +126,27 @@ onUnmounted(() => {
         <ThemeToggle />
       </div>
     </div>
+    <div v-if="header.hasMemorialBar" class="site-header__memorial" aria-hidden="true" />
   </header>
 </template>
 
 <style scoped lang="scss">
 .site-header {
+  --site-header-bar-color: #ff6600;
+  --site-header-memorial-color: #000000;
+
   border-bottom: 1px solid var(--color-chrome-border);
   background: var(--color-chrome-surface);
+
+  &__memorial {
+    height: 5px;
+    background: var(--site-header-memorial-color);
+  }
+
+  &__accent {
+    height: 4px;
+    background: var(--site-header-bar-color);
+  }
 
   &__container {
     position: relative;
@@ -148,6 +179,7 @@ onUnmounted(() => {
   &__logo-img {
     width: 22px;
     height: 22px;
+    flex-shrink: 0;
   }
 
   &__logo-text {

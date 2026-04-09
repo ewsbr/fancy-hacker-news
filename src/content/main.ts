@@ -16,7 +16,7 @@ import {
   isDebugMode,
 } from '@/debug';
 import { resolveRoute } from '@/router';
-import { parseHeader } from '@/parsers/header';
+import { parseHeader, type ParsedHeader } from '@/parsers/header';
 import { parseLoginPage } from '@/parsers/login';
 import { parseStaticPage } from '@/parsers/static';
 import { parseStoryList } from '@/parsers/storyList';
@@ -31,6 +31,7 @@ import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
 import { makeItemPageReactive } from '@/state/itemPageState';
+import { getLogoForegroundColor } from '@/content/shared/logoContrast';
 import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -110,6 +111,18 @@ function isolateFromLegacyClickHandlers(host: HTMLElement) {
   host.addEventListener('click', event => {
     event.stopPropagation();
   });
+}
+
+function applyHeaderColorVariables(host: HTMLElement, header: ParsedHeader) {
+  if (header.hasCustomTopBarColor) {
+    host.style.setProperty('--color-hn-top-bar', header.topBarColor);
+    host.style.setProperty('--color-hn-top-bar-contrast', getLogoForegroundColor(header.topBarColor));
+    host.setAttribute('data-hn-custom-top-bar', 'true');
+  } else {
+    host.style.removeProperty('--color-hn-top-bar');
+    host.style.removeProperty('--color-hn-top-bar-contrast');
+    host.removeAttribute('data-hn-custom-top-bar');
+  }
 }
 
 function restoreInitialFragment() {
@@ -234,6 +247,7 @@ function mountApp() {
       const nextHost = document.createElement('div');
       nextHost.id = 'fancy-hn-root';
       applyBootstrappedTheme(nextHost);
+      applyHeaderColorVariables(nextHost, header);
       isolateFromLegacyClickHandlers(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
