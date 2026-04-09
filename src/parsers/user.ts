@@ -31,6 +31,44 @@ export interface ParsedUserPage {
   favoritesCommentsLink: string | null;
 }
 
+function isUserCollectionHref(
+  href: string | null | undefined,
+  collection: 'favorites' | 'upvoted',
+): boolean {
+  if (!href) {
+    return false;
+  }
+
+  if (href.startsWith(`${collection}?`) || href.startsWith(`/${collection}?`)) {
+    return true;
+  }
+
+  try {
+    return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
+  } catch {
+    return false;
+  }
+}
+
+function withCommentsParam(href: string | null | undefined): string | null {
+  if (!href) {
+    return null;
+  }
+
+  try {
+    const url = new URL(href, 'https://news.ycombinator.com');
+    url.searchParams.set('comments', 't');
+
+    if (/^https?:\/\//.test(href)) {
+      return url.toString();
+    }
+
+    return href.startsWith('/') ? `${url.pathname}${url.search}` : `${url.pathname}${url.search}`.replace(/^\//, '');
+  } catch {
+    return href.includes('?') ? `${href}&comments=t` : `${href}?comments=t`;
+  }
+}
+
 export function parseUserPage(doc: Document): ParsedUserPage {
   const form = doc.querySelector<HTMLFormElement>('form.profileform[action="/xuser"]');
   const isOwnProfile = form !== null;
@@ -106,7 +144,9 @@ export function parseUserPage(doc: Document): ParsedUserPage {
 
   // Upvoted links (submissions and comments variants; only present on own profile)
   const upvotedLinks = bigbox
-    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href^="upvoted?"]'))
+    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href]')).filter(el =>
+        isUserCollectionHref(attrOf(el, 'href'), 'upvoted'),
+      )
     : [];
   const upvotedLink =
     hrefOf(upvotedLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
@@ -115,13 +155,19 @@ export function parseUserPage(doc: Document): ParsedUserPage {
 
   // Favorites links
   const favLinks = bigbox
-    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href^="favorites?"]'))
+    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href]')).filter(el =>
+        isUserCollectionHref(attrOf(el, 'href'), 'favorites'),
+      )
     : [];
   const favoritesLink =
     hrefOf(favLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ||
     `favorites?id=${username}`;
   const favoritesCommentsLink =
-    hrefOf(favLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
+    hrefOf(favLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ??
+    withCommentsParam(favoritesLink);
+
+  const normalizedUpvotedLink = upvotedLink ?? null;
+  const normalizedUpvotedCommentsLink = upvotedCommentsLink ?? withCommentsParam(normalizedUpvotedLink);
 
   return {
     username,
@@ -136,8 +182,8 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     changePwLink,
     submissionsLink,
     threadsLink,
-    upvotedLink,
-    upvotedCommentsLink,
+    upvotedLink: normalizedUpvotedLink,
+    upvotedCommentsLink: normalizedUpvotedCommentsLink,
     favoritesLink,
     favoritesCommentsLink,
   };

@@ -9,6 +9,21 @@ export interface UserCollectionIntro {
   messages: string[];
 }
 
+function matchesUserCollectionHref(
+  href: string,
+  collection: 'favorites' | 'upvoted',
+): boolean {
+  if (href.startsWith(`${collection}?`) || href.startsWith(`/${collection}?`)) {
+    return true;
+  }
+
+  try {
+    return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
+  } catch {
+    return false;
+  }
+}
+
 function normalizeCollectionLabel(text: string): string {
   const normalized = text.trim().toLowerCase();
 
@@ -52,7 +67,7 @@ export function parseUserCollectionIntro(
 
   const firstTwoLinks = links.slice(0, 2);
   const isCollectionIntro = firstTwoLinks.every(link =>
-    link.href.startsWith('favorites?') || link.href.startsWith('upvoted?'),
+    matchesUserCollectionHref(link.href, 'favorites') || matchesUserCollectionHref(link.href, 'upvoted'),
   );
 
   if (!isCollectionIntro) {

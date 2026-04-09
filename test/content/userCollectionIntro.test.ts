@@ -44,4 +44,28 @@ describe('user collection intro parsing', () => {
 
     expect(intro).toBeNull();
   });
+
+  it('accepts leading-slash and absolute collection links', () => {
+    const html = `
+      <div>
+        <a href="/favorites?id=4qt23">submissions</a> |
+        <a href="https://news.ycombinator.com/favorites?id=4qt23&comments=t">comments</a>
+        <p>no favorites yet</p>
+      </div>
+    `;
+
+    const intro = parseUserCollectionIntro(html, new JSDOM('').window.document);
+
+    expect(intro).toEqual({
+      links: [
+        { href: '/favorites?id=4qt23', label: 'Submissions', kind: 'stories' },
+        {
+          href: 'https://news.ycombinator.com/favorites?id=4qt23&comments=t',
+          label: 'Comments',
+          kind: 'comments',
+        },
+      ],
+      messages: ['no favorites yet'],
+    });
+  });
 });

@@ -1,11 +1,19 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue';
+
+const props = defineProps<{
   html: string;
 }>();
+
+const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
 </script>
 
 <template>
-  <div class="rich-text" v-html="html"></div>
+  <div
+    class="rich-text"
+    :class="{ 'rich-text--starts-with-paragraph': startsWithParagraph }"
+    v-html="html"
+  ></div>
 </template>
 
 <style scoped lang="scss">
@@ -15,8 +23,11 @@ defineProps<{
   word-break: break-word;
 
   :deep(p) {
-    margin-top: 0.75rem;
-    &:first-child {
+    margin-top: 0.65rem;
+  }
+
+  &--starts-with-paragraph {
+    :deep(p:first-child) {
       margin-top: 0;
     }
   }

@@ -140,8 +140,10 @@ const user = inject<ParsedUserPage>('pageData')!;
                 </div>
                 <div class="user-page__group-items">
                   <a :href="user.favoritesLink" class="user-page__sublink">Stories</a>
-                  <span class="user-page__sep">/</span>
-                  <a :href="user.favoritesCommentsLink || '#'" class="user-page__sublink">Comments</a>
+                  <template v-if="user.favoritesCommentsLink">
+                    <span class="user-page__sep">/</span>
+                    <a :href="user.favoritesCommentsLink" class="user-page__sublink">Comments</a>
+                  </template>
                 </div>
               </div>
             </template>
@@ -154,8 +156,10 @@ const user = inject<ParsedUserPage>('pageData')!;
                 </div>
                 <div class="user-page__group-items">
                   <a :href="user.upvotedLink" class="user-page__sublink">Stories</a>
-                  <span class="user-page__sep">/</span>
-                  <a :href="user.upvotedCommentsLink || '#'" class="user-page__sublink">Comments</a>
+                  <template v-if="user.upvotedCommentsLink">
+                    <span class="user-page__sep">/</span>
+                    <a :href="user.upvotedCommentsLink" class="user-page__sublink">Comments</a>
+                  </template>
                 </div>
               </div>
             </template>
