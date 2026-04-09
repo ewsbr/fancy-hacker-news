@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, ref, type Ref } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
-import SearchTrigger from '@/content/shared/SearchTrigger.vue';
+import SearchTrigger from '@/content/ui/modals/SearchTrigger.vue';
 import {
   Clock,
   Twitter,

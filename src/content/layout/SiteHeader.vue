@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
-import ThemeToggle from '../shared/ThemeToggle.vue';
+import ThemeToggle from '@/content/ui/shell/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
-import YCombinatorLogo from '../shared/YCombinatorLogo.vue';
+import YCombinatorLogo from '@/content/ui/shell/YCombinatorLogo.vue';
 import { Menu, Ribbon } from 'lucide-vue-next';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 

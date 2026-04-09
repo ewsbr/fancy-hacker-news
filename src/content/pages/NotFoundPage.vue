@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
-import SearchTrigger from '@/content/shared/SearchTrigger.vue';
+import SearchTrigger from '@/content/ui/modals/SearchTrigger.vue';
 
 const route = inject<RouteDescriptor>('route')!;
 
