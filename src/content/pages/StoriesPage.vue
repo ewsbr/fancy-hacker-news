@@ -23,34 +23,41 @@ const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.mes
   <div class="stories-page">
     <TopNotice v-if="showTopNotice" :html="storyList.introHtml!" />
 
-    <div v-if="showListCard" class="stories-page__list hn-content-card">
-      <UserCollectionHeader
-        v-if="collectionIntro"
-        :intro="collectionIntro"
-        :active-kind="activeCollectionKind"
-      />
+    <div v-if="showListCard" class="stories-page__card hn-content-card">
+      <div class="stories-page__list">
+        <UserCollectionHeader
+          v-if="collectionIntro"
+          :intro="collectionIntro"
+          :active-kind="activeCollectionKind"
+        />
 
-      <StoryRow
-        v-for="story in storyList?.stories ?? []"
-        :key="story.id"
-        :story="story"
-      />
+        <StoryRow
+          v-for="story in storyList?.stories ?? []"
+          :key="story.id"
+          :story="story"
+        />
 
-      <div v-if="showFallbackMessage" class="stories-page__empty-copy hn-empty-state">
-        {{ emptyMessage }}
+        <div v-if="showFallbackMessage" class="stories-page__empty-copy hn-empty-state">
+          {{ emptyMessage }}
+        </div>
       </div>
+
+      <Pagination :href="storyList?.moreLink ?? null" attached />
     </div>
     <div v-else class="stories-page__empty-state hn-content-card hn-empty-state">
       {{ emptyMessage }}
     </div>
-    <Pagination :href="storyList?.moreLink ?? null" />
   </div>
 </template>
 
 <style scoped lang="scss">
 .stories-page {
+  &__card {
+    overflow: hidden;
+  }
+
   &__list {
-    border-radius: 4px 4px 0 0;
+    background: var(--color-surface);
   }
 
   &__empty-state {

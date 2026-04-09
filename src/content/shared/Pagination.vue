@@ -1,9 +1,14 @@
 <script setup lang="ts">
-defineProps<{ href: string | null }>();
+withDefaults(defineProps<{
+  href: string | null;
+  attached?: boolean;
+}>(), {
+  attached: false,
+});
 </script>
 
 <template>
-  <div v-if="href" class="pagination">
+  <div v-if="href" :class="['pagination', { 'pagination--attached': attached }]">
     <a :href="href" class="pagination__more" rel="next">More</a>
   </div>
 </template>
@@ -15,12 +20,21 @@ defineProps<{ href: string | null }>();
   margin-top: -1px;
   background: var(--color-surface);
 
-  @media (max-width: 640px) {
-    border-left: none;
-    border-right: none;
+  &--attached {
+    margin-top: 0;
+    border: 0;
+    border-top: 1px solid var(--color-border);
     border-radius: 0;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+  }
+
+  @media (max-width: 640px) {
+    &:not(.pagination--attached) {
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
   }
 
   &__more {

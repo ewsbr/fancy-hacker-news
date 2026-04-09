@@ -11,18 +11,20 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
 
 <template>
   <div class="threads-page">
-    <div v-if="pageData.threads.length" class="threads-page__container hn-content-card">
-      <ThreadNode 
-        v-for="thread in pageData.threads" 
-        :key="thread.id" 
-        :node="thread" 
-      />
+    <div v-if="pageData.threads.length" class="threads-page__card hn-content-card">
+      <div class="threads-page__container">
+        <ThreadNode 
+          v-for="thread in pageData.threads" 
+          :key="thread.id" 
+          :node="thread" 
+        />
+      </div>
+
+      <Pagination :href="pageData.moreLink" attached />
     </div>
     <div v-else class="threads-page__empty-state hn-content-card hn-empty-state">
       {{ emptyMessage }}
     </div>
-    
-    <Pagination :href="pageData.moreLink" />
   </div>
 </template>
 
@@ -30,8 +32,12 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
 .threads-page {
   padding-bottom: 2rem;
 
+  &__card {
+    overflow: hidden;
+  }
+
   &__container {
-    border-radius: 4px 4px 0 0;
+    background: var(--color-surface);
   }
 
   &__empty-state {

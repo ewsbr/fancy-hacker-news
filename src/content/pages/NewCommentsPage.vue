@@ -23,29 +23,29 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
   <div class="new-comments">
     <TopNotice v-if="showTopNotice" :html="pageData.introHtml!" />
 
-    <div v-if="showListCard" class="new-comments__list hn-content-card">
-      <UserCollectionHeader
-        v-if="collectionIntro"
-        :intro="collectionIntro"
-        :active-kind="activeCollectionKind"
-      />
+    <div v-if="showListCard" class="new-comments__card hn-content-card">
+      <div class="new-comments__list">
+        <UserCollectionHeader
+          v-if="collectionIntro"
+          :intro="collectionIntro"
+          :active-kind="activeCollectionKind"
+        />
 
-      <FlatComment 
-        v-for="comment in pageData.comments" 
-        :key="comment.id" 
-        :comment="comment" 
-      />
+        <FlatComment 
+          v-for="comment in pageData.comments" 
+          :key="comment.id" 
+          :comment="comment" 
+        />
 
-      <div v-if="showFallbackMessage" class="new-comments__empty-copy hn-empty-state">
-        {{ emptyMessage }}
+        <div v-if="showFallbackMessage" class="new-comments__empty-copy hn-empty-state">
+          {{ emptyMessage }}
+        </div>
       </div>
+
+      <Pagination :href="pageData.moreLink" attached />
     </div>
     <div v-else class="new-comments__empty-state hn-content-card hn-empty-state">
       {{ emptyMessage }}
-    </div>
-    
-    <div class="new-comments__more">
-      <Pagination :href="pageData.moreLink" />
     </div>
   </div>
 </template>
@@ -54,11 +54,15 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
 .new-comments {
   padding-bottom: 2rem;
   max-width: 1024px;
+
+  &__card {
+    overflow: hidden;
+  }
   
   &__list {
     display: flex;
     flex-direction: column;
-    border-radius: 4px 4px 0 0;
+    background: var(--color-surface);
   }
 
   &__empty-state {
@@ -67,10 +71,6 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
 
   &__empty-copy {
     border-top: 0;
-  }
-  
-  &__more {
-    margin-top: 0;
   }
 }
 </style>
