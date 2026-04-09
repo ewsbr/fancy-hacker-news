@@ -18,7 +18,7 @@ What changed:
 - Hid the keyboard shortcut hint from the computed accessible name so the visible text can serve as the button label cleanly.
 
 Files changed:
-- [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue)
+- [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue)
 
 ## 2. Theme toggle label-in-name mismatch
 
@@ -29,7 +29,7 @@ What changed:
 - Updated the trigger so its accessible name includes the visible active theme label and still communicates the control purpose.
 
 Files changed:
-- [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue)
+- [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue)
 
 ## 3. Story metadata touch targets on mobile
 
@@ -42,7 +42,7 @@ What changed:
 - Slightly increased the spacing between the title line and metadata row on mobile.
 
 Files changed:
-- [src/content/shared/AuthorByline.vue](../src/content/shared/AuthorByline.vue)
+- [src/content/ui/composites/AuthorByline.vue](../src/content/ui/composites/AuthorByline.vue)
 - [src/content/stories/StoryMeta.vue](../src/content/stories/StoryMeta.vue)
 - [src/content/stories/StoryRow.vue](../src/content/stories/StoryRow.vue)
 
@@ -59,7 +59,7 @@ What changed:
 
 Files changed:
 - [src/content/layout/SiteFooter.vue](../src/content/layout/SiteFooter.vue)
-- [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue)
+- [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue)
 
 ## 5. Dialog and popover focus management
 
@@ -75,9 +75,9 @@ What changed:
 
 Files changed:
 - [src/content/utils/focusTrap.ts](../src/content/utils/focusTrap.ts)
-- [src/content/shared/SearchModal.vue](../src/content/shared/SearchModal.vue)
+- [src/content/ui/modals/SearchModal.vue](../src/content/ui/modals/SearchModal.vue)
 - [src/content/comments/SubThreadModal.vue](../src/content/comments/SubThreadModal.vue)
-- [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue)
+- [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue)
 
 ## 6. Production font 404s
 
@@ -105,7 +105,7 @@ What changed:
 - Added an accessible label that preserves the visible More wording and clarifies that the link moves to the next page.
 
 Files changed:
-- [src/content/shared/Pagination.vue](../src/content/shared/Pagination.vue)
+- [src/content/ui/primitives/Pagination.vue](../src/content/ui/primitives/Pagination.vue)
 
 ## Validation
 

@@ -1,4 +1,4 @@
-import { textOf, attrOf, hrefOf } from './utils';
+import { textOf, attrOf, hrefOf } from './shared/dom';
 
 export interface UserPreferences {
   showDead: string | null;

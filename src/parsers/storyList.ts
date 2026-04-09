@@ -1,6 +1,11 @@
 import {
-  textOf, hrefOf, parseScore, parseCommentCount, isNewUser, parseAge, findMoreLink, parseStoryTitleStatus, findUnvoteHref,
-} from './utils';
+  textOf, hrefOf,
+} from './shared/dom';
+import { parseAge } from './shared/age';
+import { findUnvoteHref, isNewUser } from './shared/comment';
+import { findMoreLink } from './shared/pagination';
+import { parseCommentCount, parseScore } from './shared/score';
+import { parseStoryTitleStatus } from './shared/status';
 
 export interface Story {
   id: string;

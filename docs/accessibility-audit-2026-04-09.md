@@ -39,8 +39,8 @@ Impact:
 - Screen-reader output is less predictable than the visual UI.
 
 Evidence:
-- Search trigger uses an explicit accessible name that does not include the visible label: [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L19) and [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L23).
-- Theme trigger exposes Change theme while the visible label is the active theme name, such as Dark: [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L42) and [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L50).
+- Search trigger uses an explicit accessible name that does not include the visible label: [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L19) and [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L23).
+- Theme trigger exposes Change theme while the visible label is the active theme name, such as Dark: [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L42) and [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L50).
 
 Suggested fix:
 - Make the accessible name include the visible text exactly.
@@ -59,7 +59,7 @@ Impact:
 
 Evidence:
 - The metadata row is intentionally compact: [src/content/stories/StoryMeta.vue](../src/content/stories/StoryMeta.vue#L53) and [src/content/stories/StoryMeta.vue](../src/content/stories/StoryMeta.vue#L56).
-- Author and age links remain plain inline links inside an inline metadata construct: [src/content/shared/AuthorByline.vue](../src/content/shared/AuthorByline.vue#L19), [src/content/shared/AuthorByline.vue](../src/content/shared/AuthorByline.vue#L26), and [src/content/shared/AuthorByline.vue](../src/content/shared/AuthorByline.vue#L32).
+- Author and age links remain plain inline links inside an inline metadata construct: [src/content/ui/composites/AuthorByline.vue](../src/content/ui/composites/AuthorByline.vue#L19), [src/content/ui/composites/AuthorByline.vue](../src/content/ui/composites/AuthorByline.vue#L26), and [src/content/ui/composites/AuthorByline.vue](../src/content/ui/composites/AuthorByline.vue#L32).
 - The comments link already gets extra hit-area expansion, which highlights the missing treatment on neighboring links: [src/content/stories/StoryMeta.vue](../src/content/stories/StoryMeta.vue#L82) and [src/content/stories/StoryMeta.vue](../src/content/stories/StoryMeta.vue#L90).
 
 Suggested fix:
@@ -80,7 +80,7 @@ Impact:
 Evidence:
 - Footer disclaimer copy is in [src/content/layout/SiteFooter.vue](../src/content/layout/SiteFooter.vue#L101).
 - Footer metadata styling is muted further with opacity: [src/content/layout/SiteFooter.vue](../src/content/layout/SiteFooter.vue#L194) and [src/content/layout/SiteFooter.vue](../src/content/layout/SiteFooter.vue#L360).
-- Search trigger text and placeholder both rely on muted text styling, with the placeholder reduced again via opacity: [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L38), [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L67), and [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L68).
+- Search trigger text and placeholder both rely on muted text styling, with the placeholder reduced again via opacity: [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L38), [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L67), and [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L68).
 - Dark and AMOLED muted text tokens are already low enough that extra opacity pushes them under the threshold: [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L57) and [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L141).
 
 Suggested fix:
@@ -99,9 +99,9 @@ Impact:
 - Manual accessibility audits are likely to flag this even if automated audits do not.
 
 Evidence:
-- Search modal sets initial focus, but only adds Escape handling and dialog semantics: [src/content/shared/SearchModal.vue](../src/content/shared/SearchModal.vue#L29), [src/content/shared/SearchModal.vue](../src/content/shared/SearchModal.vue#L30), and [src/content/shared/SearchModal.vue](../src/content/shared/SearchModal.vue#L40).
+- Search modal sets initial focus, but only adds Escape handling and dialog semantics: [src/content/ui/modals/SearchModal.vue](../src/content/ui/modals/SearchModal.vue#L29), [src/content/ui/modals/SearchModal.vue](../src/content/ui/modals/SearchModal.vue#L30), and [src/content/ui/modals/SearchModal.vue](../src/content/ui/modals/SearchModal.vue#L40).
 - Sub-thread modal has Escape handling and dialog semantics but no managed focus: [src/content/comments/SubThreadModal.vue](../src/content/comments/SubThreadModal.vue#L46) and [src/content/comments/SubThreadModal.vue](../src/content/comments/SubThreadModal.vue#L72).
-- Theme picker uses dialog semantics without focus management: [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L60).
+- Theme picker uses dialog semantics without focus management: [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L60).
 
 Suggested fix:
 - Trap focus within modal surfaces while open.
@@ -139,7 +139,7 @@ Impact:
 - Weak semantic description for crawlers and some assistive-tech link lists.
 
 Evidence:
-- Pagination renders a bare More label: [src/content/shared/Pagination.vue](../src/content/shared/Pagination.vue#L12).
+- Pagination renders a bare More label: [src/content/ui/primitives/Pagination.vue](../src/content/ui/primitives/Pagination.vue#L12).
 
 Suggested fix:
 - Change the visible text to something more descriptive, such as More stories or Next page.

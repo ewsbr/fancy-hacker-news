@@ -1,4 +1,8 @@
-import { textOf, attrOf, hrefOf, parseAge, parseScore, isNewUser, extractRichTextHtml } from './utils';
+import { textOf, attrOf, hrefOf } from './shared/dom';
+import { parseAge } from './shared/age';
+import { extractRichTextHtml } from './shared/body';
+import { isNewUser } from './shared/comment';
+import { parseScore } from './shared/score';
 
 export interface ParsedDeleteConfirmPage {
   errorMessage: string | null;

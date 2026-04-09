@@ -116,36 +116,49 @@ src/
 │   ├── forms/
 │   │   ├── CommentForm.vue
 │   │   └── SubmitForm.vue
+│   ├── legacy/
 │   ├── utils/
 │   │   ├── emptyStates.ts
 │   │   ├── userCollectionIntro.ts
 │   │   └── wait.ts
-│   └── shared/
-│       ├── AuthorByline.vue
-│       ├── Badge.vue
-│       ├── CommentActions.vue
-│       ├── CommentUserMeta.vue
-│       ├── FlagButton.vue
-│       ├── FragmentLinkButton.vue
-│       ├── Keycap.vue
-│       ├── MetaSep.vue
-│       ├── NoticeBanner.vue
-│       ├── Pagination.vue        # supports standalone + attached card-footer mode
-│       ├── PollOptions.vue
-│       ├── RichText.vue
-│       ├── ScrollToTopButton.vue
-│       ├── SearchModal.vue       # search overlay; submits to Algolia in a new tab
-│       ├── SearchTrigger.vue     # reusable search entry point; consumes injected `openSearch`
-│       ├── StoryItem.vue         # legacy story component; avoid for new work
-│       ├── StorySiteLink.vue
-│       ├── StripedTableCard.vue
-│       ├── ThemeToggle.vue
-│       ├── Tooltip.vue
-│       ├── TopNotice.vue
-│       ├── UserCollectionHeader.vue
-│       └── VoteButton.vue
+│   └── ui/
+│       ├── composites/
+│       │   ├── AuthorByline.vue
+│       │   ├── CommentActions.vue
+│       │   ├── CommentUserMeta.vue
+│       │   ├── FlagButton.vue
+│       │   ├── PollOptions.vue
+│       │   ├── RichText.vue
+│       │   ├── StorySiteLink.vue
+│       │   └── VoteButton.vue
+│       ├── helpers/
+│       │   ├── FragmentLinkButton.vue
+│       │   ├── NoticeBanner.vue
+│       │   ├── StripedTableCard.vue
+│       │   ├── TopNotice.vue
+│       │   └── UserCollectionHeader.vue
+│       ├── modals/
+│       │   ├── SearchModal.vue       # search overlay; submits to Algolia in a new tab
+│       │   └── SearchTrigger.vue     # reusable search entry point; consumes injected `openSearch`
+│       ├── primitives/
+│       │   ├── Badge.vue
+│       │   ├── Keycap.vue
+│       │   ├── MetaSep.vue
+│       │   ├── Pagination.vue        # supports standalone + attached card-footer mode
+│       │   └── Tooltip.vue
+│       └── shell/
+│           ├── ScrollToTopButton.vue
+│           ├── ThemeToggle.vue
+│           └── YCombinatorLogo.vue
 ├── parsers/
-│   ├── utils.ts
+│   ├── shared/
+│   │   ├── age.ts
+│   │   ├── body.ts
+│   │   ├── comment.ts
+│   │   ├── dom.ts
+│   │   ├── pagination.ts
+│   │   ├── score.ts
+│   │   └── status.ts
 │   ├── header.ts
 │   ├── storyList.ts
 │   ├── item.ts
@@ -243,5 +256,4 @@ HTML snapshots of real HN pages live in `test/fixtures/`. Use these when buildin
 
 ## Files to Ignore
 
-- `src/content/shared/StoryItem.vue` — legacy component, superseded by `stories/StoryRow.vue`.
 - `dist/` — build output, not committed.

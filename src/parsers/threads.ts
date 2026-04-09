@@ -1,4 +1,9 @@
-import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink, findUnvoteHref } from './utils';
+import { textOf, attrOf, hrefOf } from './shared/dom';
+import { parseAge } from './shared/age';
+import { parseCommentBody } from './shared/body';
+import { findUnvoteHref, isNewUser, parseGrayLevel } from './shared/comment';
+import { findMoreLink } from './shared/pagination';
+import { parseScore } from './shared/score';
 import type { CommentNode } from './item';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {

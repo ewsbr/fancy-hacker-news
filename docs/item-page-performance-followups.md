@@ -17,7 +17,7 @@ The simplification pass has already removed the comment batching and the eager p
 - [src/content/comments/CommentTree.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/CommentTree.vue) now renders roots synchronously
 - [src/content/comments/CommentNode.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/CommentNode.vue) no longer batches child rendering
 - [src/state/itemPageState.ts](/home/ews/WebstormProjects/hackernews/src/state/itemPageState.ts) no longer creates per-comment reactive action islands
-- [src/content/shared/FragmentLinkButton.vue](/home/ews/WebstormProjects/hackernews/src/content/shared/FragmentLinkButton.vue) is now stateless
+- [src/content/ui/helpers/FragmentLinkButton.vue](/home/ews/WebstormProjects/hackernews/src/content/ui/helpers/FragmentLinkButton.vue) is now stateless
 - [src/parsers/item.ts](/home/ews/WebstormProjects/hackernews/src/parsers/item.ts) now switches to root-shell parsing above the extreme-thread threshold and only eagerly parses the hash-target root when needed
 - [src/content/comments/LazyCommentRoot.vue](/home/ews/WebstormProjects/hackernews/src/content/comments/LazyCommentRoot.vue) loads and unloads root subtrees on demand
 
@@ -123,10 +123,10 @@ Replacement:
 
 Current hot path per rendered comment includes several tiny components:
 
-- [src/content/shared/CommentUserMeta.vue](/home/ews/WebstormProjects/hackernews/src/content/shared/CommentUserMeta.vue)
-- [src/content/shared/AuthorByline.vue](/home/ews/WebstormProjects/hackernews/src/content/shared/AuthorByline.vue)
-- [src/content/shared/CommentActions.vue](/home/ews/WebstormProjects/hackernews/src/content/shared/CommentActions.vue)
-- [src/content/shared/FragmentLinkButton.vue](/home/ews/WebstormProjects/hackernews/src/content/shared/FragmentLinkButton.vue)
+- [src/content/ui/composites/CommentUserMeta.vue](/home/ews/WebstormProjects/hackernews/src/content/ui/composites/CommentUserMeta.vue)
+- [src/content/ui/composites/AuthorByline.vue](/home/ews/WebstormProjects/hackernews/src/content/ui/composites/AuthorByline.vue)
+- [src/content/ui/composites/CommentActions.vue](/home/ews/WebstormProjects/hackernews/src/content/ui/composites/CommentActions.vue)
+- [src/content/ui/helpers/FragmentLinkButton.vue](/home/ews/WebstormProjects/hackernews/src/content/ui/helpers/FragmentLinkButton.vue)
 - badges, separators, and lucide icon components
 
 Why it should go:

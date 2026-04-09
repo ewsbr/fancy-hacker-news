@@ -1,5 +1,10 @@
-import type { CommentPlaceholderKind } from './utils';
-import { textOf, attrOf, hrefOf, isNewUser, parseCommentBody, parseAge, parseGrayLevel, parseScore, findMoreLink, findUnvoteHref } from './utils';
+import { textOf, attrOf, hrefOf } from './shared/dom';
+import { parseAge } from './shared/age';
+import type { CommentPlaceholderKind } from './shared/body';
+import { parseCommentBody } from './shared/body';
+import { findUnvoteHref, isNewUser, parseGrayLevel } from './shared/comment';
+import { findMoreLink } from './shared/pagination';
+import { parseScore } from './shared/score';
 
 export interface FlatComment {
   id: string;

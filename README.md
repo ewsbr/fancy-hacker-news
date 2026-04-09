@@ -119,31 +119,22 @@ src/
 │   ├── forms/
 │   │   ├── CommentForm.vue
 │   │   └── SubmitForm.vue
-│   └── shared/
-│       ├── AuthorByline.vue
-│       ├── Badge.vue
-│       ├── CommentActions.vue
-│       ├── CommentUserMeta.vue
-│       ├── FlagButton.vue
-│       ├── FragmentLinkButton.vue
-│       ├── Keycap.vue
-│       ├── MetaSep.vue
-│       ├── NoticeBanner.vue
-│       ├── Pagination.vue
-│       ├── PollOptions.vue
-│       ├── RichText.vue
-│       ├── ScrollToTopButton.vue
-│       ├── SearchModal.vue
-│       ├── SearchTrigger.vue
-│       ├── StorySiteLink.vue
-│       ├── StripedTableCard.vue
-│       ├── ThemeToggle.vue
-│       ├── Tooltip.vue
-│       ├── TopNotice.vue
-│       ├── UserCollectionHeader.vue
-│       └── VoteButton.vue
+│   ├── legacy/
+│   └── ui/
+│       ├── composites/
+│       ├── helpers/
+│       ├── modals/
+│       ├── primitives/
+│       └── shell/
 ├── parsers/
-│   ├── utils.ts
+│   ├── shared/
+│   │   ├── age.ts
+│   │   ├── body.ts
+│   │   ├── comment.ts
+│   │   ├── dom.ts
+│   │   ├── pagination.ts
+│   │   ├── score.ts
+│   │   └── status.ts
 │   ├── header.ts
 │   ├── storyList.ts
 │   ├── item.ts

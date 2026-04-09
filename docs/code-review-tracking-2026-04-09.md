@@ -52,9 +52,9 @@ Impact:
 - The failure mode is subtle and easy to miss during routine development.
 
 Evidence:
-- The portal target is read at module evaluation time in [src/content/shared/Tooltip.vue](../src/content/shared/Tooltip.vue#L13).
+- The portal target is read at module evaluation time in [src/content/ui/primitives/Tooltip.vue](../src/content/ui/primitives/Tooltip.vue#L13).
 - The root host does not exist until mount time in [src/content/main.ts](../src/content/main.ts#L250).
-- The tooltip portal is disabled when no target exists in [src/content/shared/Tooltip.vue](../src/content/shared/Tooltip.vue#L22).
+- The tooltip portal is disabled when no target exists in [src/content/ui/primitives/Tooltip.vue](../src/content/ui/primitives/Tooltip.vue#L22).
 
 Suggested fix:
 - Resolve the host lazily after mount, or compute it reactively at render time.
@@ -172,9 +172,9 @@ Impact:
 Evidence:
 - Canonical tokens live in [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L1).
 - Bootstrap theme colors are separately hardcoded in [src/content/anti-fouc.js](../src/content/anti-fouc.js#L8).
-- Theme swatch metadata is separately hardcoded in [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L12).
-- AMOLED accent differs between the theme picker and token system in [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L16) and [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L138).
-- Dark theme surface values also differ between bootstrap and picker data in [src/content/anti-fouc.js](../src/content/anti-fouc.js#L15) and [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L14).
+- Theme swatch metadata is separately hardcoded in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L12).
+- AMOLED accent differs between the theme picker and token system in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L16) and [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L138).
+- Dark theme surface values also differ between bootstrap and picker data in [src/content/anti-fouc.js](../src/content/anti-fouc.js#L15) and [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L14).
 
 Suggested fix:
 - Introduce a single theme metadata source for:
@@ -261,7 +261,7 @@ Impact:
 
 Evidence:
 - App-level dependencies are provided with string keys in [src/content/main.ts](../src/content/main.ts#L276).
-- Search control uses a string-keyed injected function in [src/content/layout/AppShell.vue](../src/content/layout/AppShell.vue#L14) and [src/content/shared/SearchTrigger.vue](../src/content/shared/SearchTrigger.vue#L12).
+- Search control uses a string-keyed injected function in [src/content/layout/AppShell.vue](../src/content/layout/AppShell.vue#L14) and [src/content/ui/modals/SearchTrigger.vue](../src/content/ui/modals/SearchTrigger.vue#L12).
 - A typed symbol-based pattern already exists for fragment state in [src/content/pages/CommentsPage.vue](../src/content/pages/CommentsPage.vue#L68).
 
 Suggested fix:
@@ -286,8 +286,8 @@ Impact:
 - It is easy to “fix” one transition block while leaving another behind.
 
 Evidence:
-- Transition rules are defined once inside `.theme-toggle` in [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L255).
-- The same rules are duplicated again globally in [src/content/shared/ThemeToggle.vue](../src/content/shared/ThemeToggle.vue#L268).
+- Transition rules are defined once inside `.theme-toggle` in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L255).
+- The same rules are duplicated again globally in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L268).
 
 Suggested fix:
 - Keep a single transition definition for the `tt-pop` transition classes.
@@ -336,7 +336,7 @@ Impact:
 - New contributors have a weaker signal on which component is authoritative.
 
 Evidence:
-- [src/content/shared/StoryItem.vue](../src/content/shared/StoryItem.vue) is present in the production tree.
+- `StoryItem.vue` was removed from the production tree.
 - A search for usage did not find active references to `StoryItem` in `src/` or `test/`.
 
 Suggested fix:
@@ -350,7 +350,7 @@ Definition of done:
 These are not separate priority items, but they showed up repeatedly during review:
 
 - Shared parser helpers should absorb repeated `introHtml` extraction currently duplicated in [src/parsers/storyList.ts](../src/parsers/storyList.ts#L36) and [src/parsers/newComments.ts](../src/parsers/newComments.ts#L30).
-- Header/top-bar constants are split between parser, bootstrap, and UI code in [src/parsers/header.ts](../src/parsers/header.ts#L29), [src/content/anti-fouc.js](../src/content/anti-fouc.js#L8), and [src/content/shared/YCombinatorLogo.vue](../src/content/shared/YCombinatorLogo.vue#L10).
+- Header/top-bar constants are split between parser, bootstrap, and UI code in [src/parsers/header.ts](../src/parsers/header.ts#L29), [src/content/anti-fouc.js](../src/content/anti-fouc.js#L8), and [src/content/ui/shell/YCombinatorLogo.vue](../src/content/ui/shell/YCombinatorLogo.vue#L10).
 - Responsive logic is split between direct `matchMedia` calls and the shared mobile helper in [src/content/main.ts](../src/content/main.ts#L201), [src/content/pages/CommentsPage.vue](../src/content/pages/CommentsPage.vue#L201), and [src/state/useIsMobile.ts](../src/state/useIsMobile.ts#L8).
 - Overlay behavior is being hand-built in several places even though `reka-ui` is already in use for tooltips. Search, sub-thread modal, and theme selection should converge on `reka-ui` primitives so focus, escape handling, portaling, and trigger wiring are not reimplemented per component.
 

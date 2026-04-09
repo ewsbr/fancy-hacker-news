@@ -1,7 +1,7 @@
 /**
  * Parse HN login / changepw / forgot / comment auth pages.
  */
-import { textOf } from './utils';
+import { textOf } from './shared/dom';
 
 const TEXT_NODE = 3;
 const ELEMENT_NODE = 1;

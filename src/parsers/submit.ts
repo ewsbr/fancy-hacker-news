@@ -1,4 +1,4 @@
-import { attrOf } from './utils';
+import { attrOf } from './shared/dom';
 
 export interface SubmitField {
   name: string;

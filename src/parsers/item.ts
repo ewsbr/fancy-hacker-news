@@ -1,18 +1,15 @@
 import {
   attrOf,
-  extractRichTextHtml,
-  findUnvoteHref,
   hrefOf,
-  isNewUser,
-  parseCommentBody,
-  parseAge,
-  parseGrayLevel,
-  parseScore,
-  parseStoryTitleStatus,
   textOf,
-} from './utils';
+} from './shared/dom';
 import { debugLog, debugMeasure } from '@/debug';
-import type { CommentPlaceholderKind } from './utils';
+import { parseAge } from './shared/age';
+import type { CommentPlaceholderKind } from './shared/body';
+import { extractRichTextHtml, parseCommentBody } from './shared/body';
+import { findUnvoteHref, isNewUser, parseGrayLevel } from './shared/comment';
+import { parseScore } from './shared/score';
+import { parseStoryTitleStatus } from './shared/status';
 
 const EXTREME_THREAD_COMMENT_THRESHOLD = 2000;
 

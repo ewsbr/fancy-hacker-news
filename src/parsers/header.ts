@@ -1,7 +1,7 @@
 /**
  * Parse the HN site header (nav links, user info, logout URL).
  */
-import { attrOf, textOf, hrefOf } from './utils';
+import { attrOf, textOf, hrefOf } from './shared/dom';
 
 export interface NavLink {
   label: string;
