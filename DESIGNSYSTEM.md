@@ -101,6 +101,7 @@ Themes:
 - Main app width is typically capped around `1024px`
 - Shared content surfaces use `.hn-content-card`
 - On mobile, cards usually lose side borders and corner radius to align flush with the viewport
+- When a `More` footer continues the same list surface, keep it inside that card shell with the attached pagination treatment instead of rendering a second bordered box below it
 
 ### Common Page Widths
 
@@ -136,9 +137,18 @@ Themes:
   - spacing between metadata and action items
 - Story action rows on mobile should sit slightly lower than the score/byline line when wrapped
 
+### Pagination
+
+- `Pagination` is the standard `More` footer treatment
+- Use the standalone variant when it is visually separate from the content above
+- Use the attached variant when it continues the same card/list surface so the footer reads as one connected component with the rows above it
+- Avoid stacking two fully bordered cards just to place `More` below a list
+
 ### Comment Metadata
 
 - Desktop can be dense
+- Item comments and thread comments should use the same header layout and sizing rules
+- The collapse toggle should center within a single metadata row but remain top-aligned when the metadata wraps to two rows
 - Mobile metadata rows should be larger overall because they carry tapping interactions
 - Trailing icon controls should be rendered last
 - For mobile, compact icon clusters are acceptable; long text navigation links are not
@@ -161,6 +171,8 @@ Themes:
 
 - Native links and forms are preferred over custom client navigation
 - Inline controls should feel lightweight, not button-heavy
+- Pill-styled controls are acceptable sparingly; avoid placing multiple competing pill/button treatments in the same short action row
+- `SearchTrigger` is the standard search entry control; when it sits beside nearby navigation, the surrounding actions should usually be lighter inline links rather than a second competing pill/button
 - Hover/focus states generally shift toward `--color-accent` or full text color
 - Busy/active states should rely on opacity and accent color, not layout movement
 
@@ -180,4 +192,3 @@ If you change any of the following, update this file in the same task:
 - standard action-row behavior
 - badge styles
 - shared interaction hit-area rules
-
