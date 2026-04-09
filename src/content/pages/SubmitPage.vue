@@ -25,7 +25,7 @@ const SUBMIT_PLACEHOLDERS = [
     author: 'warmstandby',
     score: 389,
     title: 'Agent startup adds human fallback, accidentally ships customer support team',
-    text: 'The architecture diagram still shows seven autonomous reasoning layers, but most incidents now appear to be resolved by someone named Priya with a keyboard.',
+    text: 'Seems like a pattern worth naming: "human fallback" as an architectural term implies the human handles edge cases. But once you\'re routing >40% of tickets there, you\'ve just built a support team with extra steps. Curious if anyone has deployed something similar and where you actually drew that line.',
     url: 'https://techcrunch.com/2026/03/11/agent-startup-human-fallback-customer-support-team/',
   },
   {
@@ -211,7 +211,7 @@ const previewStory = computed<Story>(() => ({
     gap: 0.4rem;
     color: var(--color-text);
     font-family: var(--font-title);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.07em;
     text-transform: uppercase;
