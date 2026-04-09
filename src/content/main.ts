@@ -31,8 +31,9 @@ import { parseDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/topColors';
 import { makeItemPageReactive } from '@/state/itemPageState';
-import { getLogoForegroundColor } from '@/content/shared/logoContrast';
+import { getLogoForegroundColor } from '@/content/utils/logoContrast';
 import { primeExtensionFonts } from '@/content/utils/loadExtensionFonts';
+import { getLegacySourceAssetNodes } from '@/content/utils/sourceAssets';
 import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -240,7 +241,7 @@ async function mountApp() {
     // 3. Strip HN's source assets so legacy styles and click handlers do not
     // interfere with the extension UI after parse.
     const removedSourceAssetCount = timeline.step('remove-source-assets', () => {
-      const sourceNodes = Array.from(document.querySelectorAll('link[rel="stylesheet"], style:not(#hn-anti-fouc), script'));
+      const sourceNodes = getLegacySourceAssetNodes(document);
       sourceNodes.forEach(el => el.remove());
       return sourceNodes.length;
     }, () => ({ headNodeCount: document.head.childElementCount }));
