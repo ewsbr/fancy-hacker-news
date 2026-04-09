@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/shared/FlagButton.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/useHnActions';
 import { useHnActions } from '@/content/composables/useHnActions';
 

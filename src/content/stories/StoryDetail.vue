@@ -2,12 +2,12 @@
 import { computed } from 'vue';
 import type { ItemDetail } from '@/parsers/item';
 import RichText from '@/content/shared/RichText.vue';
-import Badge from '@/content/shared/Badge.vue';
+import Badge from '@/content/ui/primitives/Badge.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import StorySiteLink from '@/content/shared/StorySiteLink.vue';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const props = defineProps<{
   item: ItemDetail;

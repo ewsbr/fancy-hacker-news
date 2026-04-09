@@ -9,14 +9,14 @@ import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/forms/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
-import Badge from '@/content/shared/Badge.vue';
+import Badge from '@/content/ui/primitives/Badge.vue';
 import FlagButton from '@/content/shared/FlagButton.vue';
 import PollOptions from '@/content/shared/PollOptions.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 
 const commentsLogger = createLogger('comments');

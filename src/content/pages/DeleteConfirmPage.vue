@@ -2,7 +2,7 @@
 import { inject } from 'vue';
 import type { ParsedDeleteConfirmPage } from '@/parsers/deleteConfirm';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
 

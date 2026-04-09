@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import type { Story } from '@/parsers/storyList';
 import AuthorByline from '@/content/shared/AuthorByline.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
 

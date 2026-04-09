@@ -2,7 +2,7 @@
 import type { FlatComment as FlatCommentType } from '@/parsers/newComments';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/shared/CommentActions.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';

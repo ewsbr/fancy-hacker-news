@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Send, HelpCircle } from 'lucide-vue-next';
-import Tooltip from '@/content/shared/Tooltip.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import Tooltip from '@/content/ui/primitives/Tooltip.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 
 const props = withDefaults(defineProps<{

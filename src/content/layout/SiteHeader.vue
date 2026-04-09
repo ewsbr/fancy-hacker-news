@@ -5,7 +5,7 @@ import ThemeToggle from '../shared/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
 import YCombinatorLogo from '../shared/YCombinatorLogo.vue';
 import { Menu, Ribbon } from 'lucide-vue-next';
-import MetaSep from '../shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);

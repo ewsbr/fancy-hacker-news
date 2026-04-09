@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import { Search } from 'lucide-vue-next';
-import Keycap from './Keycap.vue';
+import Keycap from '@/content/ui/primitives/Keycap.vue';
 
 withDefaults(defineProps<{
   variant?: 'default' | 'quiet';

@@ -5,7 +5,7 @@ import type { ParsedReplyPage } from '@/parsers/reply';
 import CommentBody from '@/content/comments/CommentBody.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
 import CommentForm from '@/content/forms/CommentForm.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const pageData = inject<ParsedReplyPage>('pageData')!;
 </script>

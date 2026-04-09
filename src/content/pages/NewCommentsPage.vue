@@ -3,7 +3,7 @@ import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
 import type { ParsedNewComments } from '@/parsers/newComments';
 import FlatComment from '@/content/comments/FlatComment.vue';
-import Pagination from '@/content/shared/Pagination.vue';
+import Pagination from '@/content/ui/primitives/Pagination.vue';
 import TopNotice from '@/content/shared/TopNotice.vue';
 import UserCollectionHeader from '@/content/shared/UserCollectionHeader.vue';
 import { getCommentListEmptyMessage } from '@/content/utils/emptyStates';

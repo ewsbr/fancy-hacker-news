@@ -2,7 +2,7 @@
 import { inject } from 'vue';
 import type { ParsedThreadsPage } from '@/parsers/threads';
 import ThreadNode from '@/content/comments/ThreadNode.vue';
-import Pagination from '@/content/shared/Pagination.vue';
+import Pagination from '@/content/ui/primitives/Pagination.vue';
 import { getThreadsEmptyMessage } from '@/content/utils/emptyStates';
 
 const pageData = inject<ParsedThreadsPage>('pageData')!;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Badge from '@/content/shared/Badge.vue';
-import MetaSep from '@/content/shared/MetaSep.vue';
+import Badge from '@/content/ui/primitives/Badge.vue';
+import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 defineProps<{
   author: string;

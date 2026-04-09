@@ -3,7 +3,7 @@ import type { Story } from '@/parsers/storyList';
 import StoryRank from './StoryRank.vue';
 import StoryMeta from './StoryMeta.vue';
 import VoteButton from '@/content/shared/VoteButton.vue';
-import Badge from '@/content/shared/Badge.vue';
+import Badge from '@/content/ui/primitives/Badge.vue';
 import StorySiteLink from '@/content/shared/StorySiteLink.vue';
 
 defineProps<{ story: Story }>();

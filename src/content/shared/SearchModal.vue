@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from 'reka-ui';
 import { Search, X } from 'lucide-vue-next';
-import Keycap from '@/content/shared/Keycap.vue';
+import Keycap from '@/content/ui/primitives/Keycap.vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
 
 const props = defineProps<{
