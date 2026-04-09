@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
-import FlagButton from '@/content/shared/FlagButton.vue';
+import FlagButton from '@/content/ui/composites/FlagButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/useHnActions';
 import { useHnActions } from '@/content/composables/useHnActions';

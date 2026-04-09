@@ -2,9 +2,9 @@
 import type { Story } from '@/parsers/storyList';
 import StoryRank from './StoryRank.vue';
 import StoryMeta from './StoryMeta.vue';
-import VoteButton from '@/content/shared/VoteButton.vue';
+import VoteButton from '@/content/ui/composites/VoteButton.vue';
 import Badge from '@/content/ui/primitives/Badge.vue';
-import StorySiteLink from '@/content/shared/StorySiteLink.vue';
+import StorySiteLink from '@/content/ui/composites/StorySiteLink.vue';
 
 defineProps<{ story: Story }>();
 </script>

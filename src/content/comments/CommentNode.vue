@@ -4,7 +4,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/shared/CommentActions.vue';
+import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
 import { MessageSquare } from 'lucide-vue-next';
 

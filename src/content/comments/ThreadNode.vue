@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/shared/CommentActions.vue';
+import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 
 const props = defineProps<{

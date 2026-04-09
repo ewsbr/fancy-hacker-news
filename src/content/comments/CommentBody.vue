@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Flag, Trash2 } from 'lucide-vue-next';
-import RichText from '@/content/shared/RichText.vue';
+import RichText from '@/content/ui/composites/RichText.vue';
 import type { CommentPlaceholderKind } from '@/parsers/utils';
 
 const props = defineProps<{

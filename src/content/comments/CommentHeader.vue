@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import CommentUserMeta from '@/content/shared/CommentUserMeta.vue';
+import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';

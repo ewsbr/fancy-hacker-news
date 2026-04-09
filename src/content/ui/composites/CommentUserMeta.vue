@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AuthorByline from '@/content/shared/AuthorByline.vue';
+import AuthorByline from '@/content/ui/composites/AuthorByline.vue';
 import Badge from '@/content/ui/primitives/Badge.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 

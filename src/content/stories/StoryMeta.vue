@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Story } from '@/parsers/storyList';
-import AuthorByline from '@/content/shared/AuthorByline.vue';
+import AuthorByline from '@/content/ui/composites/AuthorByline.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
