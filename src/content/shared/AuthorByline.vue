@@ -32,9 +32,14 @@ defineProps<{
   display: contents;
 
   &__author {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+    padding-inline: 0.12rem;
     font-weight: 600;
     color: var(--color-text);
     text-decoration: none;
+    vertical-align: middle;
 
     &:hover {
       color: var(--color-accent);
@@ -43,8 +48,13 @@ defineProps<{
   }
 
   &__age {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+    padding-inline: 0.12rem;
     color: inherit;
     text-decoration: none;
+    vertical-align: middle;
 
     &:hover {
       text-decoration: underline;

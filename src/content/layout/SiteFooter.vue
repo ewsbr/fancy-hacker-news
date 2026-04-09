@@ -317,11 +317,9 @@ const socialLinks = [
     font-size: 0.78rem;
     line-height: 1.6;
     color: var(--color-text-muted);
-    opacity: 0.6;
 
     #fancy-hn-root:not([data-theme]) & {
-      color: #f5f5ee;
-      opacity: 0.5;
+      color: var(--color-divider);
     }
   }
 
@@ -358,7 +356,6 @@ const socialLinks = [
     gap: 0.4rem;
     font-size: 0.75rem;
     color: var(--color-text-muted);
-    opacity: 0.5;
   }
 
   &__socials {

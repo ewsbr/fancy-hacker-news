@@ -4,6 +4,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { X } from 'lucide-vue-next';
 import { waitForAnimationFrames } from '@/content/utils/wait';
+import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -15,6 +16,9 @@ const emit = defineEmits<{
 }>();
 
 const bodyRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
+const closeButtonRef = ref<HTMLButtonElement | null>(null);
+const previousFocus = ref<HTMLElement | null>(null);
 
 async function scrollToTargetComment(targetId: string) {
   await nextTick();
@@ -39,15 +43,25 @@ function onOverlayClick(e: MouseEvent) {
 }
 
 function onKeyDown(e: KeyboardEvent) {
-  if (e.key === 'Escape') emit('close');
+  if (e.key === 'Escape') {
+    emit('close');
+    return;
+  }
+
+  if (panelRef.value) {
+    trapFocusWithin(e, panelRef.value);
+  }
 }
 
 onMounted(async () => {
+  previousFocus.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   document.addEventListener('keydown', onKeyDown);
 
   if (props.scrollToId) {
     await scrollToTargetComment(props.scrollToId);
   }
+
+  closeButtonRef.value?.focus({ preventScroll: true });
 });
 
 watch(
@@ -64,18 +78,19 @@ watch(
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeyDown);
+  restoreFocus(previousFocus.value);
 });
 </script>
 
 <template>
   <Teleport to="#fancy-hn-root">
     <div class="sub-thread-modal" @click="onOverlayClick" role="dialog" aria-modal="true">
-      <div class="sub-thread-modal__panel">
+      <div ref="panelRef" class="sub-thread-modal__panel" tabindex="-1">
         <div class="sub-thread-modal__header">
           <span class="sub-thread-modal__title">
             Thread by <strong>{{ node.author }}</strong>
           </span>
-          <button class="sub-thread-modal__close" @click="emit('close')" aria-label="Close thread">
+          <button ref="closeButtonRef" class="sub-thread-modal__close" @click="emit('close')" aria-label="Close thread">
             <X :size="18" />
           </button>
         </div>

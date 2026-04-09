@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import { Palette } from 'lucide-vue-next';
 import { useTheme, type ThemeName } from '@/state/theme';
+import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
 
 const { theme, setTheme } = useTheme();
 const open = ref(false);
+const triggerRef = ref<HTMLButtonElement | null>(null);
+const popoverRef = ref<HTMLElement | null>(null);
 
 const themes: { name: ThemeName; label: string; bg: string; accent: string }[] = [
   { name: 'light',  label: 'Light',  bg: '#f6f6ef', accent: '#ff6600' },
@@ -20,6 +23,7 @@ function swatchStyle(t: (typeof themes)[number]) {
 function select(name: ThemeName) {
   setTheme(name);
   open.value = false;
+  nextTick(() => restoreFocus(triggerRef.value));
 }
 
 function onBlur(e: FocusEvent) {
@@ -28,18 +32,47 @@ function onBlur(e: FocusEvent) {
   if (!root.contains(related)) open.value = false;
 }
 
+function onKeydown(e: KeyboardEvent) {
+  if (!open.value) {
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    open.value = false;
+    nextTick(() => restoreFocus(triggerRef.value));
+    return;
+  }
+
+  if (popoverRef.value) {
+    trapFocusWithin(e, popoverRef.value);
+  }
+}
+
 const activeTheme = () => themes.find(t => t.name === theme.value)!;
+
+watch(open, async isOpen => {
+  if (!isOpen) {
+    return;
+  }
+
+  await nextTick();
+  const activeCard = popoverRef.value?.querySelector<HTMLElement>('.theme-toggle__card--active')
+    ?? popoverRef.value?.querySelector<HTMLElement>('.theme-toggle__card');
+  activeCard?.focus();
+});
 </script>
 
 <template>
-  <div class="theme-toggle" @focusout="onBlur">
+  <div class="theme-toggle" @focusout="onBlur" @keydown="onKeydown">
     <!-- Trigger: current swatch + label + palette icon -->
     <button
+      ref="triggerRef"
       type="button"
       class="theme-toggle__trigger"
       :aria-expanded="open"
       aria-haspopup="dialog"
-      aria-label="Change theme"
+      :aria-label="`${activeTheme().label} theme, change theme`"
       @click="open = !open"
     >
       <span
@@ -55,6 +88,7 @@ const activeTheme = () => themes.find(t => t.name === theme.value)!;
     <Transition name="tt-pop">
       <div
         v-if="open"
+        ref="popoverRef"
         class="theme-toggle__popover"
         role="dialog"
         aria-label="Theme selector"

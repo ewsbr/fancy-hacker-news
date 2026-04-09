@@ -64,6 +64,23 @@ function formatComments(count: number | null): string {
   }
 }
 
+@media (max-width: 640px) {
+  .story-meta {
+    margin-top: 0.1rem;
+    row-gap: 0.25rem;
+  }
+
+  .story-meta__age,
+  .story-meta__action,
+  .story-meta__comments {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+    padding-inline: 0.12rem;
+    vertical-align: middle;
+  }
+}
+
 .story-meta__score {
   color: var(--color-accent-muted);
   font-weight: 700;

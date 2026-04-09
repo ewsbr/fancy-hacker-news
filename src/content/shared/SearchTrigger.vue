@@ -16,12 +16,11 @@ const openSearch = inject<() => void>('openSearch');
   <button
     type="button"
     :class="['search-trigger', `search-trigger--${variant}`]"
-    aria-label="Search Hacker News"
     @click="openSearch?.()"
   >
     <Search :size="14" class="search-trigger__icon" aria-hidden="true" />
     <span class="search-trigger__placeholder">Search HN…</span>
-    <Keycap :platform-modifier="true" :keys="['K']" />
+    <Keycap :platform-modifier="true" :keys="['K']" aria-hidden="true" />
   </button>
 </template>
 
@@ -65,6 +64,5 @@ const openSearch = inject<() => void>('openSearch');
 .search-trigger__placeholder {
   font-size: 0.875rem;
   color: var(--color-text-muted);
-  opacity: 0.6;
 }
 </style>

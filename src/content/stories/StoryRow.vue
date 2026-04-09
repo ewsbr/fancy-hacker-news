@@ -96,6 +96,10 @@ defineProps<{ story: Story }>();
       grid-template-columns: 1.1rem 1fr;
       padding-left: 0.5rem;
     }
+
+    &__body {
+      gap: 0.18rem;
+    }
   }
 }
 </style>

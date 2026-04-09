@@ -2,14 +2,24 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Search, X } from 'lucide-vue-next';
 import Keycap from '@/content/shared/Keycap.vue';
+import { restoreFocus, trapFocusWithin } from '@/content/utils/focusTrap';
 
 const emit = defineEmits<{ close: [] }>();
 
 const query = ref('');
 const inputRef = ref<HTMLInputElement>();
+const panelRef = ref<HTMLElement>();
+const previousFocus = ref<HTMLElement | null>(null);
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') emit('close');
+  if (e.key === 'Escape') {
+    emit('close');
+    return;
+  }
+
+  if (panelRef.value) {
+    trapFocusWithin(e, panelRef.value);
+  }
 }
 
 function submit() {
@@ -26,19 +36,21 @@ function onBackdropClick(e: MouseEvent) {
 }
 
 onMounted(() => {
+  previousFocus.value = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   inputRef.value?.focus();
   document.addEventListener('keydown', onKeydown);
 });
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeydown);
+  restoreFocus(previousFocus.value);
 });
 </script>
 
 <template>
   <div class="search-modal">
-    <div class="search-modal__backdrop" @click="onBackdropClick" role="dialog" aria-modal="true" aria-label="Search Hacker News">
-      <div class="search-modal__panel">
+    <div class="search-modal__backdrop" @click="onBackdropClick">
+      <div ref="panelRef" class="search-modal__panel" role="dialog" aria-modal="true" aria-label="Search Hacker News">
         <form class="search-modal__form" @submit.prevent="submit">
           <Search :size="18" class="search-modal__form-icon" aria-hidden="true" />
           <input
