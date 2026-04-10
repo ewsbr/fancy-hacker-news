@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, type ComponentPublicInstance } from 'vue';
+import { computed, nextTick, ref, type ComponentPublicInstance } from 'vue';
 import {
   PopoverContent,
   PopoverPortal,
@@ -7,23 +7,18 @@ import {
   PopoverTrigger,
 } from 'reka-ui';
 import { Palette } from 'lucide-vue-next';
-import { useTheme, type ThemeName } from '@/state/theme';
+import { useTheme } from '@/state/theme';
+import {
+  getThemeMetadata,
+  THEMES,
+  type ThemeMetadata,
+  type ThemeName,
+} from '@/state/theme-metadata';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const { theme, setTheme } = useTheme();
 const open = ref(false);
 const themeCardRefs = ref<Partial<Record<ThemeName, HTMLButtonElement | null>>>({});
-
-const themes: { name: ThemeName; label: string; bg: string; accent: string }[] = [
-  { name: 'light',  label: 'Light',  bg: '#f6f6ef', accent: '#ff6600' },
-  { name: 'dark',   label: 'Dark',   bg: '#252526', accent: '#ff6600' },
-  { name: 'nord',   label: 'Nord',   bg: '#2e3440', accent: '#88c0d0' },
-  { name: 'amoled', label: 'AMOLED', bg: '#000000', accent: '#ffffff' },
-];
-
-function swatchStyle(t: (typeof themes)[number]) {
-  return { background: `linear-gradient(135deg, ${t.bg} 50%, ${t.accent} 50%)` };
-}
 
 function select(name: ThemeName) {
   setTheme(name);
@@ -34,7 +29,7 @@ function onOpenAutoFocus(event: Event) {
   event.preventDefault();
   void nextTick(() => {
     const activeCard = themeCardRefs.value[theme.value];
-    const fallbackCard = themes
+    const fallbackCard = THEMES
       .map(item => themeCardRefs.value[item.name])
       .find((card): card is HTMLButtonElement => card instanceof HTMLButtonElement);
     (activeCard ?? fallbackCard)?.focus();
@@ -48,7 +43,13 @@ function setThemeCardRef(
   themeCardRefs.value[name] = el instanceof HTMLButtonElement ? el : null;
 }
 
-const activeTheme = () => themes.find(t => t.name === theme.value)!;
+function swatchStyle(themeMetadata: ThemeMetadata) {
+  return {
+    background: `linear-gradient(135deg, ${themeMetadata.surface} 50%, ${themeMetadata.accent} 50%)`,
+  };
+}
+
+const activeTheme = computed(() => getThemeMetadata(theme.value));
 </script>
 
 <template>
@@ -57,14 +58,14 @@ const activeTheme = () => themes.find(t => t.name === theme.value)!;
       <button
         type="button"
         class="theme-toggle__trigger"
-        :aria-label="`${activeTheme().label} theme, change theme`"
+        :aria-label="`${activeTheme.label} theme, change theme`"
       >
         <span
           class="theme-toggle__trigger-swatch"
-          :style="swatchStyle(activeTheme())"
+          :style="swatchStyle(activeTheme)"
           aria-hidden="true"
         />
-        <span class="theme-toggle__trigger-label">{{ activeTheme().label }}</span>
+        <span class="theme-toggle__trigger-label">{{ activeTheme.label }}</span>
         <Palette class="theme-toggle__palette-icon" :size="13" aria-hidden="true" />
       </button>
     </PopoverTrigger>
@@ -81,7 +82,7 @@ const activeTheme = () => themes.find(t => t.name === theme.value)!;
         <p class="theme-toggle__popover-title">Theme</p>
         <div class="theme-toggle__grid">
           <button
-            v-for="item in themes"
+            v-for="item in THEMES"
             :key="item.name"
             :ref="el => setThemeCardRef(item.name, el)"
             type="button"

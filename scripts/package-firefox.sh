@@ -21,12 +21,11 @@ echo "Building Firefox extension..."
 pnpm build:firefox
 
 rm -rf "$STAGE_DIR"
-mkdir -p "$STAGE_DIR/src/content"
+mkdir -p "$STAGE_DIR"
 
 cp manifest.json "$STAGE_DIR/manifest.json"
 cp -R icons "$STAGE_DIR/icons"
 cp -R dist "$STAGE_DIR/dist"
-cp src/content/anti-fouc.js "$STAGE_DIR/src/content/anti-fouc.js"
 
 find "$STAGE_DIR/dist" -type f -name '*.map' -delete
 

@@ -17,7 +17,14 @@ const entries = {
     libName: 'HNContent',
     fileName: () => 'content.js',
     outDir: 'dist/content',
-    emptyOutDir: true,
+    emptyOutDir: false,
+  },
+  antiFouc: {
+    entry: resolve(import.meta.dirname, 'src/content/anti-fouc.ts'),
+    libName: 'HNAntiFouc',
+    fileName: () => 'anti-fouc.js',
+    outDir: 'dist/content',
+    emptyOutDir: false,
   },
   background: {
     entry: resolve(import.meta.dirname, 'src/background/background.js'),
@@ -34,7 +41,11 @@ type RenderBuiltUrlContext = {
   type: 'asset' | 'public';
 };
 
-const TARGET: BuildTarget = process.env.BUILD_TARGET === 'background' ? 'background' : 'content';
+const TARGET: BuildTarget = process.env.BUILD_TARGET === 'background'
+  ? 'background'
+  : process.env.BUILD_TARGET === 'anti-fouc'
+    ? 'antiFouc'
+    : 'content';
 const cfg = entries[TARGET];
 
 function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBuiltUrlContext) {

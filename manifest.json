@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "matches": ["*://news.ycombinator.com/*"],
-      "js": ["src/content/anti-fouc.js"],
+      "js": ["dist/content/anti-fouc.js"],
       "run_at": "document_start"
     },
     {

@@ -21,7 +21,7 @@ Limits:
 - [x] Global `Cmd/Ctrl+K` shortcut overrides normal text-editing behavior inside form fields.
 - [ ] Mobile comment-thread behavior uses a non-reactive viewport flag and becomes stale after resize. (Expected behavior; no action planned.)
 - [x] Comment parsing logic is duplicated across multiple parsers and has already drifted.
-- [ ] Theme data is duplicated across token, bootstrap, and UI layers and is already inconsistent.
+- [x] Theme data is duplicated across token, bootstrap, and UI layers and is already inconsistent.
 
 ### P2 - Fix soon
 
@@ -160,7 +160,7 @@ Definition of done:
 ### P1. Theme data is duplicated across multiple layers and is inconsistent
 
 Status:
-- Open
+- Fixed
 
 Category:
 - Duplicated code
@@ -174,10 +174,10 @@ Impact:
 
 Evidence:
 - Canonical tokens live in [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L1).
-- Bootstrap theme colors are separately hardcoded in [src/content/anti-fouc.js](../src/content/anti-fouc.js#L8).
+- Bootstrap theme colors now flow through [src/content/theme-bootstrap.ts](../src/content/theme-bootstrap.ts) instead of a separate hardcoded bootstrap table.
 - Theme swatch metadata is separately hardcoded in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L12).
 - AMOLED accent differs between the theme picker and token system in [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L16) and [src/styles/_theme-tokens.scss](../src/styles/_theme-tokens.scss#L138).
-- Dark theme surface values also differ between bootstrap and picker data in [src/content/anti-fouc.js](../src/content/anti-fouc.js#L15) and [src/content/ui/shell/ThemeToggle.vue](../src/content/ui/shell/ThemeToggle.vue#L14).
+- The picker and bootstrap path now share the same metadata via [src/state/theme-metadata.ts](../src/state/theme-metadata.ts) and [src/content/theme-bootstrap.ts](../src/content/theme-bootstrap.ts).
 
 Suggested fix:
 - Introduce a single theme metadata source for:
@@ -189,6 +189,11 @@ Suggested fix:
 Definition of done:
 - Theme names and preview values are defined once.
 - Bootstrap paint, theme picker, and runtime theme behavior stay aligned.
+
+Resolution:
+- Theme metadata now lives in a single canonical source at [src/state/theme-metadata.ts](../src/state/theme-metadata.ts).
+- Runtime theme state and the theme picker consume the typed wrapper in [src/state/theme-metadata.ts](../src/state/theme-metadata.ts).
+- The bootstrap entry now builds from [src/content/anti-fouc.ts](../src/content/anti-fouc.ts), sharing the same metadata/helpers as runtime state and the picker, with regression coverage in [test/content/theme-metadata.test.ts](../test/content/theme-metadata.test.ts).
 
 ### P2. Custom-top-bar pages hardcode a black/white logo treatment
 
@@ -353,7 +358,7 @@ Definition of done:
 These are not separate priority items, but they showed up repeatedly during review:
 
 - Shared parser helpers should absorb repeated `introHtml` extraction currently duplicated in [src/parsers/storyList.ts](../src/parsers/storyList.ts#L36) and [src/parsers/newComments.ts](../src/parsers/newComments.ts#L30).
-- Header/top-bar constants are split between parser, bootstrap, and UI code in [src/parsers/header.ts](../src/parsers/header.ts#L29), [src/content/anti-fouc.js](../src/content/anti-fouc.js#L8), and [src/content/ui/shell/YCombinatorLogo.vue](../src/content/ui/shell/YCombinatorLogo.vue#L10).
+- Header/top-bar constants are split between parser, bootstrap, and UI code in [src/parsers/header.ts](../src/parsers/header.ts#L29), [src/content/theme-bootstrap.ts](../src/content/theme-bootstrap.ts), and [src/content/ui/shell/YCombinatorLogo.vue](../src/content/ui/shell/YCombinatorLogo.vue#L10).
 - Responsive logic is split between direct `matchMedia` calls and the shared mobile helper in [src/content/main.ts](../src/content/main.ts#L201), [src/content/pages/CommentsPage.vue](../src/content/pages/CommentsPage.vue#L201), and [src/state/useIsMobile.ts](../src/state/useIsMobile.ts#L8).
 - Overlay behavior is being hand-built in several places even though `reka-ui` is already in use for tooltips. Search, sub-thread modal, and theme selection should converge on `reka-ui` primitives so focus, escape handling, portaling, and trigger wiring are not reimplemented per component.
 

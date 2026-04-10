@@ -74,7 +74,7 @@ src/
 │   └── background.js        # MV3 service worker (install/update logging)
 ├── content/
 │   ├── main.ts              # entry point: parse → hide → mount → cleanup
-│   ├── anti-fouc.js         # inline script injected before parse to suppress FOUC
+│   ├── anti-fouc.ts         # document_start bootstrap script to suppress FOUC
 │   ├── App.vue              # root: reads route, selects page component via PAGE_MAP
 │   ├── composables/
 │   │   └── use-hn-actions.ts  # vote / flag actions against native HN endpoints

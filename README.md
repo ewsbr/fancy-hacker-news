@@ -77,7 +77,7 @@ src/
 │   └── background.js
 ├── content/
 │   ├── main.ts
-│   ├── anti-fouc.js
+│   ├── anti-fouc.ts
 │   ├── App.vue
 │   ├── composables/
 │   │   └── use-hn-actions.ts

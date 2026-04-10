@@ -5,18 +5,16 @@
  * and sets `data-theme` on the root host element.
  */
 import { ref, watch, type Ref } from 'vue';
-
-const THEMES = Object.freeze(['light', 'dark', 'nord', 'amoled'] as const);
-export type ThemeName = (typeof THEMES)[number];
-
-export const STORAGE_KEY = 'fancy-hn-theme';
-const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
+import {
+  applyThemeToRootHost,
+  BOOTSTRAP_THEME_DATASET_KEY,
+  isThemeName,
+  STORAGE_KEY,
+  THEME_NAMES,
+  type ThemeName,
+} from './theme-metadata';
 
 let _shared: ReturnType<typeof createTheme> | null = null;
-
-function isThemeName(value: unknown): value is ThemeName {
-  return typeof value === 'string' && THEMES.includes(value as ThemeName);
-}
 
 function detectSystem(): ThemeName {
   return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
@@ -30,14 +28,7 @@ function getBootstrappedTheme(): ThemeName {
 }
 
 function applyToHost(theme: ThemeName) {
-  const host = document.getElementById('fancy-hn-root');
-  document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY] = theme;
-  if (!host) return;
-  if (theme === 'light') {
-    host.removeAttribute('data-theme');
-  } else {
-    host.setAttribute('data-theme', theme);
-  }
+  applyThemeToRootHost(theme);
 }
 
 function createTheme() {
@@ -69,8 +60,8 @@ function createTheme() {
   }
 
   function cycleTheme() {
-    const idx = THEMES.indexOf(theme.value);
-    theme.value = THEMES[(idx + 1) % THEMES.length];
+    const idx = THEME_NAMES.indexOf(theme.value);
+    theme.value = THEME_NAMES[(idx + 1) % THEME_NAMES.length] ?? THEME_NAMES[0];
   }
 
   return { theme, setTheme, cycleTheme };

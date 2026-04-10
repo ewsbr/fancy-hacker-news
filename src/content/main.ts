@@ -31,6 +31,11 @@ import { parseDeleteConfirmPage } from '@/parsers/delete-confirm';
 import { parseListsPage } from '@/parsers/lists';
 import { parseTopColorsPage } from '@/parsers/top-colors';
 import { makeItemPageReactive } from '@/state/item-page-state';
+import {
+  applyThemeToHost,
+  BOOTSTRAP_THEME_DATASET_KEY,
+  isThemeName,
+} from '@/state/theme-metadata';
 import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
 import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
@@ -39,7 +44,6 @@ import App from './App.vue';
 import '@/styles/main.scss';
 
 const mainLogger = createLogger('main');
-const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
 
 function parsePageData(page: string, doc: Document): unknown {
   if (page === 'login') return parseLoginPage(doc);
@@ -101,12 +105,12 @@ function cleanupOriginalBody(host: HTMLElement) {
 
 function applyBootstrappedTheme(host: HTMLElement) {
   const theme = document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY];
-  if (!theme || theme === 'light') {
+  if (!isThemeName(theme)) {
     host.removeAttribute('data-theme');
     return;
   }
 
-  host.setAttribute('data-theme', theme);
+  applyThemeToHost(host, theme);
 }
 
 function isolateFromLegacyClickHandlers(host: HTMLElement) {
