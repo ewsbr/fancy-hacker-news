@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { parseNewComments } from '@/parsers/newComments';
-import { parseStoryList } from '@/parsers/storyList';
-import { parseUserCollectionIntro } from '@/content/utils/userCollectionIntro';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { parseNewComments } from '@/parsers/new-comments';
+import { parseStoryList } from '@/parsers/story-list';
+import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('user collection intro parsing', () => {
   it('extracts favorites comment tabs and empty-state guidance', async () => {

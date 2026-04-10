@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
-import { getLegacySourceAssetNodes } from '@/content/utils/sourceAssets';
+import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
 
 describe('legacy source asset cleanup', () => {
   it('preserves extension-managed styles while removing host page assets', () => {

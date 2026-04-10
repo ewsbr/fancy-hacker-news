@@ -1,5 +1,5 @@
 import type { CommentPlaceholderKind } from './shared/body';
-import { parseStoryContext, parseThreadCommentRow } from './shared/commentRow';
+import { parseStoryContext, parseThreadCommentRow } from './shared/comment-row';
 import { attrOf } from './shared/dom';
 import { findMoreLink } from './shared/pagination';
 

@@ -3,7 +3,7 @@ import {
   getCommentListEmptyMessage,
   getStoryListEmptyMessage,
   getThreadsEmptyMessage,
-} from '@/content/utils/emptyStates';
+} from '@/content/utils/empty-states';
 import type { RouteDescriptor } from '@/router';
 
 function makeRoute(page: string, params: Record<string, string> = {}): RouteDescriptor {

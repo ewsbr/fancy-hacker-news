@@ -4,6 +4,8 @@ import { parseCommentBody } from './body';
 import { attrOf, hrefOf, textOf } from './dom';
 import { findUnvoteHref, isNewUser, parseGrayLevel } from './comment';
 import { parseScore } from './score';
+import { assert } from '@/utils/assert';
+import { parseInteger } from '@/utils/number';
 
 export interface ParsedCommentNavLinks {
   root: string | null;
@@ -54,13 +56,13 @@ export interface ParseThreadCommentRowOptions {
   includeOnStory?: boolean;
 }
 
-const EMPTY_NAV_LINKS: ParsedCommentNavLinks = {
+const EMPTY_NAV_LINKS: ParsedCommentNavLinks = Object.freeze({
   root: null,
   parent: null,
   prev: null,
   next: null,
   context: null,
-};
+});
 
 function normalizeNavHref(
   href: string | null,
@@ -91,11 +93,12 @@ function parseCollapsedCount(comhead: Element | null | undefined): number {
   }
 
   const toggMatch = togg.textContent?.match(/(\d+)\s+more/);
-  if (toggMatch) {
-    return parseInt(toggMatch[1], 10);
+  const collapsedCount = parseInteger(toggMatch?.[1]);
+  if (collapsedCount !== null) {
+    return collapsedCount;
   }
 
-  return parseInt(attrOf(togg, 'n') || '0', 10);
+  return parseInteger(attrOf(togg, 'n')) ?? 0;
 }
 
 function parseCommentActions(
@@ -121,7 +124,7 @@ function parseCommentActions(
 
 export function parseCommentIndent(tr: Element): number {
   const indentSrc = attrOf(tr.querySelector('td.ind'), 'indent');
-  return indentSrc ? parseInt(indentSrc, 10) : 0;
+  return parseInteger(indentSrc) ?? 0;
 }
 
 export function parseStoryContext(scope: ParentNode | null | undefined): ParsedCommentStoryContext | null {
@@ -130,9 +133,14 @@ export function parseStoryContext(scope: ParentNode | null | undefined): ParsedC
     return null;
   }
 
+  const link = hrefOf(onStoryLink);
+  if (!link) {
+    return null;
+  }
+
   return {
     title: attrOf(onStoryLink, 'title') || textOf(onStoryLink),
-    link: hrefOf(onStoryLink) || '',
+    link,
   };
 }
 
@@ -140,6 +148,9 @@ export function parseThreadCommentRow(
   tr: Element,
   options: ParseThreadCommentRowOptions = {},
 ): ParsedThreadCommentRow {
+  const id = attrOf(tr, 'id');
+  assert(id, 'Expected comment row to have an id');
+
   const comhead = tr.querySelector('.comhead');
   const authorEl = comhead?.querySelector('a.hnuser');
   const commentEl = tr.querySelector('.comment');
@@ -151,7 +162,7 @@ export function parseThreadCommentRow(
   const ageInfo = parseAge(comhead?.querySelector('.age'));
 
   return {
-    id: attrOf(tr, 'id') || '',
+    id,
     author: textOf(authorEl),
     authorIsNew: isNewUser(authorEl),
     score: parseScore(textOf(comhead?.querySelector('.score'))),

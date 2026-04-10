@@ -77,7 +77,7 @@ src/
 │   ├── anti-fouc.js         # inline script injected before parse to suppress FOUC
 │   ├── App.vue              # root: reads route, selects page component via PAGE_MAP
 │   ├── composables/
-│   │   └── useHnActions.ts  # vote / flag actions against native HN endpoints
+│   │   └── use-hn-actions.ts  # vote / flag actions against native HN endpoints
 │   ├── layout/
 │   │   ├── AppShell.vue     # shell wrapper; search modal, Cmd/Ctrl+K, scroll-to-top
 │   │   ├── SiteHeader.vue   # logo, nav links, user controls, search trigger, theme toggle
@@ -118,8 +118,8 @@ src/
 │   │   └── SubmitForm.vue
 │   ├── legacy/
 │   ├── utils/
-│   │   ├── emptyStates.ts
-│   │   ├── userCollectionIntro.ts
+│   │   ├── empty-states.ts
+│   │   ├── user-collection-intro.ts
 │   │   └── wait.ts
 │   └── ui/
 │       ├── composites/
@@ -160,26 +160,26 @@ src/
 │   │   ├── score.ts
 │   │   └── status.ts
 │   ├── header.ts
-│   ├── storyList.ts
+│   ├── story-list.ts
 │   ├── item.ts
 │   ├── login.ts
 │   ├── static.ts
 │   ├── user.ts
 │   ├── threads.ts
-│   ├── newComments.ts
+│   ├── new-comments.ts
 │   ├── submit.ts
 │   ├── reply.ts
 │   ├── leaders.ts
-│   ├── deleteConfirm.ts
+│   ├── delete-confirm.ts
 │   ├── lists.ts
-│   └── topColors.ts
+│   └── top-colors.ts
 ├── router/
 │   └── index.ts             # resolveRoute(location) → RouteDescriptor (pure fn)
 ├── state/
-│   ├── fragmentState.ts
-│   ├── itemPageState.ts     # item-page reactivity/performance helpers
+│   ├── fragment-state.ts
+│   ├── item-page-state.ts   # item-page reactivity/performance helpers
 │   ├── theme.ts
-│   └── useIsMobile.ts
+│   └── use-is-mobile.ts
 └── styles/
     ├── main.scss
     ├── _theme-tokens.scss
@@ -192,7 +192,7 @@ src/
 
 - **Initial page data comes from the original HN DOM** — parsers read the server-rendered page before mount. There is no custom backend or client-side route loading.
 - **No SPA navigation** — `resolveRoute` is a pure read of `location` on page load only. All links and forms are native HTML pointing at HN's own servers.
-- **Native HN actions stay native** — vote / flag interactions use HN's own URLs via `useHnActions.ts`; search opens Algolia in a separate tab.
+- **Native HN actions stay native** — vote / flag interactions use HN's own URLs via `use-hn-actions.ts`; search opens Algolia in a separate tab.
 - **CSRF tokens preserved** — `auth=` params in links and `hmac` hidden fields are taken verbatim from the parsed DOM — never hardcoded or fabricated.
 - **CSS isolation** — all Vue output and CSS lives inside `#fancy-hn-root`; component styles stay scoped and avoid affecting the underlying HN page.
 - **Styles are SCSS, not Tailwind** — global tokens/reset live in `src/styles/main.scss`; component and page styles live in scoped `lang="scss"` blocks using BEM-style naming.
@@ -230,19 +230,19 @@ Each parser is a pure function `(doc: Document) → TypedModel`.
 |------|----------|--------|
 | `utils.ts` | shared helpers | — |
 | `header.ts` | `parseHeader` | all pages |
-| `storyList.ts` | `parseStoryList` | `/news`, `/ask`, `/show`, `/jobs`, `/submitted`, `/hidden`, favorites stories |
+| `story-list.ts` | `parseStoryList` | `/news`, `/ask`, `/show`, `/jobs`, `/submitted`, `/hidden`, favorites stories |
 | `item.ts` | `parseItemPage` | `/item?id=` |
 | `login.ts` | `parseLoginPage` | `/login`, `/changepw`, `/forgot`, `/vote` |
 | `static.ts` | `parseStaticPage` | `/newsfaq`, `/newsguidelines`, `/formatdoc`, catch-all |
 | `user.ts` | `parseUserPage` | `/user?id=` |
 | `threads.ts` | `parseThreadsPage` | `/threads?id=` |
-| `newComments.ts` | `parseNewComments` | `/newcomments`, `/noobcomments`, favorites comments |
+| `new-comments.ts` | `parseNewComments` | `/newcomments`, `/noobcomments`, favorites comments |
 | `submit.ts` | `parseSubmitPage` | `/submit` |
 | `reply.ts` | `parseReplyPage` | `/reply?id=` |
 | `leaders.ts` | `parseLeadersPage` | `/leaders` |
-| `deleteConfirm.ts` | `parseDeleteConfirmPage` | `/delete-confirm` |
+| `delete-confirm.ts` | `parseDeleteConfirmPage` | `/delete-confirm` |
 | `lists.ts` | `parseListsPage` | `/lists` |
-| `topColors.ts` | `parseTopColorsPage` | `/topcolors` |
+| `top-colors.ts` | `parseTopColorsPage` | `/topcolors` |
 
 Full parser specs (selectors, data models) are in `plan/03-parsers.md`.
 

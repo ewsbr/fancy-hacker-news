@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { Check } from 'lucide-vue-next';
-import type { ParsedTopColorsPage } from '@/parsers/topColors';
+import type { ParsedTopColorsPage } from '@/parsers/top-colors';
 
 const page = inject<ParsedTopColorsPage>('pageData')!;
 

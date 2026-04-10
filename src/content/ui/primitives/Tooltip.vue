@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { TooltipArrow, TooltipContent, TooltipPortal, TooltipRoot, TooltipTrigger } from 'reka-ui';
-import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const props = withDefaults(defineProps<{
   content: string;

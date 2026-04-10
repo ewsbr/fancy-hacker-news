@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getLogoForegroundColor } from '@/content/utils/logoContrast';
+import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 
 describe('getLogoForegroundColor', () => {
   it('keeps the Y white for saturated mid-tone top bar colors', () => {

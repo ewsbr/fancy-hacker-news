@@ -12,7 +12,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 import { X } from 'lucide-vue-next';
 import { waitForAnimationFrames } from '@/content/utils/wait';
-import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const props = defineProps<{
   node: CommentNodeType;

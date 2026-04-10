@@ -1,5 +1,5 @@
-import { buildIndentedCommentTree, annotateDescendantCounts } from './shared/commentTree';
-import { parseThreadCommentRow } from './shared/commentRow';
+import { buildIndentedCommentTree, annotateDescendantCounts } from './shared/comment-tree';
+import { parseThreadCommentRow } from './shared/comment-row';
 import { findMoreLink } from './shared/pagination';
 import type { CommentNode } from './item';
 

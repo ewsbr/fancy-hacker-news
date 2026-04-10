@@ -1,4 +1,15 @@
 import { ref } from 'vue';
+import { assert } from '@/utils/assert';
+
+const HN_ORIGIN = 'https://news.ycombinator.com';
+
+function getActionBaseUrl(): string {
+  if (typeof window !== 'undefined' && window.location?.href) {
+    return window.location.href;
+  }
+
+  return HN_ORIGIN;
+}
 
 export type VoteDirection = 'up' | 'down' | 'un';
 
@@ -14,7 +25,9 @@ export interface FlagActionTarget {
 }
 
 function toAbsoluteUrl(href: string): URL {
-  return new URL(href, window.location.href);
+  const trimmedHref = href.trim();
+  assert(trimmedHref.length > 0, 'Expected action href to be non-empty');
+  return new URL(trimmedHref, getActionBaseUrl());
 }
 
 function toRelativeHref(url: URL): string {
@@ -49,9 +62,12 @@ function toggleFlagHref(href: string): string {
 }
 
 async function sendActionRequest(href: string, appendJsParam = false): Promise<boolean> {
-  const requestHref = appendJsParam ? buildVoteRequestHref(href) : toAbsoluteUrl(href).toString();
+  if (!href.trim()) {
+    return false;
+  }
 
   try {
+    const requestHref = appendJsParam ? buildVoteRequestHref(href) : toAbsoluteUrl(href).toString();
     const response = await fetch(requestHref, {
       method: 'GET',
       credentials: 'include',

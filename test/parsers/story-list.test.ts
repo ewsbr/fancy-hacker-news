@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { parseHeader } from '@/parsers/header';
 import { parseItemPage } from '@/parsers/item';
-import { parseNewComments } from '@/parsers/newComments';
+import { parseNewComments } from '@/parsers/new-comments';
 import { parseThreadsPage } from '@/parsers/threads';
-import { parseStoryList } from '@/parsers/storyList';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { parseStoryList } from '@/parsers/story-list';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): ReturnType<typeof parseItemPage>['comments'] {
   return nodes.flatMap(node => [node, ...flattenComments(node.children)]);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, provide, ref } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { provide, ref } from 'vue';
 import SiteHeader from './SiteHeader.vue';
 import SiteFooter from './SiteFooter.vue';
 import SearchModal from '@/content/ui/modals/SearchModal.vue';
@@ -25,8 +26,7 @@ function onGlobalKeydown(e: KeyboardEvent) {
   openSearch();
 }
 
-onMounted(() => document.addEventListener('keydown', onGlobalKeydown));
-onUnmounted(() => document.removeEventListener('keydown', onGlobalKeydown));
+useEventListener(document, 'keydown', onGlobalKeydown);
 </script>
 
 <template>

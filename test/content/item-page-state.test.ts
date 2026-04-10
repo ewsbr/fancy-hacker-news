@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isReactive } from 'vue';
 import type { ParsedItemPage } from '@/parsers/item';
-import { makeItemPageReactive } from '@/state/itemPageState';
+import { makeItemPageReactive } from '@/state/item-page-state';
 
 function buildItemPage(): ParsedItemPage {
   return {

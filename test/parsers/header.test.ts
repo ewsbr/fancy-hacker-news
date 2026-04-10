@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { parseHeader } from '@/parsers/header';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('header parser', () => {
   it('parses the default top bar color from a standard fixture', async () => {

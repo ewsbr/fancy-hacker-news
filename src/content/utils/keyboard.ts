@@ -1,7 +1,11 @@
 const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"]';
 
+function hasDomElementGlobals(): boolean {
+  return typeof Node !== 'undefined' && typeof HTMLElement !== 'undefined';
+}
+
 export function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Node)) {
+  if (!hasDomElementGlobals() || !(target instanceof Node)) {
     return false;
   }
 

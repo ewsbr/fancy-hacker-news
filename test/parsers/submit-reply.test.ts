@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseReplyPage } from '@/parsers/reply';
 import { parseSubmitPage } from '@/parsers/submit';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('submit and reply parsers', () => {
   it('parses the submit form fields and bookmarklet link', async () => {

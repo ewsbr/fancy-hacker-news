@@ -80,7 +80,7 @@ src/
 │   ├── anti-fouc.js
 │   ├── App.vue
 │   ├── composables/
-│   │   └── useHnActions.ts
+│   │   └── use-hn-actions.ts
 │   ├── layout/
 │   │   ├── AppShell.vue
 │   │   ├── SiteHeader.vue
@@ -136,26 +136,26 @@ src/
 │   │   ├── score.ts
 │   │   └── status.ts
 │   ├── header.ts
-│   ├── storyList.ts
+│   ├── story-list.ts
 │   ├── item.ts
 │   ├── login.ts
 │   ├── static.ts
 │   ├── user.ts
 │   ├── threads.ts
-│   ├── newComments.ts
+│   ├── new-comments.ts
 │   ├── submit.ts
 │   ├── reply.ts
 │   ├── leaders.ts
-│   ├── deleteConfirm.ts
+│   ├── delete-confirm.ts
 │   ├── lists.ts
-│   └── topColors.ts
+│   └── top-colors.ts
 ├── router/
 │   └── index.ts
 ├── state/
-│   ├── fragmentState.ts
-│   ├── itemPageState.ts
+│   ├── fragment-state.ts
+│   ├── item-page-state.ts
 │   ├── theme.ts
-│   └── useIsMobile.ts
+│   └── use-is-mobile.ts
 └── styles/
     ├── main.scss
     ├── _theme-tokens.scss

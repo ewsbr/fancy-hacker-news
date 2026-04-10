@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { useHnActions } from '@/content/composables/useHnActions';
+import { useHnActions } from '@/content/composables/use-hn-actions';
 
 describe('useHnActions', () => {
   let dom: JSDOM;
@@ -63,6 +63,19 @@ describe('useHnActions', () => {
       'https://news.ycombinator.com/vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123&js=t',
       expect.any(Object),
     );
+    expect(target.voteUn).toBeNull();
+  });
+
+  it('fails closed for blank vote hrefs', async () => {
+    const { submitVote } = useHnActions();
+    const target = {
+      voteUp: null,
+      voteDown: null,
+      voteUn: null,
+    };
+
+    await expect(submitVote(target, '   ', 'up')).resolves.toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(target.voteUn).toBeNull();
   });
 

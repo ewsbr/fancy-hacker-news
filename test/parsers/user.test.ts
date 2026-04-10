@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseUserPage } from '@/parsers/user';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('parseUserPage', () => {
   it('extracts favorites and upvoted comment links from the profile fixture', async () => {

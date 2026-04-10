@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { parseStaticPage } from '@/parsers/static';
-import { loadFixtureDocument } from '../helpers/loadFixture';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('static page parser', () => {
   it('promotes standalone legacy bold headings from the FAQ fixture', async () => {

@@ -4,7 +4,7 @@ import type { ParsedSubmitPage } from '@/parsers/submit';
 import SubmitForm from '@/content/forms/SubmitForm.vue';
 import StoryRow from '@/content/stories/StoryRow.vue';
 import NoticeBanner from '@/content/ui/helpers/NoticeBanner.vue';
-import type { Story } from '@/parsers/storyList';
+import type { Story } from '@/parsers/story-list';
 
 const SUBMIT_PLACEHOLDERS = [
   {

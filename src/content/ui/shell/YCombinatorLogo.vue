@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getLogoForegroundColor } from '@/content/utils/logoContrast';
+import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 
 const props = withDefaults(defineProps<{
   color?: string;

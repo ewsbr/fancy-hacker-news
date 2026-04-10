@@ -3,8 +3,8 @@ import { computed } from 'vue';
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/ui/composites/FlagButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
-import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/useHnActions';
-import { useHnActions } from '@/content/composables/useHnActions';
+import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/use-hn-actions';
+import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{
   itemId?: string;

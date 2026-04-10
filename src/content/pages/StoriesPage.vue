@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
-import type { ParsedStoryList } from '@/parsers/storyList';
+import type { ParsedStoryList } from '@/parsers/story-list';
 import StoryRow from '@/content/stories/StoryRow.vue';
 import Pagination from '@/content/ui/primitives/Pagination.vue';
 import TopNotice from '@/content/ui/helpers/TopNotice.vue';
 import UserCollectionHeader from '@/content/ui/helpers/UserCollectionHeader.vue';
-import { getStoryListEmptyMessage } from '@/content/utils/emptyStates';
-import { parseUserCollectionIntro } from '@/content/utils/userCollectionIntro';
+import { getStoryListEmptyMessage } from '@/content/utils/empty-states';
+import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 
 const storyList = inject<ParsedStoryList>('pageData') as ParsedStoryList;
 const route = inject<RouteDescriptor>('route')!;

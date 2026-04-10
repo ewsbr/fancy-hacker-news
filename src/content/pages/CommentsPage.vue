@@ -8,7 +8,7 @@ import StoryDetail from '@/content/stories/StoryDetail.vue';
 import CommentTree from '@/content/comments/CommentTree.vue';
 import CommentForm from '@/content/forms/CommentForm.vue';
 import CommentBody from '@/content/comments/CommentBody.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragmentState';
+import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
 import Badge from '@/content/ui/primitives/Badge.vue';
 import FlagButton from '@/content/ui/composites/FlagButton.vue';
 import PollOptions from '@/content/ui/composites/PollOptions.vue';

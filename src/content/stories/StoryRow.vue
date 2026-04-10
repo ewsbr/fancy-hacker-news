@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Story } from '@/parsers/storyList';
+import type { Story } from '@/parsers/story-list';
 import StoryRank from './StoryRank.vue';
 import StoryMeta from './StoryMeta.vue';
 import VoteButton from '@/content/ui/composites/VoteButton.vue';

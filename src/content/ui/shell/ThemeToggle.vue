@@ -8,7 +8,7 @@ import {
 } from 'reka-ui';
 import { Palette } from 'lucide-vue-next';
 import { useTheme, type ThemeName } from '@/state/theme';
-import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/rootHost';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const { theme, setTheme } = useTheme();
 const open = ref(false);

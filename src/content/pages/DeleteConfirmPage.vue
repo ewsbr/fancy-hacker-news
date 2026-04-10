@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue';
-import type { ParsedDeleteConfirmPage } from '@/parsers/deleteConfirm';
+import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
 import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';

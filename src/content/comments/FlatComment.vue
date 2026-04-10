@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FlatComment as FlatCommentType } from '@/parsers/newComments';
+import type { FlatComment as FlatCommentType } from '@/parsers/new-comments';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';

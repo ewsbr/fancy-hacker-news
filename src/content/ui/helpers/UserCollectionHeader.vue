@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserCollectionIntro } from '@/content/utils/userCollectionIntro';
+import type { UserCollectionIntro } from '@/content/utils/user-collection-intro';
 
 defineProps<{
   intro: UserCollectionIntro;
