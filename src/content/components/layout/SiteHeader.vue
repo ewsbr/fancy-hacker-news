@@ -5,7 +5,7 @@ import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
 import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
-import { Menu, Ribbon } from 'lucide-vue-next';
+import { Menu } from 'lucide-vue-next';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
@@ -15,6 +15,8 @@ const navMenu = shallowRef<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
 const effectiveTopBarColor = computed(() => header.topBarColor);
+const showHeaderAccent = computed(() => header.hasCustomTopBarColor && !header.hasMemorialBar);
+const useBlackLogo = computed(() => header.hasCustomTopBarColor || header.hasMemorialBar);
 
 function closeNav() {
   navOpen.value = false;
@@ -47,17 +49,17 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
       '--site-header-bar-color': effectiveTopBarColor,
     }"
   >
-    <div v-if="header.hasCustomTopBarColor" class="site-header__accent" aria-hidden="true" />
+    <div v-if="showHeaderAccent" class="site-header__accent" aria-hidden="true" />
     <div class="site-header__container">
       <div class="site-header__mobile-row">
         <a href="/" class="site-header__brand">
           <span class="site-header__logo-wrap">
             <YCombinatorLogo
-              v-if="header.hasCustomTopBarColor"
+              v-if="useBlackLogo"
               :size="24"
               color="#000000"
               foreground-color="#ffffff"
-              class="site-header__logo-img site-header__logo-img--custom"
+              class="site-header__logo-img site-header__logo-img--black"
             />
             <img
               v-else
@@ -68,13 +70,6 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
           </span>
           <span class="site-header__logo-text">
             Hacker News
-            <Ribbon
-              v-if="header.hasMemorialBar"
-              class="site-header__memorial-ribbon"
-              :size="16"
-              :stroke-width="2.1"
-              aria-hidden="true"
-            />
           </span>
         </a>
 
@@ -194,16 +189,6 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     display: inline-block;
     font-family: var(--font-title);
     font-weight: 600;
-  }
-
-  &__memorial-ribbon {
-    position: absolute;
-    top: -0.15rem;
-    right: -1rem;
-    color: #111111;
-    filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.98))
-      drop-shadow(0 0 2px rgb(255 255 255 / 0.82));
-    pointer-events: none;
   }
 
   &__mobile-actions {
@@ -369,13 +354,8 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   #fancy-hn-root[data-theme="dark"] &,
   #fancy-hn-root[data-theme="nord"] &,
   #fancy-hn-root[data-theme="amoled"] & {
-    .site-header__logo-img--custom {
+    .site-header__logo-img--black {
       box-shadow: 0 0 0 1px rgb(255 255 255 / 0.88);
-    }
-
-    .site-header__memorial-ribbon {
-      filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.98))
-        drop-shadow(0 0 3px rgb(255 255 255 / 0.92));
     }
   }
 }
