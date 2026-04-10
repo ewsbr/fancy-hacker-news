@@ -113,9 +113,9 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
 <style scoped lang="scss">
 .comment-header {
-  --comment-meta-font-size: 0.875rem;
-  --comment-meta-line-height: 1.25rem;
-  --comment-meta-row-height: 24px;
+  --comment-meta-font-size: var(--hn-meta-font-size);
+  --comment-meta-line-height: var(--hn-meta-line-height);
+  --comment-meta-row-height: var(--hn-meta-row-height);
   --comment-toggle-font-size: 0.8125rem;
 
   display: flex;

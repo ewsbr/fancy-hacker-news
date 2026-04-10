@@ -165,7 +165,7 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
     border: 1px solid var(--color-border);
     border-radius: 6px;
     background: var(--color-surface);
-    box-shadow: var(--shadow-elevation), 0 12px 32px -6px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-elevation), 0 12px 32px -6px rgb(0 0 0 / 0.15);
     animation: tt-pop-in 0.18s ease;
   }
 

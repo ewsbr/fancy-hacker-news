@@ -53,12 +53,63 @@ function formatComments(count: number | null): string {
   column-gap: 0.4rem;
   row-gap: 0.1rem;
   color: var(--color-text-muted);
-  font-size: 0.82rem;
+  font-size: var(--hn-meta-font-size);
+  line-height: var(--hn-meta-line-height);
 
   a {
     color: inherit;
 
     &:hover {
+      text-decoration: underline;
+    }
+  }
+  &__score {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--hn-meta-row-height);
+    color: var(--color-accent-muted);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__age,
+  &__action,
+  &__comments {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--hn-meta-row-height);
+    padding-inline: 0.12rem;
+    vertical-align: middle;
+  }
+
+  &__age {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__comments {
+    position: relative;
+    font-weight: var(--hn-meta-action-font-weight);
+    color: var(--color-text) !important;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -5px -4px;
+    }
+  }
+
+  &__action {
+    color: inherit;
+    text-decoration: none;
+    font-weight: var(--hn-meta-action-font-weight);
+
+    &:hover {
+      color: var(--color-text);
       text-decoration: underline;
     }
   }
@@ -68,53 +119,6 @@ function formatComments(count: number | null): string {
   .story-meta {
     margin-top: 0.1rem;
     row-gap: 0.25rem;
-  }
-
-  .story-meta__age,
-  .story-meta__action,
-  .story-meta__comments {
-    display: inline-flex;
-    align-items: center;
-    min-block-size: 24px;
-    padding-inline: 0.12rem;
-    vertical-align: middle;
-  }
-}
-
-.story-meta__score {
-  color: var(--color-accent-muted);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.story-meta__age {
-  color: inherit;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.story-meta__comments {
-  position: relative;
-  font-weight: 600;
-  color: var(--color-text) !important;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -5px -4px;
-  }
-}
-
-.story-meta__action {
-  color: inherit;
-  text-decoration: none;
-
-  &:hover {
-    color: var(--color-text);
-    text-decoration: underline;
   }
 }
 </style>

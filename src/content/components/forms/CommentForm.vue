@@ -105,10 +105,10 @@ withDefaults(defineProps<{
     &:hover {
       background: var(--color-accent);
       border-color: var(--color-accent);
-      color: white;
+      color: #ffffff;
       
       .comment-form__icon {
-        color: white;
+        color: #ffffff;
       }
     }
 

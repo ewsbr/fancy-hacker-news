@@ -215,7 +215,7 @@ function handleFieldInput(name: string, event: Event) {
     &:hover {
       background: var(--color-accent);
       border-color: var(--color-accent);
-      color: white;
+      color: #ffffff;
     }
 
     &:focus {
@@ -231,7 +231,7 @@ function handleFieldInput(name: string, event: Event) {
   }
 
   &__button:hover &__button-icon {
-    color: white;
+    color: #ffffff;
   }
 
   &__help {

@@ -154,7 +154,7 @@ const socialLinks = [
       &:hover {
         opacity: 1;
         text-decoration: none;
-        color: #fff;
+        color: #ffffff;
       }
     }
 
@@ -182,13 +182,13 @@ const socialLinks = [
       opacity: 0.8;
 
       &:hover {
-        color: #fff;
+        color: #ffffff;
         opacity: 1;
       }
     }
 
     .site-footer__divider {
-      border-color: rgba(255, 255, 255, 0.1);
+      border-color: rgb(255 255 255 / 0.1);
     }
 
     .site-footer__metadata {
@@ -199,7 +199,7 @@ const socialLinks = [
 
   #fancy-hn-root[data-theme="amoled"] & {
     background: #0a0a0a;
-    box-shadow: 0 -10px 40px -10px rgba(255, 102, 0, 0.15);
+    box-shadow: 0 -10px 40px -10px rgb(255 102 0 / 0.15);
   }
 
   // Block structure
@@ -319,7 +319,8 @@ const socialLinks = [
     color: var(--color-text-muted);
 
     #fancy-hn-root:not([data-theme]) & {
-      color: var(--color-divider);
+      color: #f5f5ee;
+      opacity: 0.5;
     }
   }
 

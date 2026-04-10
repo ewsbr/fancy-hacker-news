@@ -73,7 +73,7 @@ defineProps<{
   }
 
   &__sep {
-    color: var(--color-text-subtle, var(--color-text-muted));
+    color: var(--color-text-muted);
     font-size: 0.8rem;
   }
 

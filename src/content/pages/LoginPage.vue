@@ -295,7 +295,7 @@ function getPlaceholder(label: string) {
     width: 100%;
     padding: 0.6rem 1rem;
     background: var(--color-accent-strong);
-    color: #fff;
+    color: #ffffff;
     border: 1px solid transparent;
     border-radius: 4px;
     font-size: 0.88rem;

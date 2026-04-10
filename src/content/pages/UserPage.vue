@@ -322,7 +322,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     color: var(--color-text);
     padding: 0.75rem;
     font-size: 0.9rem;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
     line-height: 1.5;
     resize: vertical;
 
@@ -484,10 +484,10 @@ const user = inject<ParsedUserPage>('pageData')!;
     &:hover {
       background: var(--color-accent);
       border-color: var(--color-accent);
-      color: white;
+      color: #ffffff;
 
       .user-page__btn-icon {
-        color: white;
+        color: #ffffff;
       }
     }
 

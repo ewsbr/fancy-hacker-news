@@ -83,7 +83,7 @@ const contentHtml = computed(() =>
       &:hover {
         background: var(--color-accent);
         border-color: var(--color-accent);
-        color: white;
+        color: #ffffff;
         text-decoration: none;
         transform: translateY(-1px);
       }

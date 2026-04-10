@@ -60,11 +60,12 @@ Defined in [main.scss](/home/ews/WebstormProjects/hackernews/src/styles/main.scs
 - Standard reading text and standard text inputs should default to `1rem` / `16px`
 - Story titles and section headers use the title font
 - Badges, toggles, ranks, and compact metadata accents often use mono styling or high-weight uppercase treatment
+- Shared compact metadata for usernames, relative time, and inline story/item actions uses `0.875rem` type with a `1.25rem` line height and a `24px` minimum row height
 
 ### Mobile Typography Direction
 
 - Small interactive glyph clusters such as `< # >` should have larger hit areas without visually bloating their container
-- Story title, story site badge, and story meta should scale together on mobile
+- Story title and story site badge may scale on mobile, but shared compact metadata should keep the same type size on desktop and mobile
 
 ## Color Tokens
 
@@ -75,17 +76,22 @@ Core tokens:
 - `--color-bg`
 - `--color-surface`
 - `--color-accent`
+- `--color-accent-contrast`
 - `--color-text`
 - `--color-text-muted`
 - `--color-border`
-- `--color-divider`
 - `--color-code-bg`
-- `--color-quote-border`
-- `--color-quote-bg`
 - `--color-downvoted`
 - `--color-new-user`
-- `--color-accent-muted`
+- `--color-danger`
 - `--shadow-elevation`
+- `--shadow-modal`
+
+Derived tokens:
+
+- Use aliases for obvious duplicates such as quote-border/accent and chrome-surface/surface where possible
+- Prefer explicitly authored theme colors over broad color mixing for shared UI tones; reserve `color-mix()` for special cases such as dynamic HN top-bar overrides
+- `--color-chrome-surface` and `--color-chrome-border` default to `surface` and `border`, with theme-specific overrides only when a shell surface must diverge
 
 Themes:
 
@@ -133,9 +139,9 @@ Themes:
 - On mobile, enlarge:
   - story title
   - site/domain badge
-  - metadata text
   - spacing between metadata and action items
 - Story action rows on mobile should sit slightly lower than the score/byline line when wrapped
+- Inline story/item actions such as `hide`, `past`, `latest`, `favorite`, and comment-count links should render at semibold weight
 
 ### Pagination
 

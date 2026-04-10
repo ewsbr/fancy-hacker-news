@@ -104,7 +104,7 @@ async function copy(hex: string) {
     &--copied {
       z-index: 1;
       position: relative;
-      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline: 2px solid rgb(255 255 255 / 0.8);
       outline-offset: -2px;
     }
   }
@@ -127,11 +127,11 @@ async function copy(hex: string) {
   }
 
   &__tile--dark &__hex {
-    color: rgba(0, 0, 0, 0.72);
+    color: rgb(0 0 0 / 0.72);
   }
 
   &__tile--light &__hex {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(255 255 255 / 0.9);
   }
 }
 </style>

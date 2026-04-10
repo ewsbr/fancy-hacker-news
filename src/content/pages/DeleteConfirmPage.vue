@@ -141,7 +141,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 
     &--yes {
       background: var(--color-accent);
-      color: #fff;
+      color: #ffffff;
       border-color: var(--color-accent);
 
       &:hover {

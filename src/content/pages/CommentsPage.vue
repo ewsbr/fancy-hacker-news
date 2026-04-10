@@ -347,14 +347,19 @@ useEventListener(window, 'hashchange', () => {
     align-items: center;
     column-gap: 0.35rem;
     row-gap: 0.1rem;
-    font-size: 0.82rem;
+    font-size: var(--hn-meta-font-size);
+    line-height: var(--hn-meta-line-height);
     color: var(--color-text-muted);
     margin-bottom: 0.6rem;
   }
 
   &__comment-action {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--hn-meta-row-height);
+    padding-inline: 0.12rem;
     color: inherit;
-    font-weight: 600;
+    font-weight: var(--hn-meta-action-font-weight);
     text-decoration: none;
 
     &:hover {
@@ -366,6 +371,7 @@ useEventListener(window, 'hashchange', () => {
   &__comment-meta-actions {
     display: inline-flex;
     align-items: center;
+    min-height: var(--hn-meta-row-height);
     flex-wrap: nowrap;
     column-gap: 0.35rem;
     row-gap: 0.1rem;
@@ -434,7 +440,6 @@ useEventListener(window, 'hashchange', () => {
     &__comment-meta {
       column-gap: 0.55rem;
       row-gap: 0.22rem;
-      font-size: 0.96rem;
       margin-bottom: 0.7rem;
     }
 

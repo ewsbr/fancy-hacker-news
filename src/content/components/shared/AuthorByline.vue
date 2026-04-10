@@ -31,10 +31,14 @@ defineProps<{
 .author-byline {
   display: contents;
 
+  &__prefix {
+    color: inherit;
+  }
+
   &__author {
     display: inline-flex;
     align-items: center;
-    min-block-size: 24px;
+    min-block-size: var(--hn-meta-row-height);
     padding-inline: 0.12rem;
     font-weight: 600;
     color: var(--color-text);
@@ -50,7 +54,7 @@ defineProps<{
   &__age {
     display: inline-flex;
     align-items: center;
-    min-block-size: 24px;
+    min-block-size: var(--hn-meta-row-height);
     padding-inline: 0.12rem;
     color: inherit;
     text-decoration: none;

@@ -107,7 +107,7 @@ watch(
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgb(0 0 0 / 0.55);
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -125,14 +125,14 @@ watch(
     display: flex;
     flex-direction: column;
     border-radius: 16px 16px 0 0;
-    box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 -4px 32px rgb(0 0 0 / 0.25);
     overflow: hidden;
 
     @media (min-width: 641px) {
       width: min(680px, 95vw);
       max-height: 80dvh;
       border-radius: 12px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 40px rgb(0 0 0 / 0.3);
     }
   }
 

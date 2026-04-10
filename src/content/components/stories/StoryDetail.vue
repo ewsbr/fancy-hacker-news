@@ -156,11 +156,15 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
     align-items: center;
     column-gap: 0.4rem;
     row-gap: 0.1rem;
-    font-size: 0.82rem;
+    font-size: var(--hn-meta-font-size);
+    line-height: var(--hn-meta-line-height);
     color: var(--color-text-muted);
   }
 
   &__score {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--hn-meta-row-height);
     font-weight: 700;
     color: var(--color-accent-muted);
   }
@@ -175,13 +179,18 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
   &__action-item {
     display: inline-flex;
     align-items: center;
+    min-block-size: var(--hn-meta-row-height);
     gap: 0.3rem;
   }
 
   &__action {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--hn-meta-row-height);
+    padding-inline: 0.12rem;
     color: inherit;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: var(--hn-meta-action-font-weight);
 
     &:hover {
       color: var(--color-text);
@@ -218,7 +227,6 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
       margin-top: 0.2rem;
       column-gap: 0.55rem;
       row-gap: 0.22rem;
-      font-size: 0.96rem;
     }
 
     &__actions {

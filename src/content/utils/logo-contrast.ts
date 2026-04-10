@@ -27,7 +27,14 @@ function parseHexColor(value: string): RgbColor | null {
 }
 
 function parseRgbColor(value: string): RgbColor | null {
-  const match = value.trim().match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*[\d.]+\s*)?\)$/i);
+  const normalizedValue = value.trim();
+  const commaMatch = normalizedValue.match(
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*[\d.]+\s*)?\)$/i,
+  );
+  const spaceMatch = normalizedValue.match(
+    /^rgb\(\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s*\/\s*[\d.]+\s*)?\)$/i,
+  );
+  const match = commaMatch ?? spaceMatch;
   if (!match) {
     return null;
   }

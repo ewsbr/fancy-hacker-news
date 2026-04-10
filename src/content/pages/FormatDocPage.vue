@@ -160,7 +160,7 @@ const examples: FormatExample[] = [
     align-items: baseline;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background: var(--color-bg-alt);
+    background: var(--color-row-alt);
     border-bottom: 1px solid var(--color-border);
   }
 

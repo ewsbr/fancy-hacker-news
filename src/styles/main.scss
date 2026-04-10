@@ -5,6 +5,10 @@
 #fancy-hn-root {
   --color-hn-top-bar: var(--color-accent);
   --color-hn-top-bar-contrast: var(--color-accent-contrast);
+  --hn-meta-font-size: 0.875rem;
+  --hn-meta-line-height: 1.25rem;
+  --hn-meta-row-height: 24px;
+  --hn-meta-action-font-weight: 600;
   position: fixed;
   inset: 0;
   z-index: 2147483647;
@@ -22,6 +26,7 @@
 #fancy-hn-root[data-hn-custom-top-bar="true"] {
   --color-accent: var(--color-hn-top-bar);
   --color-accent-contrast: var(--color-hn-top-bar-contrast);
+  --color-quote-border: var(--color-hn-top-bar);
   --color-accent-strong: color-mix(in srgb, var(--color-hn-top-bar) 90%, var(--color-text) 10%);
   --color-accent-badge-bg: color-mix(in srgb, var(--color-hn-top-bar) 15%, transparent);
   --color-accent-badge-border: color-mix(in srgb, var(--color-hn-top-bar) 30%, transparent);
@@ -38,7 +43,7 @@
 }
 
 #fancy-hn-root[data-theme="dark"][data-hn-custom-top-bar="true"] {
-  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 72%, white 28%);
+  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 72%, #ffffff 28%);
   --color-accent-surface: color-mix(in srgb, var(--color-hn-top-bar) 14%, var(--color-surface));
   --color-accent-surface-subtle: color-mix(in srgb, var(--color-hn-top-bar) 8%, var(--color-surface));
   --color-accent-highlight: color-mix(in srgb, var(--color-hn-top-bar) 6%, transparent);
@@ -47,7 +52,7 @@
 }
 
 #fancy-hn-root[data-theme="nord"][data-hn-custom-top-bar="true"] {
-  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 82%, white 18%);
+  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 82%, #ffffff 18%);
   --color-accent-surface: color-mix(in srgb, var(--color-hn-top-bar) 18%, var(--color-surface));
   --color-accent-surface-subtle: color-mix(in srgb, var(--color-hn-top-bar) 10%, var(--color-surface));
   --color-accent-highlight: color-mix(in srgb, var(--color-hn-top-bar) 8%, transparent);
@@ -56,7 +61,7 @@
 }
 
 #fancy-hn-root[data-theme="amoled"][data-hn-custom-top-bar="true"] {
-  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 70%, white 30%);
+  --color-accent-muted: color-mix(in srgb, var(--color-hn-top-bar) 70%, #ffffff 30%);
   --color-accent-surface: color-mix(in srgb, var(--color-hn-top-bar) 10%, var(--color-surface));
   --color-accent-surface-subtle: color-mix(in srgb, var(--color-hn-top-bar) 6%, var(--color-surface));
   --color-accent-highlight: color-mix(in srgb, var(--color-hn-top-bar) 6%, transparent);

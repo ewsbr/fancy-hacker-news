@@ -201,8 +201,8 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     top: -0.15rem;
     right: -1rem;
     color: #111111;
-    filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.98))
-      drop-shadow(0 0 2px rgba(255, 255, 255, 0.82));
+    filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.98))
+      drop-shadow(0 0 2px rgb(255 255 255 / 0.82));
     pointer-events: none;
   }
 
@@ -370,12 +370,12 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   #fancy-hn-root[data-theme="nord"] &,
   #fancy-hn-root[data-theme="amoled"] & {
     .site-header__logo-img--custom {
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.88);
+      box-shadow: 0 0 0 1px rgb(255 255 255 / 0.88);
     }
 
     .site-header__memorial-ribbon {
-      filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.98))
-        drop-shadow(0 0 3px rgba(255, 255, 255, 0.92));
+      filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.98))
+        drop-shadow(0 0 3px rgb(255 255 255 / 0.92));
     }
   }
 }
