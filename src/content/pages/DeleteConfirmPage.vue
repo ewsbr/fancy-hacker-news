@@ -82,7 +82,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 
   &__error-text {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--color-text);
   }
 
@@ -118,7 +118,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
   }
 
   &__prompt {
-    font-size: 0.95rem;
+    font-size: 1rem;
     color: var(--color-text);
     margin: 0;
     font-weight: 500;

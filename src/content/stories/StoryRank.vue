@@ -12,7 +12,7 @@ defineProps<{ rank: number }>();
   margin-top: -0.05rem;
   color: var(--color-text-muted);
   text-align: right;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.5;
   font-variant-numeric: tabular-nums;

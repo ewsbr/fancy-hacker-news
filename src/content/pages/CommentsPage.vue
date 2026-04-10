@@ -373,7 +373,7 @@ useEventListener(window, 'hashchange', () => {
   }
 
   &__comment-body {
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.55;
     color: var(--color-text);
   }

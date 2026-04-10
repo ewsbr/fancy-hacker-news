@@ -62,18 +62,20 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     </button>
 
     <div class="comment-header__info">
-      <CommentUserMeta
-        :author="node.author"
-        :author-is-new="node.authorIsNew"
-        :score="node.score"
-        :age-link="node.ageLink"
-        :age="node.age"
-        :age-timestamp="node.ageTimestamp"
-        :is-deleted="node.isDeleted"
-        :is-dead="node.isDead"
-        :is-flagged="node.isFlagged"
-        :downvote-label="downvoteOpacity"
-      />
+      <div class="comment-header__primary">
+        <CommentUserMeta
+          :author="node.author"
+          :author-is-new="node.authorIsNew"
+          :score="node.score"
+          :age-link="node.ageLink"
+          :age="node.age"
+          :age-timestamp="node.ageTimestamp"
+          :is-deleted="node.isDeleted"
+          :is-dead="node.isDead"
+          :is-flagged="node.isFlagged"
+          :downvote-label="downvoteOpacity"
+        />
+      </div>
 
       <div v-if="!node.isDeleted && !isCollapsed && (latestUrl || node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
         <MetaSep />
@@ -111,9 +113,10 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
 <style scoped lang="scss">
 .comment-header {
-  --comment-meta-font-size: 0.8125rem;
+  --comment-meta-font-size: 0.875rem;
   --comment-meta-line-height: 1.25rem;
-  --comment-toggle-font-size: 0.75rem;
+  --comment-meta-row-height: 24px;
+  --comment-toggle-font-size: 0.8125rem;
 
   display: flex;
   flex-wrap: wrap;
@@ -129,7 +132,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: var(--comment-meta-line-height);
+    min-height: var(--comment-meta-row-height);
     margin-right: 0.15rem;
     cursor: pointer;
     background: none;
@@ -162,7 +165,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
   &__info {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex-wrap: wrap;
     column-gap: 0.5rem;
     row-gap: 0.1rem;
@@ -170,12 +173,23 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     min-width: 0;
   }
 
+  &__primary {
+    display: flex;
+    align-items: center;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    column-gap: 0.35rem;
+    row-gap: 0.1rem;
+    min-height: var(--comment-meta-row-height);
+  }
+
   &__nav {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
-    font-size: 0.74rem;
+    min-height: var(--comment-meta-row-height);
+    font-size: 0.8125rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -198,6 +212,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     gap: 0.25rem;
     flex-wrap: nowrap;
     white-space: nowrap;
+    min-height: var(--comment-meta-row-height);
   }
 
   &__nav-link {
@@ -222,8 +237,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1rem;
-    height: 1rem;
+    width: 1.125rem;
+    height: 1.125rem;
     color: inherit;
     text-decoration: none;
     opacity: 0.72;
@@ -242,18 +257,23 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
       text-decoration: none;
       transform: translateY(-1px);
     }
+
+    :deep(svg) {
+      width: 15px;
+      height: 15px;
+    }
   }
 
   @media (max-width: 640px) {
-    --comment-meta-font-size: 0.875rem;
-    --comment-meta-line-height: 1.375rem;
-    --comment-toggle-font-size: 0.8125rem;
-
     column-gap: 0.45rem;
     row-gap: 0.28rem;
 
     &__info {
       column-gap: 0.6rem;
+      row-gap: 0.22rem;
+    }
+
+    &__primary {
       row-gap: 0.22rem;
     }
 

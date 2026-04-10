@@ -59,6 +59,10 @@ withDefaults(defineProps<{
 
   &__deleted,
   &__age {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 24px;
+    padding-inline: 0.12rem;
     color: var(--color-text-muted);
   }
 

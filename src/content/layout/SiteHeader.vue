@@ -239,7 +239,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     gap: 0.85rem;
     flex: 1;
     flex-wrap: nowrap;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 500;
   }
 
@@ -266,7 +266,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     align-items: center;
     gap: 1rem;
     flex-shrink: 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 500;
   }
 

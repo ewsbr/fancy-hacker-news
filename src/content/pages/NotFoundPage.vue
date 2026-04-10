@@ -146,7 +146,7 @@ const responseDate = new Date().toUTCString();
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.6rem 0.95rem;
+    padding: 0.6rem 1rem;
     border-bottom: 1px solid #2a2a2a;
     background: #1e1e1e;
     user-select: none;

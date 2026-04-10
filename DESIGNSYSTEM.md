@@ -57,12 +57,12 @@ Defined in [main.scss](/home/ews/WebstormProjects/hackernews/src/styles/main.scs
 ### Type Roles
 
 - Body copy uses the body font with strong legibility and moderate line height
+- Standard reading text and standard text inputs should default to `1rem` / `16px`
 - Story titles and section headers use the title font
 - Badges, toggles, ranks, and compact metadata accents often use mono styling or high-weight uppercase treatment
 
 ### Mobile Typography Direction
 
-- Mobile metadata rows should be slightly larger than desktop when they contain tap interactions
 - Small interactive glyph clusters such as `< # >` should have larger hit areas without visually bloating their container
 - Story title, story site badge, and story meta should scale together on mobile
 
@@ -148,8 +148,9 @@ Themes:
 
 - Desktop can be dense
 - Item comments and thread comments should use the same header layout and sizing rules
+- Comment metadata uses the same type size on desktop and mobile; mobile density changes should come from spacing and hit areas instead
+- The primary metadata row height is `24px`, and the collapse toggle should match that height
 - The collapse toggle should center within a single metadata row but remain top-aligned when the metadata wraps to two rows
-- Mobile metadata rows should be larger overall because they carry tapping interactions
 - Trailing icon controls should be rendered last
 - For mobile, compact icon clusters are acceptable; long text navigation links are not
 - Mobile comment action rows should also scale up primary actions like upvote and reply with larger text and larger invisible hit targets

@@ -43,7 +43,7 @@ async function copyPermalink() {
     aria-label="Copy permalink to this comment"
     @click="copyPermalink"
   >
-    <Hash :size="14" aria-hidden="true" />
+    <Hash :size="15" aria-hidden="true" />
   </button>
 </template>
 
@@ -53,8 +53,8 @@ async function copyPermalink() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
   padding: 0;
   border: none;
   background: none;
@@ -81,11 +81,6 @@ async function copyPermalink() {
   @media (max-width: 640px) {
     &::before {
       inset: -8px;
-    }
-
-    svg {
-      width: 15px;
-      height: 15px;
     }
   }
 }

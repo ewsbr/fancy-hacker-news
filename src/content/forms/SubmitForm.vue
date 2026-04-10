@@ -154,7 +154,7 @@ function handleFieldInput(name: string, event: Event) {
     border-radius: 4px;
     color: var(--color-text);
     padding: 0.75rem 0.85rem;
-    font-size: 0.95rem;
+    font-size: 1rem;
     outline: none;
     line-height: 1.5;
     transition: border-color 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
@@ -297,7 +297,7 @@ function handleFieldInput(name: string, event: Event) {
     &__input,
     &__textarea {
       font-size: 1rem;
-      padding: 0.85rem 0.95rem;
+      padding: 0.85rem 1rem;
     }
 
     &--utility {

@@ -34,7 +34,7 @@ const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
 .comment-body {
   transition: opacity 0.2s ease, filter 0.2s ease;
   line-height: 1.6;
-  font-size: 0.95rem;
+  font-size: 1rem;
 
   &--normal {
     color: var(--color-text);

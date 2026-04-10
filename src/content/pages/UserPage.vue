@@ -290,7 +290,7 @@ const user = inject<ParsedUserPage>('pageData')!;
 
   &__section-title {
     font-family: var(--font-title);
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 800;
     text-transform: lowercase;
     color: var(--color-text-muted);
@@ -347,7 +347,7 @@ const user = inject<ParsedUserPage>('pageData')!;
   }
 
   &__about-html {
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.6;
     color: var(--color-text);
 

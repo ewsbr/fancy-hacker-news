@@ -18,7 +18,7 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
 
 <style scoped lang="scss">
 .rich-text {
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
   word-break: break-word;
 
