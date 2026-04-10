@@ -196,6 +196,9 @@ async function mountApp() {
     const timeline = createDebugTimeline('main');
     const t0 = performance.now();
     const originalBodyChildrenCount = document.body.childElementCount;
+    // Deliberately captured once at mount. Item pages can render very large
+    // comment trees, and we do not want breakpoint changes to invalidate that
+    // tree reactively after first render.
     const isMobileLayout = window.matchMedia('(max-width: 640px)').matches;
   
     // 1. Parse from original DOM before hiding anything
@@ -279,6 +282,7 @@ async function mountApp() {
     app.provide('route', route);
     app.provide('originalDoc', document);
     app.provide('pageData', pageData);
+    app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
     timeline.step('app-mount', () => {
       app.mount(mountPoint);

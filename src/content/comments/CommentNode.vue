@@ -6,7 +6,6 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
-import { useIsMobile } from '@/state/use-is-mobile';
 import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;
@@ -18,7 +17,10 @@ const props = defineProps<{
   inModal?: boolean;
 }>();
 
-const isMobileLayout = useIsMobile();
+// Deliberately a mount-time snapshot. Recomputing this across a very large
+// comment tree on breakpoint changes would fan out reactive work to thousands
+// of nodes, so resize correctness is traded for tree stability here.
+const isMobileLayout = inject<boolean>('isMobileLayout', false);
 const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashPathIds: shallowRef(new Set<string>()),
   hashTargetId: ref<string | null>(null),
@@ -43,21 +45,23 @@ const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value 
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
-const childrenInModal = computed(() => isMobileLayout.value && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH);
+const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
 
 function toggleCollapse() {
   userCollapsed.value = !isCollapsed.value;
 }
 
-watch(
-  [childrenInModal, isInHashPath],
-  ([shouldOpenInModal, inHashPath]) => {
-    if (shouldOpenInModal && inHashPath) {
-      isModalOpen.value = true;
-    }
-  },
-  { immediate: true },
-);
+if (childrenInModal) {
+  watch(
+    isInHashPath,
+    inHashPath => {
+      if (inHashPath) {
+        isModalOpen.value = true;
+      }
+    },
+    { immediate: true },
+  );
+}
 </script>
 
 <template>
