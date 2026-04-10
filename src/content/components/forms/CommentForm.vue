@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ReplyForm } from '@/parsers/item';
 import { Send } from 'lucide-vue-next';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 withDefaults(defineProps<{
   form: ReplyForm;

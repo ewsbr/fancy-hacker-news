@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
-import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
+import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
 type CommentHeaderNode = {

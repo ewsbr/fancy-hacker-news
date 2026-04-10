@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { ParsedThreadsPage } from '@/parsers/threads';
-import ThreadNode from '@/content/comments/ThreadNode.vue';
-import Pagination from '@/content/ui/primitives/Pagination.vue';
+import ThreadNode from '@/content/components/comments/ThreadNode.vue';
+import Pagination from '@/content/components/ui/Pagination.vue';
 import { getThreadsEmptyMessage } from '@/content/utils/empty-states';
 
 const pageData = inject<ParsedThreadsPage>('pageData')!;

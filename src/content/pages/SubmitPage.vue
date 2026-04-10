@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
-import SubmitForm from '@/content/forms/SubmitForm.vue';
-import StoryRow from '@/content/stories/StoryRow.vue';
-import NoticeBanner from '@/content/ui/helpers/NoticeBanner.vue';
+import SubmitForm from '@/content/components/forms/SubmitForm.vue';
+import StoryRow from '@/content/components/stories/StoryRow.vue';
+import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
 import type { Story } from '@/parsers/story-list';
 
 const SUBMIT_PLACEHOLDERS = [

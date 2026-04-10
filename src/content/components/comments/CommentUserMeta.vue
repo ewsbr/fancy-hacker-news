@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AuthorByline from '@/content/ui/composites/AuthorByline.vue';
-import Badge from '@/content/ui/primitives/Badge.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import AuthorByline from '@/content/components/shared/AuthorByline.vue';
+import Badge from '@/content/components/ui/Badge.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 withDefaults(defineProps<{
   author: string;

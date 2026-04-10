@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/ui/composites/CommentActions.vue';
+import CommentActions from '@/content/components/comments/CommentActions.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 
 const props = defineProps<{
@@ -69,7 +69,7 @@ function toggleCollapse() {
 </template>
 
 <style scoped lang="scss">
-@use '../../styles/comment-node' as *;
+@use '@/styles/comment-node' as *;
 
 .comment-node {
   @include comment-node-base;

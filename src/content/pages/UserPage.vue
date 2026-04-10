@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import { Save, FileText, MessageSquare, Star, ArrowUp, HelpCircle } from 'lucide-vue-next';
-import Tooltip from '@/content/ui/primitives/Tooltip.vue';
+import Tooltip from '@/content/components/ui/Tooltip.vue';
 import type { ParsedUserPage } from '@/parsers/user';
 
 const user = inject<ParsedUserPage>('pageData')!;

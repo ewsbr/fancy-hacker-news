@@ -81,10 +81,54 @@ src/
 │   ├── App.vue
 │   ├── composables/
 │   │   └── use-hn-actions.ts
-│   ├── layout/
-│   │   ├── AppShell.vue
-│   │   ├── SiteHeader.vue
-│   │   └── SiteFooter.vue
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── AppShell.vue
+│   │   │   ├── SiteHeader.vue
+│   │   │   ├── SiteFooter.vue
+│   │   │   ├── SearchModal.vue
+│   │   │   ├── SearchTrigger.vue
+│   │   │   ├── ScrollToTopButton.vue
+│   │   │   ├── ThemeToggle.vue
+│   │   │   └── YCombinatorLogo.vue
+│   │   ├── stories/
+│   │   │   ├── StoryRow.vue
+│   │   │   ├── StoryRank.vue
+│   │   │   ├── StoryMeta.vue
+│   │   │   ├── StoryDetail.vue
+│   │   │   ├── StorySiteLink.vue
+│   │   │   ├── VoteButton.vue
+│   │   │   └── PollOptions.vue
+│   │   ├── comments/
+│   │   │   ├── CommentTree.vue
+│   │   │   ├── CommentNode.vue
+│   │   │   ├── CommentHeader.vue
+│   │   │   ├── CommentBody.vue
+│   │   │   ├── CommentActions.vue
+│   │   │   ├── CommentUserMeta.vue
+│   │   │   ├── FlagButton.vue
+│   │   │   ├── FlatComment.vue
+│   │   │   ├── LazyCommentRoot.vue
+│   │   │   ├── OnStoryHeader.vue
+│   │   │   ├── SubThreadModal.vue
+│   │   │   └── ThreadNode.vue
+│   │   ├── forms/
+│   │   │   ├── CommentForm.vue
+│   │   │   └── SubmitForm.vue
+│   │   ├── shared/
+│   │   │   ├── AuthorByline.vue
+│   │   │   ├── FragmentLinkButton.vue
+│   │   │   ├── RichText.vue
+│   │   │   ├── TopNotice.vue
+│   │   │   └── UserCollectionHeader.vue
+│   │   └── ui/
+│   │       ├── Badge.vue
+│   │       ├── Keycap.vue
+│   │       ├── MetaSep.vue
+│   │       ├── NoticeBanner.vue
+│   │       ├── Pagination.vue
+│   │       ├── StripedTableCard.vue
+│   │       └── Tooltip.vue
 │   ├── pages/
 │   │   ├── StoriesPage.vue       # /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
 │   │   ├── CommentsPage.vue      # /item?id=…
@@ -101,35 +145,14 @@ src/
 │   │   ├── LoginPage.vue         # /login, /changepw, /forgot, /vote
 │   │   ├── NotFoundPage.vue      # dedicated 404 page for HN's `Unknown.` response
 │   │   └── StaticPage.vue        # /newsfaq, /newsguidelines, catch-all
-│   ├── stories/
-│   │   ├── StoryRow.vue
-│   │   ├── StoryRank.vue
-│   │   ├── StoryMeta.vue
-│   │   └── StoryDetail.vue
-│   ├── comments/
-│   │   ├── CommentTree.vue
-│   │   ├── CommentNode.vue
-│   │   ├── CommentHeader.vue
-│   │   ├── CommentBody.vue
-│   │   ├── FlatComment.vue
-│   │   ├── LazyCommentRoot.vue
-│   │   ├── OnStoryHeader.vue
-│   │   ├── SubThreadModal.vue
-│   │   └── ThreadNode.vue
-│   ├── forms/
-│   │   ├── CommentForm.vue
-│   │   └── SubmitForm.vue
 │   ├── legacy/
-│   └── ui/
-│       ├── composites/
-│       ├── helpers/
-│       ├── modals/
-│       ├── primitives/
-│       └── shell/
+│   └── utils/
 ├── parsers/
 │   ├── shared/
 │   │   ├── age.ts
 │   │   ├── body.ts
+│   │   ├── comment-row.ts
+│   │   ├── comment-tree.ts
 │   │   ├── comment.ts
 │   │   ├── dom.ts
 │   │   ├── pagination.ts
@@ -154,8 +177,8 @@ src/
 ├── state/
 │   ├── fragment-state.ts
 │   ├── item-page-state.ts
-│   ├── theme.ts
-│   └── use-is-mobile.ts
+│   ├── theme-metadata.ts
+│   └── theme.ts
 └── styles/
     ├── main.scss
     ├── _theme-tokens.scss

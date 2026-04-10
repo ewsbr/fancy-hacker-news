@@ -2,11 +2,11 @@
 import { useEventListener } from '@vueuse/core';
 import { computed, inject, ref, shallowRef } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
-import ThemeToggle from '@/content/ui/shell/ThemeToggle.vue';
+import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
-import YCombinatorLogo from '@/content/ui/shell/YCombinatorLogo.vue';
+import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
 import { Menu, Ribbon } from 'lucide-vue-next';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);

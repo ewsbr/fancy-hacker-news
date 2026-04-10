@@ -2,10 +2,10 @@
 import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
 import type { ParsedStoryList } from '@/parsers/story-list';
-import StoryRow from '@/content/stories/StoryRow.vue';
-import Pagination from '@/content/ui/primitives/Pagination.vue';
-import TopNotice from '@/content/ui/helpers/TopNotice.vue';
-import UserCollectionHeader from '@/content/ui/helpers/UserCollectionHeader.vue';
+import StoryRow from '@/content/components/stories/StoryRow.vue';
+import Pagination from '@/content/components/ui/Pagination.vue';
+import TopNotice from '@/content/components/shared/TopNotice.vue';
+import UserCollectionHeader from '@/content/components/shared/UserCollectionHeader.vue';
 import { getStoryListEmptyMessage } from '@/content/utils/empty-states';
 import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 

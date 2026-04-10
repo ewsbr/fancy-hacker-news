@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
-import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
-import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
-import CommentBody from '@/content/comments/CommentBody.vue';
+import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
+import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
+import CommentBody from '@/content/components/comments/CommentBody.vue';
 
 const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 </script>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ItemDetail } from '@/parsers/item';
-import RichText from '@/content/ui/composites/RichText.vue';
-import Badge from '@/content/ui/primitives/Badge.vue';
-import VoteButton from '@/content/ui/composites/VoteButton.vue';
-import FlagButton from '@/content/ui/composites/FlagButton.vue';
-import StorySiteLink from '@/content/ui/composites/StorySiteLink.vue';
-import AuthorByline from '@/content/ui/composites/AuthorByline.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import RichText from '@/content/components/shared/RichText.vue';
+import Badge from '@/content/components/ui/Badge.vue';
+import VoteButton from '@/content/components/stories/VoteButton.vue';
+import FlagButton from '@/content/components/comments/FlagButton.vue';
+import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
+import AuthorByline from '@/content/components/shared/AuthorByline.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const props = defineProps<{
   item: ItemDetail;

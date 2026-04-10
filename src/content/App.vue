@@ -4,7 +4,7 @@ import { TooltipProvider } from 'reka-ui';
 import type { RouteDescriptor } from '@/router';
 import type { ParsedLoginPage } from '@/parsers/login';
 import type { ParsedSubmitPage } from '@/parsers/submit';
-import AppShell from './layout/AppShell.vue';
+import AppShell from './components/layout/AppShell.vue';
 import StoriesPage from './pages/StoriesPage.vue';
 import CommentsPage from './pages/CommentsPage.vue';
 import LoginPage from './pages/LoginPage.vue';

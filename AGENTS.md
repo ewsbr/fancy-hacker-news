@@ -78,10 +78,54 @@ src/
 │   ├── App.vue              # root: reads route, selects page component via PAGE_MAP
 │   ├── composables/
 │   │   └── use-hn-actions.ts  # vote / flag actions against native HN endpoints
-│   ├── layout/
-│   │   ├── AppShell.vue     # shell wrapper; search modal, Cmd/Ctrl+K, scroll-to-top
-│   │   ├── SiteHeader.vue   # logo, nav links, user controls, search trigger, theme toggle
-│   │   └── SiteFooter.vue   # site links, tagline, search trigger, metadata
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── AppShell.vue         # shell wrapper; search modal, Cmd/Ctrl+K, scroll-to-top
+│   │   │   ├── SiteHeader.vue       # logo, nav links, user controls, search trigger, theme toggle
+│   │   │   ├── SiteFooter.vue       # site links, tagline, search trigger, metadata
+│   │   │   ├── SearchModal.vue      # search overlay; submits to Algolia in a new tab
+│   │   │   ├── SearchTrigger.vue    # reusable search entry point; consumes injected `openSearch`
+│   │   │   ├── ScrollToTopButton.vue
+│   │   │   ├── ThemeToggle.vue
+│   │   │   └── YCombinatorLogo.vue
+│   │   ├── stories/
+│   │   │   ├── StoryRow.vue
+│   │   │   ├── StoryRank.vue
+│   │   │   ├── StoryMeta.vue
+│   │   │   ├── StoryDetail.vue
+│   │   │   ├── StorySiteLink.vue
+│   │   │   ├── VoteButton.vue
+│   │   │   └── PollOptions.vue
+│   │   ├── comments/
+│   │   │   ├── CommentBody.vue
+│   │   │   ├── CommentHeader.vue
+│   │   │   ├── CommentNode.vue
+│   │   │   ├── CommentTree.vue
+│   │   │   ├── CommentActions.vue
+│   │   │   ├── CommentUserMeta.vue
+│   │   │   ├── FlagButton.vue
+│   │   │   ├── FlatComment.vue
+│   │   │   ├── LazyCommentRoot.vue   # lazy-expands deferred comment subtrees from pre-parsed HTML
+│   │   │   ├── OnStoryHeader.vue
+│   │   │   ├── SubThreadModal.vue
+│   │   │   └── ThreadNode.vue
+│   │   ├── forms/
+│   │   │   ├── CommentForm.vue
+│   │   │   └── SubmitForm.vue
+│   │   ├── shared/
+│   │   │   ├── AuthorByline.vue
+│   │   │   ├── FragmentLinkButton.vue
+│   │   │   ├── RichText.vue
+│   │   │   ├── TopNotice.vue
+│   │   │   └── UserCollectionHeader.vue
+│   │   └── ui/
+│   │       ├── Badge.vue
+│   │       ├── Keycap.vue
+│   │       ├── MetaSep.vue
+│   │       ├── NoticeBanner.vue
+│   │       ├── Pagination.vue        # supports standalone + attached card-footer mode
+│   │       ├── StripedTableCard.vue
+│   │       └── Tooltip.vue
 │   ├── pages/
 │   │   ├── StoriesPage.vue       # story lists: /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
 │   │   ├── CommentsPage.vue      # /item?id=… — story header + threaded comments
@@ -98,62 +142,17 @@ src/
 │   │   ├── LoginPage.vue         # /login, /changepw, /forgot, /comment, /vote
 │   │   ├── NotFoundPage.vue      # dedicated 404 UI for HN's `Unknown.` response
 │   │   └── StaticPage.vue        # /newsfaq, /newsguidelines, catch-all
-│   ├── stories/
-│   │   ├── StoryRow.vue
-│   │   ├── StoryRank.vue
-│   │   ├── StoryMeta.vue
-│   │   └── StoryDetail.vue
-│   ├── comments/
-│   │   ├── CommentBody.vue
-│   │   ├── CommentHeader.vue
-│   │   ├── CommentNode.vue
-│   │   ├── CommentTree.vue
-│   │   ├── FlatComment.vue
-│   │   ├── LazyCommentRoot.vue   # lazy-expands deferred comment subtrees from pre-parsed HTML
-│   │   ├── OnStoryHeader.vue
-│   │   ├── SubThreadModal.vue
-│   │   └── ThreadNode.vue
-│   ├── forms/
-│   │   ├── CommentForm.vue
-│   │   └── SubmitForm.vue
 │   ├── legacy/
 │   ├── utils/
 │   │   ├── empty-states.ts
 │   │   ├── user-collection-intro.ts
 │   │   └── wait.ts
-│   └── ui/
-│       ├── composites/
-│       │   ├── AuthorByline.vue
-│       │   ├── CommentActions.vue
-│       │   ├── CommentUserMeta.vue
-│       │   ├── FlagButton.vue
-│       │   ├── PollOptions.vue
-│       │   ├── RichText.vue
-│       │   ├── StorySiteLink.vue
-│       │   └── VoteButton.vue
-│       ├── helpers/
-│       │   ├── FragmentLinkButton.vue
-│       │   ├── NoticeBanner.vue
-│       │   ├── StripedTableCard.vue
-│       │   ├── TopNotice.vue
-│       │   └── UserCollectionHeader.vue
-│       ├── modals/
-│       │   ├── SearchModal.vue       # search overlay; submits to Algolia in a new tab
-│       │   └── SearchTrigger.vue     # reusable search entry point; consumes injected `openSearch`
-│       ├── primitives/
-│       │   ├── Badge.vue
-│       │   ├── Keycap.vue
-│       │   ├── MetaSep.vue
-│       │   ├── Pagination.vue        # supports standalone + attached card-footer mode
-│       │   └── Tooltip.vue
-│       └── shell/
-│           ├── ScrollToTopButton.vue
-│           ├── ThemeToggle.vue
-│           └── YCombinatorLogo.vue
 ├── parsers/
 │   ├── shared/
 │   │   ├── age.ts
 │   │   ├── body.ts
+│   │   ├── comment-row.ts
+│   │   ├── comment-tree.ts
 │   │   ├── comment.ts
 │   │   ├── dom.ts
 │   │   ├── pagination.ts
@@ -178,8 +177,8 @@ src/
 ├── state/
 │   ├── fragment-state.ts
 │   ├── item-page-state.ts   # item-page reactivity/performance helpers
-│   ├── theme.ts
-│   └── use-is-mobile.ts
+│   ├── theme-metadata.ts
+│   └── theme.ts
 └── styles/
     ├── main.scss
     ├── _theme-tokens.scss
@@ -201,7 +200,7 @@ src/
 - **Parse-first** — parsers run synchronously against the original document before it is hidden. If a parser throws, the error is caught and the original page is shown.
 - **Search UI is shell-owned** — `AppShell.vue` provides `openSearch`; `SearchTrigger.vue` consumes it, and `Cmd/Ctrl+K` should keep mapping to the same modal.
 - **Connected pagination is a shared pattern** — when `More` continues a list/card surface, keep it inside the same card shell and use `Pagination` with `attached`.
-- **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.js` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
+- **`process.env.NODE_ENV` must be defined** — set via `define` in `vite.config.ts` so Vue's IIFE bundle doesn't reference the Node.js global at runtime.
 - **Re-injection guard** — on extension reload into an already-modified tab, `mountApp()` detects `#fancy-hn-root` already present and calls `window.location.reload()` to restore the clean server-rendered DOM before re-parsing.
 - **Respect source quirks** — if Hacker News emits inconsistent navigation or visibility state, document it before “fixing” it in the parser/UI. Do not silently diverge from source behavior without an explicit product decision.
 

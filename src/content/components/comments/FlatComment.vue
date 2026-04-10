@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { FlatComment as FlatCommentType } from '@/parsers/new-comments';
 import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/ui/composites/CommentActions.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import CommentActions from '@/content/components/comments/CommentActions.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
-import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
-import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
+import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
+import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
 
 defineProps<{
   comment: FlatCommentType;

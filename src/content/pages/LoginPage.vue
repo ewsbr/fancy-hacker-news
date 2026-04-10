@@ -3,7 +3,7 @@ import { inject, ref, computed } from 'vue';
 import { ArrowRight, UserPlus, HelpCircle, ArrowLeft } from 'lucide-vue-next';
 import type { ParsedLoginPage } from '@/parsers/login';
 import YLogo from '@/assets/ycombinator.svg';
-import NoticeBanner from '@/content/ui/helpers/NoticeBanner.vue';
+import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
 
 const page = inject<ParsedLoginPage>('pageData')!;
 

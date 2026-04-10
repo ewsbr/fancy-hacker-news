@@ -2,10 +2,10 @@
 import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
 import type { ParsedNewComments } from '@/parsers/new-comments';
-import FlatComment from '@/content/comments/FlatComment.vue';
-import Pagination from '@/content/ui/primitives/Pagination.vue';
-import TopNotice from '@/content/ui/helpers/TopNotice.vue';
-import UserCollectionHeader from '@/content/ui/helpers/UserCollectionHeader.vue';
+import FlatComment from '@/content/components/comments/FlatComment.vue';
+import Pagination from '@/content/components/ui/Pagination.vue';
+import TopNotice from '@/content/components/shared/TopNotice.vue';
+import UserCollectionHeader from '@/content/components/shared/UserCollectionHeader.vue';
 import { getCommentListEmptyMessage } from '@/content/utils/empty-states';
 import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 

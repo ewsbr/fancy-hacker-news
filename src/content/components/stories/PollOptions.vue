@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { PollOption } from '@/parsers/item';
-import VoteButton from '@/content/ui/composites/VoteButton.vue';
+import VoteButton from '@/content/components/stories/VoteButton.vue';
 
 const props = defineProps<{
   options: PollOption[];

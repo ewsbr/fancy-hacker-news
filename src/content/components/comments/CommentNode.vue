@@ -4,7 +4,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import CommentHeader from './CommentHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/ui/composites/CommentActions.vue';
+import CommentActions from '@/content/components/comments/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
 import { MessageSquare } from 'lucide-vue-next';
 
@@ -148,7 +148,7 @@ if (childrenInModal) {
 </template>
 
 <style scoped lang="scss">
-@use '../../styles/comment-node' as *;
+@use '@/styles/comment-node' as *;
 
 .comment-node {
   @include comment-node-base;

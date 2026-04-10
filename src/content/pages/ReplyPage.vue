@@ -2,10 +2,10 @@
 import { inject } from 'vue';
 import { ArrowLeft } from 'lucide-vue-next';
 import type { ParsedReplyPage } from '@/parsers/reply';
-import CommentBody from '@/content/comments/CommentBody.vue';
-import OnStoryHeader from '@/content/comments/OnStoryHeader.vue';
-import CommentForm from '@/content/forms/CommentForm.vue';
-import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import CommentBody from '@/content/components/comments/CommentBody.vue';
+import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
+import CommentForm from '@/content/components/forms/CommentForm.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const pageData = inject<ParsedReplyPage>('pageData')!;
 </script>
