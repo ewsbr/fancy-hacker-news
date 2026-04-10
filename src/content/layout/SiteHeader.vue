@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, inject, onMounted, onUnmounted, ref } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { computed, inject, ref, shallowRef } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import ThemeToggle from '@/content/ui/shell/ThemeToggle.vue';
 import YLogo from '@/assets/ycombinator.svg';
@@ -9,8 +10,8 @@ import MetaSep from '@/content/ui/primitives/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
-const navToggle = ref<HTMLElement | null>(null);
-const navMenu = ref<HTMLElement | null>(null);
+const navToggle = shallowRef<HTMLElement | null>(null);
+const navMenu = shallowRef<HTMLElement | null>(null);
 
 const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
 const effectiveTopBarColor = computed(() => header.topBarColor);
@@ -36,13 +37,7 @@ function onDocumentPointerDown(event: PointerEvent) {
   closeNav();
 }
 
-onMounted(() => {
-  document.addEventListener('pointerdown', onDocumentPointerDown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('pointerdown', onDocumentPointerDown);
-});
+useEventListener(document, 'pointerdown', onDocumentPointerDown);
 </script>
 
 <template>

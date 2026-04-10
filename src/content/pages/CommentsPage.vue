@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, onUnmounted, provide, ref } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { computed, inject, nextTick, onMounted, provide, ref, shallowRef } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
 import type { ParsedItemPage } from '@/parsers/item';
 import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
@@ -17,6 +18,7 @@ import CommentUserMeta from '@/content/ui/composites/CommentUserMeta.vue';
 import CommentActions from '@/content/ui/composites/CommentActions.vue';
 import FragmentLinkButton from '@/content/ui/helpers/FragmentLinkButton.vue';
 import MetaSep from '@/content/ui/primitives/MetaSep.vue';
+import { useIsMobile } from '@/state/use-is-mobile';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 
 const commentsLogger = createLogger('comments');
@@ -55,7 +57,8 @@ const storyReplyState = computed<'dead' | 'login' | 'unavailable' | null>(() => 
   return 'unavailable';
 });
 
-const hashPathIds = ref<Set<string>>(new Set());
+const isMobileLayout = useIsMobile();
+const hashPathIds = shallowRef(new Set<string>());
 const hashTargetId = ref<string | null>(null);
 const mainThreadHashTargetId = ref<string | null>(null);
 
@@ -198,7 +201,7 @@ async function syncHashPath() {
       targetId,
       pathLength: path?.length ?? 0,
       readyState: document.readyState,
-      isMobile: window.matchMedia('(max-width: 640px)').matches,
+      isMobile: isMobileLayout.value,
       domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
       scrollY: Math.round(window.scrollY),
     });
@@ -209,7 +212,7 @@ async function syncHashPath() {
     targetId,
     pathLength: path?.length ?? 0,
     readyState: document.readyState,
-    isMobile: window.matchMedia('(max-width: 640px)').matches,
+    isMobile: isMobileLayout.value,
     domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
     scrollY: Math.round(window.scrollY),
   });
@@ -217,11 +220,10 @@ async function syncHashPath() {
 
 onMounted(() => {
   void syncHashPath();
-  window.addEventListener('hashchange', syncHashPath);
 });
 
-onUnmounted(() => {
-  window.removeEventListener('hashchange', syncHashPath);
+useEventListener(window, 'hashchange', () => {
+  void syncHashPath();
 });
 </script>
 

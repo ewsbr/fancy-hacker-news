@@ -6,16 +6,16 @@
  */
 import { ref, watch, type Ref } from 'vue';
 
-export type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
+const THEMES = Object.freeze(['light', 'dark', 'nord', 'amoled'] as const);
+export type ThemeName = (typeof THEMES)[number];
 
-const THEMES: ThemeName[] = ['light', 'dark', 'nord', 'amoled'];
 export const STORAGE_KEY = 'fancy-hn-theme';
 const BOOTSTRAP_THEME_DATASET_KEY = 'fancyHnTheme';
 
 let _shared: ReturnType<typeof createTheme> | null = null;
 
 function isThemeName(value: unknown): value is ThemeName {
-  return typeof value === 'string' && (THEMES as string[]).includes(value);
+  return typeof value === 'string' && THEMES.includes(value as ThemeName);
 }
 
 function detectSystem(): ThemeName {

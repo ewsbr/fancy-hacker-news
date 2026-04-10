@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { useEventListener } from '@vueuse/core';
+import { onMounted, ref, shallowRef } from 'vue';
 import { ArrowBigUpDash } from 'lucide-vue-next';
 
 const isVisible = ref(false);
 const SHOW_AFTER_SCROLL_TOP = 280;
 
-let scrollContainer: HTMLElement | null = null;
+const scrollContainer = shallowRef<HTMLElement | null>(null);
 
 function syncVisibility() {
-  isVisible.value = (scrollContainer?.scrollTop ?? 0) > SHOW_AFTER_SCROLL_TOP;
+  isVisible.value = (scrollContainer.value?.scrollTop ?? 0) > SHOW_AFTER_SCROLL_TOP;
 }
 
 function scrollToTop() {
-  scrollContainer?.scrollTo({
+  scrollContainer.value?.scrollTo({
     top: 0,
     left: 0,
     behavior: 'smooth',
@@ -20,14 +21,11 @@ function scrollToTop() {
 }
 
 onMounted(() => {
-  scrollContainer = document.getElementById('fancy-hn-root');
+  scrollContainer.value = document.getElementById('fancy-hn-root');
   syncVisibility();
-  scrollContainer?.addEventListener('scroll', syncVisibility, { passive: true });
 });
 
-onUnmounted(() => {
-  scrollContainer?.removeEventListener('scroll', syncVisibility);
-});
+useEventListener(scrollContainer, 'scroll', syncVisibility, { passive: true });
 </script>
 
 <template>

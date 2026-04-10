@@ -279,7 +279,6 @@ async function mountApp() {
     app.provide('route', route);
     app.provide('originalDoc', document);
     app.provide('pageData', pageData);
-    app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
     timeline.step('app-mount', () => {
       app.mount(mountPoint);

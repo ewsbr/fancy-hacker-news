@@ -3,30 +3,11 @@
  * The media query listener is set up once and shared across all consumers,
  * so subscribing from hundreds of CommentNode instances is free.
  */
-import { ref } from 'vue';
+import { createSharedComposable, useMediaQuery } from '@vueuse/core';
 
 const MOBILE_BREAKPOINT_QUERY = '(max-width: 640px)';
-const isMobile = ref(false);
-let isTrackingViewport = false;
-
-function startTrackingViewport() {
-  if (isTrackingViewport || typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return;
-  }
-
-  const mediaQueryList = window.matchMedia(MOBILE_BREAKPOINT_QUERY);
-  isMobile.value = mediaQueryList.matches;
-
-  const updateMobileState = (event: MediaQueryListEvent) => {
-    isMobile.value = event.matches;
-  };
-
-  mediaQueryList.addEventListener('change', updateMobileState);
-
-  isTrackingViewport = true;
-}
+const useSharedIsMobile = createSharedComposable(() => useMediaQuery(MOBILE_BREAKPOINT_QUERY));
 
 export function useIsMobile() {
-  startTrackingViewport();
-  return isMobile;
+  return useSharedIsMobile();
 }
