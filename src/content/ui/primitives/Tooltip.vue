@@ -1,3 +1,18 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { TooltipArrow, TooltipContent, TooltipPortal, TooltipRoot, TooltipTrigger } from 'reka-ui';
@@ -21,37 +36,39 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
 
     <TooltipPortal defer :to="EXTENSION_ROOT_SELECTOR">
       <TooltipContent
-        class="tooltip__content"
+        class="tooltip__content-shell"
         :side="side"
         align="center"
         :side-offset="10"
         :collision-padding="12"
         position-strategy="fixed"
       >
-        <div class="tooltip__body">
-          {{ props.content }}
-        </div>
+        <div class="tooltip__surface">
+          <div class="tooltip__body">
+            {{ props.content }}
+          </div>
 
-        <TooltipArrow
-          class="tooltip__arrow"
-          :width="18"
-          :height="9"
-        >
-          <path
-            class="tooltip__arrow-fill"
-            d="M0 0L6 6L12 0Z"
-          />
-          <path
-            class="tooltip__arrow-stroke"
-            d="M0 0L6 6L12 0"
-          />
-        </TooltipArrow>
+          <TooltipArrow
+            class="tooltip__arrow"
+            :width="18"
+            :height="9"
+          >
+            <path
+              class="tooltip__arrow-fill"
+              d="M0 0L6 6L12 0Z"
+            />
+            <path
+              class="tooltip__arrow-stroke"
+              d="M0 0L6 6L12 0"
+            />
+          </TooltipArrow>
+        </div>
       </TooltipContent>
     </TooltipPortal>
   </TooltipRoot>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .tooltip__trigger {
   appearance: none;
   border: 0;
@@ -72,14 +89,9 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
   }
 }
 
-.tooltip__content {
-  z-index: 1000;
-  inline-size: max-content;
-  max-inline-size: min(22rem, var(--reka-tooltip-content-available-width));
+.tooltip__surface {
+  position: relative;
   color: var(--color-text);
-  overflow: visible;
-  pointer-events: none;
-  user-select: none;
   transform-origin: var(--reka-tooltip-content-transform-origin);
   animation: tooltip-enter 0.16s ease-out;
 }
@@ -118,19 +130,28 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
   vector-effect: non-scaling-stroke;
 }
 
-.tooltip__content[data-side='top'] {
+:deep(.tooltip__content-shell) {
+  z-index: 1000;
+  inline-size: max-content;
+  max-inline-size: min(22rem, var(--reka-tooltip-content-available-width));
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+}
+
+:deep(.tooltip__content-shell[data-side='top']) .tooltip__surface {
   animation-name: tooltip-enter-top;
 }
 
-.tooltip__content[data-side='top'] .tooltip__arrow {
+:deep(.tooltip__content-shell[data-side='top']) .tooltip__arrow {
   transform: translateY(-2px);
 }
 
-.tooltip__content[data-side='right'] {
+:deep(.tooltip__content-shell[data-side='right']) .tooltip__surface {
   animation-name: tooltip-enter-right;
 }
 
-.tooltip__content[data-side='right'] .tooltip__arrow {
+:deep(.tooltip__content-shell[data-side='right']) .tooltip__arrow {
   transform: translateX(-2px);
 }
 

@@ -72,33 +72,35 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
 
     <PopoverPortal defer :to="EXTENSION_ROOT_SELECTOR">
       <PopoverContent
-        class="theme-toggle__popover"
+        class="theme-toggle__popover-shell"
         side="bottom"
         align="end"
         :side-offset="8"
         :collision-padding="12"
         @open-auto-focus="onOpenAutoFocus"
       >
-        <p class="theme-toggle__popover-title">Theme</p>
-        <div class="theme-toggle__grid">
-          <button
-            v-for="item in THEMES"
-            :key="item.name"
-            :ref="el => setThemeCardRef(item.name, el)"
-            type="button"
-            class="theme-toggle__card"
-            :class="{ 'theme-toggle__card--active': theme === item.name }"
-            :aria-pressed="theme === item.name"
-            :aria-label="item.label"
-            @click="select(item.name)"
-          >
-            <span
-              class="theme-toggle__card-swatch"
-              :style="swatchStyle(item)"
-              aria-hidden="true"
-            />
-            <span class="theme-toggle__card-label">{{ item.label }}</span>
-          </button>
+        <div class="theme-toggle__popover">
+          <p class="theme-toggle__popover-title">Theme</p>
+          <div class="theme-toggle__grid">
+            <button
+              v-for="item in THEMES"
+              :key="item.name"
+              :ref="el => setThemeCardRef(item.name, el)"
+              type="button"
+              class="theme-toggle__card"
+              :class="{ 'theme-toggle__card--active': theme === item.name }"
+              :aria-pressed="theme === item.name"
+              :aria-label="item.label"
+              @click="select(item.name)"
+            >
+              <span
+                class="theme-toggle__card-swatch"
+                :style="swatchStyle(item)"
+                aria-hidden="true"
+              />
+              <span class="theme-toggle__card-label">{{ item.label }}</span>
+            </button>
+          </div>
         </div>
       </PopoverContent>
     </PopoverPortal>
@@ -109,23 +111,25 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
 .theme-toggle {
   // ── Trigger ─────────────────────────────────────────── 
   &__trigger {
+    appearance: none;
+    -webkit-appearance: none;
     display: flex;
     align-items: center;
     gap: 0.4rem;
     padding: 0.25rem 0.55rem 0.25rem 0.35rem;
     border: 1px solid var(--color-border);
     border-radius: 20px;
-    background: var(--color-code-bg);
+    background-color: var(--color-bg);
     color: var(--color-text-muted);
     font-size: 0.82rem;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    transition: border-color 0.15s, background-color 0.15s, color 0.15s;
 
     &:hover {
       border-color: var(--color-accent);
-      background: var(--color-surface);
+      background-color: var(--color-surface);
       color: var(--color-text);
     }
   }
@@ -156,7 +160,6 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
 
   // ── Popover card ─────────────────────────────────────── 
   &__popover {
-    z-index: 200;
     width: 176px;
     padding: 0.65rem;
     border: 1px solid var(--color-border);
@@ -234,6 +237,10 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
       color: var(--color-accent);
     }
   }
+}
+
+:deep(.theme-toggle__popover-shell) {
+  z-index: 200;
 }
 
 @keyframes tt-pop-in {
