@@ -533,4 +533,44 @@ describe('story list fixtures', () => {
       voteUn: expect.stringContaining('how=un'),
     });
   });
+
+  it('normalizes item-page comment nav links to in-page hashes', async () => {
+    const doc = await loadFixtureDocument('story.html');
+    const page = parseItemPage(doc);
+    const comments = flattenComments(page.comments);
+    const nestedComment = comments.find(comment => comment.id === '47537932');
+
+    expect(nestedComment?.navLinks).toMatchObject({
+      root: '#47536778',
+      parent: '#47537857',
+      next: '#47537213',
+      context: null,
+    });
+  });
+
+  it('preserves thread-page nav links exactly as rendered by HN', async () => {
+    const doc = await loadFixtureDocument('user-comments.html');
+    const page = parseThreadsPage(doc);
+
+    expect(page.threads[0]).toMatchObject({
+      id: '47536778',
+      navLinks: {
+        parent: 'item?id=47536761',
+        context: 'item?id=47536761#47536778',
+        next: '#13899826',
+      },
+      onStory: {
+        link: 'item?id=47536761',
+      },
+    });
+
+    expect(page.threads[0].children[0]).toMatchObject({
+      id: '47538011',
+      navLinks: {
+        parent: '#47536778',
+        next: '#47537213',
+      },
+      onStory: null,
+    });
+  });
 });

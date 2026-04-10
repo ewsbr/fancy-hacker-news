@@ -19,8 +19,8 @@ Limits:
 
 - [x] Tooltip portal target is resolved too early and can disable proper overlay portaling.
 - [x] Global `Cmd/Ctrl+K` shortcut overrides normal text-editing behavior inside form fields.
-- [ ] Mobile comment-thread behavior uses a non-reactive viewport flag and becomes stale after resize.
-- [ ] Comment parsing logic is duplicated across multiple parsers and has already drifted.
+- [ ] Mobile comment-thread behavior uses a non-reactive viewport flag and becomes stale after resize. (Expected behavior; no action planned.)
+- [x] Comment parsing logic is duplicated across multiple parsers and has already drifted.
 - [ ] Theme data is duplicated across token, bootstrap, and UI layers and is already inconsistent.
 
 ### P2 - Fix soon
@@ -96,7 +96,7 @@ Definition of done:
 ### P1. Mobile comment-thread behavior is not reactive to viewport changes
 
 Status:
-- Open
+- Accepted (expected behavior)
 
 Category:
 - Vue best practices
@@ -120,10 +120,13 @@ Definition of done:
 - Comment-thread behavior updates correctly when crossing the `640px` breakpoint.
 - Only one reactive mobile-layout source of truth remains in production code.
 
+Resolution:
+- This behavior is expected for the current product and is not being changed.
+
 ### P1. Comment parsing logic is duplicated and already drifting
 
 Status:
-- Open
+- Fixed
 
 Category:
 - Duplicated code

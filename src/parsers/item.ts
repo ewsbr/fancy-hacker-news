@@ -7,7 +7,9 @@ import { debugLog, debugMeasure } from '@/debug';
 import { parseAge } from './shared/age';
 import type { CommentPlaceholderKind } from './shared/body';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
-import { findUnvoteHref, isNewUser, parseGrayLevel } from './shared/comment';
+import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/commentTree';
+import { parseCommentIndent, parseThreadCommentRow } from './shared/commentRow';
+import { findUnvoteHref, isNewUser } from './shared/comment';
 import { parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
 
@@ -124,159 +126,24 @@ interface CommentThreadSlice {
   containsTarget: boolean;
 }
 
-function countDescendants(node: CommentNode): number {
-  let total = 0;
-
-  for (const child of node.children) {
-    total += 1 + countDescendants(child);
-  }
-
-  node.descendantCount = total;
-  return total;
-}
-
-function parseCommentIndent(tr: Element): number {
-  const indentSrc = attrOf(tr.querySelector('td.ind'), 'indent');
-  return indentSrc ? parseInt(indentSrc, 10) : 0;
-}
-
 function parseCommentRow(tr: Element): CommentNode {
-  const id = attrOf(tr, 'id') || '';
-  const indent = parseCommentIndent(tr);
-  const isCollapsed = tr.classList.contains('coll');
-
-  const comhead = tr.querySelector('.comhead');
-  const authorEl = comhead?.querySelector('a.hnuser');
-  const author = textOf(authorEl);
-
-  const isDead = comhead?.textContent?.includes('[dead]') || false;
-  const isFlagged = comhead?.textContent?.includes('[flagged]') || false;
-
-  const togg = comhead?.querySelector('a.togg');
-  let collapsedCount = 0;
-  if (togg) {
-    const toggMatch = togg.textContent?.match(/(\d+)\s+more/);
-    if (toggMatch) {
-      collapsedCount = parseInt(toggMatch[1], 10);
-    } else if (attrOf(togg, 'n')) {
-      collapsedCount = parseInt(attrOf(togg, 'n') || '0', 10);
-    }
-  }
-
-  const ageInfo = parseAge(comhead?.querySelector('.age'));
-  const score = parseScore(textOf(comhead?.querySelector('.score')));
-
-  const votelinks = tr.querySelector('td.votelinks');
-  const voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
-  const voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-  const voteUn = findUnvoteHref(tr);
-
-  const commentEl = tr.querySelector('.comment');
-  const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
-  const commentBody = parseCommentBody(commentEl ?? commtext);
-  const grayLevel = parseGrayLevel(commtext);
-
-  const replyDiv = commentEl?.querySelector('.reply');
-  const navs = comhead?.querySelector('.navs');
-  const replyLink = hrefOf(replyDiv?.querySelector('a[href^="reply?"]'));
-  const flagUrl = hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
-    || hrefOf(navs?.querySelector('a[href^="flag?"]'));
-  const editUrl = hrefOf(navs?.querySelector('a[href^="edit?"]'))
-    || hrefOf(replyDiv?.querySelector('a[href^="edit?"]'));
-  const deleteUrl = hrefOf(navs?.querySelector('a[href^="delete-confirm?"]'))
-    || hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]'));
-
-  const isDeleted = commentBody.placeholderKind === 'deleted';
-
-  const navLinksObj = {
-    root: null as string | null,
-    parent: null as string | null,
-    prev: null as string | null,
-    next: null as string | null,
-    context: hrefOf(navs?.querySelector('a[href*="context"]')) || null,
-  };
-
-  const getHash = (el: Element | null | undefined) => {
-    const href = hrefOf(el);
-    if (!href) return null;
-    const hashIndex = href.indexOf('#');
-    return hashIndex !== -1 ? href.substring(hashIndex) : href;
-  };
-
-  if (navs) {
-    const navAnchors = Array.from(navs.querySelectorAll('a'));
-    navLinksObj.root = getHash(navAnchors.find(a => a.textContent?.includes('root')));
-    navLinksObj.parent = getHash(navAnchors.find(a => a.textContent?.includes('parent')));
-    navLinksObj.prev = getHash(navAnchors.find(a => a.textContent?.includes('prev')));
-    navLinksObj.next = getHash(navAnchors.find(a => a.textContent?.includes('next')));
-  }
+  const row = parseThreadCommentRow(tr, { navLinkMode: 'hash' });
 
   return {
-    id,
-    author,
-    authorIsNew: isNewUser(authorEl),
-    score,
-    age: ageInfo.text,
-    ageTimestamp: ageInfo.timestamp,
-    ageLink: ageInfo.link,
-    bodyHtml: commentBody.html,
-    placeholderKind: commentBody.placeholderKind,
-    grayLevel,
-    indent,
-    isCollapsed,
-    isDead,
-    isFlagged: isFlagged || commentBody.placeholderKind === 'flagged',
-    collapsedCount,
-    voteUp,
-    voteDown,
-    voteUn,
-    flagUrl,
-    editUrl,
-    deleteUrl,
-    replyLink,
-    isDeleted,
+    ...row,
     descendantCount: 0,
     expandForHash: false,
-    navLinks: navLinksObj,
     children: [],
     lazyThread: null,
   };
 }
 
 function buildCommentTree(comtrs: Element[]): CommentTreeBuildResult {
-  const comments: CommentNode[] = [];
-  const stack: { depth: number; children: CommentNode[] }[] = [{ depth: -1, children: comments }];
-  let maxDepth = 0;
-  let collapsedRows = 0;
-
-  for (const tr of comtrs) {
-    const node = parseCommentRow(tr);
-    maxDepth = Math.max(maxDepth, node.indent);
-    if (node.isCollapsed) {
-      collapsedRows += 1;
-    }
-
-    while (stack.length > 1 && stack[stack.length - 1].depth >= node.indent) {
-      stack.pop();
-    }
-
-    stack[stack.length - 1].children.push(node);
-    stack.push({ depth: node.indent, children: node.children });
-  }
-
-  return {
-    comments,
-    maxDepth,
-    collapsedRows,
-  };
+  return buildIndentedCommentTree(comtrs, parseCommentRow);
 }
 
 function annotateCommentDescendants(comments: CommentNode[]): CommentNode[] {
-  for (const comment of comments) {
-    countDescendants(comment);
-  }
-
-  return comments;
+  return annotateDescendantCounts(comments);
 }
 
 function splitCommentRowsIntoRootSlices(
