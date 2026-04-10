@@ -24,6 +24,8 @@ A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders Hacker
 
 ```bash
 pnpm build          # build content + background scripts
+pnpm package:firefox  # build + package Firefox zip
+pnpm package:chrome   # build + package Chrome zip
 pnpm dev            # watch mode (content script only)
 pnpm typecheck      # vue-tsc --noEmit (type check all .ts/.vue files)
 pnpm test           # run Vitest once
