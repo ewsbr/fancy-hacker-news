@@ -41,7 +41,9 @@ Four themes switchable from the header: **light** (default), **dark**, **nord**,
 ```bash
 pnpm build       # production build (content + background)
 pnpm build:firefox
+pnpm build:chromium
 pnpm package:firefox  # build + create a clean AMO-ready zip in web-ext-artifacts/
+pnpm package:chrome   # build + create a clean Chrome-ready zip in web-ext-artifacts/
 pnpm dev         # watch mode (content script only)
 pnpm typecheck   # vue-tsc --noEmit
 pnpm test        # run Vitest once
@@ -63,9 +65,9 @@ Build first: `pnpm build`
 
 ## Release Packaging
 
-For Firefox Add-ons, use `pnpm package:firefox`.
+For Firefox Add-ons, use `pnpm package:firefox`. For Chrome Web Store, use `pnpm package:chrome`.
 
-That script rebuilds the Firefox target, stages only the production extension files, removes sourcemaps from the packaged payload, and writes a versioned ZIP to `web-ext-artifacts/`.
+Those scripts rebuild the matching browser target, stage only the production extension files, remove sourcemaps from the packaged payload, normalize the manifest for the target browser, and write a versioned ZIP to `web-ext-artifacts/`.
 
 ## Project Structure
 
