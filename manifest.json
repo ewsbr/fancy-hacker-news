@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Fancy HackerNews",
+  "name": "Fancy Hacker News",
   "version": "0.1.0",
-  "description": "Replaces the Hacker News UI with a cleaner, more modern design.",
+  "description": "A fancy version of Hacker News.",
 
   "permissions": ["storage"],
 
@@ -27,6 +27,7 @@
 
   "icons": {
     "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
