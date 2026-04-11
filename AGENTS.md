@@ -117,6 +117,14 @@ test/                                 # Vitest coverage for parsers and content 
 - Respect source quirks. If HN emits inconsistent or odd behavior, document it before changing parser or UI behavior.
 - Use fixtures, not live network requests, when adding parser coverage.
 
+### CSS Unit Rules
+
+- Use `rem` for typography only: `font-size`, and text-driven line-height where scaling with user text size is intentional.
+- Use `px` for layout and chrome: `padding`, `margin`, `gap`, fixed grid columns, `width`, `height`, `min/max-*`, icon/button dimensions, modal offsets, and negative margins.
+- Do not use root-`rem` spacing for component scaffolding. Users can increase root font size for accessibility, and layout spacing must remain stable when they do.
+- If a local control should grow a bit with larger text, prefer bounded `clamp(...)` or `em` tied to the component's own font size, not unbounded root-`rem` spacing.
+- Keep content container widths in `px`; do not let global max-widths expand with root font size.
+
 ---
 
 ## Responsive Rules

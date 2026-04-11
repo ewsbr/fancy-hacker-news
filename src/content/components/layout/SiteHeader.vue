@@ -149,7 +149,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     display: flex;
     align-items: center;
     gap: 24px;
-    max-width: 1024px;
+    max-width: max(1024px, 64rem);
     margin: 0 auto;
     padding: 8px 16px;
   }
@@ -303,7 +303,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     &__nav {
       display: none;
       position: absolute;
-      top: 52px;
+      top: calc(100% - 1px);
       right: 16px;
       z-index: 100;
       flex-direction: column;
