@@ -55,11 +55,11 @@ useEventListener(document, 'keydown', onGlobalKeydown);
     flex: 1;
     width: 100%;
     max-width: 1024px;
-    margin: 0.5rem auto 0;
-    padding: 0 0.5rem;
+    margin: 8px auto 0;
+    padding: 0 8px;
 
     @media (max-width: 640px) {
-      padding: 0 0.5rem;
+      padding: 0 8px;
       margin-left: 0;
       margin-right: 0;
     }

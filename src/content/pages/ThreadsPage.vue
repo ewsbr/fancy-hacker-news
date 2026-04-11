@@ -30,7 +30,7 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
 
 <style scoped lang="scss">
 .threads-page {
-  padding-bottom: 2rem;
+  padding-bottom: 32px;
 
   &__card {
     overflow: hidden;

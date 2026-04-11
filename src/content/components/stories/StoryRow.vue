@@ -34,10 +34,10 @@ defineProps<{ story: Story }>();
 <style scoped lang="scss">
 .story-row {
   display: grid;
-  grid-template-columns: 1.75rem 1.25rem 1fr;
+  grid-template-columns: 28px 20px 1fr;
   align-items: start;
-  gap: 0 0.4rem;
-  padding: 0.5rem 0.6rem 0.5rem 0;
+  gap: 0 6px;
+  padding: 8px 10px 8px 0;
 
   &:hover {
     background: var(--color-bg);
@@ -48,14 +48,14 @@ defineProps<{ story: Story }>();
   }
 
   &--unranked {
-    grid-template-columns: 1.25rem 1fr;
-    padding-left: 0.5rem;
+    grid-template-columns: 20px 1fr;
+    padding-left: 8px;
   }
 
   &__body {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 2px;
     min-width: 0;
   }
 
@@ -68,7 +68,7 @@ defineProps<{ story: Story }>();
     line-height: 1.35;
 
     :deep(.badge) {
-      margin-left: 0.35rem;
+      margin-left: 6px;
     }
   }
 
@@ -92,17 +92,17 @@ defineProps<{ story: Story }>();
   }
 
   @media (max-width: 640px) {
-    grid-template-columns: 1.5rem 1.1rem 1fr;
-    gap: 0 0.3rem;
-    padding: 0.5rem 0.375rem 0.5rem 0.375rem;
+    grid-template-columns: 24px 18px 1fr;
+    gap: 0 5px;
+    padding: 8px 6px;
 
     &--unranked {
-      grid-template-columns: 1.1rem 1fr;
-      padding-left: 0.5rem;
+      grid-template-columns: 18px 1fr;
+      padding-left: 8px;
     }
 
     &__body {
-      gap: 0.18rem;
+      gap: 3px;
     }
   }
 }

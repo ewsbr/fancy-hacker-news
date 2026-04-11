@@ -26,11 +26,11 @@ const page = inject<ParsedListsPage>('pageData')!;
 
 <style scoped lang="scss">
 .lists-page {
-  padding: 2rem 0;
-  max-width: 44rem;
+  padding: 32px 0;
+  max-width: 704px;
 
   &__title {
-    margin-bottom: 1.25rem;
+    margin-bottom: 20px;
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
@@ -40,8 +40,8 @@ const page = inject<ParsedListsPage>('pageData')!;
   &__entry {
     display: flex;
     align-items: baseline;
-    gap: 0.6rem;
-    padding: 0.45rem 0.75rem;
+    gap: 10px;
+    padding: 7px 12px;
   }
 
   &__name {
@@ -50,7 +50,7 @@ const page = inject<ParsedListsPage>('pageData')!;
     font-weight: 600;
     color: var(--color-accent);
     text-decoration: none;
-    min-width: 8rem;
+    min-width: 128px;
     flex-shrink: 0;
 
     &:hover {

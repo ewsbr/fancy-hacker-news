@@ -94,20 +94,20 @@ const examples: FormatExample[] = [
 
 <style scoped lang="scss">
 .formatdoc-page {
-  padding: 1rem 0 2rem;
-  max-width: 48rem;
+  padding: 16px 0 32px;
+  max-width: 768px;
   margin: 0 auto;
 
   &__card {
-    padding: 1.5rem 1.75rem;
+    padding: 24px 28px;
 
     @media (max-width: 640px) {
-      padding: 1rem 0.875rem;
+      padding: 16px 14px;
     }
   }
 
   &__title {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
@@ -115,11 +115,11 @@ const examples: FormatExample[] = [
   }
 
   &__prose {
-    margin-bottom: 2.5rem;
+    margin-bottom: 40px;
     color: var(--color-text);
 
     :deep(p) {
-      margin-bottom: 0.75rem;
+      margin-bottom: 12px;
       line-height: 1.625;
     }
 
@@ -133,7 +133,7 @@ const examples: FormatExample[] = [
   }
 
   &__section-title {
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     font-family: var(--font-title);
     font-size: 0.75rem;
     font-weight: 600;
@@ -145,21 +145,21 @@ const examples: FormatExample[] = [
   &__examples {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
   }
 }
 
 .format-example {
   border: 1px solid var(--color-border);
-  border-radius: 0.375rem;
+  border-radius: 6px;
   overflow: hidden;
 
   &__header {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    gap: 8px;
+    padding: 8px 16px;
     background: var(--color-row-alt);
     border-bottom: 1px solid var(--color-border);
   }
@@ -185,7 +185,7 @@ const examples: FormatExample[] = [
   }
 
   &__pane {
-    padding: 0.75rem 1rem;
+    padding: 12px 16px;
 
     &:first-child {
       border-right: 1px solid var(--color-border);
@@ -198,7 +198,7 @@ const examples: FormatExample[] = [
   }
 
   &__label {
-    margin-bottom: 0.375rem;
+    margin-bottom: 6px;
     font-size: 0.6875rem;
     font-weight: 600;
     color: var(--color-text-muted);
@@ -221,7 +221,7 @@ const examples: FormatExample[] = [
     color: var(--color-text);
 
     :deep(p) {
-      margin-bottom: 0.375rem;
+      margin-bottom: 6px;
 
       &:last-child {
         margin-bottom: 0;
@@ -233,12 +233,12 @@ const examples: FormatExample[] = [
     }
 
     :deep(pre) {
-      margin-top: 0.25rem;
-      padding: 0.5rem 0.75rem;
+      margin-top: 4px;
+      padding: 8px 12px;
       background: var(--color-code-bg);
       font-family: var(--font-mono);
       font-size: 0.8125rem;
-      border-radius: 0.25rem;
+      border-radius: 4px;
       white-space: pre;
       overflow-x: auto;
     }

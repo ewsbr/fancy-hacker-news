@@ -148,10 +148,10 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     position: relative;
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 24px;
     max-width: 1024px;
     margin: 0 auto;
-    padding: 0.5rem 1rem;
+    padding: 8px 16px;
   }
 
   &__mobile-row {
@@ -161,7 +161,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__brand {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     flex-shrink: 0;
     color: var(--color-text);
     font-size: 1.15rem;
@@ -194,14 +194,14 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__mobile-actions {
     display: none;
     align-items: center;
-    gap: 0.4rem;
+    gap: 6px;
   }
 
   &__nav-toggle {
     display: none;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.35rem 0.6rem;
+    gap: 5px;
+    padding: 6px 10px;
     border: 1px solid var(--color-chrome-border);
     border-radius: 4px;
     background: transparent;
@@ -221,7 +221,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__nav {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 14px;
     flex: 1;
     flex-wrap: nowrap;
     font-size: 1rem;
@@ -249,7 +249,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__controls {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 16px;
     flex-shrink: 0;
     font-size: 1rem;
     font-weight: 500;
@@ -258,7 +258,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__user-controls {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 6px;
     color: var(--color-text-muted);
     transition: all 0.15s ease;
 
@@ -277,15 +277,15 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     &__container {
       flex-direction: column;
       align-items: stretch;
-      gap: 0.5rem;
-      padding: 0.5rem 0.5rem;
+      gap: 8px;
+      padding: 8px;
     }
 
     &__mobile-row {
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 0.75rem;
+      gap: 12px;
       width: 100%;
       position: relative;
       z-index: 110;
@@ -303,8 +303,8 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     &__nav {
       display: none;
       position: absolute;
-      top: 3.25rem;
-      right: 1rem;
+      top: 52px;
+      right: 16px;
       z-index: 100;
       flex-direction: column;
       align-items: stretch;
@@ -331,7 +331,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     }
 
     &__nav-link {
-      padding: 0.65rem 1rem;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--color-border);
 
       &:last-child {
@@ -347,7 +347,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     &__controls {
       justify-content: space-between;
       border-top: 1px solid var(--color-border);
-      padding-top: 0.75rem;
+      padding-top: 12px;
     }
   }
 

@@ -63,12 +63,12 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
 
 <style scoped lang="scss">
 .reply-page {
-  padding: 1.25rem 0 3rem;
+  padding: 20px 0 48px;
   max-width: 800px;
   margin: 0 auto;
   
   &__message {
-    padding: 1rem 1.1rem;
+    padding: 16px 18px;
     
     a {
       color: var(--color-text);
@@ -82,7 +82,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   }
 
   &__section {
-    padding: 1rem 1.1rem 1.1rem;
+    padding: 16px 18px 18px;
 
     &--composer {
       border-top: 1px solid var(--color-divider);
@@ -104,7 +104,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   &__back-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 7px;
     color: var(--color-text-muted);
     font-size: 0.8rem;
     font-weight: 600;
@@ -125,10 +125,10 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
     font-size: 0.85rem;
-    margin-bottom: 0.9rem;
-    margin-top: 0.4rem;
+    margin-bottom: 14px;
+    margin-top: 6px;
   }
   
   &__parent-author {
@@ -143,11 +143,11 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   
   &__parent-body {
     border-top: 1px solid var(--color-divider);
-    padding-top: 0.9rem;
+    padding-top: 14px;
   }
 
   @media (max-width: 640px) {
-    padding-top: 1rem;
+    padding-top: 16px;
   }
 }
 </style>

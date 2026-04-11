@@ -121,8 +121,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  column-gap: 0.35rem;
-  row-gap: 0.2rem;
+  column-gap: 6px;
+  row-gap: 3px;
   font-size: var(--comment-meta-font-size);
   line-height: var(--comment-meta-line-height);
   color: var(--color-text-muted);
@@ -133,7 +133,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     align-items: center;
     justify-content: center;
     min-height: var(--comment-meta-row-height);
-    margin-right: 0.15rem;
+    margin-right: 2px;
     cursor: pointer;
     background: none;
     border: none;
@@ -167,8 +167,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: flex;
     align-items: flex-start;
     flex-wrap: wrap;
-    column-gap: 0.5rem;
-    row-gap: 0.1rem;
+    column-gap: 8px;
+    row-gap: 2px;
     flex: 1;
     min-width: 0;
   }
@@ -178,8 +178,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     align-items: center;
     align-content: flex-start;
     flex-wrap: wrap;
-    column-gap: 0.35rem;
-    row-gap: 0.1rem;
+    column-gap: 6px;
+    row-gap: 2px;
     min-height: var(--comment-meta-row-height);
   }
 
@@ -187,7 +187,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
     min-height: var(--comment-meta-row-height);
     font-size: 0.8125rem;
     font-weight: 700;
@@ -209,7 +209,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   &__controls {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 4px;
     flex-wrap: nowrap;
     white-space: nowrap;
     min-height: var(--comment-meta-row-height);
@@ -237,8 +237,8 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 18px;
+    height: 18px;
     color: inherit;
     text-decoration: none;
     opacity: 0.72;
@@ -265,20 +265,20 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
   }
 
   @media (max-width: 640px) {
-    column-gap: 0.45rem;
-    row-gap: 0.28rem;
+    column-gap: 7px;
+    row-gap: 4px;
 
     &__info {
-      column-gap: 0.6rem;
-      row-gap: 0.22rem;
+      column-gap: 10px;
+      row-gap: 4px;
     }
 
     &__primary {
-      row-gap: 0.22rem;
+      row-gap: 4px;
     }
 
     &__controls {
-      gap: 0.7rem;
+      gap: 11px;
     }
 
     &__controls-sep {

@@ -46,10 +46,10 @@ withDefaults(defineProps<{
 
 <style scoped lang="scss">
 .comment-form {
-  max-width: 48rem;
+  max-width: 768px;
 
   &__field {
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
   }
 
   &__input {
@@ -57,7 +57,7 @@ withDefaults(defineProps<{
     border-radius: 4px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    padding: 0.6rem 0.75rem;
+    padding: 10px 12px;
     font-family: inherit;
     font-size: 0.92rem;
     color: var(--color-text);
@@ -84,7 +84,7 @@ withDefaults(defineProps<{
   &__footer {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 12px;
   }
 
   &__submit {
@@ -92,14 +92,14 @@ withDefaults(defineProps<{
     border-radius: 4px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    padding: 0.35rem 1rem;
+    padding: 6px 16px;
     font-weight: 700;
     font-family: var(--font-title);
     font-size: 0.82rem;
     color: var(--color-text);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 6px;
     transition: all 0.1s ease;
 
     &:hover {

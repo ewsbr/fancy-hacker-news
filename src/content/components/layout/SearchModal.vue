@@ -112,8 +112,8 @@ watch(() => props.open, isOpen => {
     align-items: flex-start;
     justify-content: center;
     padding-top: 12vh;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 16px;
+    padding-right: 16px;
     animation: search-modal-fade-in 0.12s ease;
   }
 
@@ -132,7 +132,7 @@ watch(() => props.open, isOpen => {
     display: flex;
     align-items: center;
     gap: 0;
-    padding: 0 1rem;
+    padding: 0 16px;
     border-bottom: 1px solid var(--color-border);
   }
 
@@ -144,7 +144,7 @@ watch(() => props.open, isOpen => {
 
   &__input {
     flex: 1;
-    padding: 1rem 0.75rem;
+    padding: 16px 12px;
     border: none;
     background: transparent;
     color: var(--color-text);
@@ -168,7 +168,7 @@ watch(() => props.open, isOpen => {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
+    padding: 4px;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     background: transparent;
@@ -187,7 +187,7 @@ watch(() => props.open, isOpen => {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0.55rem 1rem;
+    padding: 9px 16px;
     background: var(--color-bg);
   }
 

@@ -43,14 +43,14 @@ defineProps<{
 
 <style scoped lang="scss">
 .user-collection-header {
-  padding: 0.9rem 1rem 1rem;
+  padding: 14px 16px 16px;
   border-bottom: 1px solid var(--color-border);
 
   &__tabs {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35rem;
+    gap: 6px;
   }
 
   &__tab {
@@ -78,8 +78,8 @@ defineProps<{
   }
 
   &__messages {
-    margin-top: 0.8rem;
-    padding-top: 0.8rem;
+    margin-top: 13px;
+    padding-top: 13px;
     border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
     font-size: 0.9rem;
@@ -91,7 +91,7 @@ defineProps<{
   }
 
   &__message + &__message {
-    margin-top: 0.35rem;
+    margin-top: 6px;
   }
 }
 </style>

@@ -87,7 +87,7 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
   max-block-size: var(--reka-tooltip-content-available-height);
   overflow: auto;
   background: var(--color-surface);
-  padding: 0.7rem 0.85rem;
+  padding: 11px 14px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
   font-size: 0.8125rem;
@@ -118,7 +118,7 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
 :deep(.tooltip__content-shell) {
   z-index: 1000;
   inline-size: max-content;
-  max-inline-size: min(22rem, var(--reka-tooltip-content-available-width));
+  max-inline-size: min(352px, var(--reka-tooltip-content-available-width));
   overflow: visible;
   pointer-events: none;
   user-select: none;

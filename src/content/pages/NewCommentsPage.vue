@@ -52,7 +52,7 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
 
 <style scoped lang="scss">
 .new-comments {
-  padding-bottom: 2rem;
+  padding-bottom: 32px;
   max-width: 1024px;
 
   &__card {

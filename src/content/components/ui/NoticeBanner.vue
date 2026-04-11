@@ -15,7 +15,7 @@ withDefaults(defineProps<{
 
 <style scoped lang="scss">
 .notice-banner {
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   background: var(--color-accent-surface);
   border: 1px solid var(--color-border);
   border-radius: 4px;

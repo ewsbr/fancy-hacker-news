@@ -53,8 +53,8 @@ async function copyPermalink() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 18px;
+  height: 18px;
   padding: 0;
   border: none;
   background: none;

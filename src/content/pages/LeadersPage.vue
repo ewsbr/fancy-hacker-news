@@ -39,11 +39,11 @@ function formatKarma(n: number): string {
 
 <style scoped lang="scss">
 .leaders-page {
-  padding: 2rem 0;
-  max-width: 44rem;
+  padding: 32px 0;
+  max-width: 704px;
 
   &__title {
-    margin-bottom: 1.25rem;
+    margin-bottom: 20px;
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
@@ -52,15 +52,15 @@ function formatKarma(n: number): string {
 
   &__card,
   &__empty-state {
-    max-width: 44rem;
+    max-width: 704px;
   }
 
   &__entry {
     display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
     align-items: baseline;
-    gap: 0 0.75rem;
-    padding: 0.45rem 0.75rem;
+    gap: 0 12px;
+    padding: 7px 12px;
 
     &--top10 .leaders-page__rank {
       color: var(--color-accent);

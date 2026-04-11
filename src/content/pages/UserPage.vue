@@ -174,18 +174,18 @@ const user = inject<ParsedUserPage>('pageData')!;
 .user-page {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 1rem 4rem;
+  padding: 24px 16px 64px;
   max-width: 800px;
   margin: 0 auto;
 
   &__columns {
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 48px;
 
     @media (min-width: 768px) {
       flex-direction: row;
-      gap: 4rem;
+      gap: 64px;
     }
   }
 
@@ -193,7 +193,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 40px;
     min-width: 0; // Prevent flex item from overflowing
   }
 
@@ -208,15 +208,15 @@ const user = inject<ParsedUserPage>('pageData')!;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 1.5rem;
+    padding-bottom: 24px;
     border-bottom: 1px solid var(--color-border);
-    margin-bottom: 2rem;
+    margin-bottom: 32px;
   }
 
   &__identity {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 6px;
   }
 
   &__username {
@@ -231,7 +231,7 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__meta {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 12px;
     font-size: 0.85rem;
     color: var(--color-text-muted);
   }
@@ -252,7 +252,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 0.1rem 0.4rem;
+    padding: 2px 6px;
     border-radius: 3px;
     background: var(--color-accent-badge-bg);
     border: 1px solid var(--color-accent-badge-border);
@@ -279,13 +279,13 @@ const user = inject<ParsedUserPage>('pageData')!;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-muted);
-    margin-top: 0.2rem;
+    margin-top: 3px;
   }
 
   &__section {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 16px;
   }
 
   &__section-title {
@@ -320,7 +320,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     color: var(--color-text);
-    padding: 0.75rem;
+    padding: 12px;
     font-size: 0.9rem;
     font-family: var(--font-body);
     line-height: 1.5;
@@ -353,7 +353,7 @@ const user = inject<ParsedUserPage>('pageData')!;
 
     :deep(p) {
       margin-top: 0;
-      margin-bottom: 0.75rem;
+      margin-bottom: 12px;
       &:last-child {
         margin-bottom: 0;
       }
@@ -379,13 +379,13 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__settings {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
   }
 
   &__field {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 16px;
     flex-direction: column;
 
     @media (min-width: 480px) {
@@ -398,10 +398,10 @@ const user = inject<ParsedUserPage>('pageData')!;
     min-width: 100px;
     font-size: 0.85rem;
     color: var(--color-text-muted);
-    padding-top: 0.2rem;
+    padding-top: 3px;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 5px;
 
     @media (min-width: 480px) {
       padding-top: 0;
@@ -419,7 +419,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.35rem;
+    gap: 6px;
     width: 100%;
   }
 
@@ -441,7 +441,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     color: var(--color-text);
-    padding: 0.4rem 0.6rem;
+    padding: 6px 10px;
     border-radius: 4px;
     font-size: 0.85rem;
     width: 100%;
@@ -461,8 +461,8 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 1rem;
-    padding-top: 1.5rem;
+    margin-top: 16px;
+    padding-top: 24px;
     border-top: 1px solid var(--color-border);
   }
 
@@ -471,14 +471,14 @@ const user = inject<ParsedUserPage>('pageData')!;
     border-radius: 4px;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    padding: 0.35rem 1rem;
+    padding: 6px 16px;
     font-weight: 700;
     font-family: var(--font-title);
     font-size: 0.82rem;
     color: var(--color-text);
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 6px;
     transition: all 0.1s ease;
 
     &:hover {
@@ -511,18 +511,18 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__links {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 3px;
   }
 
   &__link {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     font-size: 0.85rem;
     color: var(--color-text);
     text-decoration: none;
-    padding: 0.4rem 0.5rem;
-    margin-left: -0.5rem;
+    padding: 6px 8px;
+    margin-left: -8px;
     border-radius: 4px;
     transition: all 0.15s ease;
 
@@ -544,9 +544,9 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__group {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    padding: 0.4rem 0.5rem;
-    margin-left: -0.5rem;
+    gap: 6px;
+    padding: 6px 8px;
+    margin-left: -8px;
     border-radius: 4px;
     transition: background 0.15s ease;
 
@@ -558,7 +558,7 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__group-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     font-size: 0.85rem;
     color: var(--color-text-muted);
   }
@@ -566,8 +566,8 @@ const user = inject<ParsedUserPage>('pageData')!;
   &__group-items {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding-left: calc(14px + 0.5rem); // Icon width + gap
+    gap: 6px;
+    padding-left: calc(14px + 8px); // Icon width + gap
   }
 
   &__sublink {

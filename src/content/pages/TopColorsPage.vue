@@ -65,10 +65,10 @@ async function copy(hex: string) {
 
 <style scoped lang="scss">
 .topcolors-page {
-  padding: 2rem 0;
+  padding: 32px 0;
 
   &__title {
-    margin-bottom: 1.25rem;
+    margin-bottom: 20px;
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
@@ -82,7 +82,7 @@ async function copy(hex: string) {
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     gap: 2px;
     padding: 2px;
   }

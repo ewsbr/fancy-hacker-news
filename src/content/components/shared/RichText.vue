@@ -23,7 +23,7 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
   word-break: break-word;
 
   :deep(p) {
-    margin-top: 0.65rem;
+    margin-top: 10px;
   }
 
   &--starts-with-paragraph {
@@ -35,9 +35,9 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
   :deep(pre) {
     background: var(--color-code-bg);
     border: 1px solid var(--color-border);
-    padding: 0.5rem 0.75rem;
-    margin-top: 0.6rem;
-    margin-bottom: 0.6rem;
+    padding: 8px 12px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border-radius: 4px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -58,13 +58,13 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
   }
 
   :deep(blockquote) {
-    margin: 0.65rem 0;
-    padding: 0.15rem 0.75rem;
+    margin: 10px 0;
+    padding: 2px 12px;
     border-left: 3px solid var(--color-text-muted);
     background: var(--color-quote-bg);
 
     p {
-      margin-top: 0.35rem;
+      margin-top: 6px;
       &:first-child {
         margin-top: 0;
       }

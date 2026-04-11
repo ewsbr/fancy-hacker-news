@@ -122,7 +122,7 @@ pre {
 }
 
 #fancy-hn-root .hn-empty-state {
-  padding: 1rem 1.125rem;
+  padding: 16px 18px;
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
@@ -133,7 +133,7 @@ pre {
     border-right: none;
     border-radius: 0;
     box-shadow: none;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+    margin-left: -8px;
+    margin-right: -8px;
   }
 }

@@ -61,23 +61,23 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 
 <style scoped lang="scss">
 .delete-confirm-page {
-  padding: 1.5rem 0 2rem;
+  padding: 24px 0 32px;
 
   &__title {
     font-family: var(--font-title);
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--color-text);
-    margin-bottom: 1.25rem;
+    margin-bottom: 20px;
   }
 
   &__card {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
   }
 
   &__error {
-    margin-bottom: 1.5rem;
-    padding: 1rem 0.9rem;
+    margin-bottom: 24px;
+    padding: 16px 14px;
   }
 
   &__error-text {
@@ -87,18 +87,18 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
   }
 
   &__comment {
-    padding: 0.85rem 0.9rem;
+    padding: 14px;
   }
 
   &__meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 0.4rem;
-    row-gap: 0.2rem;
+    column-gap: 6px;
+    row-gap: 3px;
     font-size: 0.83rem;
     color: var(--color-text-muted);
-    margin-bottom: 0.6rem;
+    margin-bottom: 10px;
   }
 
   &__nav-link {
@@ -114,7 +114,7 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
   &__confirm {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 14px;
   }
 
   &__prompt {
@@ -126,11 +126,11 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 
   &__form {
     display: flex;
-    gap: 0.6rem;
+    gap: 10px;
   }
 
   &__btn {
-    padding: 0.4rem 1.1rem;
+    padding: 6px 18px;
     border-radius: 4px;
     font-family: var(--font-body);
     font-size: 0.85rem;

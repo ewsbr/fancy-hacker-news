@@ -70,12 +70,12 @@ const responseDate = new Date().toUTCString();
 
 <style scoped lang="scss">
 .nf-page {
-  --nf-max-width: 52rem;
+  --nf-max-width: 832px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2.5rem 1rem 4rem;
+  gap: 24px;
+  padding: 40px 16px 64px;
 }
 
 .nf-heading,
@@ -87,11 +87,11 @@ const responseDate = new Date().toUTCString();
 .nf-heading {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 20px;
 
   &__code {
     flex-shrink: 0;
-    padding-right: 1.25rem;
+    padding-right: 20px;
     border-right: 2px solid var(--color-border);
     color: var(--color-accent);
     font-family: var(--font-mono);
@@ -103,7 +103,7 @@ const responseDate = new Date().toUTCString();
   &__meta {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 4px;
   }
 
   &__title {
@@ -145,8 +145,8 @@ const responseDate = new Date().toUTCString();
   &__bar {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 1rem;
+    gap: 6px;
+    padding: 10px 16px;
     border-bottom: 1px solid #2a2a2a;
     background: #1e1e1e;
     user-select: none;
@@ -180,7 +180,7 @@ const responseDate = new Date().toUTCString();
   }
 
   &__body {
-    padding: 1.1rem 1.35rem 1.5rem;
+    padding: 18px 22px 24px;
   }
 
   &__line {
@@ -227,12 +227,12 @@ const responseDate = new Date().toUTCString();
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.9rem;
+  gap: 14px;
 
   &__link {
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 7px;
     color: var(--color-text-muted);
     font-size: 0.9rem;
     font-weight: 600;
@@ -256,21 +256,21 @@ const responseDate = new Date().toUTCString();
 
 @media (max-width: 640px) {
   .nf-page {
-    padding: 1.5rem 0 2.5rem;
-    gap: 1.25rem;
+    padding: 24px 0 40px;
+    gap: 20px;
   }
 
   .nf-heading {
-    padding: 0 1rem;
+    padding: 0 16px;
   }
 
   .nf-heading__code {
     font-size: 2.5rem;
-    padding-right: 1rem;
+    padding-right: 16px;
   }
 
   .nf-terminal__body {
-    padding: 0.9rem 1rem 1.25rem;
+    padding: 14px 16px 20px;
     font-size: 0.78rem;
   }
 
@@ -279,12 +279,12 @@ const responseDate = new Date().toUTCString();
     border-right: none;
     border-radius: 0;
     box-shadow: none;
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
+    margin-left: -8px;
+    margin-right: -8px;
   }
 
   .nf-actions {
-    padding: 0 1rem;
+    padding: 0 16px;
     flex-direction: column;
     align-items: stretch;
   }

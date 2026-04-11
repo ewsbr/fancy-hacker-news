@@ -140,7 +140,7 @@ watch(
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.9rem 1rem 0.75rem;
+    padding: 14px 16px 12px;
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
     font-family: var(--font-title);
@@ -161,7 +161,7 @@ watch(
     border: none;
     cursor: pointer;
     color: var(--color-text-muted);
-    padding: 0.25rem;
+    padding: 4px;
     display: flex;
     border-radius: 6px;
     transition: color 0.15s, background 0.15s;
@@ -174,7 +174,7 @@ watch(
 
   &__body {
     overflow-y: auto;
-    padding: 1rem;
+    padding: 16px;
     flex: 1;
     touch-action: pan-y;
     overscroll-behavior: contain;

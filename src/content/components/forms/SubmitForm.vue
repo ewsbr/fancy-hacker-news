@@ -116,19 +116,19 @@ function handleFieldInput(name: string, event: Event) {
   &__fields {
     display: flex;
     flex-direction: column;
-    gap: 1.35rem;
+    gap: 22px;
   }
   
   &__field {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 6px;
   }
   
   &__field-head {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 7px;
   }
 
   &__label {
@@ -153,7 +153,7 @@ function handleFieldInput(name: string, event: Event) {
     border: 1px solid var(--color-border);
     border-radius: 4px;
     color: var(--color-text);
-    padding: 0.75rem 0.85rem;
+    padding: 12px 14px;
     font-size: 1rem;
     outline: none;
     line-height: 1.5;
@@ -176,15 +176,15 @@ function handleFieldInput(name: string, event: Event) {
   
   &__textarea {
     resize: vertical;
-    min-height: 10rem;
+    min-height: 160px;
     font-family: inherit;
   }
 
   &__footer {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding-top: 0.25rem;
+    gap: 12px;
+    padding-top: 4px;
 
     @media (max-width: 640px) {
       flex-wrap: wrap;
@@ -196,7 +196,7 @@ function handleFieldInput(name: string, event: Event) {
     color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: 4px;
-    padding: 0.7rem 1.1rem;
+    padding: 11px 18px;
     font-weight: 700;
     font-family: var(--font-title);
     font-size: 0.86rem;
@@ -205,7 +205,7 @@ function handleFieldInput(name: string, event: Event) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
+    gap: 7px;
     white-space: nowrap;
 
     @media (max-width: 640px) {
@@ -248,17 +248,17 @@ function handleFieldInput(name: string, event: Event) {
 
   &--utility {
     .submit-form__fields {
-      gap: 0.65rem;
+      gap: 10px;
     }
 
     .submit-form__field {
-      gap: 0.4rem;
+      gap: 6px;
     }
 
     .submit-form__field-head {
       justify-content: flex-start;
-      gap: 0.4rem 0.65rem;
-      padding-bottom: 0.05rem;
+      gap: 6px 10px;
+      padding-bottom: 1px;
     }
 
     .submit-form__label {
@@ -279,7 +279,7 @@ function handleFieldInput(name: string, event: Event) {
     }
 
     .submit-form__textarea {
-      min-height: 8.75rem;
+      min-height: 140px;
     }
 
     .submit-form__footer {
@@ -288,7 +288,7 @@ function handleFieldInput(name: string, event: Event) {
     }
 
     .submit-form__button {
-      padding: 0.58rem 0.88rem;
+      padding: 9px 14px;
       font-size: 0.78rem;
     }
   }
@@ -297,7 +297,7 @@ function handleFieldInput(name: string, event: Event) {
     &__input,
     &__textarea {
       font-size: 1rem;
-      padding: 0.85rem 1rem;
+      padding: 14px 16px;
     }
 
     &--utility {

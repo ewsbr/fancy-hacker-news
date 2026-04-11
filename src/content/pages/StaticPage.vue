@@ -28,15 +28,15 @@ const contentHtml = computed(() =>
 
 <style scoped lang="scss">
 .static-page {
-  padding: 1rem 0 2rem;
-  max-width: 48rem;
+  padding: 16px 0 32px;
+  max-width: 768px;
   margin: 0 auto;
 
   &__card {
-    padding: 1.5rem 1.75rem;
+    padding: 24px 28px;
 
     @media (max-width: 640px) {
-      padding: 1rem 0.875rem;
+      padding: 16px 14px;
     }
   }
 
@@ -58,15 +58,15 @@ const contentHtml = computed(() =>
     :deep(.hn-bookmarklet-cta) {
       display: flex;
       justify-content: center;
-      margin: 1.1rem 0 1.25rem;
+      margin: 18px 0 20px;
     }
 
     :deep(.hn-bookmarklet-link) {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 11.5rem;
-      padding: 0.78rem 1.15rem;
+      min-width: 184px;
+      padding: 12px 18px;
       border: 1px solid var(--color-border);
       border-radius: 4px;
       background: var(--color-surface);
@@ -95,13 +95,13 @@ const contentHtml = computed(() =>
     }
 
     :deep(p) {
-      margin-bottom: 0.75rem;
+      margin-bottom: 12px;
       line-height: 1.625;
     }
 
     :deep(h1) {
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
       border-bottom: 1px solid var(--color-border);
       font-family: var(--font-title);
       font-size: 1.25rem;
@@ -109,9 +109,9 @@ const contentHtml = computed(() =>
     }
 
     :deep(h2) {
-      margin-top: 1.5rem;
-      margin-bottom: 0.35rem;
-      padding-bottom: 0.2rem;
+      margin-top: 24px;
+      margin-bottom: 6px;
+      padding-bottom: 3px;
       border-bottom: 1px solid var(--color-border);
       font-family: var(--font-title);
       font-size: 0.9375rem;
@@ -125,13 +125,13 @@ const contentHtml = computed(() =>
 
     :deep(ul),
     :deep(ol) {
-      margin-bottom: 0.75rem;
-      padding-left: 1.5rem;
+      margin-bottom: 12px;
+      padding-left: 24px;
     }
 
     :deep(table) {
       width: 100%;
-      margin-bottom: 1rem;
+      margin-bottom: 16px;
       border-collapse: separate;
       border-spacing: 0;
       overflow: hidden;
@@ -141,7 +141,7 @@ const contentHtml = computed(() =>
 
     :deep(td),
     :deep(th) {
-      padding: 0.5rem 0.7rem;
+      padding: 8px 11px;
       border-bottom: 1px solid var(--color-border);
       vertical-align: middle;
       text-align: left;
@@ -155,7 +155,7 @@ const contentHtml = computed(() =>
     :deep(td[bgcolor]),
     :deep(td[style*="background"]),
     :deep(td[style*="background-color"]) {
-      min-width: 4rem;
+      min-width: 64px;
     }
 
     :deep(ul) {
@@ -167,13 +167,13 @@ const contentHtml = computed(() =>
     }
 
     :deep(li) {
-      margin-bottom: 0.25rem;
+      margin-bottom: 4px;
     }
 
     :deep(pre) {
-      margin-bottom: 0.75rem;
+      margin-bottom: 12px;
       overflow-x: auto;
-      padding: 0.75rem 1rem;
+      padding: 12px 16px;
       border-radius: 0.125rem;
       background: var(--color-code-bg);
       font-family: var(--font-mono);
@@ -187,8 +187,8 @@ const contentHtml = computed(() =>
     }
 
     :deep(blockquote) {
-      margin: 0.5rem 0;
-      padding-left: 1rem;
+      margin: 8px 0;
+      padding-left: 16px;
       border-left: 3px solid var(--color-quote-border);
       color: var(--color-text-muted);
       font-style: italic;

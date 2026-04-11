@@ -46,14 +46,14 @@ useEventListener(scrollContainer, 'scroll', syncVisibility, { passive: true });
 <style scoped lang="scss">
 .scroll-to-top {
   position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
+  right: 20px;
+  bottom: 20px;
   z-index: 120;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 36px;
+  height: 36px;
   border: 0;
   padding: 0;
   background: transparent;
@@ -75,10 +75,10 @@ useEventListener(scrollContainer, 'scroll', syncVisibility, { passive: true });
   }
 
   @media (max-width: 640px) {
-    right: 0.85rem;
-    bottom: 0.85rem;
-    width: 2rem;
-    height: 2rem;
+    right: 14px;
+    bottom: 14px;
+    width: 32px;
+    height: 32px;
   }
 }
 

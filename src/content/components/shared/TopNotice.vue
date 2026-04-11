@@ -10,8 +10,8 @@ defineProps<{
 
 <style scoped lang="scss">
 .top-notice {
-  margin-bottom: 0.4rem;
-  padding: 0.3rem 0.55rem;
+  margin-bottom: 6px;
+  padding: 5px 9px;
   border-left: 3px solid var(--color-border);
   border-radius: 0 2px 2px 0;
   background: var(--color-quote-bg);
@@ -36,7 +36,7 @@ defineProps<{
   }
 
   :deep(p + p) {
-    margin-top: 0.2rem;
+    margin-top: 3px;
   }
 
   :deep(u) {

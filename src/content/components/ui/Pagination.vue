@@ -32,14 +32,14 @@ withDefaults(defineProps<{
       border-left: none;
       border-right: none;
       border-radius: 0;
-      margin-left: -0.5rem;
-      margin-right: -0.5rem;
+      margin-left: -8px;
+      margin-right: -8px;
     }
   }
 
   &__more {
     display: block;
-    padding: 0.75rem 0.5rem;
+    padding: 12px 8px;
     color: var(--color-accent);
     text-align: center;
     font-weight: 600;

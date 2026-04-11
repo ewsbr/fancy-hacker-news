@@ -183,18 +183,18 @@ const previewStory = computed<Story>(() => ({
 .submit-page {
   max-width: 760px;
   margin: 0 auto;
-  padding: 1.35rem 0 3rem;
+  padding: 22px 0 48px;
 
   &__stack {
     display: flex;
     flex-direction: column;
-    gap: 0.9rem;
+    gap: 14px;
   }
 
   &__section-label {
     display: inline-flex;
     width: fit-content;
-    padding-bottom: 0.2rem;
+    padding-bottom: 3px;
     border-bottom: 1px solid var(--color-accent);
     color: var(--color-accent);
     font-family: var(--font-title);
@@ -208,7 +208,7 @@ const previewStory = computed<Story>(() => ({
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
+    gap: 6px;
     color: var(--color-text);
     font-family: var(--font-title);
     font-size: 0.8rem;
@@ -234,7 +234,7 @@ const previewStory = computed<Story>(() => ({
   &__header {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 7px;
   }
 
   &__title {
@@ -252,7 +252,7 @@ const previewStory = computed<Story>(() => ({
 
   &__notice {
     :deep(.notice-banner) {
-      padding: 0.8rem 0;
+      padding: 13px 0;
       border: 0;
       border-top: 1px solid var(--color-divider);
       border-bottom: 1px solid var(--color-divider);
@@ -263,16 +263,16 @@ const previewStory = computed<Story>(() => ({
   }
 
   &__preview {
-    padding: 0.15rem 0 0.1rem;
+    padding: 2px 0;
   }
 
   &__preview-head {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.45rem 0.8rem;
-    padding: 0.45rem 0 0.45rem;
-    margin-bottom: 0.1rem;
+    gap: 7px 13px;
+    padding: 7px 0;
+    margin-bottom: 2px;
     border-bottom: 1px solid var(--color-divider);
     color: var(--color-text-muted);
     font-size: 0.8rem;
@@ -288,7 +288,7 @@ const previewStory = computed<Story>(() => ({
   }
 
   &__preview :deep(.story-row) {
-    padding: 0.4rem 0 0.45rem;
+    padding: 6px 0 7px;
     border-bottom: 0;
 
     &:hover {
@@ -310,30 +310,30 @@ const previewStory = computed<Story>(() => ({
   }
 
   &__form-shell {
-    padding-top: 0.1rem;
+    padding-top: 2px;
   }
 
   @media (max-width: 640px) {
     max-width: none;
-    padding-top: 1rem;
+    padding-top: 16px;
 
     &__stack {
-      gap: 0.8rem;
+      gap: 13px;
     }
 
     &__preview :deep(.story-row) {
-      padding-right: 0.2rem;
+      padding-right: 3px;
     }
 
     &__preview-card :deep(.story-row) {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding-left: 8px;
+      padding-right: 8px;
     }
 
     &__notice {
       :deep(.notice-banner) {
-        padding-top: 0.7rem;
-        padding-bottom: 0.7rem;
+        padding-top: 11px;
+        padding-bottom: 11px;
       }
     }
   }

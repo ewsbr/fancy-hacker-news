@@ -23,7 +23,7 @@ defineProps<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.1rem 0.35rem;
+  padding: 2px 6px;
   font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 700;

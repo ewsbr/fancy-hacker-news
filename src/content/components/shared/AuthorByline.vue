@@ -39,7 +39,7 @@ defineProps<{
     display: inline-flex;
     align-items: center;
     min-block-size: var(--hn-meta-row-height);
-    padding-inline: 0.12rem;
+    padding-inline: 2px;
     font-weight: 600;
     color: var(--color-text);
     text-decoration: none;
@@ -55,7 +55,7 @@ defineProps<{
     display: inline-flex;
     align-items: center;
     min-block-size: var(--hn-meta-row-height);
-    padding-inline: 0.12rem;
+    padding-inline: 2px;
     color: inherit;
     text-decoration: none;
     vertical-align: middle;

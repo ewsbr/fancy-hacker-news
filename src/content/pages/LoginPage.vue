@@ -163,8 +163,8 @@ function getPlaceholder(label: string) {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 4rem;
-  padding-bottom: 6rem;
+  padding-top: 64px;
+  padding-bottom: 96px;
   min-height: calc(100vh - 40px);
   background: var(--color-bg);
 }
@@ -174,7 +174,7 @@ function getPlaceholder(label: string) {
   max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 24px;
 }
 
 .login-header {
@@ -192,14 +192,14 @@ function getPlaceholder(label: string) {
   }
 
   &__subheader {
-    margin-top: 0.5rem;
+    margin-top: 8px;
     font-size: 0.875rem;
     color: var(--color-text-muted);
   }
 }
 
 .login-logo {
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
 
   &__img {
     width: 44px;
@@ -210,7 +210,7 @@ function getPlaceholder(label: string) {
 
 .login-card {
   background: var(--color-surface);
-  padding: 2.25rem 2rem;
+  padding: 36px 32px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-elevation);
   border-radius: 4px;
@@ -218,7 +218,7 @@ function getPlaceholder(label: string) {
   &__empty {
     text-align: center;
     color: var(--color-text-muted);
-    padding: 2rem;
+    padding: 32px;
     border: 1px dashed var(--color-border);
     border-radius: 4px;
   }
@@ -227,18 +227,18 @@ function getPlaceholder(label: string) {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 24px;
 
   &__fields {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 20px;
   }
 
   &__field {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 6px;
   }
 
   &__label {
@@ -251,7 +251,7 @@ function getPlaceholder(label: string) {
 
   &__input {
     width: 100%;
-    padding: 0.625rem 0.875rem;
+    padding: 10px 14px;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     background: var(--color-surface);
@@ -284,7 +284,7 @@ function getPlaceholder(label: string) {
     color: var(--color-accent);
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 6px;
 
     &:hover {
       text-decoration: underline;
@@ -293,7 +293,7 @@ function getPlaceholder(label: string) {
 
   &__submit {
     width: 100%;
-    padding: 0.6rem 1rem;
+    padding: 10px 16px;
     background: var(--color-accent-strong);
     color: #ffffff;
     border: 1px solid transparent;
@@ -304,7 +304,7 @@ function getPlaceholder(label: string) {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 8px;
     transition: all 0.15s ease;
 
     &:hover {
@@ -332,17 +332,14 @@ function getPlaceholder(label: string) {
     font-weight: 600;
     cursor: pointer;
     padding: 0;
-    margin-left: 0.25rem;
+    margin-left: 4px;
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 4px;
     text-decoration: none;
 
     &:hover {
       text-decoration: underline;
-    }
-
-    &--back {
     }
   }
 }
