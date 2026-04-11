@@ -12,6 +12,8 @@ A Chrome and Firefox extension that fully parses and re-renders Hacker News page
 
 There is no SPA routing, and the redesigned UI keeps Hacker News behavior native: links and forms still point at HN, voting and flagging use HN's own endpoints, and search opens Algolia in a new tab.
 
+![Redesigned frontpage](./images/image.png)
+
 ## Commands
 
 Build:
