@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ConceptVariant from './ConceptVariant.vue';
+
 const entries = [
   { name: 'front', href: 'front', desc: 'Front page submissions for a given day (e.g. <a href="#">2016-06-20</a>)' },
   { name: 'pool', href: 'pool', desc: 'Links selected for a <a href="#">second chance</a> at the front page' },
@@ -31,8 +33,7 @@ const entries = [
   </section>
 
   <section class="lists-concepts">
-    <section class="lists-variant">
-      <h3>Variant 1 - Current grid, monospace link, muted description</h3>
+    <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 1" title="Current grid, monospace link, muted description">
       <p class="lists-variant__title">Lists</p>
       <div class="lists-card">
         <div class="v1-grid">
@@ -42,10 +43,9 @@ const entries = [
           </template>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="lists-variant">
-      <h3>Variant 2 - Compact table, alternating rows, hard column split</h3>
+    <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 2" title="Compact table, alternating rows, hard column split">
       <p class="lists-variant__title">Lists</p>
       <div class="lists-card">
         <table class="v2-table">
@@ -57,10 +57,9 @@ const entries = [
           </tbody>
         </table>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="lists-variant">
-      <h3>Variant 3 - Fixed name rail, sans-serif emphasis</h3>
+    <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 3" title="Fixed name rail, sans-serif emphasis">
       <p class="lists-variant__title">Lists</p>
       <div class="lists-card">
         <div class="v3-grid">
@@ -70,10 +69,9 @@ const entries = [
           </template>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="lists-variant">
-      <h3>Variant 4 - Hover rows, name plus separator plus description</h3>
+    <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 4" title="Hover rows, name plus separator plus description">
       <p class="lists-variant__title">Lists</p>
       <div class="lists-card">
         <div class="v4-list">
@@ -84,10 +82,9 @@ const entries = [
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="lists-variant">
-      <h3>Variant 5 - Flat inline rows with no dividers</h3>
+    <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 5" title="Flat inline rows with no dividers">
       <p class="lists-variant__title">Lists</p>
       <div class="lists-card">
         <div class="v5-list">
@@ -98,7 +95,7 @@ const entries = [
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
   </section>
 </template>
 
@@ -107,18 +104,6 @@ const entries = [
   display: flex;
   flex-direction: column;
   gap: 3rem;
-}
-
-.lists-variant h3 {
-  margin: 0 0 1rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .lists-variant__title {

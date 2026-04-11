@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ConceptVariant from './ConceptVariant.vue';
+
 const stories = [
   { title: 'Ask HN: How do you manage information overload?', meta: '312 points · 4 hours ago · 178 comments' },
   { title: 'The collapse of SVB and what it means for startups', meta: '894 points · 6 hours ago · 401 comments' },
@@ -18,8 +20,7 @@ const stories = [
   </section>
 
   <section class="notice-concepts">
-    <section class="notice-variant">
-      <h3>Variant 1 - Current thin border box</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 1" title="Current thin border box">
       <aside class="top-notice top-notice--v1">
         <div class="top-notice__content">
           <p>Stories from April 4, 2026 (UTC)</p>
@@ -37,10 +38,9 @@ const stories = [
           <span class="hn-card__meta">{{ story.meta }}</span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="notice-variant">
-      <h3>Variant 2 - Plain caption with no box</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 2" title="Plain caption with no box">
       <aside class="top-notice top-notice--v2">
         <div class="top-notice__content">
           <p>Stories from April 4, 2026 (UTC)</p>
@@ -58,10 +58,9 @@ const stories = [
           <span class="hn-card__meta">{{ story.meta }}</span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="notice-variant">
-      <h3>Variant 3 - Left-bar accent</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 3" title="Left-bar accent">
       <aside class="top-notice top-notice--v3">
         <div class="top-notice__content">
           <p>Stories from April 4, 2026 (UTC)</p>
@@ -79,10 +78,9 @@ const stories = [
           <span class="hn-card__meta">{{ story.meta }}</span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="notice-variant">
-      <h3>Variant 4 - Unified frame with notice and card sharing one wrapper</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 4" title="Unified frame with notice and card sharing one wrapper">
       <div class="notice-wrapper">
         <aside class="top-notice top-notice--v4">
           <div class="top-notice__content">
@@ -104,10 +102,9 @@ const stories = [
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="notice-variant">
-      <h3>Variant 5 - Pill notice</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 5" title="Pill notice">
       <aside class="top-notice top-notice--v5">
         <div class="top-notice__content top-notice__content--pill">
           <p>Stories from April 4, 2026 (UTC)</p>
@@ -125,10 +122,9 @@ const stories = [
           <span class="hn-card__meta">{{ story.meta }}</span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="notice-variant">
-      <h3>Variant 6 - Seamless header row inside the card</h3>
+    <ConceptVariant tag="section" class="notice-variant" eyebrow="Variant 6" title="Seamless header row inside the card">
       <div class="hn-card">
         <aside class="top-notice top-notice--v6">
           <div class="top-notice__content">
@@ -146,7 +142,7 @@ const stories = [
           <span class="hn-card__meta">{{ story.meta }}</span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
   </section>
 </template>
 
@@ -155,18 +151,6 @@ const stories = [
   display: flex;
   flex-direction: column;
   gap: 3rem;
-}
-
-.notice-variant h3 {
-  margin: 0 0 1rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .top-notice {

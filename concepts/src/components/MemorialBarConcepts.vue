@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// static concepts component — all variants respond to the active theme via CSS variables
+import ConceptVariant from './ConceptVariant.vue';
 </script>
 
 <template>
@@ -17,13 +17,14 @@
   <section class="memorial-concepts">
 
     <!-- ─── V1: Hairline ──────────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 1 — Hairline</h3>
-      <p class="memorial-variant__desc">
-        A 4 px stripe pinned above the header, drawn from
-        <code>var(--color-text)</code>. Near-black on light themes; near-white on dark themes —
-        always contrasting, never hardcoded. The closest equivalent to HN's original black bar.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 1" title="Hairline">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A 4 px stripe pinned above the header, drawn from
+          <code>var(--color-text)</code>. Near-black on light themes; near-white on dark themes —
+          always contrasting, never hardcoded. The closest equivalent to HN's original black bar.
+        </p>
+      </template>
       <div class="demo-site demo-site--hairline">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -36,16 +37,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V2: Greyed accent ─────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 2 — Greyed accent</h3>
-      <p class="memorial-variant__desc">
-        The header bar is desaturated with <code>filter: grayscale(1)</code>. The signature brand
-        colour disappears entirely — orange, teal, or otherwise. Regular users notice immediately;
-        new visitors have no frame of reference.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 2" title="Greyed accent">
+      <template #description>
+        <p class="memorial-variant__desc">
+          The header bar is desaturated with <code>filter: grayscale(1)</code>. The signature brand
+          colour disappears entirely — orange, teal, or otherwise. Regular users notice immediately;
+          new visitors have no frame of reference.
+        </p>
+      </template>
       <div class="demo-site demo-site--grey-header">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -58,16 +60,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V3: Muted wide rule ───────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 3 — Muted wide rule</h3>
-      <p class="memorial-variant__desc">
-        The header's accent overline is widened to 7 px and recoloured to
-        <code>var(--color-text-muted)</code>. The brand colour stays in the logo; only its
-        structural frame shifts to a sombre neutral. Reads as deliberate restraint, not a bug.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 3" title="Muted wide rule">
+      <template #description>
+        <p class="memorial-variant__desc">
+          The header's accent overline is widened to 7 px and recoloured to
+          <code>var(--color-text-muted)</code>. The brand colour stays in the logo; only its
+          structural frame shifts to a sombre neutral. Reads as deliberate restraint, not a bug.
+        </p>
+      </template>
       <div class="demo-site demo-site--muted-rule">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -80,17 +83,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V4: Gradient veil ─────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 4 — Gradient veil</h3>
-      <p class="memorial-variant__desc">
-        An 18 px overlay gradient falls from the very top of the page —
-        <code>rgba(0,0,0,0.65)</code> to transparent — casting a shadow over the header.
-        Works on every theme because it darkens whatever sits beneath it.
-        Barely noticed on first pass; faintly unsettling once registered.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 4" title="Gradient veil">
+      <template #description>
+        <p class="memorial-variant__desc">
+          An 18 px overlay gradient falls from the very top of the page —
+          <code>rgba(0,0,0,0.65)</code> to transparent — casting a shadow over the header.
+          Works on every theme because it darkens whatever sits beneath it.
+          Barely noticed on first pass; faintly unsettling once registered.
+        </p>
+      </template>
       <div class="demo-site demo-site--veil">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -103,16 +107,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V5: Corner fold ───────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 5 — Corner fold</h3>
-      <p class="memorial-variant__desc">
-        A small dark triangle in the top-left corner — an abstraction of the mourning-ribbon fold
-        used in print culture. Uses <code>var(--color-text)</code> so it contrasts on all themes.
-        Easy to miss entirely; unmistakeable once noticed.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 5" title="Corner fold">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A small dark triangle in the top-left corner — an abstraction of the mourning-ribbon fold
+          used in print culture. Uses <code>var(--color-text)</code> so it contrasts on all themes.
+          Easy to miss entirely; unmistakeable once noticed.
+        </p>
+      </template>
       <div class="demo-site demo-site--corner">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -125,17 +130,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V6: Full-page greyscale ───────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 6 — Full-page greyscale</h3>
-      <p class="memorial-variant__desc">
-        <code>filter: grayscale(1)</code> applied to the entire page. A recognised web mourning
-        convention — major portals in Japan, South Korea and parts of Europe switch to monochrome
-        on national days of mourning. Immediately striking; meaning understood broadly in digital
-        culture. Note: affects colour-dependent UI affordances.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 6" title="Full-page greyscale">
+      <template #description>
+        <p class="memorial-variant__desc">
+          <code>filter: grayscale(1)</code> applied to the entire page. A recognised web mourning
+          convention — major portals in Japan, South Korea and parts of Europe switch to monochrome
+          on national days of mourning. Immediately striking; meaning understood broadly in digital
+          culture. Note: affects colour-dependent UI affordances.
+        </p>
+      </template>
       <div class="demo-site demo-site--greyscale">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -148,17 +154,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V7: Inverted header ───────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 7 — Inverted header</h3>
-      <p class="memorial-variant__desc">
-        <code>filter: invert(1)</code> on the header only. The brand colour flips to its
-        complementary — orange becomes a bright cyan-blue; nord's teal becomes a warm red.
-        Immediately wrong-looking; the cause is completely opaque. Works on every theme
-        because the inversion adapts to whatever accent colour is active.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 7" title="Inverted header">
+      <template #description>
+        <p class="memorial-variant__desc">
+          <code>filter: invert(1)</code> on the header only. The brand colour flips to its
+          complementary — orange becomes a bright cyan-blue; nord's teal becomes a warm red.
+          Immediately wrong-looking; the cause is completely opaque. Works on every theme
+          because the inversion adapts to whatever accent colour is active.
+        </p>
+      </template>
       <div class="demo-site demo-site--invert-header">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -171,17 +178,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V8: Dark logo ────────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 8 — Dark logo</h3>
-      <p class="memorial-variant__desc">
-        Only the Y emblem changes — its box dims to near-black via
-        <code>filter: grayscale(1) brightness(0.2)</code>. The orange header stays intact.
-        A single mourning pixel in an otherwise untouched UI. More pointed than the greyed
-        accent because it targets the one glyph that carries identity.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 8" title="Dark logo">
+      <template #description>
+        <p class="memorial-variant__desc">
+          Only the Y emblem changes — its box dims to near-black via
+          <code>filter: grayscale(1) brightness(0.2)</code>. The orange header stays intact.
+          A single mourning pixel in an otherwise untouched UI. More pointed than the greyed
+          accent because it targets the one glyph that carries identity.
+        </p>
+      </template>
       <div class="demo-site demo-site--dark-logo">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -194,16 +202,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V9: Content fog ──────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 9 — Content fog</h3>
-      <p class="memorial-variant__desc">
-        The story list drops to <code>opacity: 0.6</code> while the header stays fully vivid.
-        The brand asserts itself; the content recedes. Reads as "today's news is secondary."
-        More unsettling than a bar because the information is present but deliberately retreated.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 9" title="Content fog">
+      <template #description>
+        <p class="memorial-variant__desc">
+          The story list drops to <code>opacity: 0.6</code> while the header stays fully vivid.
+          The brand asserts itself; the content recedes. Reads as "today's news is secondary."
+          More unsettling than a bar because the information is present but deliberately retreated.
+        </p>
+      </template>
       <div class="demo-site demo-site--content-fog">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -216,18 +225,19 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V10: Breathing dim ───────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 10 — Breathing dim</h3>
-      <p class="memorial-variant__desc">
-        The entire page pulses very slowly between full and
-        <code>opacity: 0.84</code> on a 4 s ease-in-out loop. Motion is the signal —
-        the page is alive but not well. Completely opaque in meaning; slightly uncanny once
-        you notice the rhythm. Should respect
-        <code>prefers-reduced-motion</code> in any real implementation.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 10" title="Breathing dim">
+      <template #description>
+        <p class="memorial-variant__desc">
+          The entire page pulses very slowly between full and
+          <code>opacity: 0.84</code> on a 4 s ease-in-out loop. Motion is the signal —
+          the page is alive but not well. Completely opaque in meaning; slightly uncanny once
+          you notice the rhythm. Should respect
+          <code>prefers-reduced-motion</code> in any real implementation.
+        </p>
+      </template>
       <div class="demo-site demo-site--breathe">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -240,17 +250,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V11: Mourning frame ──────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 11 — Mourning frame</h3>
-      <p class="memorial-variant__desc">
-        A 3 px inset frame drawn around the entire page using CSS
-        <code>outline</code>. Traditional print newspapers ran a full-page black border on
-        days of national mourning. The frame uses <code>var(--color-text)</code> — no colour
-        change, no filter — just a border where one isn't normally expected.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 11" title="Mourning frame">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A 3 px inset frame drawn around the entire page using CSS
+          <code>outline</code>. Traditional print newspapers ran a full-page black border on
+          days of national mourning. The frame uses <code>var(--color-text)</code> — no colour
+          change, no filter — just a border where one isn't normally expected.
+        </p>
+      </template>
       <div class="demo-site demo-site--mournframe">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -263,17 +274,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V12: Woven texture ───────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 12 — Woven texture</h3>
-      <p class="memorial-variant__desc">
-        A very faint 45° hairline grid is laid over the page using a
-        <code>repeating-linear-gradient</code> at ~5 % opacity. The pattern evokes crepe or
-        mourning fabric. Uses <code>currentColor</code> so it is dark on light themes and
-        light on dark themes — you perceive it as texture rather than colour.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 12" title="Woven texture">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A very faint 45° hairline grid is laid over the page using a
+          <code>repeating-linear-gradient</code> at ~5 % opacity. The pattern evokes crepe or
+          mourning fabric. Uses <code>currentColor</code> so it is dark on light themes and
+          light on dark themes — you perceive it as texture rather than colour.
+        </p>
+      </template>
       <div class="demo-site demo-site--texture">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -286,16 +298,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V13: Vignette ────────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 13 — Vignette</h3>
-      <p class="memorial-variant__desc">
-        A radial gradient overlay: transparent at the centre, darkening toward every edge.
-        A photography trope for melancholy and decay. Theme-agnostic — the darkening works
-        on every background. Feels like looking at the page through a shroud.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 13" title="Vignette">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A radial gradient overlay: transparent at the centre, darkening toward every edge.
+          A photography trope for melancholy and decay. Theme-agnostic — the darkening works
+          on every background. Feels like looking at the page through a shroud.
+        </p>
+      </template>
       <div class="demo-site demo-site--vignette">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -308,17 +321,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V14: Type memorial ───────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 14 — Type memorial</h3>
-      <p class="memorial-variant__desc">
-        Story titles drop to <code>font-weight: 400</code> and gain a touch of
-        <code>letter-spacing</code>. No colour, no bar. The text becomes quieter —
-        a register shift from headlines to inscription. The change is subtle enough that
-        you may feel something is off before you identify what.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 14" title="Type memorial">
+      <template #description>
+        <p class="memorial-variant__desc">
+          Story titles drop to <code>font-weight: 400</code> and gain a touch of
+          <code>letter-spacing</code>. No colour, no bar. The text becomes quieter —
+          a register shift from headlines to inscription. The change is subtle enough that
+          you may feel something is off before you identify what.
+        </p>
+      </template>
       <div class="demo-site demo-site--type-memorial">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -331,17 +345,18 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V15: Dissolved header ────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 15 — Dissolved header</h3>
-      <p class="memorial-variant__desc">
-        The header gives up its brand colour and takes on the neutral surface tone.
-        The Y emblem is recoloured to a solid accent box — now the only concentrated
-        colour on the page. The identity hasn't vanished; it has retreated. Reading:
-        "we are still here, but today is not about us."
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 15" title="Dissolved header">
+      <template #description>
+        <p class="memorial-variant__desc">
+          The header gives up its brand colour and takes on the neutral surface tone.
+          The Y emblem is recoloured to a solid accent box — now the only concentrated
+          colour on the page. The identity hasn't vanished; it has retreated. Reading:
+          "we are still here, but today is not about us."
+        </p>
+      </template>
       <div class="demo-site demo-site--dissolved">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -354,16 +369,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V16: Crepe weave ─────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 16 — Crepe weave</h3>
-      <p class="memorial-variant__desc">
-        A header-only texture made from uneven diagonal threads at two weights. Less like a clean
-        hatch, more like crepe mourning fabric. Still theme-aware through <code>currentColor</code>,
-        but rougher and more funeral-coded than a single stripe system.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 16" title="Crepe weave">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A header-only texture made from uneven diagonal threads at two weights. Less like a clean
+          hatch, more like crepe mourning fabric. Still theme-aware through <code>currentColor</code>,
+          but rougher and more funeral-coded than a single stripe system.
+        </p>
+      </template>
       <div class="demo-site demo-site--crepe">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -376,16 +392,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V17: Veil mesh ──────────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 17 — Veil mesh</h3>
-      <p class="memorial-variant__desc">
-        A fine mesh laid only over the header, using crossed hairlines at very low opacity. The
-        result feels more like a mourning veil or gauze than a pattern. Quiet, soft, and
-        ceremonial without reading as warning stripes.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 17" title="Veil mesh">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A fine mesh laid only over the header, using crossed hairlines at very low opacity. The
+          result feels more like a mourning veil or gauze than a pattern. Quiet, soft, and
+          ceremonial without reading as warning stripes.
+        </p>
+      </template>
       <div class="demo-site demo-site--veil-mesh">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -398,16 +415,17 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
     <!-- ─── V18: Corner ribbon ──────────────────────────────────────────── -->
-    <section class="memorial-variant">
-      <h3>Variant 18 — Corner ribbon</h3>
-      <p class="memorial-variant__desc">
-        A small folded black ribbon sits in the header corner while the rest of the UI stays
-        intact. Stronger memorial symbolism than texture alone, but still compact and easy to
-        ignore if you are not looking for it.
-      </p>
+    <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 18" title="Corner ribbon">
+      <template #description>
+        <p class="memorial-variant__desc">
+          A small folded black ribbon sits in the header corner while the rest of the UI stays
+          intact. Stronger memorial symbolism than texture alone, but still compact and easy to
+          ignore if you are not looking for it.
+        </p>
+      </template>
       <div class="demo-site demo-site--corner-ribbon">
         <div class="demo-header">
           <span class="demo-logo">Y</span>
@@ -420,7 +438,7 @@
           <div class="demo-story">The anatomy of a fast compiler</div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
   </section>
 </template>
@@ -435,20 +453,8 @@
   gap: 3rem;
 }
 
-.memorial-variant h3 {
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
 .memorial-variant__desc {
-  margin: 0 0 0.9rem;
+  margin: 0;
   max-width: 58ch;
   color: var(--color-text-muted);
   font-size: 0.875rem;

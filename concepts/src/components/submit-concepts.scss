@@ -10,12 +10,6 @@
   gap: 0.9rem;
 }
 
-.submit-variant__header {
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.submit-variant__eyebrow,
 .submit-variant__tag,
 .pill,
 .segment,
@@ -31,7 +25,6 @@
   letter-spacing: 0.08em;
 }
 
-.submit-variant__eyebrow,
 .field-block label,
 .field-block__head span,
 .notice-card strong,
@@ -43,12 +36,6 @@
   font-weight: 800;
 }
 
-.submit-variant__eyebrow {
-  margin: 0 0 0.25rem;
-  color: var(--color-accent);
-}
-
-.submit-variant__title,
 .mock-title-block h4,
 .story-preview-card h4,
 .aside-card h4,
@@ -60,11 +47,6 @@
   line-height: 1.08;
 }
 
-.submit-variant__title {
-  font-size: 1.15rem;
-}
-
-.submit-variant__desc,
 .submit-variant__note,
 .submit-variant__meta span,
 .mock-title-block p,
@@ -81,7 +63,6 @@
   color: var(--color-text-muted);
 }
 
-.submit-variant__desc,
 .submit-variant__note,
 .mock-title-block p,
 .notice-card p,
@@ -95,7 +76,6 @@
   line-height: 1.6;
 }
 
-.submit-variant__desc,
 .submit-variant__note {
   margin-top: 0.35rem;
 }

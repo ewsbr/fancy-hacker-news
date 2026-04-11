@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import ListsConcepts from './components/ListsConcepts.vue';
+import LogoConcepts from './components/LogoConcepts.vue';
 import MemorialBarConcepts from './components/MemorialBarConcepts.vue';
 import NotFoundConcepts from './components/NotFoundConcepts.vue';
 import SubmitConcepts from './components/SubmitConcepts.vue';
@@ -8,7 +9,7 @@ import TopColorsConcepts from './components/TopColorsConcepts.vue';
 import TopNoticeConcepts from './components/TopNoticeConcepts.vue';
 
 type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
-type ConceptTabName = 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404' | 'memorial-bar';
+type ConceptTabName = 'logo' | 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404' | 'memorial-bar';
 
 const storageKey = 'fancy-hn-concepts-theme';
 const themes: Array<{ name: ThemeName; label: string }> = [
@@ -19,6 +20,7 @@ const themes: Array<{ name: ThemeName; label: string }> = [
 ];
 
 const tabs: Array<{ name: ConceptTabName; label: string }> = [
+  { name: 'logo', label: 'logo' },
   { name: 'submit', label: 'submit' },
   { name: 'lists', label: 'lists' },
   { name: 'top-notice', label: 'top notice' },
@@ -28,7 +30,7 @@ const tabs: Array<{ name: ConceptTabName; label: string }> = [
 ];
 
 const activeTheme = ref<ThemeName>('light');
-const activeTab = ref<ConceptTabName>('submit');
+const activeTab = ref<ConceptTabName>('logo');
 
 function isThemeName(value: string | null): value is ThemeName {
   return value === 'light' || value === 'dark' || value === 'nord' || value === 'amoled';
@@ -89,7 +91,8 @@ onMounted(() => {
       </button>
     </nav>
 
-    <SubmitConcepts v-if="activeTab === 'submit'" />
+    <LogoConcepts v-if="activeTab === 'logo'" />
+    <SubmitConcepts v-else-if="activeTab === 'submit'" />
     <ListsConcepts v-else-if="activeTab === 'lists'" />
     <TopNoticeConcepts v-else-if="activeTab === 'top-notice'" />
     <TopColorsConcepts v-else-if="activeTab === 'top-colors'" />

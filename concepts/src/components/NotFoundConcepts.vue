@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// No reactive state needed – all mock/static content
+import ConceptVariant from './ConceptVariant.vue';
 </script>
 
 <template>
@@ -17,15 +17,13 @@
   <div class="nf-concepts">
 
     <!-- ─── Concept A: Typographic "Unknown." ─────────────────────────────── -->
-    <article class="nf-variant">
-      <header class="nf-variant__header">
-        <p class="nf-variant__eyebrow">Concept A</p>
-        <h3 class="nf-variant__title">Typographic — Own the silence</h3>
-        <p class="nf-variant__desc">
+    <ConceptVariant class="nf-variant" eyebrow="Variant 1" title="Typographic — Own the silence">
+      <template #description>
+        <p>
           Leans into HN's terse native response and turns it into an intentional design
           moment. "Unknown." is displayed huge, as a direct quote, with a minimal CTA.
         </p>
-      </header>
+      </template>
 
       <div class="nf-shell nf-shell--a">
         <!-- accent top bar simulating .hn-content-card -->
@@ -42,19 +40,17 @@
           </div>
         </div>
       </div>
-    </article>
+    </ConceptVariant>
 
     <!-- ─── Concept B: Dead Story Card ────────────────────────────────────── -->
-    <article class="nf-variant">
-      <header class="nf-variant__header">
-        <p class="nf-variant__eyebrow">Concept B</p>
-        <h3 class="nf-variant__title">Dead Story — the page got flagged</h3>
-        <p class="nf-variant__desc">
+    <ConceptVariant class="nf-variant" eyebrow="Variant 2" title="Dead Story — the page got flagged">
+      <template #description>
+        <p>
           Renders the 404 as a dead/flagged story. Familiar HN story-row
           language: rank, vote, title, meta — but everything is muted and the
           <code>[dead]</code> badge seals the message.
         </p>
-      </header>
+      </template>
 
       <div class="nf-shell nf-shell--b">
         <div class="nf-card nf-card--b">
@@ -109,18 +105,16 @@
           </div>
         </div>
       </div>
-    </article>
+    </ConceptVariant>
 
     <!-- ─── Concept C: Terminal ───────────────────────────────────────────── -->
-    <article class="nf-variant">
-      <header class="nf-variant__header">
-        <p class="nf-variant__eyebrow">Concept C</p>
-        <h3 class="nf-variant__title">Terminal — raw signal, no noise</h3>
-        <p class="nf-variant__desc">
+    <ConceptVariant class="nf-variant" eyebrow="Variant 3" title="Terminal — raw signal, no noise">
+      <template #description>
+        <p>
           A monospace terminal output block. Fits audiences that live in a shell.
           Color-coded like a real HTTP response: muted request, red status, orange hints.
         </p>
-      </header>
+      </template>
 
       <div class="nf-shell nf-shell--c">
         <div class="nf-card nf-card--c">
@@ -170,19 +164,17 @@
           </div>
         </div>
       </div>
-    </article>
+    </ConceptVariant>
 
     <!-- ─── Concept D: Ask HN parody ─────────────────────────────────────── -->
-    <article class="nf-variant">
-      <header class="nf-variant__header">
-        <p class="nf-variant__eyebrow">Concept D</p>
-        <h3 class="nf-variant__title">Ask HN — the community weighs in</h3>
-        <p class="nf-variant__desc">
+    <ConceptVariant class="nf-variant" eyebrow="Variant 4" title="Ask HN — the community weighs in">
+      <template #description>
+        <p>
           Frames the 404 as an Ask HN thread, complete with a mock comment
           from <em>dang</em> as the official moderator response. Playful —
           feels completely at home on HN.
         </p>
-      </header>
+      </template>
 
       <div class="nf-shell nf-shell--d">
         <!-- Story header -->
@@ -259,7 +251,7 @@
           </div>
         </div>
       </div>
-    </article>
+    </ConceptVariant>
 
   </div>
 </template>
@@ -274,50 +266,6 @@
 }
 
 // ─── Variant wrapper ─────────────────────────────────────────────────────────
-
-.nf-variant {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.nf-variant__header {
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.nf-variant__eyebrow {
-  margin: 0 0 0.3rem;
-  color: var(--color-accent);
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.nf-variant__title {
-  margin: 0 0 0.4rem;
-  font-family: var(--font-title);
-  font-size: 1.1rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.nf-variant__desc {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  line-height: 1.55;
-
-  code {
-    font-family: var(--font-mono);
-    font-size: 0.8em;
-    background: var(--color-code-bg);
-    padding: 0.1em 0.35em;
-    border-radius: 3px;
-  }
-}
 
 // ─── Shared shell + card ──────────────────────────────────────────────────────
 

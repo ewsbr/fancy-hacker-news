@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ConceptVariant from './ConceptVariant.vue';
+
 const colors = [
   '#ff6600', '#f6f6ef', '#ffffff', '#eeeeee', '#2faced', '#009900', '#55b6f2',
   '#f0f0f0', '#ad6500', '#94c53a', '#eedf86', '#f0f0e0', '#ccdddd', '#c08000',
@@ -50,8 +52,7 @@ function contrastTextColor(hex: string) {
   </section>
 
   <section class="colors-concepts">
-    <section class="colors-variant">
-      <h3>Variant 1 - Swatch grid with hex labels</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 1" title="Swatch grid with hex labels">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v1-grid">
@@ -61,10 +62,9 @@ function contrastTextColor(hex: string) {
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 2 - Compact chip list</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 2" title="Compact chip list">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v2-chips">
@@ -74,10 +74,9 @@ function contrastTextColor(hex: string) {
           </span>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 3 - Wide bar list</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 3" title="Wide bar list">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v3-list">
@@ -87,20 +86,18 @@ function contrastTextColor(hex: string) {
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 4 - Dense mosaic tiles</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 4" title="Dense mosaic tiles">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v4-mosaic">
           <div v-for="hex in colors" :key="`v4-${hex}`" class="v4-tile" :data-hex="hex" :style="{ background: hex }" :title="hex"></div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 5 - Improved table</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 5" title="Improved table">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <table class="v5-table">
@@ -112,10 +109,9 @@ function contrastTextColor(hex: string) {
           </tbody>
         </table>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 6 - Theme-picker card grid</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 6" title="Theme-picker card grid">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v6-grid">
@@ -125,10 +121,9 @@ function contrastTextColor(hex: string) {
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 7 - Diagonal-split tiles</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 7" title="Diagonal-split tiles">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card">
         <div class="v7-grid">
@@ -143,10 +138,9 @@ function contrastTextColor(hex: string) {
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
 
-    <section class="colors-variant">
-      <h3>Variant 8 - Full-fill tiles with auto-contrast labels</h3>
+    <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 8" title="Full-fill tiles with auto-contrast labels">
       <p class="colors-variant__title">Top Colors</p>
       <div class="colors-card colors-card--flush">
         <div class="v8-grid">
@@ -155,7 +149,7 @@ function contrastTextColor(hex: string) {
           </div>
         </div>
       </div>
-    </section>
+    </ConceptVariant>
   </section>
 </template>
 
@@ -164,18 +158,6 @@ function contrastTextColor(hex: string) {
   display: flex;
   flex-direction: column;
   gap: 3rem;
-}
-
-.colors-variant h3 {
-  margin: 0 0 1rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-family: var(--font-title);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
 }
 
 .colors-variant__title {

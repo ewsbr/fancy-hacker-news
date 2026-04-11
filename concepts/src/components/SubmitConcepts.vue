@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import ConceptVariant from './ConceptVariant.vue';
+</script>
+
 <template>
   <section class="concept-app__section-head">
     <div>
@@ -10,12 +14,10 @@
   </section>
 
   <section class="submit-concepts-list">
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 1</p>
-        <h3 class="submit-variant__title">Current Direction, Sharpened</h3>
-        <p class="submit-variant__desc">A direct evolution of the shipped page: stronger intro, clearer preview, same overall card language.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 1" title="Current Direction, Sharpened">
+      <template #description>
+        <p>A direct evolution of the shipped page: stronger intro, clearer preview, same overall card language.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -92,14 +94,12 @@
       </div>
 
       <p class="submit-variant__note">Best when the goal is refinement, not a structural rethink.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 2</p>
-        <h3 class="submit-variant__title">Editorial Split Layout</h3>
-        <p class="submit-variant__desc">Moves support copy and posting heuristics into a durable side rail so the form itself stays short and fast to scan.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 2" title="Editorial Split Layout">
+      <template #description>
+        <p>Moves support copy and posting heuristics into a durable side rail so the form itself stays short and fast to scan.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -174,14 +174,12 @@
       </div>
 
       <p class="submit-variant__note">Good fit if you want to remove tooltip dependence across the page.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 3</p>
-        <h3 class="submit-variant__title">Mode-First Composer</h3>
-        <p class="submit-variant__desc">Asks the user to choose link or discussion first, then makes the form state feel purpose-built instead of generic.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 3" title="Mode-First Composer">
+      <template #description>
+        <p>Asks the user to choose link or discussion first, then makes the form state feel purpose-built instead of generic.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -257,14 +255,12 @@
       </div>
 
       <p class="submit-variant__note">Useful if the combined form keeps confusing first-time posters.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 4</p>
-        <h3 class="submit-variant__title">Two-Column Draft Workshop</h3>
-        <p class="submit-variant__desc">Treats submit as a drafting surface: form on the left, live story framing and guidelines on the right.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 4" title="Two-Column Draft Workshop">
+      <template #description>
+        <p>Treats submit as a drafting surface: form on the left, live story framing and guidelines on the right.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -350,14 +346,12 @@
       </div>
 
       <p class="submit-variant__note">This is the most product-like option if submit is becoming a more serious drafting surface.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 5</p>
-        <h3 class="submit-variant__title">Dense Minimal Stack</h3>
-        <p class="submit-variant__desc">Drops nearly all decorative framing and leans into a calmer, denser treatment that feels closer to classic HN efficiency.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 5" title="Dense Minimal Stack">
+      <template #description>
+        <p>Drops nearly all decorative framing and leans into a calmer, denser treatment that feels closer to classic HN efficiency.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -403,14 +397,12 @@
       </div>
 
       <p class="submit-variant__note">Worth considering if the current page feels a little too product-heavy for a utility workflow.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 6</p>
-        <h3 class="submit-variant__title">Guided Posting Storyboard</h3>
-        <p class="submit-variant__desc">Frames the submit flow as three short decisions instead of one long form, while still keeping everything on one page.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 6" title="Guided Posting Storyboard">
+      <template #description>
+        <p>Frames the submit flow as three short decisions instead of one long form, while still keeping everything on one page.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -483,14 +475,12 @@
       </div>
 
       <p class="submit-variant__note">Most opinionated option. Good if you want stronger onboarding for infrequent posters.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 7</p>
-        <h3 class="submit-variant__title">Classic Utility Stack</h3>
-        <p class="submit-variant__desc">A simpler return toward utility-page behavior: one compact stack, one quiet preview line, and fewer framed sub-sections.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 7" title="Classic Utility Stack">
+      <template #description>
+        <p>A simpler return toward utility-page behavior: one compact stack, one quiet preview line, and fewer framed sub-sections.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -542,14 +532,12 @@
       </div>
 
       <p class="submit-variant__note">Best if the current page feels too productized for a simple posting workflow.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 8</p>
-        <h3 class="submit-variant__title">Discussion-First Minimal</h3>
-        <p class="submit-variant__desc">Optimizes around Ask HN style submissions by letting title and text dominate while keeping the optional URL quiet.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 8" title="Discussion-First Minimal">
+      <template #description>
+        <p>Optimizes around Ask HN style submissions by letting title and text dominate while keeping the optional URL quiet.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -587,14 +575,12 @@
       </div>
 
       <p class="submit-variant__note">Useful if discussion posts are the dominant use case and the current neutral form feels over-generalized.</p>
-    </article>
+    </ConceptVariant>
 
-    <article class="submit-variant">
-      <header class="submit-variant__header">
-        <p class="submit-variant__eyebrow">Variant 9</p>
-        <h3 class="submit-variant__title">Ledger Form With Inline Guidance</h3>
-        <p class="submit-variant__desc">Uses a simpler ledger rhythm: compact helper lines between fields, no sidebars, and a single compact preview at the end.</p>
-      </header>
+    <ConceptVariant class="submit-variant" eyebrow="Variant 9" title="Ledger Form With Inline Guidance">
+      <template #description>
+        <p>Uses a simpler ledger rhythm: compact helper lines between fields, no sidebars, and a single compact preview at the end.</p>
+      </template>
 
       <div class="submit-variant__meta">
         <div>
@@ -644,7 +630,7 @@
       </div>
 
       <p class="submit-variant__note">Good when you want more coaching than classic HN, but much less chrome than the editorial concepts.</p>
-    </article>
+    </ConceptVariant>
   </section>
 </template>
 
