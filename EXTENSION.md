@@ -12,6 +12,17 @@ This extension runs 100% client-side and does not proxy any requests.
 - Full feature parity with the original HN UI, including all logged-in features
 - Search modal with `Cmd/Ctrl+K` shortcut
 
+**QoL improvements:**
+- Readability is (arguably) improved on all pages
+- Proper mobile support
+- Low karma comments are more visible and show their downvote level - from 1 (least downvoted) to 9 (most downvoted)
+- Most things have badges that indicate their status - dead, deleted, new users
+- A `#` button for copying comment permalinks
+- A button for scrolling back to top
+- Footer now shows all relevant documentation links (that I know of)
+- Documentation links are no longer raw HTML
+- Algolia search can be triggered with `Cmd/Ctrl+K` and displays in a modal instead of a new tab
+
 ## Privacy and Safety
 The extension does not collect any user data, does not track activity, and makes no network requests beyond those already performed natively by Hacker News.
 
