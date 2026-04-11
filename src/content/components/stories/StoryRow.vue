@@ -12,7 +12,7 @@ defineProps<{ story: Story }>();
 <template>
   <article class="story-row" :class="{ 'story-row--unranked': story.rank === null }">
     <StoryRank v-if="story.rank !== null" :rank="story.rank" />
-    <VoteButton :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
+    <VoteButton class="story-row__vote" :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
     <div class="story-row__body">
       <div class="story-row__title-line">
         <a
@@ -57,6 +57,10 @@ defineProps<{ story: Story }>();
     flex-direction: column;
     gap: 0.1rem;
     min-width: 0;
+  }
+
+  &__vote {
+    margin-top: 5px;
   }
 
   &__title-line {

@@ -118,6 +118,7 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
 
   &__vote {
     padding-top: 0.15rem;
+    margin-top: 5px;
   }
 
   &__content {

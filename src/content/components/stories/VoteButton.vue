@@ -60,7 +60,6 @@ function handleClick(event: MouseEvent) {
   justify-content: center;
   color: var(--color-text-muted);
   transition: color 0.1s ease;
-  margin-top: 5px;
 
   &::before {
     content: "";
