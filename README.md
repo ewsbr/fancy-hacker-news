@@ -1,208 +1,59 @@
-# Fancy HackerNews
+<div align='center'>
 
-A browser extension (Manifest V3, Chrome + Firefox) that fully re-renders Hacker News pages using Vue 3. Initial page data is parsed from the original HN HTML before the page is displayed, then interactive controls keep using HN's own URLs/endpoints. There is no SPA routing.
+<img src="src/assets/logo-light.svg" width="128" height="128" />
 
-## Stack
+<h1>Fancy Hacker News</h1>
 
-- Vue 3 with `<script setup lang="ts">`
-- TypeScript with strict mode and `vue-tsc`
-- Raw SCSS with scoped component styles and BEM naming
-- Vite 8 IIFE builds for content and background scripts
-- Vitest for fixture-based parser and UI-state tests
-- Fontsource variable fonts: Atkinson Hyperlegible Next, Manrope, JetBrains Mono
-- `lucide-vue-next` icons
-- `reka-ui` for shared tooltip primitives
+<p><strong>A fancy redesign of Hacker News with theme support.</strong></p>
 
-## How It Works
+</div>
 
-The content script (`src/content/main.ts`) runs at `document_end`:
+A Chrome and Firefox extension that fully parses and re-renders Hacker News pages with Vue 3.
 
-1. Parses the original HN DOM — header, route, and page-specific data
-2. Detects HN's literal `Unknown.` response and routes it to a dedicated 404 page
-3. Hides the original body children and removes HN source assets
-4. Mounts a Vue app into a fresh `div#fancy-hn-root`
-5. Renders shared shell UI such as the search modal, `Cmd/Ctrl+K` search shortcut, and scroll-to-top control
-6. Strips the original HN nodes after first paint
-
-If anything throws, the original page is left untouched.
-
-## Themes
-
-Four themes switchable from the header: **light** (default), **dark**, **nord**, **amoled**. Persisted in `chrome.storage.local`.
-
-## Project Docs
-
-- `EXTENSION.md` — browser-facing extension description and known quirks
-- `DESIGNSYSTEM.md` — shared design-system guidance for breakpoints, sizing, spacing, pagination, and interaction rules
-- `AGENTS.md` — repo-specific implementation guide for coding agents and contributors working close to the architecture
+There is no SPA routing, and the redesigned UI keeps Hacker News behavior native: links and forms still point at HN, voting and flagging use HN's own endpoints, and search opens Algolia in a new tab.
 
 ## Commands
 
-```bash
-pnpm build       # production build (content + background)
-pnpm build:firefox
-pnpm build:chromium
-pnpm package:firefox  # build + create a clean AMO-ready zip in web-ext-artifacts/
-pnpm package:chrome   # build + create a clean Chrome-ready zip in web-ext-artifacts/
-pnpm dev         # watch mode (content script only)
-pnpm typecheck   # vue-tsc --noEmit
-pnpm test        # run Vitest once
-pnpm test:watch  # run Vitest in watch mode
+Build:
 
-# design concepts playground
-pnpm concepts:dev
-pnpm concepts:build
-pnpm concepts:preview
-```
+- `pnpm build` — production build for the content script, anti-FOUC bootstrap, and background script.
+- `pnpm build:firefox` — Firefox-targeted production build.
+- `pnpm build:chromium` — Chromium-targeted production build.
 
-## Loading Locally
+Package:
 
-Build first: `pnpm build`
+- `pnpm package:firefox` — build and create a clean AMO-ready ZIP in `web-ext-artifacts/`.
+- `pnpm package:chrome` — build and create a clean Chrome Web Store-ready ZIP in `web-ext-artifacts/`.
 
-**Firefox** — `about:debugging#/runtime/this-firefox` → Load Temporary Add-on → select `manifest.json`
+Develop and verify:
 
-**Chrome / Edge** — `chrome://extensions` → Developer mode → Load unpacked → select this folder
+- `pnpm dev` — watch mode for the content script.
+- `pnpm typecheck` — run `vue-tsc --noEmit`.
+- `pnpm test` — run Vitest once.
+- `pnpm test:watch` — run Vitest in watch mode.
 
-## Release Packaging
+Design concepts playground:
 
-For Firefox Add-ons, use `pnpm package:firefox`. For Chrome Web Store, use `pnpm package:chrome`.
+- `pnpm concepts:dev` — run the concepts dev server.
+- `pnpm concepts:build` — build the concepts playground.
+- `pnpm concepts:preview` — preview the built concepts playground.
 
-Those scripts rebuild the matching browser target, stage only the production extension files, remove sourcemaps from the packaged payload, normalize the manifest for the target browser, and write a versioned ZIP to `web-ext-artifacts/`.
+## Build Output
 
-## Project Structure
-
-```
-src/
-├── debug.ts
-├── env.d.ts
-├── background/
-│   └── background.js
-├── content/
-│   ├── main.ts
-│   ├── anti-fouc.ts
-│   ├── App.vue
-│   ├── composables/
-│   │   └── use-hn-actions.ts
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── AppShell.vue
-│   │   │   ├── SiteHeader.vue
-│   │   │   ├── SiteFooter.vue
-│   │   │   ├── SearchModal.vue
-│   │   │   ├── SearchTrigger.vue
-│   │   │   ├── ScrollToTopButton.vue
-│   │   │   ├── ThemeToggle.vue
-│   │   │   └── YCombinatorLogo.vue
-│   │   ├── stories/
-│   │   │   ├── StoryRow.vue
-│   │   │   ├── StoryRank.vue
-│   │   │   ├── StoryMeta.vue
-│   │   │   ├── StoryDetail.vue
-│   │   │   ├── StorySiteLink.vue
-│   │   │   ├── VoteButton.vue
-│   │   │   └── PollOptions.vue
-│   │   ├── comments/
-│   │   │   ├── CommentTree.vue
-│   │   │   ├── CommentNode.vue
-│   │   │   ├── CommentHeader.vue
-│   │   │   ├── CommentBody.vue
-│   │   │   ├── CommentActions.vue
-│   │   │   ├── CommentUserMeta.vue
-│   │   │   ├── FlagButton.vue
-│   │   │   ├── FlatComment.vue
-│   │   │   ├── LazyCommentRoot.vue
-│   │   │   ├── OnStoryHeader.vue
-│   │   │   ├── SubThreadModal.vue
-│   │   │   └── ThreadNode.vue
-│   │   ├── forms/
-│   │   │   ├── CommentForm.vue
-│   │   │   └── SubmitForm.vue
-│   │   ├── shared/
-│   │   │   ├── AuthorByline.vue
-│   │   │   ├── FragmentLinkButton.vue
-│   │   │   ├── RichText.vue
-│   │   │   ├── TopNotice.vue
-│   │   │   └── UserCollectionHeader.vue
-│   │   └── ui/
-│   │       ├── Badge.vue
-│   │       ├── Keycap.vue
-│   │       ├── MetaSep.vue
-│   │       ├── NoticeBanner.vue
-│   │       ├── Pagination.vue
-│   │       ├── StripedTableCard.vue
-│   │       └── Tooltip.vue
-│   ├── pages/
-│   │   ├── StoriesPage.vue       # /news, /newest, /front, /ask, /show, /jobs, /submitted, /hidden, favorites
-│   │   ├── CommentsPage.vue      # /item?id=…
-│   │   ├── UserPage.vue          # /user?id=…
-│   │   ├── ThreadsPage.vue       # /threads?id=…
-│   │   ├── NewCommentsPage.vue   # /newcomments, /noobcomments, favorites?comments=t
-│   │   ├── SubmitPage.vue        # /submit
-│   │   ├── ReplyPage.vue         # /reply?id=…
-│   │   ├── FormatDocPage.vue     # /formatdoc
-│   │   ├── LeadersPage.vue       # /leaders
-│   │   ├── ListsPage.vue         # /lists
-│   │   ├── TopColorsPage.vue     # /topcolors
-│   │   ├── DeleteConfirmPage.vue # /delete-confirm
-│   │   ├── LoginPage.vue         # /login, /changepw, /forgot, /vote
-│   │   ├── NotFoundPage.vue      # dedicated 404 page for HN's `Unknown.` response
-│   │   └── StaticPage.vue        # /newsfaq, /newsguidelines, catch-all
-│   ├── legacy/
-│   └── utils/
-├── parsers/
-│   ├── shared/
-│   │   ├── age.ts
-│   │   ├── body.ts
-│   │   ├── comment-row.ts
-│   │   ├── comment-tree.ts
-│   │   ├── comment.ts
-│   │   ├── dom.ts
-│   │   ├── pagination.ts
-│   │   ├── score.ts
-│   │   └── status.ts
-│   ├── header.ts
-│   ├── story-list.ts
-│   ├── item.ts
-│   ├── login.ts
-│   ├── static.ts
-│   ├── user.ts
-│   ├── threads.ts
-│   ├── new-comments.ts
-│   ├── submit.ts
-│   ├── reply.ts
-│   ├── leaders.ts
-│   ├── delete-confirm.ts
-│   ├── lists.ts
-│   └── top-colors.ts
-├── router/
-│   └── index.ts
-├── state/
-│   ├── fragment-state.ts
-│   ├── item-page-state.ts
-│   ├── theme-metadata.ts
-│   └── theme.ts
-└── styles/
-    ├── main.scss
-    ├── _theme-tokens.scss
-    └── _comment-node.scss
-```
+Production builds write extension assets to `dist/`. Package commands write browser-store ZIPs to `web-ext-artifacts/`.
 
 ## Testing
 
-- HTML fixtures live in `test/fixtures/`
-- Parser and content behavior tests run through Vitest and `jsdom`
-- Prefer fixture-driven parsing tests over live network requests when adding parser coverage
+Tests run with Vitest and jsdom:
+
+- `pnpm test` — run the full test suite once.
+- `pnpm test:watch` — run the suite in watch mode.
+
+HTML snapshots of real Hacker News pages live in `test/fixtures/`. Parser coverage should use fixtures instead of live network requests.
 
 ## Browser Support
 
 | Browser | Minimum version |
 |---------|----------------|
-| Firefox | 109 |
-| Chrome / Chromium | 88 |
-| Edge | 88 |
-
-## Responsive Defaults
-
-- `640px` is the primary mobile breakpoint
-- `768px` is the primary medium/sidebar breakpoint
-- Other breakpoints in the repo currently exist for older/footer/profile-specific layouts and should not be treated as the default pattern for new work
+| Firefox | 140 (142 for Android) |
+| Chrome / Chromium | 114 |
