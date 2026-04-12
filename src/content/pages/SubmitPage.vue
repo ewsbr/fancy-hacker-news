@@ -305,10 +305,6 @@ const previewStory = computed<Story>(() => ({
     font-size: 0.98rem;
   }
 
-  &__preview :deep(.story-meta) {
-    font-size: 0.78rem;
-  }
-
   &__form-shell {
     padding-top: 2px;
   }

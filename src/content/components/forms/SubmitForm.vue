@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Send, HelpCircle } from 'lucide-vue-next';
 import Tooltip from '@/content/components/ui/Tooltip.vue';
-import MetaSep from '@/content/components/ui/MetaSep.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
 
 const props = withDefaults(defineProps<{
@@ -69,6 +68,15 @@ function handleFieldInput(name: string, event: Event) {
           <Tooltip :content="getFieldMeta(field.name).description">
             <HelpCircle :size="12" class="submit-form__label-help" />
           </Tooltip>
+          <a
+            v-if="field.type === 'textarea'"
+            href="formatdoc"
+            class="submit-form__format-help"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            formatting help
+          </a>
         </div>
 
         <div class="submit-form__input-wrapper">
@@ -102,8 +110,6 @@ function handleFieldInput(name: string, event: Event) {
           <Send :size="14" class="submit-form__button-icon" />
           submit post
         </button>
-        <MetaSep />
-        <a href="formatdoc" class="submit-form__help" target="_blank" rel="noopener noreferrer">formatting help</a>
       </div>
     </div>
   </form>
@@ -141,6 +147,20 @@ function handleFieldInput(name: string, event: Event) {
   &__label-help {
     color: var(--color-text-muted);
     flex-shrink: 0;
+  }
+
+  &__format-help {
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: underline;
+    }
   }
   
   &__input-wrapper {
@@ -234,18 +254,6 @@ function handleFieldInput(name: string, event: Event) {
     color: #ffffff;
   }
 
-  &__help {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--color-text);
-      text-decoration: underline;
-    }
-  }
-
   &--utility {
     .submit-form__fields {
       gap: 10px;
@@ -269,6 +277,10 @@ function handleFieldInput(name: string, event: Event) {
 
     .submit-form__label-help {
       color: var(--color-text-muted);
+    }
+
+    .submit-form__format-help {
+      font-size: 0.76rem;
     }
 
     .submit-form__input,
