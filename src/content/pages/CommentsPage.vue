@@ -59,11 +59,13 @@ const storyReplyState = computed<'dead' | 'login' | 'unavailable' | null>(() => 
 const hashPathIds = shallowRef(new Set<string>());
 const hashTargetId = ref<string | null>(null);
 const mainThreadHashTargetId = ref<string | null>(null);
+const hashNavigationVersion = ref(0);
 
 const fragmentState: CommentFragmentState = {
   hashPathIds,
   hashTargetId,
   mainThreadHashTargetId,
+  hashNavigationVersion,
 };
 
 provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
@@ -157,6 +159,7 @@ function findCommentPath(
 
 async function syncHashPath() {
   const targetId = location.hash.slice(1) || null;
+  hashNavigationVersion.value += 1;
   hashTargetId.value = targetId;
   mainThreadHashTargetId.value = targetId;
 

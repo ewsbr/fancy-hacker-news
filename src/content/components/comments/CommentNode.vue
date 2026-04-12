@@ -6,6 +6,7 @@ import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
+import { useCommentCollapse } from '@/state/comment-collapse';
 import { MessageSquare } from 'lucide-vue-next';
 
 const MOBILE_MODAL_DEPTH = 4;
@@ -25,12 +26,10 @@ const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashPathIds: shallowRef(new Set<string>()),
   hashTargetId: ref<string | null>(null),
   mainThreadHashTargetId: ref<string | null>(null),
+  hashNavigationVersion: ref(0),
 });
-const { hashPathIds, hashTargetId, mainThreadHashTargetId } = fragmentState;
+const { hashPathIds, hashTargetId, mainThreadHashTargetId, hashNavigationVersion } = fragmentState;
 
-const userCollapsed = ref(
-  props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
-);
 const isModalOpen = ref(false);
 
 const currentDepth = props.depth ?? 0;
@@ -44,12 +43,12 @@ const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === p
 const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value : isMainThreadHashTarget.value));
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
-const isCollapsed = computed(() => !isForcedExpanded.value && userCollapsed.value);
+const { isCollapsed, toggleCollapse } = useCommentCollapse({
+  initialCollapsed: props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
+  forceExpanded: isForcedExpanded,
+  hashNavigationVersion,
+});
 const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
-
-function toggleCollapse() {
-  userCollapsed.value = !isCollapsed.value;
-}
 
 if (childrenInModal) {
   watch(
