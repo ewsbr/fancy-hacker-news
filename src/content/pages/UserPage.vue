@@ -32,7 +32,18 @@ const user = inject<ParsedUserPage>('pageData')!;
             <textarea name="about" form="profileform" class="user-page__textarea" rows="4">{{ user.about }}</textarea>
             <a href="formatdoc" class="user-page__help" target="_blank">Formatting help</a>
           </template>
-          <div v-else-if="user.about" v-html="user.about" class="user-page__about-html" />
+          <div v-else-if="user.aboutBlocks.length" class="user-page__about">
+            <p
+              v-for="(block, blockIndex) in user.aboutBlocks"
+              :key="blockIndex"
+              class="user-page__about-block"
+            >
+              <template v-for="(segment, segmentIndex) in block.segments" :key="`${blockIndex}-${segmentIndex}`">
+                <a v-if="segment.type === 'link'" :href="segment.href">{{ segment.text }}</a>
+                <span v-else>{{ segment.text }}</span>
+              </template>
+            </p>
+          </div>
           <div v-else class="user-page__empty">No bio provided.</div>
         </section>
 
@@ -346,12 +357,12 @@ const user = inject<ParsedUserPage>('pageData')!;
     }
   }
 
-  &__about-html {
+  &__about {
     font-size: 1rem;
     line-height: 1.6;
     color: var(--color-text);
 
-    :deep(p) {
+    p {
       margin-top: 0;
       margin-bottom: 12px;
       &:last-child {
@@ -359,7 +370,7 @@ const user = inject<ParsedUserPage>('pageData')!;
       }
     }
 
-    :deep(a) {
+    a {
       color: var(--color-text);
       text-decoration: underline;
       text-underline-offset: 2px;

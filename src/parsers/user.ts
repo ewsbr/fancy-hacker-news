@@ -1,5 +1,13 @@
 import { textOf, attrOf, hrefOf } from './shared/dom';
 
+export type UserAboutSegment =
+  | { type: 'text'; text: string }
+  | { type: 'link'; text: string; href: string };
+
+export interface UserAboutBlock {
+  segments: UserAboutSegment[];
+}
+
 export interface UserPreferences {
   showDead: string | null;
   noprocrast: string | null;
@@ -14,6 +22,7 @@ export interface ParsedUserPage {
   createdLink: string;
   karma: number;
   about: string | null;
+  aboutBlocks: UserAboutBlock[];
   email: string | null;
   isOwnProfile: boolean;
   preferences: UserPreferences | null;
@@ -30,6 +39,13 @@ export interface ParsedUserPage {
   favoritesLink: string;
   favoritesCommentsLink: string | null;
 }
+
+const TEXT_NODE = 3;
+const ELEMENT_NODE = 1;
+const URL_PATTERN = /\b(?:https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
+const UNSAFE_TEXT_CONTAINERS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT']);
+const TRAILING_URL_PUNCTUATION = /[),.;:!?]+$/;
+const CONTROL_CHAR = /[\u0000-\u001F\u007F]/;
 
 function isUserCollectionHref(
   href: string | null | undefined,
@@ -48,6 +64,139 @@ function isUserCollectionHref(
   } catch {
     return false;
   }
+}
+
+function toSafeLinkHref(rawHref: string | null | undefined): string | null {
+  const href = rawHref?.trim();
+  if (!href || CONTROL_CHAR.test(href)) {
+    return null;
+  }
+
+  const normalizedHref = href.startsWith('www.') ? `https://${href}` : href;
+
+  try {
+    const { protocol } = new URL(normalizedHref, 'https://news.ycombinator.com');
+    return protocol === 'http:' || protocol === 'https:' ? normalizedHref : null;
+  } catch {
+    return null;
+  }
+}
+
+function linkifyText(text: string): UserAboutSegment[] {
+  const segments: UserAboutSegment[] = [];
+  let offset = 0;
+  URL_PATTERN.lastIndex = 0;
+
+  for (const match of text.matchAll(URL_PATTERN)) {
+    const matchText = match[0];
+    const matchIndex = match.index ?? 0;
+
+    if (matchIndex > offset) {
+      segments.push({ type: 'text', text: text.slice(offset, matchIndex) });
+    }
+
+    const trailingPunctuation = matchText.match(TRAILING_URL_PUNCTUATION)?.[0] ?? '';
+    const linkText = trailingPunctuation
+      ? matchText.slice(0, -trailingPunctuation.length)
+      : matchText;
+    const href = toSafeLinkHref(linkText);
+
+    if (href) {
+      segments.push({ type: 'link', text: linkText, href });
+    } else {
+      segments.push({ type: 'text', text: linkText });
+    }
+
+    if (trailingPunctuation) {
+      segments.push({ type: 'text', text: trailingPunctuation });
+    }
+
+    offset = matchIndex + matchText.length;
+  }
+
+  if (offset < text.length) {
+    segments.push({ type: 'text', text: text.slice(offset) });
+  }
+
+  return segments;
+}
+
+function aboutSegmentsFromNode(node: Node): UserAboutSegment[] {
+  if (node.nodeType === TEXT_NODE) {
+    return linkifyText(node.textContent ?? '');
+  }
+
+  if (node.nodeType !== ELEMENT_NODE) {
+    return [];
+  }
+
+  const element = node as Element;
+  if (UNSAFE_TEXT_CONTAINERS.has(element.tagName)) {
+    return [];
+  }
+
+  if (element.tagName === 'A') {
+    const text = textOf(element);
+    const href = toSafeLinkHref(attrOf(element, 'href'));
+
+    return href && text ? [{ type: 'link', text, href }] : linkifyText(text);
+  }
+
+  return Array.from(element.childNodes).flatMap(aboutSegmentsFromNode);
+}
+
+function makeAboutBlock(segments: UserAboutSegment[]): UserAboutBlock | null {
+  return segments.some(segment => segment.type === 'link' || segment.text.trim())
+    ? { segments }
+    : null;
+}
+
+function parseUserAboutBlocks(aboutCell: Element | null | undefined): UserAboutBlock[] {
+  if (!aboutCell) {
+    return [];
+  }
+
+  const blocks: UserAboutBlock[] = [];
+  let currentSegments: UserAboutSegment[] = [];
+  const flushCurrent = (): void => {
+    const block = makeAboutBlock(currentSegments);
+    if (block) {
+      blocks.push(block);
+    }
+    currentSegments = [];
+  };
+
+  for (const child of Array.from(aboutCell.childNodes)) {
+    if (child.nodeType === ELEMENT_NODE) {
+      const element = child as Element;
+      if (element.tagName === 'P' || element.tagName === 'BR') {
+        flushCurrent();
+
+        if (element.tagName === 'P') {
+          const block = makeAboutBlock(aboutSegmentsFromNode(element));
+          if (block) {
+            blocks.push(block);
+          }
+        }
+
+        continue;
+      }
+    }
+
+    currentSegments.push(...aboutSegmentsFromNode(child));
+  }
+
+  flushCurrent();
+  return blocks;
+}
+
+function stringifyUserAboutBlocks(blocks: UserAboutBlock[]): string | null {
+  const about = blocks
+    .map(block => block.segments.map(segment => segment.text).join('').trim())
+    .filter(Boolean)
+    .join('\n\n');
+
+  return about || null;
 }
 
 function withCommentsParam(href: string | null | undefined): string | null {
@@ -96,6 +245,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
 
   // About — own profile exposes a textarea; other profile is plain HTML in td
   let about: string | null = null;
+  let aboutBlocks: UserAboutBlock[] = [];
   if (isOwnProfile) {
     const textarea = form!.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
     about = textarea?.value ?? null;
@@ -103,7 +253,8 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     bigbox?.querySelectorAll('td').forEach(td => {
       if (td.textContent?.trim() === 'about:') {
         const next = td.nextElementSibling;
-        if (next) about = next.innerHTML.trim() || null;
+        aboutBlocks = parseUserAboutBlocks(next);
+        about = stringifyUserAboutBlocks(aboutBlocks);
       }
     });
   }
@@ -175,6 +326,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     createdLink,
     karma,
     about,
+    aboutBlocks,
     email,
     isOwnProfile,
     preferences,
