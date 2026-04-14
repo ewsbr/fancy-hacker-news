@@ -118,7 +118,7 @@ function formatComments(count: number | null): string {
 @media (max-width: 640px) {
   .story-meta {
     margin-top: 0.1rem;
-    row-gap: 0.25rem;
+    row-gap: 0;
   }
 }
 </style>
