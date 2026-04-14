@@ -42,8 +42,8 @@ defineProps<{ story: Story }>();
   display: grid;
   grid-template-columns: 28px 20px 1fr;
   align-items: start;
-  gap: 0 6px;
-  padding: 8px 10px 8px 0;
+  gap: 0 2px;
+  padding: 8px 10px 8px 6px;
 
   &:hover {
     background: var(--color-bg);
@@ -100,26 +100,6 @@ defineProps<{ story: Story }>();
       text-decoration-thickness: 1.5px;
       text-decoration-color: currentColor;
       text-decoration-skip-ink: none;
-    }
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: 24px 18px 1fr;
-    gap: 0 5px;
-    padding: 8px 6px;
-
-    &--unranked {
-      grid-template-columns: 18px 1fr;
-      padding-left: 8px;
-    }
-
-    &--wide-rank {
-      grid-template-columns: 28px 18px 1fr;
-      gap: 0 7px;
-    }
-
-    &__body {
-      gap: 3px;
     }
   }
 }
