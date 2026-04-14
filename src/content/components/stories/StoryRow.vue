@@ -10,7 +10,13 @@ defineProps<{ story: Story }>();
 </script>
 
 <template>
-  <article class="story-row" :class="{ 'story-row--unranked': story.rank === null }">
+  <article
+    class="story-row"
+    :class="{
+      'story-row--unranked': story.rank === null,
+      'story-row--wide-rank': story.rank !== null && story.rank >= 100,
+    }"
+  >
     <StoryRank v-if="story.rank !== null" :rank="story.rank" />
     <VoteButton class="story-row__vote" :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
     <div class="story-row__body">
@@ -50,6 +56,12 @@ defineProps<{ story: Story }>();
   &--unranked {
     grid-template-columns: 20px 1fr;
     padding-left: 8px;
+  }
+
+  &--wide-rank {
+    grid-template-columns: 32px 20px 1fr;
+    gap: 0 8px;
+    padding-left: 4px;
   }
 
   &__body {
@@ -99,6 +111,11 @@ defineProps<{ story: Story }>();
     &--unranked {
       grid-template-columns: 18px 1fr;
       padding-left: 8px;
+    }
+
+    &--wide-rank {
+      grid-template-columns: 28px 18px 1fr;
+      gap: 0 7px;
     }
 
     &__body {
