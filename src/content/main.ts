@@ -39,6 +39,7 @@ import {
 import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
 import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
+import { ensureResponsiveViewport } from '@/content/utils/viewport';
 import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -200,6 +201,9 @@ async function mountApp() {
     const timeline = createDebugTimeline('main');
     const t0 = performance.now();
     const originalBodyChildrenCount = document.body.childElementCount;
+    timeline.step('ensure-viewport', () => {
+      ensureResponsiveViewport(document);
+    });
     // Deliberately captured once at mount. Item pages can render very large
     // comment trees, and we do not want breakpoint changes to invalidate that
     // tree reactively after first render.

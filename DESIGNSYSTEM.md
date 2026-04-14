@@ -105,6 +105,7 @@ Themes:
 ### Root Shell
 
 - Main app width is typically capped around `1024px`
+- The content scripts ensure a responsive viewport meta tag is present before mobile layout detection, because older static HN pages omit it and otherwise render against a wide legacy viewport on mobile
 - Shared content surfaces use `.hn-content-card`
 - On mobile, cards usually lose side borders and corner radius to align flush with the viewport
 - When a `More` footer continues the same list surface, keep it inside that card shell with the attached pagination treatment instead of rendering a second bordered box below it

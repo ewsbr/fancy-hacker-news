@@ -5,6 +5,9 @@ import {
   getBootThemeStyleElement,
   STORAGE_KEY,
 } from './theme-bootstrap';
+import { ensureResponsiveViewport } from './utils/viewport';
+
+ensureResponsiveViewport(document);
 
 const antiFoucStyle = getBootThemeStyleElement(document);
 
