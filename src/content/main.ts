@@ -114,12 +114,6 @@ function applyBootstrappedTheme(host: HTMLElement) {
   applyThemeToHost(host, theme);
 }
 
-function isolateFromLegacyClickHandlers(host: HTMLElement) {
-  host.addEventListener('click', event => {
-    event.stopPropagation();
-  });
-}
-
 function applyHeaderColorVariables(host: HTMLElement, header: ParsedHeader) {
   if (header.hasCustomTopBarColor) {
     host.style.setProperty('--color-hn-top-bar', header.topBarColor);
@@ -265,7 +259,6 @@ async function mountApp() {
       nextHost.id = 'fancy-hn-root';
       applyBootstrappedTheme(nextHost);
       applyHeaderColorVariables(nextHost, header);
-      isolateFromLegacyClickHandlers(nextHost);
       document.body.appendChild(nextHost);
       return nextHost;
     });
