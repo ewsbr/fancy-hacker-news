@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { Story } from '@/parsers/story-list';
 import StoryRank from './StoryRank.vue';
 import StoryMeta from './StoryMeta.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
+import { splitTrailingWord } from '@/content/utils/text';
 
-defineProps<{ story: Story }>();
+const props = defineProps<{ story: Story }>();
+
+const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
 </script>
 
 <template>
@@ -25,12 +29,16 @@ defineProps<{ story: Story }>();
           :href="story.url ?? `item?id=${story.id}`"
           class="story-row__title"
           :class="{ 'story-row__title--dead': story.isDead }"
-        >{{ story.title }}</a>
+        >
+          <template v-if="story.isJob">
+            {{ jobTitleParts.lead }}<span class="story-row__job-link-wrap">{{ jobTitleParts.tail }}<Badge variant="job" label="Job" /></span>
+          </template>
+          <template v-else>{{ story.title }}</template>
+        </a>
         <StorySiteLink :site="story.site" />
         <Badge v-if="story.isDead" variant="dead" label="Dead" />
         <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
         <Badge v-if="story.isDeleted" variant="deleted" label="Deleted" />
-        <Badge v-if="story.isJob" variant="job" label="Job" />
       </div>
       <StoryMeta :story="story" />
     </div>
@@ -101,6 +109,10 @@ defineProps<{ story: Story }>();
       text-decoration-color: currentColor;
       text-decoration-skip-ink: none;
     }
+  }
+
+  &__job-link-wrap {
+    white-space: nowrap;
   }
 }
 </style>
