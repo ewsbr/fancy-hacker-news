@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Triangle } from 'lucide-vue-next';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
@@ -20,18 +20,29 @@ const props = defineProps<{
 }>();
 
 const { isBusy, submitVote } = useHnActions();
-const hasVoteActions = computed(() => !!(props.voteUp || props.voteUn || props.voteDown));
+const currentVoteUn = ref(props.voteUn ?? null);
+const hasVoteActions = computed(() => !!(props.voteUp || currentVoteUn.value || props.voteDown));
 const hasReplyAction = computed(() => !!props.replyLink);
 const hasEditAction = computed(() => !!props.editUrl);
 const hasDeleteAction = computed(() => !!props.deleteUrl);
 
-function handleVoteClick(event: MouseEvent, href: string | null | undefined, direction: 'up' | 'down' | 'un') {
+watch(
+  () => props.voteUn,
+  voteUn => {
+    currentVoteUn.value = voteUn ?? null;
+  },
+);
+
+async function handleVoteClick(event: MouseEvent, href: string | null | undefined, direction: 'up' | 'down' | 'un') {
   if (!props.voteTarget || !href) {
     return;
   }
 
   event.preventDefault();
-  void submitVote(props.voteTarget, href, direction);
+  const succeeded = await submitVote(props.voteTarget, href, direction);
+  if (succeeded) {
+    currentVoteUn.value = props.voteTarget.voteUn;
+  }
 }
 </script>
 
@@ -39,7 +50,7 @@ function handleVoteClick(event: MouseEvent, href: string | null | undefined, dir
   <div class="comment-actions">
     <div v-if="hasVoteActions" class="comment-actions__votes">
       <a
-        v-if="voteUp && !voteUn"
+        v-if="voteUp && !currentVoteUn"
         :href="voteUp"
         class="comment-actions__vote comment-actions__vote--up"
         :class="{ 'comment-actions__vote--busy': isBusy }"
@@ -51,13 +62,13 @@ function handleVoteClick(event: MouseEvent, href: string | null | undefined, dir
         <span>upvote</span>
       </a>
       <a
-        v-if="voteUn"
-        :href="voteUn"
+        v-if="currentVoteUn"
+        :href="currentVoteUn"
         class="comment-actions__vote comment-actions__vote--up comment-actions__vote--active"
         :class="{ 'comment-actions__vote--busy': isBusy }"
         title="unvote"
         :aria-disabled="isBusy ? 'true' : undefined"
-        @click="handleVoteClick($event, voteUn, 'un')"
+        @click="handleVoteClick($event, currentVoteUn, 'un')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
         <span>unvote</span>

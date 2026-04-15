@@ -97,6 +97,7 @@ if (childrenInModal) {
                 :vote-up="node.voteUp"
                 :vote-un="node.voteUn"
                 :vote-down="node.voteDown"
+                :vote-target="node"
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
