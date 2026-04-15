@@ -41,6 +41,22 @@ function buildVoteRequestHref(href: string): string {
   return url.toString();
 }
 
+function navigateToActionGate(href: string): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.location.assign(href);
+}
+
+function isVoteSuccessResponse(response: Response): boolean {
+  try {
+    return new URL(response.url).pathname === '/ok';
+  } catch {
+    return false;
+  }
+}
+
 function buildUnvoteHref(href: string): string {
   const url = toAbsoluteUrl(href);
   url.searchParams.set('how', 'un');
@@ -75,7 +91,16 @@ async function sendActionRequest(href: string, appendJsParam = false): Promise<b
       redirect: 'follow',
     });
 
-    return response.ok;
+    if (!response.ok) {
+      return false;
+    }
+
+    if (appendJsParam && !isVoteSuccessResponse(response)) {
+      navigateToActionGate(requestHref);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error('Fancy HN action failed', error);
     return false;

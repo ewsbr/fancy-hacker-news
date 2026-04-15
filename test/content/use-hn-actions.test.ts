@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { useHnActions } from '@/content/composables/use-hn-actions';
@@ -5,15 +6,25 @@ import { useHnActions } from '@/content/composables/use-hn-actions';
 describe('useHnActions', () => {
   let dom: JSDOM;
   let fetchMock: ReturnType<typeof vi.fn>;
+  let locationAssignMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     dom = new JSDOM('', { url: 'https://news.ycombinator.com/item?id=123' });
+    locationAssignMock = vi.fn();
     Object.defineProperty(globalThis, 'window', {
-      value: dom.window,
+      value: {
+        location: {
+          href: dom.window.location.href,
+          assign: locationAssignMock,
+        },
+      },
       configurable: true,
     });
 
-    fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      url: 'https://news.ycombinator.com/ok',
+    });
     Object.defineProperty(globalThis, 'fetch', {
       value: fetchMock,
       configurable: true,
@@ -47,6 +58,53 @@ describe('useHnActions', () => {
       }),
     );
     expect(target.voteUn).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
+  });
+
+  it('navigates to the HN vote login gate when a js vote returns the logged-out form', async () => {
+    const fixtureUrl = new URL('../fixtures/vote-nologin.html', import.meta.url);
+    const loggedOutVoteHtml = await readFile(fixtureUrl, 'utf8');
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      url: 'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
+      text: vi.fn().mockResolvedValue(loggedOutVoteHtml),
+    });
+    const { submitVote } = useHnActions();
+    const target = {
+      voteUp: 'vote?id=47558997&how=up&goto=news',
+      voteDown: null,
+      voteUn: null,
+    };
+
+    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(false);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
+      expect.any(Object),
+    );
+    expect(locationAssignMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
+    );
+    expect(target.voteUn).toBeNull();
+  });
+
+  it('fails closed for vote responses that do not resolve to HN ok', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      url: 'https://news.ycombinator.com/vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123&js=t',
+    });
+    const { submitVote } = useHnActions();
+    const target = {
+      voteUp: 'vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123',
+      voteDown: null,
+      voteUn: null,
+    };
+
+    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(false);
+
+    expect(locationAssignMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123&js=t',
+    );
+    expect(target.voteUn).toBeNull();
   });
 
   it('clears the stored unvote link after unvoting', async () => {
