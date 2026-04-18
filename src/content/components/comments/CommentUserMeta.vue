@@ -14,6 +14,7 @@ withDefaults(defineProps<{
   isDead?: boolean;
   isFlagged?: boolean;
   downvoteLabel?: string | null;
+  originalPosterTitle?: string | null;
 }>(), {
   authorIsNew: false,
   score: null,
@@ -22,6 +23,7 @@ withDefaults(defineProps<{
   isDead: false,
   isFlagged: false,
   downvoteLabel: null,
+  originalPosterTitle: null,
 });
 </script>
 
@@ -38,6 +40,7 @@ withDefaults(defineProps<{
       <AuthorByline
         :author="author"
         :author-is-new="authorIsNew"
+        :original-poster-title="originalPosterTitle"
         :score="score"
         :age-link="ageLink"
         :age="age"

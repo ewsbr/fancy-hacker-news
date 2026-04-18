@@ -8,6 +8,7 @@ import CommentActions from '@/content/components/comments/CommentActions.vue';
 import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
 import { useCommentCollapse } from '@/state/comment-collapse';
 import { MessageSquare } from 'lucide-vue-next';
+import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOriginalPosterTitle } from '@/content/utils/comment-badges';
 
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
@@ -16,12 +17,15 @@ const props = defineProps<{
   node: CommentNodeType;
   depth?: number;
   inModal?: boolean;
+  parentAuthor?: string | null;
 }>();
 
 // Deliberately a mount-time snapshot. Recomputing this across a very large
 // comment tree on breakpoint changes would fan out reactive work to thousands
 // of nodes, so resize correctness is traded for tree stability here.
 const isMobileLayout = inject<boolean>('isMobileLayout', false);
+const threadAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
+const storyAuthor = inject(COMMENT_THREAD_STORY_AUTHOR_KEY, null);
 const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashPathIds: shallowRef(new Set<string>()),
   hashTargetId: ref<string | null>(null),
@@ -37,6 +41,12 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const latestUrl = `latest?id=${encodeURIComponent(props.node.id)}`;
+const originalPosterTitle = computed(() => getOriginalPosterTitle({
+  author: props.node.author,
+  storyAuthor,
+  threadAuthor,
+  parentAuthor: props.parentAuthor,
+}));
 
 const isHashTarget = computed(() => hashTargetId.value === props.node.id);
 const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
@@ -80,6 +90,7 @@ if (childrenInModal) {
           :node="node"
           :is-collapsed="isCollapsed"
           :latest-url="latestUrl"
+          :original-poster-title="originalPosterTitle"
           @toggle="toggleCollapse"
         />
 
@@ -133,6 +144,7 @@ if (childrenInModal) {
             :node="child"
             :depth="currentDepth + 1"
             :in-modal="inModal"
+            :parent-author="node.author"
           />
         </div>
       </div>
@@ -293,7 +305,8 @@ if (childrenInModal) {
   }
 
   &__line {
-    padding: 0 16px 0 4px;
+    padding: 0 8px 0 4px;
+    margin-right: 8px;
   }
 }
 </style>

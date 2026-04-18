@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type BadgeVariant = 'new' | 'dead' | 'flagged' | 'deleted' | 'downvoted' | 'job' | 'default';
+type BadgeVariant = 'new' | 'dead' | 'flagged' | 'deleted' | 'downvoted' | 'job' | 'op' | 'default';
 
 defineProps<{
   variant?: BadgeVariant;
@@ -73,6 +73,12 @@ defineProps<{
   }
 
   &--job {
+    background: var(--color-accent-badge-bg);
+    color: var(--color-accent);
+    border-color: var(--color-accent-badge-border);
+  }
+
+  &--op {
     background: var(--color-accent-badge-bg);
     color: var(--color-accent);
     border-color: var(--color-accent-badge-border);

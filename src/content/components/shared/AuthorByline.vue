@@ -5,6 +5,7 @@ import MetaSep from '@/content/components/ui/MetaSep.vue';
 defineProps<{
   author: string;
   authorIsNew?: boolean;
+  originalPosterTitle?: string | null;
   score?: number | null;
   ageLink: string;
   age: string;
@@ -17,6 +18,7 @@ defineProps<{
   <span class="author-byline">
     <span v-if="prefix" class="author-byline__prefix">{{ prefix }}</span>
     <a :href="`user?id=${author}`" class="author-byline__author">{{ author }}</a>
+    <Badge v-if="originalPosterTitle" variant="op" label="OP" :title="originalPosterTitle" />
     <Badge v-if="authorIsNew" variant="new" label="New" title="New user" />
     <template v-if="score != null">
       <MetaSep />

@@ -30,6 +30,7 @@ const props = defineProps<{
   node: CommentHeaderNode;
   isCollapsed: boolean;
   latestUrl?: string | null;
+  originalPosterTitle?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -74,6 +75,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
           :is-dead="node.isDead"
           :is-flagged="node.isFlagged"
           :downvote-label="downvoteOpacity"
+          :original-poster-title="originalPosterTitle"
         />
       </div>
 

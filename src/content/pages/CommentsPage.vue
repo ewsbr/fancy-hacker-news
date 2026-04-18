@@ -18,6 +18,7 @@ import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOriginalPosterTitle } from '@/content/utils/comment-badges';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 
 const commentsLogger = createLogger('comments');
@@ -34,6 +35,16 @@ const commentItemDomId = computed(() => {
 
 const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
+const commentItemOriginalPosterTitle = computed(() => {
+  if (!pageData || pageData.item.type !== 'comment') {
+    return null;
+  }
+
+  return getOriginalPosterTitle({
+    author: pageData.item.author,
+    threadAuthor: pageData.item.author,
+  });
+});
 
 const totalCommentCount = computed(() => {
   if (!pageData) return 0;
@@ -69,6 +80,8 @@ const fragmentState: CommentFragmentState = {
 };
 
 provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
+provide(COMMENT_THREAD_STORY_AUTHOR_KEY, pageData?.item.type === 'story' ? pageData.item.author : null);
+provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, pageData?.item.type === 'comment' ? pageData.item.author : null);
 
 function getModernRoot(): HTMLElement | null {
   return document.getElementById('fancy-hn-root');
@@ -255,6 +268,7 @@ useEventListener(window, 'hashchange', () => {
                   :is-deleted="pageData.item.isDeleted"
                   :is-dead="pageData.item.isDead"
                   :is-flagged="pageData.item.isFlagged"
+                  :original-poster-title="commentItemOriginalPosterTitle"
                 />
                 <div class="comments-page__comment-meta-actions">
                   <MetaSep class="comments-page__comment-meta-actions-sep" />

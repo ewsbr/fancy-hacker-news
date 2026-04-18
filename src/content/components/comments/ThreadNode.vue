@@ -1,18 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
+import { getOriginalPosterTitle } from '@/content/utils/comment-badges';
 
 const props = defineProps<{
   node: ThreadEntry;
+  threadAuthor?: string | null;
+  parentAuthor?: string | null;
 }>();
 
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 const isHeavilyDownvoted = props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase());
 const isCollapsed = ref(props.node.isCollapsed || isHeavilyDownvoted);
+const threadAuthor = computed(() => props.threadAuthor ?? props.node.author);
+const originalPosterTitle = computed(() => getOriginalPosterTitle({
+  author: props.node.author,
+  threadAuthor: threadAuthor.value,
+  parentAuthor: props.parentAuthor,
+}));
 
 function toggleCollapse() {
   isCollapsed.value = !isCollapsed.value;
@@ -32,7 +41,12 @@ function toggleCollapse() {
       <div class="comment-node__main">
         <OnStoryHeader v-if="node.onStory" class="comment-node__on-story" label="on" :href="node.onStory.link" :title="node.onStory.title" />
         
-        <CommentHeader :node="node" :is-collapsed="isCollapsed" @toggle="toggleCollapse" />
+        <CommentHeader
+          :node="node"
+          :is-collapsed="isCollapsed"
+          :original-poster-title="originalPosterTitle"
+          @toggle="toggleCollapse"
+        />
         
         <div v-if="!isCollapsed" class="comment-node__body-wrapper">
           <CommentBody
@@ -62,6 +76,8 @@ function toggleCollapse() {
           v-for="child in node.children" 
           :key="child.id" 
           :node="child" 
+          :thread-author="threadAuthor"
+          :parent-author="node.author"
         />
       </div>
     </div>
@@ -89,10 +105,6 @@ function toggleCollapse() {
 
   &__thread {
     margin-top: 0.35rem;
-  }
-
-  &__line {
-    width: 20px;
   }
 }
 </style>
