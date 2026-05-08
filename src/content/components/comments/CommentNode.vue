@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { computed, inject, ref, shallowRef, watch } from 'vue';
-import type { CommentNode as CommentNodeType } from '@/parsers/item';
-import type { ThreadEntry } from '@/parsers/threads';
+import { toRefs } from 'vue';
+import {
+  type CommentRenderableNode,
+  useCommentDisplayContext,
+  useCommentFragmentState,
+  useCommentThreadUi,
+} from '@/content/composables/comment-node';
 import CommentHeader from './CommentHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
-import { useCommentCollapse } from '@/state/comment-collapse';
+import OnStoryHeader from './OnStoryHeader.vue';
 import { MessageSquare } from 'lucide-vue-next';
-import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOriginalPosterTitle } from '@/content/utils/comment-badges';
+import { useCommentCollapse } from '@/state/comment-collapse';
 
-const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 
 const props = withDefaults(defineProps<{
-  node: CommentNodeType | ThreadEntry;
+  node: CommentRenderableNode;
   depth?: number;
   inModal?: boolean;
   parentAuthor?: string | null;
@@ -31,78 +33,72 @@ const props = withDefaults(defineProps<{
   enableMobileSubthreads: true,
 });
 
-// Deliberately a mount-time snapshot. Recomputing this across a very large
-// comment tree on breakpoint changes would fan out reactive work to thousands
-// of nodes, so resize correctness is traded for tree stability here.
-const isMobileLayout = inject<boolean>('isMobileLayout', false);
-const injectedThreadAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
-const storyAuthor = inject(COMMENT_THREAD_STORY_AUTHOR_KEY, null);
-const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
-  hashPathIds: shallowRef(new Set<string>()),
-  hashTargetId: ref<string | null>(null),
-  mainThreadHashTargetId: ref<string | null>(null),
-  hashNavigationVersion: ref(0),
+const {
+  depth,
+  enableMobileSubthreads,
+  inModal,
+  node,
+  parentAuthor,
+  rootVariant,
+  showLocalThreadAuthor,
+  showOnStory,
+  threadAuthor,
+} = toRefs(props);
+
+const {
+  latestUrl,
+  nodeOnStory,
+  originalPosterTitle,
+  resolvedThreadAuthor,
+  rootClassName,
+} = useCommentDisplayContext({
+  node,
+  parentAuthor,
+  threadAuthor,
+  showLocalThreadAuthor,
+  showOnStory,
+  rootVariant,
 });
-const { hashPathIds, hashTargetId, mainThreadHashTargetId, hashNavigationVersion } = fragmentState;
 
-const isModalOpen = ref(false);
-
-const currentDepth = props.depth ?? 0;
-const directReplyCount = props.node.children.length;
-const totalReplyCount = props.node.descendantCount;
-const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
-const latestUrl = `latest?id=${encodeURIComponent(props.node.id)}`;
-const resolvedThreadAuthor = computed(() => props.threadAuthor
-  ?? injectedThreadAuthor
-  ?? (props.showLocalThreadAuthor ? props.node.author : null));
-const nodeOnStory = computed<{ title: string; link: string } | null>(() => {
-  if (!props.showOnStory || !('onStory' in props.node)) {
-    return null;
-  }
-
-  return props.node.onStory;
+const {
+  hashNavigationVersion,
+  hashTargetId,
+  isForcedExpanded,
+  isHighlightedForHash,
+  isInHashPath,
+} = useCommentFragmentState({
+  node,
+  inModal,
 });
-const originalPosterTitle = computed(() => getOriginalPosterTitle({
-  author: props.node.author,
-  storyAuthor,
-  threadAuthor: resolvedThreadAuthor.value,
-  parentAuthor: props.parentAuthor,
-}));
 
-const isHashTarget = computed(() => hashTargetId.value === props.node.id);
-const isMainThreadHashTarget = computed(() => mainThreadHashTargetId.value === props.node.id);
-const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value : isMainThreadHashTarget.value));
-const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
-const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const { isCollapsed, toggleCollapse } = useCommentCollapse({
-  initialCollapsed: props.node.isCollapsed
-    || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase())),
+  initialCollapsed: node.value.isCollapsed
+    || (node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())),
   forceExpanded: isForcedExpanded,
   hashNavigationVersion,
 });
-const childrenInModal = props.enableMobileSubthreads
-  && isMobileLayout
-  && !props.inModal
-  && currentDepth >= MOBILE_MODAL_DEPTH;
 
-if (childrenInModal) {
-  watch(
-    isInHashPath,
-    inHashPath => {
-      if (inHashPath) {
-        isModalOpen.value = true;
-      }
-    },
-    { immediate: true },
-  );
-}
+const {
+  childrenInModal,
+  closeModal,
+  currentDepth,
+  isModalOpen,
+  openModal,
+  threadButtonLabel,
+} = useCommentThreadUi({
+  node,
+  depth,
+  inModal,
+  enableMobileSubthreads,
+  isInHashPath,
+});
 </script>
 
 <template>
   <div
     class="comment-node"
     :class="[
-      node.indent > 0 ? 'comment-node--nested' : 'comment-node--root',
+      rootClassName,
       isCollapsed ? 'comment-node--collapsed' : '',
       isHighlightedForHash ? 'comment-node--highlight' : '',
     ]"
@@ -158,15 +154,10 @@ if (childrenInModal) {
       <button
         v-if="childrenInModal"
         class="comment-node__thread-btn"
-        @click="isModalOpen = true"
+        @click="openModal"
       >
         <MessageSquare :size="13" />
-        <template v-if="nestedReplyCount > 0">
-          View {{ directReplyCount }} {{ directReplyCount === 1 ? 'reply' : 'replies' }} ({{ totalReplyCount }} total)
-        </template>
-        <template v-else>
-          View {{ directReplyCount }} {{ directReplyCount === 1 ? 'reply' : 'replies' }}
-        </template>
+        {{ threadButtonLabel }}
       </button>
 
       <div v-else class="comment-node__thread">
@@ -192,7 +183,7 @@ if (childrenInModal) {
       v-if="isModalOpen"
       :node="node"
       :scroll-to-id="hashTargetId"
-      @close="isModalOpen = false"
+      @close="closeModal"
     />
   </div>
 </template>
