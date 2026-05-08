@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, shallowRef, watch } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import type { ThreadEntry } from '@/parsers/threads';
 import CommentHeader from './CommentHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 import CommentBody from './CommentBody.vue';
@@ -13,18 +14,28 @@ import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOri
 const MOBILE_MODAL_DEPTH = 4;
 const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 
-const props = defineProps<{
-  node: CommentNodeType;
+const props = withDefaults(defineProps<{
+  node: CommentNodeType | ThreadEntry;
   depth?: number;
   inModal?: boolean;
   parentAuthor?: string | null;
-}>();
+  threadAuthor?: string | null;
+  showLocalThreadAuthor?: boolean;
+  showOnStory?: boolean;
+  rootVariant?: 'default' | 'thread';
+  enableMobileSubthreads?: boolean;
+}>(), {
+  showLocalThreadAuthor: false,
+  showOnStory: false,
+  rootVariant: 'default',
+  enableMobileSubthreads: true,
+});
 
 // Deliberately a mount-time snapshot. Recomputing this across a very large
 // comment tree on breakpoint changes would fan out reactive work to thousands
 // of nodes, so resize correctness is traded for tree stability here.
 const isMobileLayout = inject<boolean>('isMobileLayout', false);
-const threadAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
+const injectedThreadAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
 const storyAuthor = inject(COMMENT_THREAD_STORY_AUTHOR_KEY, null);
 const fragmentState = inject<CommentFragmentState>(COMMENT_FRAGMENT_STATE_KEY, {
   hashPathIds: shallowRef(new Set<string>()),
@@ -41,10 +52,20 @@ const directReplyCount = props.node.children.length;
 const totalReplyCount = props.node.descendantCount;
 const nestedReplyCount = Math.max(0, totalReplyCount - directReplyCount);
 const latestUrl = `latest?id=${encodeURIComponent(props.node.id)}`;
+const resolvedThreadAuthor = computed(() => props.threadAuthor
+  ?? injectedThreadAuthor
+  ?? (props.showLocalThreadAuthor ? props.node.author : null));
+const nodeOnStory = computed<{ title: string; link: string } | null>(() => {
+  if (!props.showOnStory || !('onStory' in props.node)) {
+    return null;
+  }
+
+  return props.node.onStory;
+});
 const originalPosterTitle = computed(() => getOriginalPosterTitle({
   author: props.node.author,
   storyAuthor,
-  threadAuthor,
+  threadAuthor: resolvedThreadAuthor.value,
   parentAuthor: props.parentAuthor,
 }));
 
@@ -54,11 +75,15 @@ const isHighlightedForHash = computed(() => (props.inModal ? isHashTarget.value 
 const isInHashPath = computed(() => props.node.expandForHash || hashPathIds.value.has(props.node.id));
 const isForcedExpanded = computed(() => isInHashPath.value && !isHashTarget.value);
 const { isCollapsed, toggleCollapse } = useCommentCollapse({
-  initialCollapsed: props.node.isCollapsed || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel)),
+  initialCollapsed: props.node.isCollapsed
+    || (props.node.grayLevel !== null && HEAVY_DOWNVOTE.has(props.node.grayLevel.toLowerCase())),
   forceExpanded: isForcedExpanded,
   hashNavigationVersion,
 });
-const childrenInModal = isMobileLayout && !props.inModal && currentDepth >= MOBILE_MODAL_DEPTH;
+const childrenInModal = props.enableMobileSubthreads
+  && isMobileLayout
+  && !props.inModal
+  && currentDepth >= MOBILE_MODAL_DEPTH;
 
 if (childrenInModal) {
   watch(
@@ -85,6 +110,14 @@ if (childrenInModal) {
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
+        <OnStoryHeader
+          v-if="nodeOnStory"
+          class="comment-node__on-story"
+          label="on"
+          :href="nodeOnStory.link"
+          :title="nodeOnStory.title"
+        />
+
         <CommentHeader
           class="comment-node__header"
           :node="node"
@@ -113,6 +146,7 @@ if (childrenInModal) {
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
                 :flag-url="node.flagUrl"
+                :flag-target="node"
               />
             </div>
           </div>
@@ -145,6 +179,10 @@ if (childrenInModal) {
             :depth="currentDepth + 1"
             :in-modal="inModal"
             :parent-author="node.author"
+            :thread-author="resolvedThreadAuthor"
+            :show-local-thread-author="showLocalThreadAuthor"
+            :show-on-story="showOnStory"
+            :enable-mobile-subthreads="enableMobileSubthreads"
           />
         </div>
       </div>
@@ -165,8 +203,13 @@ if (childrenInModal) {
 .comment-node {
   @include comment-node-base;
 
-  &--root {
-    margin-top: 0.5rem;
+  &--thread-root {
+    padding: 12px;
+    border-top: 1px solid var(--color-border);
+
+    &:first-child {
+      border-top: none;
+    }
   }
 
   &--highlight {
@@ -187,6 +230,10 @@ if (childrenInModal) {
 
   &__body-wrapper {
     margin-top: 0.1rem;
+  }
+
+  &__on-story {
+    margin-bottom: 6px;
   }
 
   &__actions {
@@ -278,7 +325,7 @@ if (childrenInModal) {
   }
 
   &__thread {
-    margin-top: 0.45rem;
+    margin-top: 7px;
     min-width: 0;
     --hn-depth: calc(var(--hn-depth, 0) + 1);
   }
@@ -287,8 +334,8 @@ if (childrenInModal) {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    margin-top: 0.5rem;
-    padding: 0.45rem 0.75rem;
+    margin-top: 8px;
+    padding: 7px 12px;
     background: none;
     border: 1px solid var(--color-border);
     border-radius: 20px;

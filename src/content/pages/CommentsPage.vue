@@ -336,6 +336,10 @@ useEventListener(window, 'hashchange', () => {
 .comments-page {
   padding-bottom: 2rem;
 
+  &__container {
+    padding-bottom: 8px;
+  }
+
   &__comment-parent {
     border-bottom: 1px solid var(--color-border);
     scroll-margin-top: var(--fragment-scroll-offset);
@@ -473,8 +477,6 @@ useEventListener(window, 'hashchange', () => {
 
 // Deep selector for the comment tree within the container
 :deep(.comment-tree) {
-  margin-top: 0;
   padding: 0.75rem;
-  background: var(--color-surface);
 }
 </style>

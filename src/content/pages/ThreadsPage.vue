@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject } from 'vue';
 import type { ParsedThreadsPage } from '@/parsers/threads';
-import ThreadNode from '@/content/components/comments/ThreadNode.vue';
+import CommentTree from '@/content/components/comments/CommentTree.vue';
 import Pagination from '@/content/components/ui/Pagination.vue';
 import { getThreadsEmptyMessage } from '@/content/utils/empty-states';
 
@@ -13,11 +13,7 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
   <div class="threads-page">
     <div v-if="pageData.threads.length" class="threads-page__card hn-content-card">
       <div class="threads-page__container">
-        <ThreadNode 
-          v-for="thread in pageData.threads" 
-          :key="thread.id" 
-          :node="thread" 
-        />
+        <CommentTree :comments="pageData.threads" variant="thread" />
       </div>
 
       <Pagination :href="pageData.moreLink" attached />
@@ -37,6 +33,7 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
   }
 
   &__container {
+    margin: 0.75rem;
     background: var(--color-surface);
   }
 

@@ -1,17 +1,25 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import type { ThreadEntry } from '@/parsers/threads';
 import CommentNode from './CommentNode.vue';
 import LazyCommentRoot from './LazyCommentRoot.vue';
+import ThreadNode from './ThreadNode.vue';
 
-defineProps<{
-  comments: CommentNodeType[];
-}>();
+const props = withDefaults(defineProps<{
+  comments: Array<CommentNodeType | ThreadEntry>;
+  variant?: 'item' | 'thread';
+}>(), {
+  variant: 'item',
+});
+
+const rootComponent = computed(() => (props.variant === 'thread' ? ThreadNode : CommentNode));
 </script>
 
 <template>
   <div class="comment-tree">
     <component
-      :is="comment.lazyThread ? LazyCommentRoot : CommentNode"
+      :is="variant === 'item' && comment.lazyThread ? LazyCommentRoot : rootComponent"
       v-for="comment in comments"
       :key="comment.id"
       :node="comment"
@@ -21,9 +29,8 @@ defineProps<{
 
 <style scoped lang="scss">
 .comment-tree {
-  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 4px;
 }
 </style>
