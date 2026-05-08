@@ -14,6 +14,21 @@ There is no SPA routing, and the redesigned UI keeps Hacker News behavior native
 
 ![Redesigned frontpage](./images/image.png)
 
+## Goals
+> Hacker News, but like it was designed after 2020.
+
+The objective is to provide a more pleasant Hacker News experience with many QoL improvements and full feature parity. **If you know of a feature that doesn't work with the extension, please open an issue.**
+
+Some features, like downvote levels, upvoting and flagging are not available via API, so we just pay the price of parsing HTML from the actual page.
+
+> Why not customize via CSS?
+
+CSS-only customization is very limited. We cannot rearrange elements, add fancy features (like the downvote level counters) or fix some structural issues, such as the left spacing on code blocks.
+
+**Non-goals**:
+- SPA routing. Yes, we will re-render the page on every navigation.
+- Custom backend or proxying.
+
 ## Commands
 
 Build:

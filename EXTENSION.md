@@ -3,7 +3,7 @@
 A fancy version of the original Hacker News UI. It works on top of the original site without changing any of its requests or main interactions.
 You can enjoy the same HN experience with theme support and many QoL improvements, and only a hefty amount of Javascript ;).
 
-Boasts full feature parity with the original HN UI, including all logged-in features, and proper mobile device support.
+Boasts full feature parity with the original HN UI, including all logged-in features and proper mobile device support.
 This extension runs 100% client-side and does not proxy any requests.
 
 **Features**
