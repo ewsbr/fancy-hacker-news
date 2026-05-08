@@ -45,7 +45,6 @@ const isDownvoted = !!props.grayLevel && props.grayLevel !== 'c00';
     filter: grayscale(10%);
     color: var(--color-text-muted);
     transition: opacity 0.2s ease, filter 0.2s ease, color 0.2s ease;
-    cursor: pointer;
 
     &:is(:hover, :active, :focus-visible) {
       opacity: 1;
