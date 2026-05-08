@@ -17,7 +17,7 @@ defineProps<{
 <style scoped lang="scss">
 .on-story-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 0.4rem;
   min-width: 0;
   max-width: 100%;
@@ -34,6 +34,7 @@ defineProps<{
       display: block;
       letter-spacing: 0.07em;
       margin-bottom: 0.2rem;
+      margin-top: 0;
     }
 
     .on-story-header__link {
@@ -58,6 +59,8 @@ defineProps<{
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    line-height: 1.4;
+    margin-top: 2px;
     color: var(--color-text-muted);
     flex-shrink: 0;
   }
@@ -75,8 +78,6 @@ defineProps<{
   }
 
   @media (max-width: 640px) {
-    align-items: flex-start;
-
     &__link {
       white-space: normal;
       overflow: visible;

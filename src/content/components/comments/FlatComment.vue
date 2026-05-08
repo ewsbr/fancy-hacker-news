@@ -115,26 +115,6 @@ defineProps<{
     &__story {
       gap: 0.35rem;
     }
-
-    :deep(.on-story-header) {
-      display: block;
-      line-height: 1.3;
-    }
-
-    :deep(.on-story-header__label) {
-      display: inline;
-      margin-right: 0.3rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      vertical-align: baseline;
-    }
-
-    :deep(.on-story-header__link) {
-      display: inline;
-      vertical-align: baseline;
-    }
   }
 }
 </style>
