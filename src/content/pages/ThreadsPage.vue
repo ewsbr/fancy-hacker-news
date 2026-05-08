@@ -33,7 +33,6 @@ const emptyMessage = getThreadsEmptyMessage(pageData.username);
   }
 
   &__container {
-    margin: 0.75rem;
     background: var(--color-surface);
   }
 
