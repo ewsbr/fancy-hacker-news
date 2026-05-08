@@ -12,6 +12,7 @@ const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
 const TEXT_NODE = 3;
 const ELEMENT_NODE = 1;
 const INLINE_TAGS = new Set(['I', 'B', 'EM', 'STRONG', 'A', 'CODE', 'SPAN', 'U', 'S', 'FONT']);
+const COMMENT_RICH_TEXT_CLASS_NAMES = new Set(['comment', 'commtext']);
 
 function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
   const normalized = text.trim();
@@ -99,10 +100,64 @@ function normalizeQuotedContent(container: Element, doc: Document): void {
   container.replaceChildren(...output);
 }
 
+function stripCommentCodeIndent(text: string): string {
+  const lines = text.split('\n');
+  const nonEmptyLines = lines.filter(line => line.trim() !== '');
+
+  if (!nonEmptyLines.length) {
+    return text;
+  }
+
+  const commonIndent = Math.min(
+    ...nonEmptyLines.map(line => line.match(/^ +/)?.[0].length ?? 0),
+  );
+
+  if (commonIndent < 2) {
+    return text;
+  }
+
+  return lines
+    .map((line) => {
+      if (line.trim() === '') {
+        return '';
+      }
+
+      return line.slice(commonIndent);
+    })
+    .join('\n');
+}
+
+function shouldNormalizeCommentCodeBlocks(source: Element): boolean {
+  return Array.from(source.classList).some(className => COMMENT_RICH_TEXT_CLASS_NAMES.has(className));
+}
+
+function normalizeCommentCodeBlocks(container: Element): void {
+  for (const pre of Array.from(container.querySelectorAll('pre'))) {
+    const directCodeChild = pre.firstElementChild?.tagName === 'CODE'
+      ? pre.firstElementChild
+      : null;
+    const target = directCodeChild ?? pre;
+    const text = target.textContent;
+
+    if (!text || !text.includes('  ')) {
+      continue;
+    }
+
+    const normalizedText = stripCommentCodeIndent(text);
+    if (normalizedText !== text) {
+      target.textContent = normalizedText;
+    }
+  }
+}
+
 export function extractRichTextHtml(source: Element | null | undefined): string {
   if (!source) return '';
 
   const clone = source.cloneNode(true) as Element;
+  if (shouldNormalizeCommentCodeBlocks(source)) {
+    normalizeCommentCodeBlocks(clone);
+  }
+
   const html = clone.innerHTML;
   if (!html) {
     return '';

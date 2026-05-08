@@ -116,6 +116,7 @@ test/                                 # Vitest coverage for parsers and content 
 - Re-injection is guarded. If `#fancy-hn-root` already exists on reinjection, reload the page to restore the original DOM before reparsing.
 - Respect source quirks. If HN emits inconsistent or odd behavior, document it before changing parser or UI behavior.
 - Use fixtures, not live network requests, when adding parser coverage.
+- For new feature-local composable modules, prefer descriptive filenames like `comment-node.ts` over `use-foo.ts`, and keep multiple related composables in the same file when they serve one feature boundary. Older `use-*.ts` files can stay in place until they need substantive work.
 
 ### CSS Unit Rules
 
