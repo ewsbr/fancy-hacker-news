@@ -50,7 +50,7 @@ const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
   display: grid;
   grid-template-columns: 28px 20px 1fr;
   align-items: start;
-  gap: 0 2px;
+  gap: 0 4px;
   padding: 8px 10px 8px 6px;
 
   &:hover {
