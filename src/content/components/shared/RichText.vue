@@ -42,7 +42,6 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
     overflow-x: auto;
     overflow-y: hidden;
     font-family: var(--font-mono);
-    font-size: 0.825rem;
     line-height: 1.45;
     max-width: 100%;
     scrollbar-width: thin;
