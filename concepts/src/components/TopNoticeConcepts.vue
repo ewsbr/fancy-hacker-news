@@ -11,8 +11,12 @@ const stories = [
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">top notice</p>
-      <h2 class="concept-app__section-title">Six directions for the date-range notice above story lists</h2>
+      <p class="concept-app__section-eyebrow">
+        top notice
+      </p>
+      <h2 class="concept-app__section-title">
+        Six directions for the date-range notice above story lists
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       These variants stay close to the existing Hacker News notice content and only change how that meta block sits against the list card.

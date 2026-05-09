@@ -1,6 +1,7 @@
+import type { CommentNode } from '@/parsers/item';
 import { describe, expect, it } from 'vitest';
-import { parseItemPage, type CommentNode } from '@/parsers/item';
 import { getOriginalPosterTitle } from '@/content/utils/comment-badges';
+import { parseItemPage } from '@/parsers/item';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 function findCommentWithParent(

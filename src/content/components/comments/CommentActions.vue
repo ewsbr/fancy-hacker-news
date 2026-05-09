@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/use-hn-actions';
 import { Triangle } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
-import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/use-hn-actions';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
 
 watch(
   () => props.voteUn,
-  voteUn => {
+  (voteUn) => {
     currentVoteUn.value = voteUn ?? null;
   },
 );

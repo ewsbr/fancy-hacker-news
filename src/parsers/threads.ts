@@ -1,7 +1,7 @@
-import { buildIndentedCommentTree, annotateDescendantCounts } from './shared/comment-tree';
-import { parseThreadCommentRow } from './shared/comment-row';
-import { findMoreLink } from './shared/pagination';
 import type { CommentNode } from './item';
+import { parseThreadCommentRow } from './shared/comment-row';
+import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
+import { findMoreLink } from './shared/pagination';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
   onStory: { title: string; link: string } | null;
@@ -21,7 +21,7 @@ export function parseThreadsPage(doc: Document): ParsedThreadsPage {
 
   const comtrs = Array.from(doc.querySelectorAll<HTMLTableRowElement>('tr.athing.comtr'));
 
-  const { comments: threads } = buildIndentedCommentTree(comtrs, tr => {
+  const { comments: threads } = buildIndentedCommentTree(comtrs, (tr) => {
     const row = parseThreadCommentRow(tr, {
       navLinkMode: 'preserve',
       includeOnStory: true,

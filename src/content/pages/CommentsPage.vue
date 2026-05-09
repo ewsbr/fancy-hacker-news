@@ -1,25 +1,25 @@
 <script setup lang="ts">
+import type { ParsedHeader } from '@/parsers/header';
+import type { CommentNode as ParsedCommentNode, ParsedItemPage } from '@/parsers/item';
+import type { CommentFragmentState } from '@/state/fragment-state';
 import { useEventListener } from '@vueuse/core';
 import { computed, inject, nextTick, onMounted, provide, ref, shallowRef } from 'vue';
-import type { ParsedHeader } from '@/parsers/header';
-import type { ParsedItemPage } from '@/parsers/item';
-import type { CommentNode as ParsedCommentNode } from '@/parsers/item';
-import { createLogger, debugLog } from '@/debug';
-import StoryDetail from '@/content/components/stories/StoryDetail.vue';
-import CommentTree from '@/content/components/comments/CommentTree.vue';
-import CommentForm from '@/content/components/forms/CommentForm.vue';
-import CommentBody from '@/content/components/comments/CommentBody.vue';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
-import Badge from '@/content/components/ui/Badge.vue';
-import FlagButton from '@/content/components/comments/FlagButton.vue';
-import PollOptions from '@/content/components/stories/PollOptions.vue';
-import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
-import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
+import CommentBody from '@/content/components/comments/CommentBody.vue';
+import CommentTree from '@/content/components/comments/CommentTree.vue';
+import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
+import FlagButton from '@/content/components/comments/FlagButton.vue';
+import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
+import CommentForm from '@/content/components/forms/CommentForm.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
+import PollOptions from '@/content/components/stories/PollOptions.vue';
+import StoryDetail from '@/content/components/stories/StoryDetail.vue';
+import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOriginalPosterTitle } from '@/content/utils/comment-badges';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
+import { createLogger, debugLog } from '@/debug';
+import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const commentsLogger = createLogger('comments');
 
@@ -47,7 +47,8 @@ const commentItemOriginalPosterTitle = computed(() => {
 });
 
 const totalCommentCount = computed(() => {
-  if (!pageData) return 0;
+  if (!pageData)
+    return 0;
   return pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
 });
 
@@ -108,10 +109,10 @@ function getMainPageScrollAnchor(target: HTMLElement): HTMLElement {
     ?? target;
 }
 
-type HashTargetMatch = {
+interface HashTargetMatch {
   element: HTMLElement;
   targetId: string;
-};
+}
 
 async function waitForRenderedHashTarget(
   targetIds: string[],
@@ -242,16 +243,15 @@ useEventListener(window, 'hashchange', () => {
 </script>
 
 <template>
-  <div class="comments-page" v-if="pageData">
+  <div v-if="pageData" class="comments-page">
     <div class="comments-page__container hn-content-card">
       <template v-if="pageData.item.type === 'story'">
         <StoryDetail :item="pageData.item" />
         <PollOptions v-if="pageData.pollOptions.length > 0" :options="pageData.pollOptions" />
       </template>
-      
-      <template v-else-if="pageData.item.type === 'comment'">
-        <div class="comments-page__comment-parent" :id="commentItemDomId || undefined">
 
+      <template v-else-if="pageData.item.type === 'comment'">
+        <div :id="commentItemDomId || undefined" class="comments-page__comment-parent">
           <!-- Thread context header -->
           <OnStoryHeader v-if="pageData.item.storyTitle" :block="true" label="thread" :href="pageData.item.storyLink || ''" :title="pageData.item.storyTitle" />
 
@@ -304,7 +304,6 @@ useEventListener(window, 'hashchange', () => {
               />
             </div>
           </div>
-
         </div>
       </template>
 
@@ -327,7 +326,9 @@ useEventListener(window, 'hashchange', () => {
         {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
       </div>
       <CommentTree v-if="totalCommentCount > 0" :comments="pageData.comments" />
-      <div v-else class="comments-page__empty-state">No comments yet.</div>
+      <div v-else class="comments-page__empty-state">
+        No comments yet.
+      </div>
     </div>
   </div>
 </template>

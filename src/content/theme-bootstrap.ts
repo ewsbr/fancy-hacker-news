@@ -1,16 +1,17 @@
+import type { ThemeName } from '@/state/theme-metadata';
 import {
   applyThemeToHost,
   BOOTSTRAP_THEME_DATASET_KEY,
   STORAGE_KEY,
+
   THEMES,
-  type ThemeName,
 } from '@/state/theme-metadata';
 
-type ThemeBootstrapPalette = {
+interface ThemeBootstrapPalette {
   bg: string;
   text: string;
   scheme: 'light' | 'dark';
-};
+}
 
 export const THEME_BOOTSTRAP_PALETTES = Object.freeze(
   Object.fromEntries(

@@ -1,15 +1,15 @@
+import type { CommentPlaceholderKind } from './shared/body';
+import { debugLog, debugMeasure } from '@/debug';
+import { parseAge } from './shared/age';
+import { extractRichTextHtml, parseCommentBody } from './shared/body';
+import { findUnvoteHref, isNewUser } from './shared/comment';
+import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
+import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
 import {
   attrOf,
   hrefOf,
   textOf,
 } from './shared/dom';
-import { debugLog, debugMeasure } from '@/debug';
-import { parseAge } from './shared/age';
-import type { CommentPlaceholderKind } from './shared/body';
-import { extractRichTextHtml, parseCommentBody } from './shared/body';
-import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
-import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
-import { findUnvoteHref, isNewUser } from './shared/comment';
 import { parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
 
@@ -199,7 +199,7 @@ function buildExtremeCommentTree(
   targetId: string | null | undefined,
 ): CommentTreeBuildResult {
   const { slices, maxDepth, collapsedRows } = splitCommentRowsIntoRootSlices(comtrs, targetId);
-  const comments = slices.map(slice => {
+  const comments = slices.map((slice) => {
     if (slice.containsTarget) {
       return parseCommentThreadRows(slice.rows)[0] ?? createRootShell(slice.rows);
     }
@@ -368,7 +368,8 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
     for (const row of pollRows) {
       const id = attrOf(row, 'id') || '';
       const commentTd = row.querySelector('td.comment');
-      if (!commentTd) continue;
+      if (!commentTd)
+        continue;
       const text = commentTd.textContent?.trim() || '';
       const voteUp = hrefOf(row.querySelector('td.votelinks a[href^="vote?"]'));
       const voteUn = findUnvoteHref(row);

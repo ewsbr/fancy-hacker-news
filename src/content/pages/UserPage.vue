@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { inject } from 'vue';
-import { Save, FileText, MessageSquare, Star, ArrowUp, HelpCircle } from 'lucide-vue-next';
-import Tooltip from '@/content/components/ui/Tooltip.vue';
 import type { ParsedUserPage } from '@/parsers/user';
+import { ArrowUp, FileText, HelpCircle, MessageSquare, Save, Star } from 'lucide-vue-next';
+import { inject } from 'vue';
+import Tooltip from '@/content/components/ui/Tooltip.vue';
 
 const user = inject<ParsedUserPage>('pageData')!;
 </script>
@@ -11,7 +11,9 @@ const user = inject<ParsedUserPage>('pageData')!;
   <div class="user-page">
     <header class="user-page__header">
       <div class="user-page__identity">
-        <h1 class="user-page__username">{{ user.username }}</h1>
+        <h1 class="user-page__username">
+          {{ user.username }}
+        </h1>
         <div class="user-page__meta">
           <span>Joined <a :href="user.createdLink" class="user-page__meta-link">{{ user.created }}</a></span>
           <span v-if="user.isOwnProfile" class="user-page__badge">You</span>
@@ -27,9 +29,11 @@ const user = inject<ParsedUserPage>('pageData')!;
       <div class="user-page__main">
         <!-- Edit Form / Display About -->
         <section class="user-page__section">
-          <h2 class="user-page__section-title"><span>about</span></h2>
+          <h2 class="user-page__section-title">
+            <span>about</span>
+          </h2>
           <template v-if="user.isOwnProfile && user.editForm">
-            <textarea name="about" form="profileform" class="user-page__textarea" rows="4">{{ user.about }}</textarea>
+            <textarea v-model="user.about" name="about" form="profileform" class="user-page__textarea" rows="4" />
             <a href="formatdoc" class="user-page__help" target="_blank">Formatting help</a>
           </template>
           <div v-else-if="user.aboutBlocks.length" class="user-page__about">
@@ -44,12 +48,16 @@ const user = inject<ParsedUserPage>('pageData')!;
               </template>
             </p>
           </div>
-          <div v-else class="user-page__empty">No bio provided.</div>
+          <div v-else class="user-page__empty">
+            No bio provided.
+          </div>
         </section>
 
         <!-- Settings -->
-        <section class="user-page__section" v-if="user.isOwnProfile && user.editForm">
-          <h2 class="user-page__section-title"><span>settings</span></h2>
+        <section v-if="user.isOwnProfile && user.editForm" class="user-page__section">
+          <h2 class="user-page__section-title">
+            <span>settings</span>
+          </h2>
           <div class="user-page__settings">
             <div class="user-page__field">
               <span class="user-page__label">
@@ -59,7 +67,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                 </Tooltip>
               </span>
               <div class="user-page__input-col">
-                <input type="text" name="email" form="profileform" :value="user.email" class="user-page__input" />
+                <input type="text" name="email" form="profileform" :value="user.email" class="user-page__input">
                 <a v-if="user.changePwLink" :href="user.changePwLink" class="user-page__pw-link">change password</a>
               </div>
             </div>
@@ -71,8 +79,12 @@ const user = inject<ParsedUserPage>('pageData')!;
                 </Tooltip>
               </span>
               <select name="showd" form="profileform" class="user-page__input" :value="user.preferences?.showDead">
-                <option value="yes">yes</option>
-                <option value="no">no</option>
+                <option value="yes">
+                  yes
+                </option>
+                <option value="no">
+                  no
+                </option>
               </select>
             </div>
             <div class="user-page__field">
@@ -83,8 +95,12 @@ const user = inject<ParsedUserPage>('pageData')!;
                 </Tooltip>
               </span>
               <select name="nopro" form="profileform" class="user-page__input" :value="user.preferences?.noprocrast">
-                <option value="yes">yes</option>
-                <option value="no">no</option>
+                <option value="yes">
+                  yes
+                </option>
+                <option value="no">
+                  no
+                </option>
               </select>
             </div>
             <div class="user-page__field">
@@ -94,7 +110,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="maxv" form="profileform" :value="user.preferences?.maxVisit" class="user-page__input user-page__input--short" />
+              <input type="text" name="maxv" form="profileform" :value="user.preferences?.maxVisit" class="user-page__input user-page__input--short">
             </div>
             <div class="user-page__field">
               <span class="user-page__label">
@@ -103,7 +119,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="mina" form="profileform" :value="user.preferences?.minAway" class="user-page__input user-page__input--short" />
+              <input type="text" name="mina" form="profileform" :value="user.preferences?.minAway" class="user-page__input user-page__input--short">
             </div>
             <div class="user-page__field">
               <span class="user-page__label">
@@ -112,14 +128,14 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="delay" form="profileform" :value="user.preferences?.delay" class="user-page__input user-page__input--short" />
+              <input type="text" name="delay" form="profileform" :value="user.preferences?.delay" class="user-page__input user-page__input--short">
             </div>
           </div>
 
           <div class="user-page__actions">
             <form id="profileform" :action="user.editForm.action" method="post">
-              <input type="hidden" name="id" :value="user.editForm.userId" />
-              <input type="hidden" name="hmac" :value="user.editForm.hmac" />
+              <input type="hidden" name="id" :value="user.editForm.userId">
+              <input type="hidden" name="hmac" :value="user.editForm.hmac">
               <button type="submit" class="user-page__btn">
                 <Save :size="13" class="user-page__btn-icon" />
                 update profile
@@ -132,7 +148,9 @@ const user = inject<ParsedUserPage>('pageData')!;
       <div class="user-page__sidebar">
         <!-- Activity & Nav Links -->
         <section class="user-page__section">
-          <h2 class="user-page__section-title"><span>activity</span></h2>
+          <h2 class="user-page__section-title">
+            <span>activity</span>
+          </h2>
           <div class="user-page__links">
             <a :href="user.submissionsLink" class="user-page__link">
               <FileText :size="14" class="user-page__link-icon" />
@@ -441,7 +459,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all 0.15s ease;
-    
+
     &:hover {
       color: var(--color-text);
       text-decoration-color: currentColor;
@@ -585,7 +603,7 @@ const user = inject<ParsedUserPage>('pageData')!;
     font-size: 0.82rem;
     color: var(--color-text);
     text-decoration: none;
-    
+
     &:hover {
       text-decoration: underline;
       color: var(--color-accent);

@@ -1,7 +1,7 @@
 /**
  * Parse the HN site header (nav links, user info, logout URL).
  */
-import { attrOf, textOf, hrefOf } from './shared/dom';
+import { attrOf, hrefOf, textOf } from './shared/dom';
 
 export interface NavLink {
   label: string;
@@ -98,7 +98,7 @@ export function parseHeader(doc: Document): ParsedHeader {
       const label = textOf(a);
       const href = hrefOf(a) ?? '';
       // Active link matches the `op` attribute on <html>
-      const active = href === currentOp || href.startsWith(currentOp + '?');
+      const active = href === currentOp || href.startsWith(`${currentOp}?`);
       navLinks.push({ label, href, active });
     }
   }

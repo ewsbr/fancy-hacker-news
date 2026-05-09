@@ -1,6 +1,7 @@
-import { defineConfig } from 'vite';
+import { posix, resolve } from 'node:path';
+import process from 'node:process';
 import vue from '@vitejs/plugin-vue';
-import { posix, resolve } from 'path';
+import { defineConfig } from 'vite';
 
 /**
  * Each entry (content script, background) is built as a standalone IIFE so it
@@ -36,10 +37,10 @@ const entries = {
 };
 
 type BuildTarget = keyof typeof entries;
-type RenderBuiltUrlContext = {
+interface RenderBuiltUrlContext {
   hostType: 'js' | 'css' | 'html';
   type: 'asset' | 'public';
-};
+}
 
 const TARGET: BuildTarget = process.env.BUILD_TARGET === 'background'
   ? 'background'

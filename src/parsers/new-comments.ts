@@ -42,11 +42,13 @@ export function parseNewComments(doc: Document): ParsedNewComments {
 
   for (const tr of rows) {
     const id = attrOf(tr, 'id');
-    if (!id) continue;
+    if (!id)
+      continue;
 
     const row = parseThreadCommentRow(tr, { includeOnStory: true });
     const onStory = row.onStory ?? parseStoryContext(tr.querySelector('.comhead'));
-    if (!onStory) continue;
+    if (!onStory)
+      continue;
 
     const comment: FlatComment = {
       id,

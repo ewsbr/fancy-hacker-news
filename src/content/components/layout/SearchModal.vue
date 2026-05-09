@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue';
+import { Search, X } from 'lucide-vue-next';
 import {
   DialogContent,
   DialogOverlay,
@@ -7,7 +7,7 @@ import {
   DialogRoot,
   DialogTitle,
 } from 'reka-ui';
-import { Search, X } from 'lucide-vue-next';
+import { nextTick, ref, watch } from 'vue';
 import Keycap from '@/content/components/ui/Keycap.vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
@@ -24,7 +24,8 @@ const inputRef = ref<HTMLInputElement | null>(null);
 
 function submit() {
   const q = query.value.trim();
-  if (!q) return;
+  if (!q)
+    return;
   window.open(`https://hn.algolia.com/?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
   emit('update:open', false);
 }
@@ -36,7 +37,7 @@ function onOpenAutoFocus(event: Event) {
   });
 }
 
-watch(() => props.open, isOpen => {
+watch(() => props.open, (isOpen) => {
   if (!isOpen) {
     query.value = '';
   }
@@ -53,7 +54,9 @@ watch(() => props.open, isOpen => {
           @click.stop
           @open-auto-focus="onOpenAutoFocus"
         >
-          <DialogTitle class="search-modal__sr-only">Search Hacker News</DialogTitle>
+          <DialogTitle class="search-modal__sr-only">
+            Search Hacker News
+          </DialogTitle>
 
           <form class="search-modal__form" @submit.prevent="submit">
             <Search :size="18" class="search-modal__form-icon" aria-hidden="true" />
@@ -65,7 +68,7 @@ watch(() => props.open, isOpen => {
               placeholder="Search Hacker News…"
               autocomplete="off"
               spellcheck="false"
-            />
+            >
             <button
               v-if="query"
               type="button"

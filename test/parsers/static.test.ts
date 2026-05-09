@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { describe, expect, it } from 'vitest';
 import { parseStaticPage } from '@/parsers/static';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
@@ -11,7 +11,7 @@ describe('static page parser', () => {
     expect(page.contentHtml).toContain('<h1>Hacker News FAQ</h1>');
     expect(page.contentHtml).toContain('<h2 id="flag">What does [flagged] mean?</h2>');
     expect(page.contentHtml).toContain(
-      'Users flagged the post as breaking the <a href="newsguidelines.html">guidelines</a>'
+      'Users flagged the post as breaking the <a href="newsguidelines.html">guidelines</a>',
     );
   });
 
@@ -42,7 +42,7 @@ describe('static page parser', () => {
     expect(page.contentHtml).toContain('<h1>Security</h1>');
     expect(page.contentHtml).toContain('<b>Missing From This List?</b>');
     expect(page.contentHtml).toContain(
-      "If you reported a vulnerability to us and don't see your name,"
+      'If you reported a vulnerability to us and don\'t see your name,',
     );
     expect(page.contentHtml).not.toContain('<h2>Missing From This List?</h2>');
   });

@@ -1,20 +1,19 @@
 <script setup lang="ts">
+import type { CommentRenderableNode } from '@/content/composables/comment-node';
+import { MessageSquare } from 'lucide-vue-next';
 import { toRefs } from 'vue';
+import CommentActions from '@/content/components/comments/CommentActions.vue';
 import {
-  type CommentRenderableNode,
+
   useCommentDisplayContext,
   useCommentFragmentState,
   useCommentThreadUi,
 } from '@/content/composables/comment-node';
-import CommentHeader from './CommentHeader.vue';
-import SubThreadModal from './SubThreadModal.vue';
-import CommentBody from './CommentBody.vue';
-import CommentActions from '@/content/components/comments/CommentActions.vue';
-import OnStoryHeader from './OnStoryHeader.vue';
-import { MessageSquare } from 'lucide-vue-next';
 import { useCommentCollapse } from '@/state/comment-collapse';
-
-const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
+import CommentBody from './CommentBody.vue';
+import CommentHeader from './CommentHeader.vue';
+import OnStoryHeader from './OnStoryHeader.vue';
+import SubThreadModal from './SubThreadModal.vue';
 
 const props = withDefaults(defineProps<{
   node: CommentRenderableNode;
@@ -32,6 +31,8 @@ const props = withDefaults(defineProps<{
   rootVariant: 'default',
   enableMobileSubthreads: true,
 });
+
+const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 
 const {
   depth,
@@ -96,13 +97,13 @@ const {
 
 <template>
   <div
+    :id="node.id"
     class="comment-node"
     :class="[
       rootClassName,
       isCollapsed ? 'comment-node--collapsed' : '',
       isHighlightedForHash ? 'comment-node--highlight' : '',
     ]"
-    :id="node.id"
   >
     <div class="comment-node__content-wrap">
       <div class="comment-node__main">
@@ -161,7 +162,7 @@ const {
       </button>
 
       <div v-else class="comment-node__thread">
-        <button class="comment-node__line" title="Collapse thread" @click="toggleCollapse"></button>
+        <button class="comment-node__line" title="Collapse thread" @click="toggleCollapse" />
         <div class="comment-node__children">
           <CommentNode
             v-for="child in node.children"

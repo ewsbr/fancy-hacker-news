@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
 import { provide, ref } from 'vue';
-import SiteHeader from './SiteHeader.vue';
-import SiteFooter from './SiteFooter.vue';
-import SearchModal from '@/content/components/layout/SearchModal.vue';
 import ScrollToTopButton from '@/content/components/layout/ScrollToTopButton.vue';
+import SearchModal from '@/content/components/layout/SearchModal.vue';
 import { isSearchShortcutEvent } from '@/content/utils/keyboard';
+import SiteFooter from './SiteFooter.vue';
+import SiteHeader from './SiteHeader.vue';
 
 const searchOpen = ref(false);
 

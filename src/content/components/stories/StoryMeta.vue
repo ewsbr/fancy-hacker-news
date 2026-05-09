@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Story } from '@/parsers/story-list';
+import { computed } from 'vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
@@ -11,7 +11,8 @@ const ageLinkHref = computed(
 );
 
 function formatComments(count: number | null): string {
-  if (count === null || count === 0) return 'discuss';
+  if (count === null || count === 0)
+    return 'discuss';
   return `${count} comment${count === 1 ? '' : 's'}`;
 }
 </script>
@@ -19,7 +20,7 @@ function formatComments(count: number | null): string {
 <template>
   <div class="story-meta">
     <template v-if="!story.isJob && story.author !== null">
-      <span class="story-meta__score" v-if="story.score !== null">
+      <span v-if="story.score !== null" class="story-meta__score">
         {{ story.score }} points
       </span>
       <AuthorByline

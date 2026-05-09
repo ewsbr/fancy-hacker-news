@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 
-type CommentHeaderNode = {
+interface CommentHeaderNode {
   id: string;
   collapsedCount: number;
   grayLevel?: string | null;
@@ -24,7 +24,7 @@ type CommentHeaderNode = {
     prev?: string | null;
     next?: string | null;
   };
-};
+}
 
 const props = defineProps<{
   node: CommentHeaderNode;
@@ -54,10 +54,10 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
 
 <template>
   <div class="comment-header">
-    <button 
-      @click="emit('toggle')"
+    <button
       class="comment-header__toggle"
       :class="{ 'comment-header__toggle--collapsed': isCollapsed }"
+      @click="emit('toggle')"
     >
       {{ isCollapsed ? (node.collapsedCount > 0 ? `[+${node.collapsedCount}]` : '[show]') : '[–]' }}
     </button>

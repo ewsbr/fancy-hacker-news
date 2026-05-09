@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { ItemDetail } from '@/parsers/item';
-import RichText from '@/content/components/shared/RichText.vue';
-import Badge from '@/content/components/ui/Badge.vue';
-import VoteButton from '@/content/components/stories/VoteButton.vue';
+import { computed } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
-import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
+import RichText from '@/content/components/shared/RichText.vue';
+import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
+import VoteButton from '@/content/components/stories/VoteButton.vue';
+import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const props = defineProps<{
@@ -25,12 +25,12 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
         <div class="story-detail__vote">
           <VoteButton :href="item.voteUp" :vote-un-href="item.voteUn" :item-id="item.id" :vote-target="item" />
         </div>
-        
+
         <div class="story-detail__content">
           <div class="story-detail__header">
-            <component 
-              :is="item.url ? 'a' : 'span'" 
-              :href="item.url" 
+            <component
+              :is="item.url ? 'a' : 'span'"
+              :href="item.url"
               class="story-detail__title"
               :class="{ 'story-detail__title--dead': item.isDead }"
             >
@@ -44,7 +44,7 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
 
           <div class="story-detail__meta">
             <span v-if="item.score !== null" class="story-detail__score">{{ item.score }} points</span>
-            
+
             <AuthorByline
               prefix="by"
               :author="item.author"

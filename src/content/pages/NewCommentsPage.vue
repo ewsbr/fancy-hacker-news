@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { inject } from 'vue';
-import type { RouteDescriptor } from '@/router';
 import type { ParsedNewComments } from '@/parsers/new-comments';
+import type { RouteDescriptor } from '@/router';
+import { inject } from 'vue';
 import FlatComment from '@/content/components/comments/FlatComment.vue';
-import Pagination from '@/content/components/ui/Pagination.vue';
 import TopNotice from '@/content/components/shared/TopNotice.vue';
 import UserCollectionHeader from '@/content/components/shared/UserCollectionHeader.vue';
+import Pagination from '@/content/components/ui/Pagination.vue';
 import { getCommentListEmptyMessage } from '@/content/utils/empty-states';
 import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 
@@ -31,10 +31,10 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
           :active-kind="activeCollectionKind"
         />
 
-        <FlatComment 
-          v-for="comment in pageData.comments" 
-          :key="comment.id" 
-          :comment="comment" 
+        <FlatComment
+          v-for="comment in pageData.comments"
+          :key="comment.id"
+          :comment="comment"
         />
 
         <div v-if="showFallbackMessage" class="new-comments__empty-copy hn-empty-state">
@@ -58,7 +58,7 @@ const showFallbackMessage = pageData.comments.length === 0 && !collectionIntro?.
   &__card {
     overflow: hidden;
   }
-  
+
   &__list {
     display: flex;
     flex-direction: column;

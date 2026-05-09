@@ -1,5 +1,5 @@
-import { markRaw, reactive } from 'vue';
 import type { CommentNode, ParsedItemPage } from '@/parsers/item';
+import { markRaw, reactive } from 'vue';
 
 function markCommentTreeRaw(nodes: CommentNode[]): CommentNode[] {
   for (const node of nodes) {

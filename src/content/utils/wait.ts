@@ -1,5 +1,5 @@
 export function waitForAnimationFrame() {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     requestAnimationFrame(() => resolve());
   });
 }
@@ -11,7 +11,7 @@ export async function waitForAnimationFrames(count: number) {
 }
 
 export function waitForTimeout(ms: number) {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     window.setTimeout(resolve, ms);
   });
 }

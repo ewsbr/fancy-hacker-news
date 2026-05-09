@@ -1,7 +1,7 @@
-import atkinsonLatinNormalUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import atkinsonLatinItalicUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-italic.woff2?url';
-import manropeLatinUrl from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import atkinsonLatinNormalUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import jetbrainsMonoLatinUrl from '@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url';
+import manropeLatinUrl from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 
 interface ExtensionFontFace {
   family: string;
@@ -46,7 +46,7 @@ const fontFaces: ExtensionFontFace[] = [
 ];
 
 function buildFontFaceCss() {
-  return fontFaces.map(fontFace => {
+  return fontFaces.map((fontFace) => {
     return `@font-face { font-family: "${fontFace.family}"; font-style: ${fontFace.style}; font-display: swap; font-weight: ${fontFace.weight}; src: url("${fontFace.src}") format("woff2-variations"); unicode-range: ${fontFace.unicodeRange}; }`;
   }).join('\n');
 }

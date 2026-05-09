@@ -1,3 +1,5 @@
+import type { ParsedHeader } from '@/parsers/header';
+import type { CommentNode, ParsedItemPage } from '@/parsers/item';
 /**
  * Content script entry point — parse-then-render flow.
  *
@@ -8,6 +10,11 @@
  * 5. Mount Vue app with parsed data via provide/inject
  */
 import { createApp, reactive, ref } from 'vue';
+import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
+import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
+import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
+import { ensureResponsiveViewport } from '@/content/utils/viewport';
+import { waitForAnimationFrame } from '@/content/utils/wait';
 import {
   clearDebugEntries,
   createDebugTimeline,
@@ -15,53 +22,54 @@ import {
   flushDebugSession,
   isDebugMode,
 } from '@/debug';
-import { resolveRoute } from '@/router';
-import { parseHeader, type ParsedHeader } from '@/parsers/header';
+import { parseDeleteConfirmPage } from '@/parsers/delete-confirm';
+import { parseHeader } from '@/parsers/header';
+import { parseItemPage } from '@/parsers/item';
+import { parseLeadersPage } from '@/parsers/leaders';
+import { parseListsPage } from '@/parsers/lists';
 import { parseLoginPage } from '@/parsers/login';
+import { parseNewComments } from '@/parsers/new-comments';
+import { parseReplyPage } from '@/parsers/reply';
 import { parseStaticPage } from '@/parsers/static';
 import { parseStoryList } from '@/parsers/story-list';
-import { parseItemPage, type CommentNode, type ParsedItemPage } from '@/parsers/item';
-import { parseUserPage } from '@/parsers/user';
-import { parseThreadsPage } from '@/parsers/threads';
-import { parseNewComments } from '@/parsers/new-comments';
 import { parseSubmitPage } from '@/parsers/submit';
-import { parseReplyPage } from '@/parsers/reply';
-import { parseLeadersPage } from '@/parsers/leaders';
-import { parseDeleteConfirmPage } from '@/parsers/delete-confirm';
-import { parseListsPage } from '@/parsers/lists';
+import { parseThreadsPage } from '@/parsers/threads';
 import { parseTopColorsPage } from '@/parsers/top-colors';
+import { parseUserPage } from '@/parsers/user';
+import { resolveRoute } from '@/router';
 import { makeItemPageReactive } from '@/state/item-page-state';
 import {
   applyThemeToHost,
   BOOTSTRAP_THEME_DATASET_KEY,
   isThemeName,
 } from '@/state/theme-metadata';
-import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
-import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
-import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
-import { ensureResponsiveViewport } from '@/content/utils/viewport';
-import { waitForAnimationFrame } from '@/content/utils/wait';
 import App from './App.vue';
 import '@/styles/main.scss';
 
 const mainLogger = createLogger('main');
 
 function parsePageData(page: string, doc: Document): unknown {
-  if (page === 'login') return parseLoginPage(doc);
-  if (page === 'stories') return parseStoryList(doc);
+  if (page === 'login')
+    return parseLoginPage(doc);
+  if (page === 'stories')
+    return parseStoryList(doc);
   if (page === 'item') {
     return parseItemPage(doc, {
       initialHashTargetId: location.hash.slice(1) || null,
     });
   }
-  if (page === 'user') return parseUserPage(doc);
-  if (page === 'threads') return parseThreadsPage(doc);
-  if (page === 'newcomments') return parseNewComments(doc);
+  if (page === 'user')
+    return parseUserPage(doc);
+  if (page === 'threads')
+    return parseThreadsPage(doc);
+  if (page === 'newcomments')
+    return parseNewComments(doc);
   if (page === 'favorites' || page === 'upvoted') {
     const isComments = new URLSearchParams(location.search).get('comments') === 't';
     return isComments ? parseNewComments(doc) : parseStoryList(doc);
   }
-  if (page === 'submitted' || page === 'hidden') return parseStoryList(doc);
+  if (page === 'submitted' || page === 'hidden')
+    return parseStoryList(doc);
   if (page === 'submit') {
     const submitPage = parseSubmitPage(doc);
     return submitPage.form ? submitPage : parseLoginPage(doc);
@@ -70,12 +78,18 @@ function parsePageData(page: string, doc: Document): unknown {
     const replyPage = parseReplyPage(doc);
     return replyPage.isLoggedOut ? parseLoginPage(doc) : replyPage;
   }
-  if (page === 'formatdoc') return parseStaticPage(doc);
-  if (page === 'leaders') return parseLeadersPage(doc);
-  if (page === 'delete-confirm') return parseDeleteConfirmPage(doc);
-  if (page === 'lists') return parseListsPage(doc);
-  if (page === 'topcolors') return parseTopColorsPage(doc);
-  if (page === 'notfound') return null;
+  if (page === 'formatdoc')
+    return parseStaticPage(doc);
+  if (page === 'leaders')
+    return parseLeadersPage(doc);
+  if (page === 'delete-confirm')
+    return parseDeleteConfirmPage(doc);
+  if (page === 'lists')
+    return parseListsPage(doc);
+  if (page === 'topcolors')
+    return parseTopColorsPage(doc);
+  if (page === 'notfound')
+    return null;
   if (location.pathname === '/x') {
     const submitPage = parseSubmitPage(doc);
     if (submitPage.form) {
@@ -119,7 +133,8 @@ function applyHeaderColorVariables(host: HTMLElement, header: ParsedHeader) {
     host.style.setProperty('--color-hn-top-bar', header.topBarColor);
     host.style.setProperty('--color-hn-top-bar-contrast', getLogoForegroundColor(header.topBarColor));
     host.setAttribute('data-hn-custom-top-bar', 'true');
-  } else {
+  }
+  else {
     host.style.removeProperty('--color-hn-top-bar');
     host.style.removeProperty('--color-hn-top-bar-contrast');
     host.removeAttribute('data-hn-custom-top-bar');
@@ -202,7 +217,7 @@ async function mountApp() {
     // comment trees, and we do not want breakpoint changes to invalidate that
     // tree reactively after first render.
     const isMobileLayout = window.matchMedia('(max-width: 640px)').matches;
-  
+
     // 1. Parse from original DOM before hiding anything
     const header = timeline.step('parse-header', () => parseHeader(document));
     const route = timeline.step('resolve-route', () => {
@@ -218,7 +233,7 @@ async function mountApp() {
       return resolved;
     });
     const parsedPageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
-  
+
     if (route.page === 'item') {
       timeline.step('prepare-item-hash-state', () => {
         prepareInitialItemHashState(parsedPageData as ParsedItemPage);
@@ -234,7 +249,7 @@ async function mountApp() {
     await timeline.stepAsync('prime-extension-fonts', async () => {
       await primeExtensionFonts();
     });
-  
+
     // 2. Hide original HN content with one rule instead of mutating each body child.
     timeline.step('hide-original-dom', () => {
       hideOriginalStyle = document.createElement('style');
@@ -242,7 +257,7 @@ async function mountApp() {
       hideOriginalStyle.textContent = 'body > :not(#fancy-hn-root) { display: none !important; }';
       document.head.appendChild(hideOriginalStyle);
     });
-  
+
     // 3. Strip HN's source assets so legacy styles and click handlers do not
     // interfere with the extension UI after parse.
     const removedSourceAssetCount = timeline.step('remove-source-assets', () => {
@@ -250,9 +265,9 @@ async function mountApp() {
       sourceNodes.forEach(el => el.remove());
       return sourceNodes.length;
     }, () => ({ headNodeCount: document.head.childElementCount }));
-  
+
     // CSS is now injected by the browser via manifest.json
-  
+
     // Create mount host
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
@@ -262,22 +277,22 @@ async function mountApp() {
       document.body.appendChild(nextHost);
       return nextHost;
     });
-  
+
     const mountPoint = host;
-  
+
     if (route.page === 'item') {
       timeline.step('reset-initial-hash-scroll', () => {
         resetInitialHashScroll();
       });
     }
-  
+
     // 4. Mount Vue app with parsed data
     // renderTime is a reactive ref so it can be updated after the first visible
     // paint. We provide it before mounting so the component tree has a reference
     // to it, then fill it after two animation frames to ensure the browser has
     // had a chance to paint the mounted UI.
     const renderTime = ref(0);
-  
+
     const app = createApp(App);
     app.provide('header', header);
     app.provide('route', route);
@@ -313,7 +328,7 @@ async function mountApp() {
 
       const firstContentPaintMs = Math.round(performance.now() - t0);
       renderTime.value = firstContentPaintMs;
-  
+
       if (isDebugMode()) {
         const itemSummary = route.page === 'item'
           ? (() => {
@@ -323,7 +338,8 @@ async function mountApp() {
               const stack = [...itemPage.comments];
               while (stack.length > 0) {
                 const node = stack.pop();
-                if (!node) continue;
+                if (!node)
+                  continue;
                 commentCount += 1;
                 maxDepth = Math.max(maxDepth, node.indent);
                 stack.push(...node.children);
@@ -335,7 +351,7 @@ async function mountApp() {
               };
             })()
           : {};
-  
+
         timeline.log('mode', {
           enabledBy: new URLSearchParams(location.search).get('debug') === '1' ? 'query' : 'off',
         });
@@ -349,14 +365,15 @@ async function mountApp() {
           ...itemSummary,
         });
       }
-  
+
       window.setTimeout(() => {
         timeline.step('cleanup-original-body', () => {
           cleanupOriginalBody(host);
         }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
       }, 0);
     })();
-  } catch (e) {
+  }
+  catch (e) {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.
     mainLogger.error('Failed to render', e);

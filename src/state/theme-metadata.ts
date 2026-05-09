@@ -1,7 +1,7 @@
 export type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
 export type ThemeScheme = 'light' | 'dark';
 
-export type ThemeMetadata = {
+export interface ThemeMetadata {
   name: ThemeName;
   label: string;
   scheme: ThemeScheme;
@@ -9,13 +9,13 @@ export type ThemeMetadata = {
   surface: string;
   text: string;
   accent: string;
-};
+}
 
-type ThemeConfig = {
+interface ThemeConfig {
   storageKey: string;
   bootstrapDatasetKey: string;
   themes: ThemeMetadata[];
-};
+}
 
 const themeConfig = {
   storageKey: 'fancy-hn-theme',

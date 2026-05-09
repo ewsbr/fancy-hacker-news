@@ -1,17 +1,19 @@
+import type { Ref } from 'vue';
+import type { ThemeName } from './theme-metadata';
 /**
  * useTheme composable — manages theme preference (light/dark/nord/amoled).
  *
  * Reads from chrome.storage.local, falls back to system preference,
  * and sets `data-theme` on the root host element.
  */
-import { ref, watch, type Ref } from 'vue';
+import { ref, watch } from 'vue';
 import {
   applyThemeToRootHost,
   BOOTSTRAP_THEME_DATASET_KEY,
   isThemeName,
   STORAGE_KEY,
   THEME_NAMES,
-  type ThemeName,
+
 } from './theme-metadata';
 
 let _shared: ReturnType<typeof createTheme> | null = null;
@@ -42,7 +44,8 @@ function createTheme() {
         theme.value = stored;
       }
     });
-  } catch {
+  }
+  catch {
     // chrome.storage may not be available in dev
   }
 
@@ -50,7 +53,8 @@ function createTheme() {
     applyToHost(val);
     try {
       chrome.storage.local.set({ [STORAGE_KEY]: val });
-    } catch {
+    }
+    catch {
       // ignore
     }
   }, { immediate: true });
@@ -72,7 +76,8 @@ export function useTheme(): {
   setTheme: (name: ThemeName) => void;
   cycleTheme: () => void;
 } {
-  if (!_shared) _shared = createTheme();
+  if (!_shared)
+    _shared = createTheme();
 
   return _shared;
 }

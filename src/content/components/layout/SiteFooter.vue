@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { inject, ref, type Ref } from 'vue';
-import YLogo from '@/assets/ycombinator.svg';
-import SearchTrigger from '@/content/components/layout/SearchTrigger.vue';
+import type { Ref } from 'vue';
 import {
   Clock,
-  Twitter,
   Facebook,
   Instagram,
   Linkedin,
+  Twitter,
   Youtube,
 } from 'lucide-vue-next';
+import { inject, ref } from 'vue';
+import YLogo from '@/assets/ycombinator.svg';
+import SearchTrigger from '@/content/components/layout/SearchTrigger.vue';
 
 const renderTime = inject<Ref<number>>('renderTime', ref(0));
 
@@ -68,8 +69,10 @@ const socialLinks = [
       <div class="site-footer__top">
         <div class="site-footer__brand">
           <div class="site-footer__logo">
-            <img :src="YLogo" width="40" height="40" alt="Y Combinator Logo" />
-            <h3 class="site-footer__tagline">Make something people want.</h3>
+            <img :src="YLogo" width="40" height="40" alt="Y Combinator Logo">
+            <h3 class="site-footer__tagline">
+              Make something people want.
+            </h3>
           </div>
         </div>
 
@@ -80,7 +83,9 @@ const socialLinks = [
               :key="column.title"
               class="site-footer__column"
             >
-              <h4 class="site-footer__column-title">{{ column.title }}</h4>
+              <h4 class="site-footer__column-title">
+                {{ column.title }}
+              </h4>
               <ul class="site-footer__link-list">
                 <li v-for="link in column.links" :key="link.text">
                   <a
@@ -96,7 +101,7 @@ const socialLinks = [
         </div>
       </div>
 
-      <div class="site-footer__divider"></div>
+      <div class="site-footer__divider" />
 
       <div class="site-footer__disclaimer">
         <p>Hacker News and the YC brand are property of Y Combinator.</p>

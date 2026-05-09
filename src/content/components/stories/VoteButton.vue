@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Triangle } from 'lucide-vue-next';
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
+import { Triangle } from 'lucide-vue-next';
+import { computed } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{

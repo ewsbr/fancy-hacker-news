@@ -1,6 +1,6 @@
 <div align='center'>
 
-<img src="src/assets/logo-dark.svg" width="128" height="128" />
+<img src="src/assets/logo-dark.svg" width="128" height="128" alt="Fancy Hacker News Logo" />
 
 <h1>Fancy Hacker News</h1>
 

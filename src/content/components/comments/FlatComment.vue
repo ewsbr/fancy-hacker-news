@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { FlatComment as FlatCommentType } from '@/parsers/new-comments';
-import CommentBody from './CommentBody.vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
-import MetaSep from '@/content/components/ui/MetaSep.vue';
-import OnStoryHeader from './OnStoryHeader.vue';
 import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
+import CommentBody from './CommentBody.vue';
+import OnStoryHeader from './OnStoryHeader.vue';
 
 defineProps<{
   comment: FlatCommentType;
@@ -13,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flat-comment" :id="comment.id">
+  <div :id="comment.id" class="flat-comment">
     <div class="flat-comment__header">
       <div class="flat-comment__meta">
         <CommentUserMeta
@@ -35,7 +35,7 @@ defineProps<{
         <FragmentLinkButton :target-id="comment.id" />
       </div>
     </div>
-    
+
     <div class="flat-comment__body">
       <CommentBody
         :html="comment.bodyHtml"
@@ -43,7 +43,7 @@ defineProps<{
         :placeholder-kind="comment.placeholderKind"
       />
     </div>
-    
+
     <CommentActions
       :item-id="comment.id"
       :vote-up="comment.voteUp"
@@ -63,7 +63,7 @@ defineProps<{
   &:first-child {
     border-top: 0;
   }
-  
+
   &__header {
     display: flex;
     align-items: center;
@@ -88,7 +88,7 @@ defineProps<{
     min-width: 0;
     flex: 1 1 auto;
   }
-  
+
   &__body {
     margin-left: 0;
   }

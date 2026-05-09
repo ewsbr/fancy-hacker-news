@@ -1,11 +1,11 @@
-import { parseAge } from './age';
 import type { CommentPlaceholderKind } from './body';
-import { parseCommentBody } from './body';
-import { attrOf, hrefOf, textOf } from './dom';
-import { findUnvoteHref, isNewUser, parseGrayLevel } from './comment';
-import { parseScore } from './score';
 import { assert } from '@/utils/assert';
 import { parseInteger } from '@/utils/number';
+import { parseAge } from './age';
+import { parseCommentBody } from './body';
+import { findUnvoteHref, isNewUser, parseGrayLevel } from './comment';
+import { attrOf, hrefOf, textOf } from './dom';
+import { parseScore } from './score';
 
 export interface ParsedCommentNavLinks {
   root: string | null;
@@ -185,13 +185,15 @@ export function parseThreadCommentRow(
     editUrl: actions.editUrl,
     deleteUrl: actions.deleteUrl,
     replyLink: actions.replyLink,
-    navLinks: navs ? {
-      root: normalizeNavHref(findNavLink(navs, 'root'), navLinkMode),
-      parent: normalizeNavHref(findNavLink(navs, 'parent'), navLinkMode),
-      prev: normalizeNavHref(findNavLink(navs, 'prev'), navLinkMode),
-      next: normalizeNavHref(findNavLink(navs, 'next'), navLinkMode),
-      context: normalizeNavHref(findNavLink(navs, 'context'), navLinkMode),
-    } : { ...EMPTY_NAV_LINKS },
+    navLinks: navs
+      ? {
+          root: normalizeNavHref(findNavLink(navs, 'root'), navLinkMode),
+          parent: normalizeNavHref(findNavLink(navs, 'parent'), navLinkMode),
+          prev: normalizeNavHref(findNavLink(navs, 'prev'), navLinkMode),
+          next: normalizeNavHref(findNavLink(navs, 'next'), navLinkMode),
+          context: normalizeNavHref(findNavLink(navs, 'context'), navLinkMode),
+        }
+      : { ...EMPTY_NAV_LINKS },
     onStory: options.includeOnStory ? parseStoryContext(comhead) : null,
   };
 }

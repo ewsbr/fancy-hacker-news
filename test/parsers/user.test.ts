@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { describe, expect, it } from 'vitest';
 import { parseUserPage } from '@/parsers/user';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 

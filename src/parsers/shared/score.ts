@@ -4,9 +4,11 @@ export function parseScore(text: string | null | undefined): number | null {
 }
 
 export function parseCommentCount(text: string | null | undefined): number | null {
-  if (!text) return null;
+  if (!text)
+    return null;
   const trimmedText = text.trim();
-  if (trimmedText === 'discuss') return 0;
+  if (trimmedText === 'discuss')
+    return 0;
   const match = trimmedText.match(/(\d+)\s+comments?/);
   return match ? Number(match[1]) : null;
 }

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
 import type { ParsedStaticPage } from '@/parsers/static';
+import { computed, inject } from 'vue';
 
 const page = inject<ParsedStaticPage>('pageData')!;
 
 const contentHtml = computed(() =>
   (page.contentHtml ?? '')
     .replace(/<br\s*\/?>/gi, '')
-    .replace(/<p[^>]*>\s*<\/p>/gi, '')
+    .replace(/<p[^>]*>\s*<\/p>/gi, ''),
 );
 
 interface FormatExample {
@@ -55,7 +55,9 @@ const examples: FormatExample[] = [
   <div class="formatdoc-page">
     <div class="formatdoc-page__card hn-content-card">
       <section class="formatdoc-page__rules">
-        <h1 class="formatdoc-page__title">Formatting Options</h1>
+        <h1 class="formatdoc-page__title">
+          Formatting Options
+        </h1>
         <div
           v-if="page.contentHtml"
           class="formatdoc-page__prose"
@@ -64,7 +66,9 @@ const examples: FormatExample[] = [
       </section>
 
       <section class="formatdoc-page__examples">
-        <h2 class="formatdoc-page__section-title">Examples</h2>
+        <h2 class="formatdoc-page__section-title">
+          Examples
+        </h2>
 
         <div
           v-for="ex in examples"
@@ -77,11 +81,15 @@ const examples: FormatExample[] = [
           </div>
           <div class="format-example__grid">
             <div class="format-example__pane">
-              <div class="format-example__label">You type</div>
+              <div class="format-example__label">
+                You type
+              </div>
               <pre class="format-example__source">{{ ex.input }}</pre>
             </div>
             <div class="format-example__pane">
-              <div class="format-example__label">Looks like</div>
+              <div class="format-example__label">
+                Looks like
+              </div>
               <!-- eslint-disable-next-line vue/no-v-html -->
               <div class="format-example__preview" v-html="ex.renderedHtml" />
             </div>

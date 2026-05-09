@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
+import { computed } from 'vue';
 import CommentNode from './CommentNode.vue';
 import LazyCommentRoot from './LazyCommentRoot.vue';
 import ThreadNode from './ThreadNode.vue';

@@ -24,8 +24,12 @@ const entries = [
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">lists page</p>
-      <h2 class="concept-app__section-title">Five directions based on the current lists page</h2>
+      <p class="concept-app__section-eyebrow">
+        lists page
+      </p>
+      <h2 class="concept-app__section-title">
+        Five directions based on the current lists page
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       These stay close to the current lists utility page: compact rows, simple separators, accent links, and a restrained card shell.
@@ -34,25 +38,31 @@ const entries = [
 
   <section class="lists-concepts">
     <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 1" title="Current grid, monospace link, muted description">
-      <p class="lists-variant__title">Lists</p>
+      <p class="lists-variant__title">
+        Lists
+      </p>
       <div class="lists-card">
         <div class="v1-grid">
           <template v-for="entry in entries" :key="`v1-${entry.name}`">
             <a class="v1-name" :href="entry.href">{{ entry.name }}</a>
-            <div class="v1-desc lists-desc" v-html="entry.desc"></div>
+            <div class="v1-desc lists-desc" v-html="entry.desc" />
           </template>
         </div>
       </div>
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 2" title="Compact table, alternating rows, hard column split">
-      <p class="lists-variant__title">Lists</p>
+      <p class="lists-variant__title">
+        Lists
+      </p>
       <div class="lists-card">
         <table class="v2-table">
           <tbody>
             <tr v-for="entry in entries" :key="`v2-${entry.name}`">
-              <td class="v2-name-cell"><a :href="entry.href">{{ entry.name }}</a></td>
-              <td class="v2-desc-cell lists-desc" v-html="entry.desc"></td>
+              <td class="v2-name-cell">
+                <a :href="entry.href">{{ entry.name }}</a>
+              </td>
+              <td class="v2-desc-cell lists-desc" v-html="entry.desc" />
             </tr>
           </tbody>
         </table>
@@ -60,38 +70,46 @@ const entries = [
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 3" title="Fixed name rail, sans-serif emphasis">
-      <p class="lists-variant__title">Lists</p>
+      <p class="lists-variant__title">
+        Lists
+      </p>
       <div class="lists-card">
         <div class="v3-grid">
           <template v-for="entry in entries" :key="`v3-${entry.name}`">
-            <div class="v3-name"><a :href="entry.href">{{ entry.name }}</a></div>
-            <div class="v3-desc lists-desc" v-html="entry.desc"></div>
+            <div class="v3-name">
+              <a :href="entry.href">{{ entry.name }}</a>
+            </div>
+            <div class="v3-desc lists-desc" v-html="entry.desc" />
           </template>
         </div>
       </div>
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 4" title="Hover rows, name plus separator plus description">
-      <p class="lists-variant__title">Lists</p>
+      <p class="lists-variant__title">
+        Lists
+      </p>
       <div class="lists-card">
         <div class="v4-list">
           <div v-for="entry in entries" :key="`v4-${entry.name}`" class="v4-row">
             <a class="v4-name" :href="entry.href">{{ entry.name }}</a>
             <span class="v4-sep">&mdash;</span>
-            <span class="v4-desc lists-desc" v-html="entry.desc"></span>
+            <span class="v4-desc lists-desc" v-html="entry.desc" />
           </div>
         </div>
       </div>
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="lists-variant" eyebrow="Variant 5" title="Flat inline rows with no dividers">
-      <p class="lists-variant__title">Lists</p>
+      <p class="lists-variant__title">
+        Lists
+      </p>
       <div class="lists-card">
         <div class="v5-list">
           <div v-for="entry in entries" :key="`v5-${entry.name}`" class="v5-row">
             <a class="v5-name" :href="entry.href">{{ entry.name }}</a>
             <span class="v5-dash">&mdash;</span>
-            <span class="v5-desc lists-desc" v-html="entry.desc"></span>
+            <span class="v5-desc lists-desc" v-html="entry.desc" />
           </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <div v-if="href" :class="['pagination', { 'pagination--attached': attached }]">
+  <div v-if="href" class="pagination" :class="[{ 'pagination--attached': attached }]">
     <a :href="href" class="pagination__more" rel="next" aria-label="More, next page">More</a>
   </div>
 </template>

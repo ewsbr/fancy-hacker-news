@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { inject } from 'vue';
 import type { ParsedThreadsPage } from '@/parsers/threads';
+import { inject } from 'vue';
 import CommentTree from '@/content/components/comments/CommentTree.vue';
 import Pagination from '@/content/components/ui/Pagination.vue';
 import { getThreadsEmptyMessage } from '@/content/utils/empty-states';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
-import { onMounted, ref, shallowRef } from 'vue';
 import { ArrowBigUpDash } from 'lucide-vue-next';
+import { onMounted, ref, shallowRef } from 'vue';
 
 const isVisible = ref(false);
 const SHOW_AFTER_SCROLL_TOP = 280;

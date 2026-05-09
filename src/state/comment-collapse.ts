@@ -1,10 +1,11 @@
-import { computed, ref, type Ref } from 'vue';
+import type { Ref } from 'vue';
+import { computed, ref } from 'vue';
 
-type CommentCollapseOptions = {
+interface CommentCollapseOptions {
   initialCollapsed: boolean;
   forceExpanded: Ref<boolean>;
   hashNavigationVersion: Ref<number>;
-};
+}
 
 export function useCommentCollapse({
   initialCollapsed,

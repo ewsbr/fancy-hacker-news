@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject, ref, computed } from 'vue';
-import { ArrowRight, UserPlus, HelpCircle, ArrowLeft } from 'lucide-vue-next';
 import type { ParsedLoginPage } from '@/parsers/login';
+import { ArrowLeft, ArrowRight, HelpCircle, UserPlus } from 'lucide-vue-next';
+import { computed, inject, ref } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
 
@@ -10,32 +10,37 @@ const page = inject<ParsedLoginPage>('pageData')!;
 const isLogin = ref(true);
 const isStandardLoginExperience = computed(() => page.variant !== 'forgot' && page.variant !== 'changepw');
 
-const loginForm = computed(() => 
-  page.forms.find(f => f.submitLabel.toLowerCase().includes('login')) || page.forms[0]
+const loginForm = computed(() =>
+  page.forms.find(f => f.submitLabel.toLowerCase().includes('login')) || page.forms[0],
 );
 
-const registerForm = computed(() => 
-  page.forms.find(f => f.submitLabel.toLowerCase().includes('create'))
+const registerForm = computed(() =>
+  page.forms.find(f => f.submitLabel.toLowerCase().includes('create')),
 );
 
 const currentForm = computed(() => {
-  if (!isStandardLoginExperience.value) return page.forms[0];
+  if (!isStandardLoginExperience.value)
+    return page.forms[0];
   return isLogin.value ? loginForm.value : (registerForm.value || loginForm.value);
 });
 
 const canToggle = computed(() => isStandardLoginExperience.value && registerForm.value);
 
 const title = computed(() => {
-  if (page.variant === 'forgot') return 'Reset Password';
-  if (page.variant === 'changepw') return 'Change Password';
+  if (page.variant === 'forgot')
+    return 'Reset Password';
+  if (page.variant === 'changepw')
+    return 'Change Password';
   return isLogin.value ? 'Welcome back' : 'Create an account';
 });
 
 const subheader = computed(() => {
-  if (page.variant === 'forgot') return 'Reset your password to continue';
-  if (page.variant === 'changepw') return 'Update your password to continue';
-  return isLogin.value 
-    ? 'Sign in to your account to continue' 
+  if (page.variant === 'forgot')
+    return 'Reset your password to continue';
+  if (page.variant === 'changepw')
+    return 'Update your password to continue';
+  return isLogin.value
+    ? 'Sign in to your account to continue'
     : 'Join the Hacker News community';
 });
 
@@ -49,8 +54,10 @@ const submitLabel = computed(() => {
 
 function getPlaceholder(label: string) {
   const l = label.toLowerCase();
-  if (l.includes('username')) return 'Your HN username';
-  if (l.includes('password')) return '••••••••';
+  if (l.includes('username'))
+    return 'Your HN username';
+  if (l.includes('password'))
+    return '••••••••';
   return '';
 }
 </script>
@@ -61,10 +68,14 @@ function getPlaceholder(label: string) {
       <!-- Header Section -->
       <header class="login-header">
         <div class="login-logo">
-          <img :src="YLogo" class="login-logo__img" alt="Y Combinator Logo" />
+          <img :src="YLogo" class="login-logo__img" alt="Y Combinator Logo">
         </div>
-        <h1 class="login-header__title">{{ title }}</h1>
-        <p class="login-header__subheader">{{ subheader }}</p>
+        <h1 class="login-header__title">
+          {{ title }}
+        </h1>
+        <p class="login-header__subheader">
+          {{ subheader }}
+        </p>
       </header>
 
       <!-- Form Card -->
@@ -74,10 +85,10 @@ function getPlaceholder(label: string) {
         <div v-if="!currentForm" class="login-card__empty">
           No authentication forms found.
         </div>
-        
-        <form 
+
+        <form
           v-else
-          :action="currentForm.action" 
+          :action="currentForm.action"
           :method="currentForm.method"
           class="login-form"
         >
@@ -88,18 +99,18 @@ function getPlaceholder(label: string) {
             type="hidden"
             :name="f.name"
             :value="f.value"
-          />
+          >
 
           <div class="login-form__fields">
-            <div 
-              v-for="field in currentForm.visibleFields" 
-              :key="field.name" 
+            <div
+              v-for="field in currentForm.visibleFields"
+              :key="field.name"
               class="login-form__field"
             >
               <label :for="field.name" class="login-form__label">{{ field.label }}</label>
-              <input 
+              <input
                 :id="field.name"
-                :type="field.type" 
+                :type="field.type"
                 :name="field.name"
                 :defaultValue="field.value"
                 class="login-form__input"
@@ -107,7 +118,7 @@ function getPlaceholder(label: string) {
                 :autofocus="field.type === 'text' || field.name === 's'"
                 autocomplete="on"
                 required
-              />
+              >
             </div>
           </div>
 
@@ -121,8 +132,8 @@ function getPlaceholder(label: string) {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             class="login-form__submit"
           >
             <UserPlus v-if="isStandardLoginExperience && !isLogin" :size="16" />
@@ -138,15 +149,15 @@ function getPlaceholder(label: string) {
           <span class="login-footer__text">
             {{ isLogin ? "Don't have an account? " : "Already have an account? " }}
           </span>
-          <button 
+          <button
             type="button"
-            @click="isLogin = !isLogin"
             class="login-footer__btn"
+            @click="isLogin = !isLogin"
           >
             {{ isLogin ? 'Sign up' : 'Sign in' }}
           </button>
         </template>
-        
+
         <template v-else-if="page.variant === 'forgot'">
           <a href="/login" class="login-footer__btn login-footer__btn--back">
             <ArrowLeft :size="14" />

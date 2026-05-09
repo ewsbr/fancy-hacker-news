@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue';
+import type { Story } from '@/parsers/story-list';
 import type { ParsedSubmitPage } from '@/parsers/submit';
+import { computed, inject, ref } from 'vue';
 import SubmitForm from '@/content/components/forms/SubmitForm.vue';
 import StoryRow from '@/content/components/stories/StoryRow.vue';
 import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
-import type { Story } from '@/parsers/story-list';
 
 const SUBMIT_PLACEHOLDERS = [
   {
     author: 'zerochurn',
     score: 182,
-    title: 'YC founders pivot after learning users prefer products that work',
+    title: 'YC founders pivot after learning users prefer working software',
     text: null,
-    url: 'https://medium.com/@reliablemoat/users-prefer-products-that-work-9f41c5e2b7da',
+    url: 'https://medium.com/@reliablemoat/users-prefer-working-software-9f41c5e2b7da',
   },
   {
     author: 'either_or',
@@ -24,23 +24,23 @@ const SUBMIT_PLACEHOLDERS = [
   {
     author: 'warmstandby',
     score: 389,
-    title: 'Agent startup adds human fallback, accidentally ships customer support team',
+    title: 'Agent startup adds human fallback, ships customer support team',
     text: 'Seems like a pattern worth naming: "human fallback" as an architectural term implies the human handles edge cases. But once you\'re routing >40% of tickets there, you\'ve just built a support team with extra steps. Curious if anyone has deployed something similar and where you actually drew that line.',
     url: 'https://techcrunch.com/2026/03/11/agent-startup-human-fallback-customer-support-team/',
   },
   {
     author: 'persistent_volume',
     score: 127,
-    title: 'Show HN: A static markdown blog powered by an 8-node Kubernetes cluster',
+    title: 'Show HN: A static markdown blog backed by an 8-node Kubernetes cluster',
     text: null,
     url: 'https://github.com/ops-heavy/clusterpress',
   },
   {
     author: 'dunned',
     score: -6,
-    title: 'The mathematical inefficiency of the space bar',
+    title: 'The geometric inefficiency of the space bar',
     text: null,
-    url: 'https://blog.hendricks.dev/posts/the-mathematical-inefficiency-of-the-space-bar/',
+    url: 'https://blog.hendricks.dev/posts/the-geometric-inefficiency-of-the-space-bar/',
   },
   {
     author: 'barksdale',
@@ -52,7 +52,7 @@ const SUBMIT_PLACEHOLDERS = [
   {
     author: 'coldharbor',
     score: 301,
-    title: 'The Severance MDR Floor is the only agile team that actually ships',
+    title: 'The Severance MDR floor is the only agile team that actually ships',
     text: null,
     url: 'https://www.vulture.com/article/severance-mdr-floor-agile-team.html',
   },
@@ -70,6 +70,13 @@ const SUBMIT_PLACEHOLDERS = [
     text: null,
     url: 'https://github.com/draftfirst/slacklock',
   },
+  {
+    author: 'optimistic_lock',
+    score: 402,
+    title: 'DynamoDB introduces eventual pricing',
+    text: null,
+    url: 'https://www.theregister.com/2026/02/19/dynamodb_billing/',
+  }
 ] as const;
 
 const pageData = inject<ParsedSubmitPage>('pageData')!;
@@ -93,7 +100,8 @@ function toSite(value: string): string | null {
   try {
     const hostname = new URL(value).hostname.replace(/^www\./, '');
     return hostname || null;
-  } catch {
+  }
+  catch {
     return null;
   }
 }
@@ -126,13 +134,16 @@ const previewStory = computed<Story>(() => ({
   <div class="submit-page">
     <template v-if="pageData.form">
       <section class="submit-page__stack">
-        <p class="submit-page__section-label">Submit</p>
+        <p class="submit-page__section-label">
+          Submit
+        </p>
 
         <header class="submit-page__header">
-          <h1 class="submit-page__title">Submit a link or start a discussion</h1>
+          <h1 class="submit-page__title">
+            Submit a link or start a discussion
+          </h1>
           <p class="submit-page__lede">
-            Keep the form compact and let the content do the work. Use the URL field for link posts,
-            leave it blank for discussion posts, and add text only when context helps the thread.
+            Share something that gratifies intellectual curiosity. Prefer original sources, plain titles, and posts that are not mainly promotional. Avoid politics.
           </p>
 
           <div class="submit-page__utility-links">
@@ -245,7 +256,7 @@ const previewStory = computed<Story>(() => ({
   }
 
   &__lede {
-    font-size: 0.84rem;
+    font-size: 0.9rem;
     line-height: 1.55;
     color: var(--color-text-muted);
   }

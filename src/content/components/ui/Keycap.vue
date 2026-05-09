@@ -20,7 +20,7 @@ const renderedLabel = computed(() => {
     parts.unshift(isMac ? '⌘' : 'Ctrl');
   }
 
-  return parts.join('\u00a0');
+  return parts.join('\u00A0');
 });
 </script>
 

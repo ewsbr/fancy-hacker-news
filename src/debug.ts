@@ -1,20 +1,21 @@
+/* eslint-disable no-console */
 type DebugDetails = Record<string, unknown>;
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface Logger {
-  debug(message: string, details?: unknown): void;
-  info(message: string, details?: unknown): void;
-  warn(message: string, details?: unknown): void;
-  error(message: string, details?: unknown): void;
-  groupCollapsed(message: string, details?: unknown): void;
-  groupEnd(): void;
-  table(rows: readonly unknown[]): void;
+  debug: (message: string, details?: unknown) => void;
+  info: (message: string, details?: unknown) => void;
+  warn: (message: string, details?: unknown) => void;
+  error: (message: string, details?: unknown) => void;
+  groupCollapsed: (message: string, details?: unknown) => void;
+  groupEnd: () => void;
+  table: (rows: readonly unknown[]) => void;
 }
 
 interface DebugTimeline {
-  step<T>(label: string, fn: () => T, details?: () => DebugDetails): T;
-  stepAsync<T>(label: string, fn: () => Promise<T>, details?: () => DebugDetails): Promise<T>;
-  log(label: string, details?: DebugDetails): void;
+  step: <T>(label: string, fn: () => T, details?: () => DebugDetails) => T;
+  stepAsync: <T>(label: string, fn: () => Promise<T>, details?: () => DebugDetails) => Promise<T>;
+  log: (label: string, details?: DebugDetails) => void;
 }
 
 interface DebugEntry {
@@ -150,7 +151,8 @@ export function isDebugMode(): boolean {
   try {
     const search = new URLSearchParams(location.search);
     return search.get(DEBUG_SEARCH_PARAM) === '1';
-  } catch {
+  }
+  catch {
     return false;
   }
 }
@@ -193,7 +195,7 @@ function ensureDebugPerformanceObservers() {
   const observers: PerformanceObserver[] = [];
   for (const entryType of entryTypes) {
     try {
-      const observer = new PerformanceObserver(list => {
+      const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           observedPerformanceEntries().push({
             entryType: entry.entryType,
@@ -206,7 +208,8 @@ function ensureDebugPerformanceObservers() {
 
       observer.observe({ type: entryType, buffered: true } as PerformanceObserverInit);
       observers.push(observer);
-    } catch {
+    }
+    catch {
       continue;
     }
   }
@@ -251,7 +254,8 @@ function recordUserTiming<T>(label: string, fn: () => T): T {
 
   try {
     return fn();
-  } finally {
+  }
+  finally {
     performance.mark(endMark);
     performance.measure(measureName(label), startMark, endMark);
   }
@@ -266,7 +270,8 @@ async function recordUserTimingAsync<T>(label: string, fn: () => Promise<T>): Pr
 
   try {
     return await fn();
-  } finally {
+  }
+  finally {
     performance.mark(endMark);
     performance.measure(measureName(label), startMark, endMark);
   }

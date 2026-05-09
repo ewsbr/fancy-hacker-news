@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { inject } from 'vue';
 import type { RouteDescriptor } from '@/router';
+import { inject } from 'vue';
 import SearchTrigger from '@/content/components/layout/SearchTrigger.vue';
 
 const route = inject<RouteDescriptor>('route')!;
@@ -12,12 +12,13 @@ const responseDate = new Date().toUTCString();
 
 <template>
   <div class="nf-page">
-
     <!-- 404 heading -->
     <div class="nf-heading">
       <span class="nf-heading__code" aria-hidden="true">404</span>
       <div class="nf-heading__meta">
-        <p class="nf-heading__title">Page not found</p>
+        <p class="nf-heading__title">
+          Page not found
+        </p>
         <p class="nf-heading__sub">
           <code>{{ requestedPath }}</code> doesn't exist on Hacker News.
         </p>
@@ -27,9 +28,9 @@ const responseDate = new Date().toUTCString();
     <!-- Terminal -->
     <div class="nf-terminal">
       <div class="nf-terminal__bar" aria-hidden="true">
-        <span class="nf-terminal__dot nf-terminal__dot--red"></span>
-        <span class="nf-terminal__dot nf-terminal__dot--yellow"></span>
-        <span class="nf-terminal__dot nf-terminal__dot--green"></span>
+        <span class="nf-terminal__dot nf-terminal__dot--red" />
+        <span class="nf-terminal__dot nf-terminal__dot--yellow" />
+        <span class="nf-terminal__dot nf-terminal__dot--green" />
         <span class="nf-terminal__bar-title">bash</span>
       </div>
 
@@ -38,17 +39,33 @@ const responseDate = new Date().toUTCString();
           <span class="nf-terminal__prompt" aria-hidden="true">$ </span>
           <span class="nf-terminal__cmd">curl -si "{{ requestedUrl }}"</span>
         </p>
-        <p class="nf-terminal__line nf-terminal__line--status">HTTP/2 404 </p>
-        <p class="nf-terminal__line nf-terminal__line--header"><span class="nf-terminal__hkey">server:</span> nginx</p>
-        <p class="nf-terminal__line nf-terminal__line--header"><span class="nf-terminal__hkey">date:</span> {{ responseDate }}</p>
-        <p class="nf-terminal__line nf-terminal__line--header"><span class="nf-terminal__hkey">content-type:</span> text/plain; charset=utf-8</p>
-        <p class="nf-terminal__line nf-terminal__line--header"><span class="nf-terminal__hkey">vary:</span> Accept-Encoding</p>
+        <p class="nf-terminal__line nf-terminal__line--status">
+          HTTP/2 404
+        </p>
+        <p class="nf-terminal__line nf-terminal__line--header">
+          <span class="nf-terminal__hkey">server:</span> nginx
+        </p>
+        <p class="nf-terminal__line nf-terminal__line--header">
+          <span class="nf-terminal__hkey">date:</span> {{ responseDate }}
+        </p>
+        <p class="nf-terminal__line nf-terminal__line--header">
+          <span class="nf-terminal__hkey">content-type:</span> text/plain; charset=utf-8
+        </p>
+        <p class="nf-terminal__line nf-terminal__line--header">
+          <span class="nf-terminal__hkey">vary:</span> Accept-Encoding
+        </p>
 
-        <p class="nf-terminal__blank" aria-hidden="true">&nbsp;</p>
+        <p class="nf-terminal__blank" aria-hidden="true">
+&nbsp;
+        </p>
 
-        <p class="nf-terminal__line">Unknown.</p>
+        <p class="nf-terminal__line">
+          Unknown.
+        </p>
 
-        <p class="nf-terminal__blank" aria-hidden="true">&nbsp;</p>
+        <p class="nf-terminal__blank" aria-hidden="true">
+&nbsp;
+        </p>
 
         <p class="nf-terminal__line" aria-hidden="true">
           <span class="nf-terminal__prompt">$ </span>
@@ -60,7 +77,7 @@ const responseDate = new Date().toUTCString();
     <!-- Actions -->
     <nav class="nf-actions" aria-label="404 page navigation">
       <a href="https://news.ycombinator.com/" class="nf-actions__link">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 5-7 7 7 7"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5" /><path d="m12 5-7 7 7 7" /></svg>
         Front page
       </a>
       <SearchTrigger variant="quiet" />

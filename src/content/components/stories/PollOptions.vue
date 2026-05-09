@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { PollOption } from '@/parsers/item';
+import { computed } from 'vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 
 const props = defineProps<{
@@ -10,7 +10,8 @@ const props = defineProps<{
 const maxScore = computed(() => {
   let max = 0;
   for (const opt of props.options) {
-    if (opt.score != null && opt.score > max) max = opt.score;
+    if (opt.score != null && opt.score > max)
+      max = opt.score;
   }
   return max || 1;
 });
@@ -18,7 +19,8 @@ const maxScore = computed(() => {
 const totalVotes = computed(() => {
   let sum = 0;
   for (const opt of props.options) {
-    if (opt.score != null) sum += opt.score;
+    if (opt.score != null)
+      sum += opt.score;
   }
   return sum;
 });
@@ -29,20 +31,22 @@ const totalVotes = computed(() => {
     <div class="poll-options__header">
       <span class="poll-options__total">{{ totalVotes }} total votes</span>
     </div>
-    <div 
-      v-for="opt in options" 
-      :key="opt.id" 
+    <div
+      v-for="opt in options"
+      :key="opt.id"
       class="poll-options__item"
     >
       <div class="poll-options__vote">
         <VoteButton :href="opt.voteUp" :vote-un-href="opt.voteUn" :vote-target="opt" />
       </div>
       <div class="poll-options__content">
-        <div class="poll-options__text">{{ opt.text }}</div>
+        <div class="poll-options__text">
+          {{ opt.text }}
+        </div>
         <div class="poll-options__bar-row">
           <div class="poll-options__bar">
-            <div 
-              class="poll-options__bar-fill" 
+            <div
+              class="poll-options__bar-fill"
               :style="{ width: maxScore > 0 ? `${((opt.score || 0) / maxScore) * 100}%` : '0%' }"
             />
           </div>

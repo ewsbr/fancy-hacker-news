@@ -16,23 +16,23 @@ withDefaults(defineProps<{
 
 <template>
   <form :action="form.action" method="post" class="comment-form">
-    <input type="hidden" name="parent" :value="form.parentId" />
-    <input type="hidden" name="goto" :value="form.gotoUrl" />
-    <input type="hidden" name="hmac" :value="form.hmac" />
-    
+    <input type="hidden" name="parent" :value="form.parentId">
+    <input type="hidden" name="goto" :value="form.gotoUrl">
+    <input type="hidden" name="hmac" :value="form.hmac">
+
     <div class="comment-form__field">
-      <textarea 
-        name="text" 
+      <textarea
+        name="text"
         :rows="rows"
         :autofocus="autofocus"
         class="comment-form__input"
         :placeholder="placeholder"
-      ></textarea>
+      />
     </div>
-    
+
     <div class="comment-form__footer">
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         class="comment-form__submit"
       >
         <Send :size="13" class="comment-form__icon" />
@@ -106,7 +106,7 @@ withDefaults(defineProps<{
       background: var(--color-accent);
       border-color: var(--color-accent);
       color: #ffffff;
-      
+
       .comment-form__icon {
         color: #ffffff;
       }

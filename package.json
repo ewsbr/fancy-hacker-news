@@ -1,8 +1,12 @@
 {
   "name": "fancy-hn",
+  "type": "module",
   "version": "1.0.4",
+  "packageManager": "pnpm@11.0.9+sha512.34ce82e6780233cf9cad8685029a8f81d2e06196c5a9bad98879f7424940c6817c4e4524fb7d38b8553ceed48b9758b8ebaf1abd3600c232c4c8cf7366086f38",
   "description": "A browser extension that replaces the Hacker News UI with a cleaner, more modern design.",
-  "packageManager": "pnpm@10.30.1",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
   "scripts": {
     "dev": "pnpm build:anti-fouc && BUILD_TARGET=content vite build --watch",
     "build": "pnpm build:content && BUILD_TARGET=background vite build",
@@ -16,25 +20,11 @@
     "concepts:dev": "vite --config concepts/vite.config.ts",
     "concepts:build": "vite build --config concepts/vite.config.ts",
     "concepts:preview": "vite preview --config concepts/vite.config.ts",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "vue-tsc --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "devDependencies": {
-    "@types/chrome": "^0.1.42",
-    "@types/jsdom": "^28.0.1",
-    "@types/node": "^25.6.2",
-    "@vitejs/plugin-vue": "^6.0.6",
-    "jsdom": "^29.1.1",
-    "sass": "^1.99.0",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.11",
-    "vitest": "4.1.2",
-    "vue-tsc": "^3.2.8"
   },
   "dependencies": {
     "@fontsource-variable/atkinson-hyperlegible-next": "^5.2.6",
@@ -44,5 +34,19 @@
     "lucide-vue-next": "^1.0.0",
     "reka-ui": "^2.9.7",
     "vue": "^3.5.34"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^8.2.0",
+    "@types/chrome": "^0.1.42",
+    "@types/jsdom": "^28.0.1",
+    "@types/node": "^25.6.2",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "jiti": "^2.7.0",
+    "jsdom": "^29.1.1",
+    "sass": "^1.99.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.11",
+    "vitest": "4.1.2",
+    "vue-tsc": "^3.2.8"
   }
 }

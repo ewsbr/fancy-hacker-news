@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, type ComponentPublicInstance } from 'vue';
+import type { ComponentPublicInstance } from 'vue';
+import type { ThemeMetadata, ThemeName } from '@/state/theme-metadata';
+import { Palette } from 'lucide-vue-next';
 import {
   PopoverContent,
   PopoverPortal,
   PopoverRoot,
   PopoverTrigger,
 } from 'reka-ui';
-import { Palette } from 'lucide-vue-next';
+import { computed, nextTick, ref } from 'vue';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { useTheme } from '@/state/theme';
 import {
   getThemeMetadata,
+
   THEMES,
-  type ThemeMetadata,
-  type ThemeName,
 } from '@/state/theme-metadata';
-import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const { theme, setTheme } = useTheme();
 const open = ref(false);
@@ -80,7 +81,9 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
         @open-auto-focus="onOpenAutoFocus"
       >
         <div class="theme-toggle__popover">
-          <p class="theme-toggle__popover-title">Theme</p>
+          <p class="theme-toggle__popover-title">
+            Theme
+          </p>
           <div class="theme-toggle__grid">
             <button
               v-for="item in THEMES"
@@ -109,7 +112,7 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
 
 <style scoped lang="scss">
 .theme-toggle {
-  // ── Trigger ─────────────────────────────────────────── 
+  // ── Trigger ───────────────────────────────────────────
   &__trigger {
     appearance: none;
     -webkit-appearance: none;
@@ -158,7 +161,7 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
     }
   }
 
-  // ── Popover card ─────────────────────────────────────── 
+  // ── Popover card ───────────────────────────────────────
   &__popover {
     width: 176px;
     padding: 0.65rem;
@@ -178,7 +181,7 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
     text-transform: uppercase;
   }
 
-  // ── 2×2 swatch grid ─────────────────────────────────── 
+  // ── 2×2 swatch grid ───────────────────────────────────
   &__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

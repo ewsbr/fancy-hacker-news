@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject } from 'vue';
-import { ArrowLeft } from 'lucide-vue-next';
 import type { ParsedReplyPage } from '@/parsers/reply';
+import { ArrowLeft } from 'lucide-vue-next';
+import { inject } from 'vue';
 import CommentBody from '@/content/components/comments/CommentBody.vue';
 import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
 import CommentForm from '@/content/components/forms/CommentForm.vue';
@@ -14,7 +14,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   <div class="reply-page">
     <template v-if="pageData.isLoggedOut">
       <div class="reply-page__message hn-content-card hn-empty-state">
-         You have to <a href="login?goto=reply">log in</a> to reply.
+        You have to <a href="login?goto=reply">log in</a> to reply.
       </div>
     </template>
     <template v-else-if="pageData.parent && pageData.replyForm">
@@ -66,10 +66,10 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   padding: 20px 0 48px;
   max-width: 800px;
   margin: 0 auto;
-  
+
   &__message {
     padding: 16px 18px;
-    
+
     a {
       color: var(--color-text);
       text-decoration: underline;
@@ -120,7 +120,7 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
     color: var(--color-accent);
     flex-shrink: 0;
   }
-  
+
   &__parent-meta {
     display: flex;
     align-items: center;
@@ -130,17 +130,17 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
     margin-bottom: 14px;
     margin-top: 6px;
   }
-  
+
   &__parent-author {
     color: var(--color-text);
     text-decoration: none;
     font-weight: 700;
-    
+
     &:hover {
       text-decoration: underline;
     }
   }
-  
+
   &__parent-body {
     border-top: 1px solid var(--color-divider);
     padding-top: 14px;

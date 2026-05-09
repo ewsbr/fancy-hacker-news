@@ -56,11 +56,13 @@ export function parseSubmitPage(doc: Document): ParsedSubmitPage {
 
   // Collect visible user-editable fields (exclude hidden fields and submit button)
   const fields: SubmitField[] = [];
-  form.querySelectorAll('input, textarea').forEach(el => {
+  form.querySelectorAll('input, textarea').forEach((el) => {
     const type = (el.getAttribute('type') || (el.tagName === 'TEXTAREA' ? 'textarea' : 'text')).toLowerCase();
-    if (type === 'hidden' || type === 'submit') return;
+    if (type === 'hidden' || type === 'submit')
+      return;
     const name = el.getAttribute('name');
-    if (!name) return;
+    if (!name)
+      return;
     fields.push({
       name,
       value: (el as HTMLInputElement | HTMLTextAreaElement).value || '',

@@ -29,7 +29,8 @@ async function copyPermalink() {
 
   try {
     await navigator.clipboard.writeText(permalink.toString());
-  } catch {
+  }
+  catch {
     // clipboard may be unavailable; keep the fragment update
   }
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { MessageSquareMore } from 'lucide-vue-next';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import { MessageSquareMore } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import { parseCommentThreadHtml } from '@/parsers/item';
 import CommentNode from './CommentNode.vue';
 
@@ -36,9 +36,11 @@ async function loadThread() {
     }
 
     loadedRoot.value = parsedRoot;
-  } catch {
+  }
+  catch {
     loadError.value = 'Failed to load this thread.';
-  } finally {
+  }
+  finally {
     isLoading.value = false;
   }
 }
@@ -68,7 +70,9 @@ async function loadThread() {
         </button>
       </div>
 
-      <p v-if="loadError" class="lazy-comment-root__error">{{ loadError }}</p>
+      <p v-if="loadError" class="lazy-comment-root__error">
+        {{ loadError }}
+      </p>
     </template>
   </div>
 </template>

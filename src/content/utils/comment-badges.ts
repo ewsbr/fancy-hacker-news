@@ -3,12 +3,12 @@ import type { InjectionKey } from 'vue';
 export const COMMENT_THREAD_STORY_AUTHOR_KEY: InjectionKey<string | null> = Symbol('comment-thread-story-author');
 export const COMMENT_THREAD_ROOT_AUTHOR_KEY: InjectionKey<string | null> = Symbol('comment-thread-root-author');
 
-type OriginalPosterContext = {
+interface OriginalPosterContext {
   author: string;
   storyAuthor?: string | null;
   threadAuthor?: string | null;
   parentAuthor?: string | null;
-};
+}
 
 export function getOriginalPosterTitle({
   author,

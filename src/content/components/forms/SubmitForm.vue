@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Send, HelpCircle } from 'lucide-vue-next';
-import Tooltip from '@/content/components/ui/Tooltip.vue';
 import type { ParsedSubmitPage } from '@/parsers/submit';
+import { HelpCircle, Send } from 'lucide-vue-next';
+import Tooltip from '@/content/components/ui/Tooltip.vue';
 
 const props = withDefaults(defineProps<{
   form: NonNullable<ParsedSubmitPage['form']>;
@@ -19,15 +19,15 @@ const emit = defineEmits<{
 const FIELD_META: Record<string, { label: string; description: string; rows?: number }> = {
   title: {
     label: 'Title',
-    description: 'Keep it specific and faithful to the source. Hacker News titles work best when they stay under 80 characters.',
+    description: 'Use the original title unless it is misleading. Skip hype, site names, and clickbait.',
   },
   url: {
     label: 'URL',
-    description: 'Leave this blank for an Ask HN or discussion post. For link posts, use the canonical URL when possible.',
+    description: 'Submit the original source when possible. Leave blank for Ask HN or discussion posts.',
   },
   text: {
     label: 'Text',
-    description: 'Optional for link posts, required for discussion-style submissions. This appears at the top of the thread.',
+    description: 'Add context only when it helps. For site questions, email hn@ycombinator.com instead.',
     rows: 8,
   },
 };
@@ -56,10 +56,10 @@ function handleFieldInput(name: string, event: Event) {
   <form
     :action="form.action"
     method="post"
-    :class="['submit-form', { 'submit-form--utility': variant === 'utility' }]"
+    class="submit-form" :class="[{ 'submit-form--utility': variant === 'utility' }]"
   >
-    <input type="hidden" name="fnid" :value="form.fnid" />
-    <input type="hidden" name="fnop" :value="form.fnop" />
+    <input type="hidden" name="fnid" :value="form.fnid">
+    <input type="hidden" name="fnop" :value="form.fnop">
 
     <div class="submit-form__fields">
       <div v-for="field in form.fields" :key="field.name" class="submit-form__field">
@@ -89,19 +89,19 @@ function handleFieldInput(name: string, event: Event) {
             :rows="getFieldMeta(field.name).rows ?? 6"
             :placeholder="placeholders[field.name] ?? ''"
             @input="handleFieldInput(field.name, $event)"
-          ></textarea>
-          
+          />
+
           <input
             v-else
-            :type="field.type"
             :id="`submit-${field.name}`"
+            :type="field.type"
             :name="field.name"
             :value="modelValue[field.name] ?? field.value"
             class="submit-form__input"
             :placeholder="placeholders[field.name] ?? ''"
             :autofocus="field.name === 'title'"
             @input="handleFieldInput(field.name, $event)"
-          />
+          >
         </div>
       </div>
 
@@ -118,19 +118,19 @@ function handleFieldInput(name: string, event: Event) {
 <style scoped lang="scss">
 .submit-form {
   width: 100%;
-  
+
   &__fields {
     display: flex;
     flex-direction: column;
     gap: 22px;
   }
-  
+
   &__field {
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
-  
+
   &__field-head {
     display: flex;
     align-items: center;
@@ -162,11 +162,11 @@ function handleFieldInput(name: string, event: Event) {
       text-decoration: underline;
     }
   }
-  
+
   &__input-wrapper {
     width: 100%;
   }
-  
+
   &__input, &__textarea {
     width: 100%;
     background: var(--color-surface);
@@ -183,17 +183,17 @@ function handleFieldInput(name: string, event: Event) {
       color: var(--color-text-muted);
       opacity: 0.75;
     }
-    
+
     &:hover {
       border-color: var(--color-divider);
     }
-    
+
     &:focus {
       border-color: var(--color-accent);
       box-shadow: 0 0 0 2px var(--color-focus-ring);
     }
   }
-  
+
   &__textarea {
     resize: vertical;
     min-height: 160px;
@@ -210,7 +210,7 @@ function handleFieldInput(name: string, event: Event) {
       flex-wrap: wrap;
     }
   }
-  
+
   &__button {
     background: var(--color-surface);
     color: var(--color-text);

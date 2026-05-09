@@ -1,20 +1,24 @@
 <script setup lang="ts">
-import { inject } from 'vue';
 import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
-import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
-import MetaSep from '@/content/components/ui/MetaSep.vue';
-import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
+import { inject } from 'vue';
 import CommentBody from '@/content/components/comments/CommentBody.vue';
+import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
+import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
+import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
 </script>
 
 <template>
   <div class="delete-confirm-page">
-    <h1 class="delete-confirm-page__title">Confirm deletion</h1>
+    <h1 class="delete-confirm-page__title">
+      Confirm deletion
+    </h1>
 
     <div v-if="pageData.errorMessage" class="delete-confirm-page__error hn-content-card">
-      <p class="delete-confirm-page__error-text">{{ pageData.errorMessage }}</p>
+      <p class="delete-confirm-page__error-text">
+        {{ pageData.errorMessage }}
+      </p>
     </div>
 
     <div v-if="pageData.item" class="delete-confirm-page__card hn-content-card">
@@ -47,13 +51,19 @@ const pageData = inject<ParsedDeleteConfirmPage>('pageData')!;
     </div>
 
     <div v-if="pageData.deleteForm" class="delete-confirm-page__confirm">
-      <p class="delete-confirm-page__prompt">Do you want this to be deleted?</p>
+      <p class="delete-confirm-page__prompt">
+        Do you want this to be deleted?
+      </p>
       <form :action="pageData.deleteForm.action" method="post" class="delete-confirm-page__form">
-        <input type="hidden" name="id" :value="pageData.deleteForm.id" />
-        <input type="hidden" name="goto" :value="pageData.deleteForm.gotoUrl" />
-        <input type="hidden" name="hmac" :value="pageData.deleteForm.hmac" />
-        <button type="submit" name="d" value="Yes" class="delete-confirm-page__btn delete-confirm-page__btn--yes">Yes, delete</button>
-        <button type="submit" name="d" value="No" class="delete-confirm-page__btn delete-confirm-page__btn--no">No, cancel</button>
+        <input type="hidden" name="id" :value="pageData.deleteForm.id">
+        <input type="hidden" name="goto" :value="pageData.deleteForm.gotoUrl">
+        <input type="hidden" name="hmac" :value="pageData.deleteForm.hmac">
+        <button type="submit" name="d" value="Yes" class="delete-confirm-page__btn delete-confirm-page__btn--yes">
+          Yes, delete
+        </button>
+        <button type="submit" name="d" value="No" class="delete-confirm-page__btn delete-confirm-page__btn--no">
+          No, cancel
+        </button>
       </form>
     </div>
   </div>

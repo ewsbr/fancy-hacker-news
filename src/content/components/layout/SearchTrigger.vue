@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { inject } from 'vue';
 import { Search } from 'lucide-vue-next';
+import { inject } from 'vue';
 import Keycap from '@/content/components/ui/Keycap.vue';
 
 withDefaults(defineProps<{
@@ -15,7 +15,7 @@ const openSearch = inject<() => void>('openSearch');
 <template>
   <button
     type="button"
-    :class="['search-trigger', `search-trigger--${variant}`]"
+    class="search-trigger" :class="[`search-trigger--${variant}`]"
     @click="openSearch?.()"
   >
     <Search :size="14" class="search-trigger__icon" aria-hidden="true" />

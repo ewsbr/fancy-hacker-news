@@ -26,7 +26,7 @@ describe('submit and reply parsers', () => {
     const page = parseSubmitPage(doc);
 
     expect(page.isLoggedOut).toBe(false);
-    expect(page.warningMessage).toBe("That's not a valid title.");
+    expect(page.warningMessage).toBe('That\'s not a valid title.');
     expect(page.form).toMatchObject({
       action: '/r',
       fnop: 'submit-page',

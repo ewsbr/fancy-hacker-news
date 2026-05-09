@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isEditableTarget, isSearchShortcutEvent } from '@/content/utils/keyboard';
 
 describe('keyboard helpers', () => {

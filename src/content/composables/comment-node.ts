@@ -1,39 +1,41 @@
-import { computed, inject, ref, shallowRef, watch, type Ref } from 'vue';
+import type { Ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
+import type { CommentFragmentState } from '@/state/fragment-state';
+import { computed, inject, ref, shallowRef, watch } from 'vue';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
   COMMENT_THREAD_STORY_AUTHOR_KEY,
   getOriginalPosterTitle,
 } from '@/content/utils/comment-badges';
-import { COMMENT_FRAGMENT_STATE_KEY, type CommentFragmentState } from '@/state/fragment-state';
+import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const MOBILE_MODAL_DEPTH = 4;
 
 export type CommentRenderableNode = CommentNodeType | ThreadEntry;
 export type CommentRootVariant = 'default' | 'thread';
 
-type CommentDisplayContextOptions = {
+interface CommentDisplayContextOptions {
   node: Ref<CommentRenderableNode>;
   parentAuthor: Ref<string | null | undefined>;
   threadAuthor: Ref<string | null | undefined>;
   showLocalThreadAuthor: Ref<boolean | undefined>;
   showOnStory: Ref<boolean | undefined>;
   rootVariant: Ref<CommentRootVariant | undefined>;
-};
+}
 
-type CommentFragmentStateOptions = {
+interface CommentFragmentStateOptions {
   node: Ref<CommentRenderableNode>;
   inModal: Ref<boolean | undefined>;
-};
+}
 
-type CommentThreadUiOptions = {
+interface CommentThreadUiOptions {
   node: Ref<CommentRenderableNode>;
   depth: Ref<number | undefined>;
   inModal: Ref<boolean | undefined>;
   enableMobileSubthreads: Ref<boolean | undefined>;
   isInHashPath: Ref<boolean>;
-};
+}
 
 function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
   return 'onStory' in node;

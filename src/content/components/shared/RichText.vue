@@ -13,7 +13,7 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
     class="rich-text"
     :class="{ 'rich-text--starts-with-paragraph': startsWithParagraph }"
     v-html="html"
-  ></div>
+  />
 </template>
 
 <style scoped lang="scss">

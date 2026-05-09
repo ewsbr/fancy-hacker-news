@@ -84,8 +84,12 @@ function markStyle(size: number) {
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">logo</p>
-      <h2 class="concept-app__section-title">Ten simple icon directions for the extension</h2>
+      <p class="concept-app__section-eyebrow">
+        logo
+      </p>
+      <h2 class="concept-app__section-title">
+        Ten simple icon directions for the extension
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       These stay intentionally minimal: HTML + CSS only, built to be judged at browser-action sizes rather than as giant marketing illustrations. The strongest small-size candidates are Mono Tile, Split Ember, Upvote Badge, and Folded Page.
@@ -100,7 +104,9 @@ function markStyle(size: number) {
       </template>
 
       <template #description>
-        <p class="logo-card__note">{{ variant.note }}</p>
+        <p class="logo-card__note">
+          {{ variant.note }}
+        </p>
       </template>
 
       <div class="logo-card__showcase">
@@ -108,9 +114,9 @@ function markStyle(size: number) {
           <div class="logo-card__hero-stage">
             <span class="logo-mark logo-mark--hero" :class="`logo-mark--${variant.id}`" :style="markStyle(112)">
               <span class="logo-mark__glyph">{{ variant.glyph }}</span>
-              <span class="logo-mark__detail logo-mark__detail--one"></span>
-              <span class="logo-mark__detail logo-mark__detail--two"></span>
-              <span class="logo-mark__detail logo-mark__detail--three"></span>
+              <span class="logo-mark__detail logo-mark__detail--one" />
+              <span class="logo-mark__detail logo-mark__detail--two" />
+              <span class="logo-mark__detail logo-mark__detail--three" />
             </span>
 
             <div class="logo-wordmark" :class="`logo-wordmark--${variant.id}`">
@@ -126,9 +132,9 @@ function markStyle(size: number) {
             <div class="logo-size-chip__stage">
               <span class="logo-mark" :class="`logo-mark--${variant.id}`" :style="markStyle(size)">
                 <span class="logo-mark__glyph">{{ variant.glyph }}</span>
-                <span class="logo-mark__detail logo-mark__detail--one"></span>
-                <span class="logo-mark__detail logo-mark__detail--two"></span>
-                <span class="logo-mark__detail logo-mark__detail--three"></span>
+                <span class="logo-mark__detail logo-mark__detail--one" />
+                <span class="logo-mark__detail logo-mark__detail--two" />
+                <span class="logo-mark__detail logo-mark__detail--three" />
               </span>
             </div>
             <span class="logo-size-chip__label">{{ size }}px</span>

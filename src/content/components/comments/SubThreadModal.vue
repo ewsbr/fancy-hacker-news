@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue';
+import type { CommentNode as CommentNodeType } from '@/parsers/item';
+import { X } from 'lucide-vue-next';
 import {
   DialogClose,
   DialogContent,
@@ -8,11 +9,10 @@ import {
   DialogRoot,
   DialogTitle,
 } from 'reka-ui';
-import type { CommentNode as CommentNodeType } from '@/parsers/item';
-import CommentNode from './CommentNode.vue';
-import { X } from 'lucide-vue-next';
-import { waitForAnimationFrames } from '@/content/utils/wait';
+import { nextTick, ref, watch } from 'vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
+import { waitForAnimationFrames } from '@/content/utils/wait';
+import CommentNode from './CommentNode.vue';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -62,7 +62,7 @@ watch(
 
 watch(
   () => props.scrollToId,
-  async scrollToId => {
+  async (scrollToId) => {
     if (!scrollToId) {
       return;
     }
@@ -93,7 +93,7 @@ watch(
               </button>
             </DialogClose>
           </div>
-          <div class="sub-thread-modal__body" ref="bodyRef">
+          <div ref="bodyRef" class="sub-thread-modal__body">
             <CommentNode :node="node" :depth="0" :in-modal="true" />
           </div>
         </DialogContent>

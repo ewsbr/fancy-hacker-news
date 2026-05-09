@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue';
-import { Check } from 'lucide-vue-next';
 import type { ParsedTopColorsPage } from '@/parsers/top-colors';
+import { Check } from 'lucide-vue-next';
+import { inject, ref } from 'vue';
 
 const page = inject<ParsedTopColorsPage>('pageData')!;
 
@@ -9,10 +9,10 @@ const copied = ref<string | null>(null);
 let copyTimer: ReturnType<typeof setTimeout> | null = null;
 
 function contrast(hex: string): 'dark' | 'light' {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const lin = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const r = Number.parseInt(hex.slice(1, 3), 16) / 255;
+  const g = Number.parseInt(hex.slice(3, 5), 16) / 255;
+  const b = Number.parseInt(hex.slice(5, 7), 16) / 255;
+  const lin = (c: number) => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   const lum = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
   return lum > 0.35 ? 'dark' : 'light';
 }
@@ -21,9 +21,14 @@ async function copy(hex: string) {
   try {
     await navigator.clipboard.writeText(hex);
     copied.value = hex;
-    if (copyTimer) clearTimeout(copyTimer);
-    copyTimer = setTimeout(() => { copied.value = null; }, 1200);
-  } catch {
+    if (copyTimer) {
+      clearTimeout(copyTimer);
+    }
+    copyTimer = setTimeout(() => {
+      copied.value = null;
+    }, 1200);
+  }
+  catch {
     // clipboard unavailable — silently ignore
   }
 }
@@ -31,7 +36,9 @@ async function copy(hex: string) {
 
 <template>
   <div class="topcolors-page">
-    <h1 class="topcolors-page__title">Top Colors</h1>
+    <h1 class="topcolors-page__title">
+      Top Colors
+    </h1>
 
     <div class="topcolors-page__card hn-content-card">
       <div class="topcolors-page__grid">

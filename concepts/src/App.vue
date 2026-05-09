@@ -38,10 +38,11 @@ function isThemeName(value: string | null): value is ThemeName {
 
 watch(
   activeTheme,
-  value => {
+  (value) => {
     if (value === 'light') {
       document.documentElement.removeAttribute('data-theme');
-    } else {
+    }
+    else {
       document.documentElement.setAttribute('data-theme', value);
     }
 
@@ -62,7 +63,9 @@ onMounted(() => {
 <template>
   <main class="concept-app">
     <header class="concept-app__hero">
-      <h1 class="concept-app__title">Concepts</h1>
+      <h1 class="concept-app__title">
+        Concepts
+      </h1>
 
       <div class="theme-switcher" aria-label="theme switcher">
         <button

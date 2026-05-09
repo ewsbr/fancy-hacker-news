@@ -2,32 +2,80 @@
 import ConceptVariant from './ConceptVariant.vue';
 
 const colors = [
-  '#ff6600', '#f6f6ef', '#ffffff', '#eeeeee', '#2faced', '#009900', '#55b6f2',
-  '#f0f0f0', '#ad6500', '#94c53a', '#eedf86', '#f0f0e0', '#ccdddd', '#c08000',
-  '#553300', '#cbcdc6', '#229922', '#cccccc', '#880088', '#00cbff', '#ff3200',
-  '#00dd00', '#b3c5b4', '#6060e0', '#5a72a0', '#000000', '#111111', '#333333',
-  '#555555', '#888888', '#0066ff', '#ff6633', '#44bbff', '#bbff00', '#aa00ff',
-  '#ff0066', '#00ffcc', '#ffcc00', '#336699', '#cc3311', '#006600', '#3474eb',
-  '#0082a0', '#8fbc8f', '#daa520', '#dc143c', '#228b22', '#4169e1', '#ff69b4',
-  '#7f00ff', '#bada55', '#c0ffee', '#facade', '#badbad', '#deaddd', '#aabbcc',
+  '#ff6600',
+  '#f6f6ef',
+  '#ffffff',
+  '#eeeeee',
+  '#2faced',
+  '#009900',
+  '#55b6f2',
+  '#f0f0f0',
+  '#ad6500',
+  '#94c53a',
+  '#eedf86',
+  '#f0f0e0',
+  '#ccdddd',
+  '#c08000',
+  '#553300',
+  '#cbcdc6',
+  '#229922',
+  '#cccccc',
+  '#880088',
+  '#00cbff',
+  '#ff3200',
+  '#00dd00',
+  '#b3c5b4',
+  '#6060e0',
+  '#5a72a0',
+  '#000000',
+  '#111111',
+  '#333333',
+  '#555555',
+  '#888888',
+  '#0066ff',
+  '#ff6633',
+  '#44bbff',
+  '#bbff00',
+  '#aa00ff',
+  '#ff0066',
+  '#00ffcc',
+  '#ffcc00',
+  '#336699',
+  '#cc3311',
+  '#006600',
+  '#3474eb',
+  '#0082a0',
+  '#8fbc8f',
+  '#daa520',
+  '#dc143c',
+  '#228b22',
+  '#4169e1',
+  '#ff69b4',
+  '#7f00ff',
+  '#bada55',
+  '#c0ffee',
+  '#facade',
+  '#badbad',
+  '#deaddd',
+  '#aabbcc',
 ] as const;
 
 function luminance(hex: string) {
-  const red = parseInt(hex.slice(1, 3), 16) / 255;
-  const green = parseInt(hex.slice(3, 5), 16) / 255;
-  const blue = parseInt(hex.slice(5, 7), 16) / 255;
+  const red = Number.parseInt(hex.slice(1, 3), 16) / 255;
+  const green = Number.parseInt(hex.slice(3, 5), 16) / 255;
+  const blue = Number.parseInt(hex.slice(5, 7), 16) / 255;
 
   const toLinear = (channel: number) => {
-    return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
   };
 
   return 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue);
 }
 
 function lighten(hex: string, amount = 0.35) {
-  const red = parseInt(hex.slice(1, 3), 16);
-  const green = parseInt(hex.slice(3, 5), 16);
-  const blue = parseInt(hex.slice(5, 7), 16);
+  const red = Number.parseInt(hex.slice(1, 3), 16);
+  const green = Number.parseInt(hex.slice(3, 5), 16);
+  const blue = Number.parseInt(hex.slice(5, 7), 16);
   const nextRed = Math.round(red + (255 - red) * amount);
   const nextGreen = Math.round(green + (255 - green) * amount);
   const nextBlue = Math.round(blue + (255 - blue) * amount);
@@ -43,8 +91,12 @@ function contrastTextColor(hex: string) {
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">top colors</p>
-      <h2 class="concept-app__section-title">Eight directions for visualizing community color picks</h2>
+      <p class="concept-app__section-eyebrow">
+        top colors
+      </p>
+      <h2 class="concept-app__section-title">
+        Eight directions for visualizing community color picks
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       These are still utility-first, but they test denser swatches, picker-like tiles, and clearer color-label pairings than the current table treatment.
@@ -53,11 +105,13 @@ function contrastTextColor(hex: string) {
 
   <section class="colors-concepts">
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 1" title="Swatch grid with hex labels">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v1-grid">
           <div v-for="hex in colors" :key="`v1-${hex}`" class="v1-swatch">
-            <div class="v1-swatch__color" :style="{ background: hex }"></div>
+            <div class="v1-swatch__color" :style="{ background: hex }" />
             <span class="v1-swatch__hex">{{ hex }}</span>
           </div>
         </div>
@@ -65,11 +119,13 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 2" title="Compact chip list">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v2-chips">
           <span v-for="hex in colors" :key="`v2-${hex}`" class="v2-chip">
-            <span class="v2-chip__dot" :style="{ background: hex }"></span>
+            <span class="v2-chip__dot" :style="{ background: hex }" />
             {{ hex }}
           </span>
         </div>
@@ -77,11 +133,13 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 3" title="Wide bar list">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v3-list">
           <div v-for="hex in colors" :key="`v3-${hex}`" class="v3-row">
-            <div class="v3-bar" :style="{ background: hex }"></div>
+            <div class="v3-bar" :style="{ background: hex }" />
             <span class="v3-hex">{{ hex }}</span>
           </div>
         </div>
@@ -89,22 +147,28 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 4" title="Dense mosaic tiles">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v4-mosaic">
-          <div v-for="hex in colors" :key="`v4-${hex}`" class="v4-tile" :data-hex="hex" :style="{ background: hex }" :title="hex"></div>
+          <div v-for="hex in colors" :key="`v4-${hex}`" class="v4-tile" :data-hex="hex" :style="{ background: hex }" :title="hex" />
         </div>
       </div>
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 5" title="Improved table">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <table class="v5-table">
           <tbody>
             <tr v-for="hex in colors" :key="`v5-${hex}`">
-              <td class="v5-hex-cell">{{ hex }}</td>
-              <td class="v5-color-cell" :style="{ background: hex }"></td>
+              <td class="v5-hex-cell">
+                {{ hex }}
+              </td>
+              <td class="v5-color-cell" :style="{ background: hex }" />
             </tr>
           </tbody>
         </table>
@@ -112,11 +176,13 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 6" title="Theme-picker card grid">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v6-grid">
           <div v-for="hex in colors" :key="`v6-${hex}`" class="v6-card">
-            <div class="v6-card__circle" :style="{ background: hex }"></div>
+            <div class="v6-card__circle" :style="{ background: hex }" />
             <span class="v6-card__hex">{{ hex }}</span>
           </div>
         </div>
@@ -124,7 +190,9 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 7" title="Diagonal-split tiles">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card">
         <div class="v7-grid">
           <div
@@ -141,7 +209,9 @@ function contrastTextColor(hex: string) {
     </ConceptVariant>
 
     <ConceptVariant tag="section" class="colors-variant" eyebrow="Variant 8" title="Full-fill tiles with auto-contrast labels">
-      <p class="colors-variant__title">Top Colors</p>
+      <p class="colors-variant__title">
+        Top Colors
+      </p>
       <div class="colors-card colors-card--flush">
         <div class="v8-grid">
           <div v-for="hex in colors" :key="`v8-${hex}`" class="v8-tile" :style="{ background: hex, color: contrastTextColor(hex) }">

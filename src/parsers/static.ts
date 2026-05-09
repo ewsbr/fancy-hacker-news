@@ -88,7 +88,7 @@ function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
   // paragraphs that only contain a single <b>. Mixed-content paragraphs
   // like "<p><b>Missing From This List?</b> If you reported..." should
   // stay as paragraphs so trailing text is preserved.
-  const headingSources = Array.from(clone.querySelectorAll('b, p')).filter(el => {
+  const headingSources = Array.from(clone.querySelectorAll('b, p')).filter((el) => {
     if (el.tagName === 'P') {
       return isStandaloneLegacyHeadingParagraph(el);
     }
@@ -99,8 +99,8 @@ function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
   // Promote the first heading to <h1> (page title) and the rest to <h2>.
   headingSources.forEach((source, i) => {
     const heading = doc.createElement(i === 0 ? 'h1' : 'h2');
-    const sourceBold =
-      source.tagName === 'P'
+    const sourceBold
+      = source.tagName === 'P'
         ? Array.from(source.children).find(child => child.tagName === 'B') ?? source
         : source;
 

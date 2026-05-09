@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue';
 import type { ParsedStaticPage } from '@/parsers/static';
+import { computed, inject } from 'vue';
 
 const page = inject<ParsedStaticPage>('pageData')!;
 
 const contentHtml = computed(() =>
   page.contentHtml
     .replace(/<br\s*\/?>/gi, '')
-    .replace(/<p[^>]*>\s*<\/p>/gi, '')
+    .replace(/<p[^>]*>\s*<\/p>/gi, ''),
 );
 </script>
 
@@ -22,7 +22,9 @@ const contentHtml = computed(() =>
         v-html="contentHtml"
       />
     </div>
-    <p v-else class="static-page__empty-state">No content found.</p>
+    <p v-else class="static-page__empty-state">
+      No content found.
+    </p>
   </div>
 </template>
 

@@ -5,8 +5,12 @@ import ConceptVariant from './ConceptVariant.vue';
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">memorial bar</p>
-      <h2 class="concept-app__section-title">Approaches to the mourning indicator</h2>
+      <p class="concept-app__section-eyebrow">
+        memorial bar
+      </p>
+      <h2 class="concept-app__section-title">
+        Approaches to the mourning indicator
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       HN shows a plain black bar at the page top when someone notable passes — no text, no name.
@@ -15,7 +19,6 @@ import ConceptVariant from './ConceptVariant.vue';
   </section>
 
   <section class="memorial-concepts">
-
     <!-- ─── V1: Hairline ──────────────────────────────────────────────────── -->
     <ConceptVariant tag="section" class="memorial-variant" density="compact" eyebrow="Variant 1" title="Hairline">
       <template #description>
@@ -32,9 +35,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -55,9 +64,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -78,9 +93,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -102,9 +123,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -125,9 +152,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -149,9 +182,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -173,9 +212,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -197,9 +242,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -220,9 +271,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -245,9 +302,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -269,9 +332,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -293,9 +362,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -316,9 +391,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -340,9 +421,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -364,9 +451,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -387,9 +480,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -410,9 +509,15 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
@@ -433,18 +538,22 @@ import ConceptVariant from './ConceptVariant.vue';
           <span class="demo-nav">new · ask · show</span>
         </div>
         <div class="demo-stories">
-          <div class="demo-story">Rust 2025 Edition release notes</div>
-          <div class="demo-story">Ask HN: How do you handle burnout?</div>
-          <div class="demo-story">The anatomy of a fast compiler</div>
+          <div class="demo-story">
+            Rust 2025 Edition release notes
+          </div>
+          <div class="demo-story">
+            Ask HN: How do you handle burnout?
+          </div>
+          <div class="demo-story">
+            The anatomy of a fast compiler
+          </div>
         </div>
       </div>
     </ConceptVariant>
-
   </section>
 </template>
 
 <style scoped lang="scss">
-
 // ─── Section layout ─────────────────────────────────────────────────────────
 
 .memorial-concepts {
@@ -758,5 +867,4 @@ import ConceptVariant from './ConceptVariant.vue';
 .demo-site--corner-ribbon .demo-header::after {
   transform: rotate(-24deg);
 }
-
 </style>

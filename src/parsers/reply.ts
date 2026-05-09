@@ -1,6 +1,6 @@
-import { textOf, attrOf } from './shared/dom';
 import { parseAge } from './shared/age';
 import { extractRichTextHtml } from './shared/body';
+import { attrOf, textOf } from './shared/dom';
 
 export interface ParsedReplyPage {
   isLoggedOut: boolean;

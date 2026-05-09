@@ -1,7 +1,7 @@
-import { textOf, attrOf, hrefOf } from './shared/dom';
 import { parseAge } from './shared/age';
 import { extractRichTextHtml } from './shared/body';
 import { isNewUser } from './shared/comment';
+import { attrOf, hrefOf, textOf } from './shared/dom';
 import { parseScore } from './shared/score';
 
 export interface ParsedDeleteConfirmPage {
@@ -71,8 +71,8 @@ export function parseDeleteConfirmPage(doc: Document): ParsedDeleteConfirmPage {
       }
     : null;
 
-  const errorMessage =
-    item === null && deleteForm === null
+  const errorMessage
+    = item === null && deleteForm === null
       ? (doc.body?.textContent?.trim() || null)
       : null;
 

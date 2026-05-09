@@ -5,16 +5,18 @@
  * to one-shot a full ZIP implementation, raw file headers and all. So screw it.
  */
 
+import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import { constants } from 'node:fs';
-import { access, cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, join, relative, sep } from 'node:path';
+import process from 'node:process';
 import { deflateRawSync } from 'node:zlib';
 
 const TARGETS = new Set(['chrome', 'firefox']);
-const ZIP_LOCAL_FILE_HEADER_SIGNATURE = 0x04034b50;
-const ZIP_CENTRAL_DIRECTORY_SIGNATURE = 0x02014b50;
-const ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054b50;
+const ZIP_LOCAL_FILE_HEADER_SIGNATURE = 0x04034B50;
+const ZIP_CENTRAL_DIRECTORY_SIGNATURE = 0x02014B50;
+const ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054B50;
 const ZIP_VERSION_NEEDED = 20;
 const ZIP_VERSION_MADE_BY = 20;
 const ZIP_COMPRESSION_DEFLATE = 8;
@@ -39,7 +41,7 @@ function run(command, args) {
     });
 
     child.on('error', reject);
-    child.on('exit', code => {
+    child.on('exit', (code) => {
       if (code === 0) {
         resolve();
         return;
@@ -57,7 +59,8 @@ function getPnpmCommand() {
 async function assertPathExists(path) {
   try {
     await access(path, constants.R_OK);
-  } catch {
+  }
+  catch {
     throw new Error(`Expected ${path} to exist before packaging.`);
   }
 }
@@ -76,7 +79,8 @@ function makeTargetManifest(manifest) {
   if (target === 'chrome') {
     delete targetManifest.browser_specific_settings;
     delete targetManifest.background?.scripts;
-  } else {
+  }
+  else {
     delete targetManifest.background?.service_worker;
   }
 
@@ -90,7 +94,7 @@ function makeCrc32Table() {
     let crc = n;
 
     for (let k = 0; k < 8; k += 1) {
-      crc = (crc & 1) ? (0xedb88320 ^ (crc >>> 1)) : (crc >>> 1);
+      crc = (crc & 1) ? (0xEDB88320 ^ (crc >>> 1)) : (crc >>> 1);
     }
 
     table[n] = crc >>> 0;
@@ -102,13 +106,13 @@ function makeCrc32Table() {
 const crc32Table = makeCrc32Table();
 
 function crc32(buffer) {
-  let crc = 0xffffffff;
+  let crc = 0xFFFFFFFF;
 
   for (const byte of buffer) {
-    crc = crc32Table[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+    crc = crc32Table[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
   }
 
-  return (crc ^ 0xffffffff) >>> 0;
+  return (crc ^ 0xFFFFFFFF) >>> 0;
 }
 
 function getDosDateParts(date = new Date()) {
@@ -285,7 +289,7 @@ async function main() {
   console.log(`Created ${zipPath}`);
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 });

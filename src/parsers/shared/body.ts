@@ -7,7 +7,7 @@ export interface ParsedCommentBody {
   placeholderKind: CommentPlaceholderKind | null;
 }
 
-const QUOTED_HTML_PATTERN = /(^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
+const QUOTED_HTML_PATTERN = /(?:^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
 const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
 const TEXT_NODE = 3;
 const ELEMENT_NODE = 1;
@@ -16,8 +16,10 @@ const COMMENT_RICH_TEXT_CLASS_NAMES = new Set(['comment', 'commtext']);
 
 function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
   const normalized = text.trim();
-  if (normalized === '[flagged]') return 'flagged';
-  if (normalized === '[deleted]') return 'deleted';
+  if (normalized === '[flagged]')
+    return 'flagged';
+  if (normalized === '[deleted]')
+    return 'deleted';
   return null;
 }
 
@@ -28,15 +30,18 @@ function getFirstLeafText(node: Node): Text | null {
     }
     if (child.nodeType === ELEMENT_NODE) {
       const found = getFirstLeafText(child);
-      if (found) return found;
+      if (found)
+        return found;
     }
   }
   return null;
 }
 
 function isInlineNode(node: Node): boolean {
-  if (node.nodeType === TEXT_NODE) return true;
-  if (node.nodeType === ELEMENT_NODE) return INLINE_TAGS.has((node as Element).nodeName);
+  if (node.nodeType === TEXT_NODE)
+    return true;
+  if (node.nodeType === ELEMENT_NODE)
+    return INLINE_TAGS.has((node as Element).nodeName);
   return false;
 }
 
@@ -47,7 +52,8 @@ function normalizeQuotedContent(container: Element, doc: Document): void {
   let index = 0;
 
   function flushQuotes() {
-    if (!quoteParagraphs.length) return;
+    if (!quoteParagraphs.length)
+      return;
     const blockquote = doc.createElement('blockquote');
     for (const paragraph of quoteParagraphs) {
       blockquote.appendChild(paragraph);
@@ -151,7 +157,8 @@ function normalizeCommentCodeBlocks(container: Element): void {
 }
 
 export function extractRichTextHtml(source: Element | null | undefined): string {
-  if (!source) return '';
+  if (!source)
+    return '';
 
   const clone = source.cloneNode(true) as Element;
   if (shouldNormalizeCommentCodeBlocks(source)) {

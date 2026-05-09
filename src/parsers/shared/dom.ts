@@ -3,13 +3,16 @@
  */
 
 /** Safe textContent extraction. */
-export const textOf = (el: Element | null | undefined): string =>
-  el?.textContent?.trim() ?? '';
+export function textOf(el: Element | null | undefined): string {
+  return el?.textContent?.trim() ?? '';
+}
 
 /** Safe getAttribute. */
-export const attrOf = (el: Element | null | undefined, name: string): string | null =>
-  el?.getAttribute(name) ?? null;
+export function attrOf(el: Element | null | undefined, name: string): string | null {
+  return el?.getAttribute(name) ?? null;
+}
 
 /** Extract href from an element. */
-export const hrefOf = (el: Element | null | undefined): string | null =>
-  attrOf(el, 'href');
+export function hrefOf(el: Element | null | undefined): string | null {
+  return attrOf(el, 'href');
+}

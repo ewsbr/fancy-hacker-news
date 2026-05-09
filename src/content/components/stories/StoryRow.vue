@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Story } from '@/parsers/story-list';
-import StoryRank from './StoryRank.vue';
-import StoryMeta from './StoryMeta.vue';
+import { computed } from 'vue';
+import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
-import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import { splitTrailingWord } from '@/content/utils/text';
+import StoryMeta from './StoryMeta.vue';
+import StoryRank from './StoryRank.vue';
 
 const props = defineProps<{ story: Story }>();
 

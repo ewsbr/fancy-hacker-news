@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { describe, expect, it } from 'vitest';
+import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 import { parseNewComments } from '@/parsers/new-comments';
 import { parseStoryList } from '@/parsers/story-list';
-import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('user collection intro parsing', () => {
@@ -17,8 +17,8 @@ describe('user collection intro parsing', () => {
         { href: 'favorites?id=axelriet&comments=t', label: 'Comments', kind: 'comments' },
       ],
       messages: [
-        "axelriet hasn't added any favorite comments yet.",
-        "To add one to your own favorites, click on its timestamp to go to its page, then click 'favorite' at the top.",
+        'axelriet hasn\'t added any favorite comments yet.',
+        'To add one to your own favorites, click on its timestamp to go to its page, then click \'favorite\' at the top.',
       ],
     });
   });

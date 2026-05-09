@@ -5,8 +5,12 @@ import ConceptVariant from './ConceptVariant.vue';
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">404 page</p>
-      <h2 class="concept-app__section-title">Four directions for the "Unknown." 404 response</h2>
+      <p class="concept-app__section-eyebrow">
+        404 page
+      </p>
+      <h2 class="concept-app__section-title">
+        Four directions for the "Unknown." 404 response
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       HN's 404 is a bare <code>&lt;pre&gt;Unknown.&lt;/pre&gt;</code>. Each concept below turns that into
@@ -15,7 +19,6 @@ import ConceptVariant from './ConceptVariant.vue';
   </section>
 
   <div class="nf-concepts">
-
     <!-- ─── Concept A: Typographic "Unknown." ─────────────────────────────── -->
     <ConceptVariant class="nf-variant" eyebrow="Variant 1" title="Typographic — Own the silence">
       <template #description>
@@ -29,7 +32,9 @@ import ConceptVariant from './ConceptVariant.vue';
         <!-- accent top bar simulating .hn-content-card -->
         <div class="nf-card nf-card--a">
           <span class="nf-card-a__code">404</span>
-          <blockquote class="nf-card-a__quote">Unknown.</blockquote>
+          <blockquote class="nf-card-a__quote">
+            Unknown.
+          </blockquote>
           <p class="nf-card-a__sub">
             The page at this address does not exist,<br>
             or was removed, or never existed at all.
@@ -55,14 +60,16 @@ import ConceptVariant from './ConceptVariant.vue';
       <div class="nf-shell nf-shell--b">
         <div class="nf-card nf-card--b">
           <!-- eyebrow -->
-          <p class="nf-dead-eyebrow">Page not found</p>
+          <p class="nf-dead-eyebrow">
+            Page not found
+          </p>
 
           <!-- mock story row -->
           <div class="nf-dead-story">
             <span class="nf-dead-story__rank">404.</span>
             <div class="nf-dead-story__vote">
               <svg width="10" height="9" viewBox="0 0 10 9" fill="none" aria-hidden="true">
-                <path d="M5 1L9 8H1L5 1Z" fill="currentColor"/>
+                <path d="M5 1L9 8H1L5 1Z" fill="currentColor" />
               </svg>
             </div>
             <div class="nf-dead-story__body">
@@ -84,7 +91,7 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <!-- comment snippet -->
           <div class="nf-dead-comment">
-            <div class="nf-dead-comment__indent"></div>
+            <div class="nf-dead-comment__indent" />
             <div class="nf-dead-comment__body">
               <p class="nf-dead-comment__meta">
                 <a href="#" class="nf-dead-comment__author">dang</a>
@@ -120,9 +127,9 @@ import ConceptVariant from './ConceptVariant.vue';
         <div class="nf-card nf-card--c">
           <div class="nf-term">
             <div class="nf-term__bar">
-              <span class="nf-term__dot nf-term__dot--red"></span>
-              <span class="nf-term__dot nf-term__dot--yellow"></span>
-              <span class="nf-term__dot nf-term__dot--green"></span>
+              <span class="nf-term__dot nf-term__dot--red" />
+              <span class="nf-term__dot nf-term__dot--yellow" />
+              <span class="nf-term__dot nf-term__dot--green" />
               <span class="nf-term__bar-title">bash</span>
             </div>
             <div class="nf-term__body">
@@ -136,22 +143,38 @@ import ConceptVariant from './ConceptVariant.vue';
               <p class="nf-term__line nf-term__line--muted">
                 &gt; Host: news.ycombinator.com
               </p>
-              <p class="nf-term__line nf-term__spacer">&nbsp;</p>
+              <p class="nf-term__line nf-term__spacer">
+&nbsp;
+              </p>
               <p class="nf-term__line">
                 <span class="nf-term__status-code">HTTP/2 200</span>
                 <span class="nf-term__line--muted">  ← wait, HN returns 200 for everything</span>
               </p>
-              <p class="nf-term__line nf-term__line--muted">Content-Type: text/html; charset=utf-8</p>
-              <p class="nf-term__line nf-term__spacer">&nbsp;</p>
+              <p class="nf-term__line nf-term__line--muted">
+                Content-Type: text/html; charset=utf-8
+              </p>
+              <p class="nf-term__line nf-term__spacer">
+&nbsp;
+              </p>
               <p class="nf-term__line">
                 <span class="nf-term__prompt">$ </span>
                 <span class="nf-term__cmd">curl https://news.ycombinator.com/unknown | grep -o '&lt;pre&gt;.*&lt;/pre&gt;'</span>
               </p>
-              <p class="nf-term__line nf-term__line--accent">&lt;pre&gt;Unknown.&lt;/pre&gt;</p>
-              <p class="nf-term__spacer">&nbsp;</p>
-              <p class="nf-term__line nf-term__line--error">error: the page you requested could not be found</p>
-              <p class="nf-term__line nf-term__line--hint">hint: try <span class="nf-term__inline-cmd">curl https://news.ycombinator.com/</span> instead</p>
-              <p class="nf-term__line nf-term__spacer">&nbsp;</p>
+              <p class="nf-term__line nf-term__line--accent">
+                &lt;pre&gt;Unknown.&lt;/pre&gt;
+              </p>
+              <p class="nf-term__spacer">
+&nbsp;
+              </p>
+              <p class="nf-term__line nf-term__line--error">
+                error: the page you requested could not be found
+              </p>
+              <p class="nf-term__line nf-term__line--hint">
+                hint: try <span class="nf-term__inline-cmd">curl https://news.ycombinator.com/</span> instead
+              </p>
+              <p class="nf-term__line nf-term__spacer">
+&nbsp;
+              </p>
               <p class="nf-term__line">
                 <span class="nf-term__prompt">$ </span>
                 <span class="nf-term__cursor">█</span>
@@ -202,10 +225,11 @@ import ConceptVariant from './ConceptVariant.vue';
 
         <!-- Comment tree -->
         <div class="nf-ask-comments">
-
           <!-- dang's reply -->
           <div class="nf-ask-comment nf-ask-comment--top">
-            <div class="nf-ask-comment__vote">▲</div>
+            <div class="nf-ask-comment__vote">
+              ▲
+            </div>
             <div class="nf-ask-comment__body">
               <p class="nf-ask-comment__meta">
                 <a href="#" class="nf-ask-comment__author nf-ask-comment__author--mod">dang</a>
@@ -228,7 +252,9 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <!-- nested reply -->
           <div class="nf-ask-comment nf-ask-comment--nested">
-            <div class="nf-ask-comment__vote">▲</div>
+            <div class="nf-ask-comment__vote">
+              ▲
+            </div>
             <div class="nf-ask-comment__body">
               <p class="nf-ask-comment__meta">
                 <a href="#" class="nf-ask-comment__author">tptacek</a>
@@ -252,7 +278,6 @@ import ConceptVariant from './ConceptVariant.vue';
         </div>
       </div>
     </ConceptVariant>
-
   </div>
 </template>
 

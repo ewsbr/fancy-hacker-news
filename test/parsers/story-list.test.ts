@@ -1,11 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
+import { describe, expect, it } from 'vitest';
 import { parseHeader } from '@/parsers/header';
 import { parseItemPage } from '@/parsers/item';
 import { parseNewComments } from '@/parsers/new-comments';
-import { parseThreadsPage } from '@/parsers/threads';
 import { parseStoryList } from '@/parsers/story-list';
+import { parseThreadsPage } from '@/parsers/threads';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): ReturnType<typeof parseItemPage>['comments'] {

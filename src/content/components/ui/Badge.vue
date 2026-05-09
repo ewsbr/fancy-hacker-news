@@ -9,8 +9,8 @@ defineProps<{
 </script>
 
 <template>
-  <span 
-    class="badge" 
+  <span
+    class="badge"
     :class="[`badge--${variant || 'default'}`]"
     :title="title"
   >

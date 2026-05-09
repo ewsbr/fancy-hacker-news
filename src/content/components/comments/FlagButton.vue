@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { FlagActionTarget } from '@/content/composables/use-hn-actions';
+import { computed } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{

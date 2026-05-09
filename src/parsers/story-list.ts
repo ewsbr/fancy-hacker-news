@@ -1,8 +1,9 @@
-import {
-  textOf, hrefOf,
-} from './shared/dom';
 import { parseAge } from './shared/age';
 import { findUnvoteHref, isNewUser } from './shared/comment';
+import {
+  hrefOf,
+  textOf,
+} from './shared/dom';
 import { findMoreLink } from './shared/pagination';
 import { parseCommentCount, parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
@@ -50,11 +51,12 @@ export function parseStoryList(doc: Document): ParsedStoryList {
 
   for (const row of doc.querySelectorAll<HTMLElement>('tr.athing.submission')) {
     const id = row.getAttribute('id');
-    if (!id) continue;
+    if (!id)
+      continue;
 
     // Rank
     const rankText = textOf(row.querySelector('td.title > span.rank')).replace('.', '');
-    const parsedRank = parseInt(rankText, 10);
+    const parsedRank = Number.parseInt(rankText, 10);
     const rank = Number.isNaN(parsedRank) ? null : parsedRank;
 
     // Title + URL
@@ -112,12 +114,23 @@ export function parseStoryList(doc: Document): ParsedStoryList {
     }
 
     stories.push({
-      id, rank, title, url, site,
-      score, author, authorIsNew,
-      age, ageTimestamp, ageLink,
-      commentCount, commentLink,
-      isJob, hideUrl,
-      voteUp, voteUn,
+      id,
+      rank,
+      title,
+      url,
+      site,
+      score,
+      author,
+      authorIsNew,
+      age,
+      ageTimestamp,
+      ageLink,
+      commentCount,
+      commentLink,
+      isJob,
+      hideUrl,
+      voteUp,
+      voteUn,
       isDead: titleStatus.isDead,
       isFlagged: titleStatus.isFlagged,
       isDeleted: titleStatus.isDeleted,

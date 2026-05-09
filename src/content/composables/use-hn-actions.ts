@@ -52,7 +52,8 @@ function navigateToActionGate(href: string): void {
 function isVoteSuccessResponse(response: Response): boolean {
   try {
     return new URL(response.url).pathname === '/ok';
-  } catch {
+  }
+  catch {
     return false;
   }
 }
@@ -70,7 +71,8 @@ function toggleFlagHref(href: string): string {
 
   if (url.searchParams.get('un') === 't') {
     url.searchParams.delete('un');
-  } else {
+  }
+  else {
     url.searchParams.set('un', 't');
   }
 
@@ -101,7 +103,8 @@ async function sendActionRequest(href: string, appendJsParam = false): Promise<b
     }
 
     return true;
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Fancy HN action failed', error);
     return false;
   }
@@ -133,7 +136,8 @@ export function useHnActions() {
       // fixture coverage for a karma-enabled account in this repo.
       target.voteUn = direction === 'un' ? null : buildUnvoteHref(href);
       return true;
-    } finally {
+    }
+    finally {
       isBusy.value = false;
     }
   }
@@ -155,7 +159,8 @@ export function useHnActions() {
       target.flagUrl = toggleFlagHref(href);
       target.isFlagged = !target.isFlagged;
       return true;
-    } finally {
+    }
+    finally {
       isBusy.value = false;
     }
   }

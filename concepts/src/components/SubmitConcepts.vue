@@ -5,8 +5,12 @@ import ConceptVariant from './ConceptVariant.vue';
 <template>
   <section class="concept-app__section-head">
     <div>
-      <p class="concept-app__section-eyebrow">submit page</p>
-      <h2 class="concept-app__section-title">Nine directions based on the current shipped submit page</h2>
+      <p class="concept-app__section-eyebrow">
+        submit page
+      </p>
+      <h2 class="concept-app__section-title">
+        Nine directions based on the current shipped submit page
+      </h2>
     </div>
     <p class="concept-app__section-copy">
       These stay anchored to the current design language: accent-top surfaces, title-heavy type, muted utility links, and an HN-style story preview.
@@ -67,7 +71,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>Title</label>
               <span>Specific and source-faithful</span>
             </div>
-            <input value="YC founders pivot after learning users prefer products that work" />
+            <input value="YC founders pivot after learning users prefer products that work">
           </div>
 
           <div class="field-block">
@@ -75,7 +79,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>URL</label>
               <span>Optional for Ask HN</span>
             </div>
-            <input value="https://medium.com/@reliablemoat/users-prefer-products-that-work-9f41c5e2b7da" />
+            <input value="https://medium.com/@reliablemoat/users-prefer-products-that-work-9f41c5e2b7da">
           </div>
 
           <div class="field-block">
@@ -88,12 +92,16 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <div class="form-card__footer">
             <p>Link posts can include optional context. Discussion posts should usually use title plus text.</p>
-            <button class="action-button action-button--primary" type="button">submit post</button>
+            <button class="action-button action-button--primary" type="button">
+              submit post
+            </button>
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Best when the goal is refinement, not a structural rethink.</p>
+      <p class="submit-variant__note">
+        Best when the goal is refinement, not a structural rethink.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 2" title="Editorial Split Layout">
@@ -124,7 +132,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>Title</label>
               <span>Think front-page headline, not ad copy</span>
             </div>
-            <input value="Ask HN: Is there a polite way to say 'your startup could be a cron job'?" />
+            <input value="Ask HN: Is there a polite way to say 'your startup could be a cron job'?">
           </div>
 
           <div class="field-block">
@@ -132,7 +140,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>URL</label>
               <span>Leave blank for discussion</span>
             </div>
-            <input placeholder="https://example.com/post" />
+            <input placeholder="https://example.com/post">
           </div>
 
           <div class="field-block">
@@ -144,8 +152,12 @@ import ConceptVariant from './ConceptVariant.vue';
           </div>
 
           <div class="form-card__footer form-card__footer--tight">
-            <button class="action-button action-button--ghost" type="button">save draft</button>
-            <button class="action-button action-button--primary" type="button">submit discussion</button>
+            <button class="action-button action-button--ghost" type="button">
+              save draft
+            </button>
+            <button class="action-button action-button--primary" type="button">
+              submit discussion
+            </button>
           </div>
         </div>
 
@@ -173,7 +185,9 @@ import ConceptVariant from './ConceptVariant.vue';
         </div>
       </div>
 
-      <p class="submit-variant__note">Good fit if you want to remove tooltip dependence across the page.</p>
+      <p class="submit-variant__note">
+        Good fit if you want to remove tooltip dependence across the page.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 3" title="Mode-First Composer">
@@ -210,7 +224,7 @@ import ConceptVariant from './ConceptVariant.vue';
                 <label>URL</label>
                 <span>This drives the preview</span>
               </div>
-              <input value="https://github.com/ops-heavy/clusterpress" />
+              <input value="https://github.com/ops-heavy/clusterpress">
             </div>
 
             <div class="field-block">
@@ -218,7 +232,7 @@ import ConceptVariant from './ConceptVariant.vue';
                 <label>Title</label>
                 <span>Auto-suggest from linked page</span>
               </div>
-              <input value="Show HN: A static markdown blog powered by an 8-node Kubernetes cluster" />
+              <input value="Show HN: A static markdown blog powered by an 8-node Kubernetes cluster">
             </div>
 
             <div class="field-block">
@@ -230,8 +244,12 @@ import ConceptVariant from './ConceptVariant.vue';
             </div>
 
             <div class="form-card__footer form-card__footer--tight">
-              <button class="action-button action-button--ghost" type="button">switch to discussion</button>
-              <button class="action-button action-button--primary" type="button">submit link</button>
+              <button class="action-button action-button--ghost" type="button">
+                switch to discussion
+              </button>
+              <button class="action-button action-button--primary" type="button">
+                submit link
+              </button>
             </div>
           </div>
 
@@ -254,7 +272,9 @@ import ConceptVariant from './ConceptVariant.vue';
         </div>
       </div>
 
-      <p class="submit-variant__note">Useful if the combined form keeps confusing first-time posters.</p>
+      <p class="submit-variant__note">
+        Useful if the combined form keeps confusing first-time posters.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 4" title="Two-Column Draft Workshop">
@@ -283,7 +303,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>Title draft</label>
               <span>73 / 80 ideal</span>
             </div>
-            <input value="Agent startup adds human fallback, accidentally ships customer support team" />
+            <input value="Agent startup adds human fallback, accidentally ships customer support team">
           </div>
 
           <div class="field-block">
@@ -291,7 +311,7 @@ import ConceptVariant from './ConceptVariant.vue';
               <label>URL</label>
               <span>Link post</span>
             </div>
-            <input value="https://techcrunch.com/2026/03/11/agent-startup-human-fallback-customer-support-team/" />
+            <input value="https://techcrunch.com/2026/03/11/agent-startup-human-fallback-customer-support-team/">
           </div>
 
           <div class="field-block">
@@ -318,8 +338,12 @@ import ConceptVariant from './ConceptVariant.vue';
           </div>
 
           <div class="form-card__footer form-card__footer--tight">
-            <button class="action-button action-button--ghost" type="button">compare alternates</button>
-            <button class="action-button action-button--primary" type="button">publish draft</button>
+            <button class="action-button action-button--ghost" type="button">
+              compare alternates
+            </button>
+            <button class="action-button action-button--primary" type="button">
+              publish draft
+            </button>
           </div>
         </div>
 
@@ -345,7 +369,9 @@ import ConceptVariant from './ConceptVariant.vue';
         </div>
       </div>
 
-      <p class="submit-variant__note">This is the most product-like option if submit is becoming a more serious drafting surface.</p>
+      <p class="submit-variant__note">
+        This is the most product-like option if submit is becoming a more serious drafting surface.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 5" title="Dense Minimal Stack">
@@ -362,22 +388,24 @@ import ConceptVariant from './ConceptVariant.vue';
       </div>
 
       <div class="mock-shell">
-        <div class="stack-note">A version for people who want the redesign to feel lighter and less editorial.</div>
+        <div class="stack-note">
+          A version for people who want the redesign to feel lighter and less editorial.
+        </div>
 
         <div class="form-card form-card--compact">
           <div class="field-block field-block--plain">
             <label>Title</label>
-            <input value="The mathematical inefficiency of the space bar" />
+            <input value="The mathematical inefficiency of the space bar">
           </div>
 
           <div class="field-block field-block--plain">
             <label>URL</label>
-            <input value="https://blog.hendricks.dev/posts/the-mathematical-inefficiency-of-the-space-bar/" />
+            <input value="https://blog.hendricks.dev/posts/the-mathematical-inefficiency-of-the-space-bar/">
           </div>
 
           <div class="field-block field-block--plain">
             <label>Text</label>
-            <textarea placeholder="Optional context"></textarea>
+            <textarea placeholder="Optional context" />
           </div>
 
           <div class="story-preview-card story-preview-card--compact">
@@ -391,12 +419,16 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <div class="form-card__footer">
             <p>Minimal framing, same fields, same story preview.</p>
-            <button class="action-button action-button--primary" type="button">submit</button>
+            <button class="action-button action-button--primary" type="button">
+              submit
+            </button>
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Worth considering if the current page feels a little too product-heavy for a utility workflow.</p>
+      <p class="submit-variant__note">
+        Worth considering if the current page feels a little too product-heavy for a utility workflow.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 6" title="Guided Posting Storyboard">
@@ -448,12 +480,12 @@ import ConceptVariant from './ConceptVariant.vue';
 
             <div class="field-block">
               <label>Title</label>
-              <input value="Show HN: An app that blocks Slack until you finish the document you said you wrote" />
+              <input value="Show HN: An app that blocks Slack until you finish the document you said you wrote">
             </div>
 
             <div class="field-block">
               <label>URL</label>
-              <input value="https://github.com/draftfirst/slacklock" />
+              <input value="https://github.com/draftfirst/slacklock">
             </div>
 
             <div class="field-block">
@@ -461,20 +493,24 @@ import ConceptVariant from './ConceptVariant.vue';
               <textarea>Storyboard language helps newer posters without turning submit into a multi-step wizard.</textarea>
             </div>
 
-            <button class="action-button action-button--primary" type="button">submit show hn</button>
+            <button class="action-button action-button--primary" type="button">
+              submit show hn
+            </button>
           </div>
 
           <div class="wireframe-card">
-            <span class="wireframe-card__line wireframe-card__line--short"></span>
-            <span class="wireframe-card__block"></span>
-            <span class="wireframe-card__line"></span>
-            <span class="wireframe-card__line wireframe-card__line--medium"></span>
-            <span class="wireframe-card__block"></span>
+            <span class="wireframe-card__line wireframe-card__line--short" />
+            <span class="wireframe-card__block" />
+            <span class="wireframe-card__line" />
+            <span class="wireframe-card__line wireframe-card__line--medium" />
+            <span class="wireframe-card__block" />
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Most opinionated option. Good if you want stronger onboarding for infrequent posters.</p>
+      <p class="submit-variant__note">
+        Most opinionated option. Good if you want stronger onboarding for infrequent posters.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 7" title="Classic Utility Stack">
@@ -511,27 +547,31 @@ import ConceptVariant from './ConceptVariant.vue';
         <div class="form-card form-card--plain">
           <div class="field-block field-block--plain">
             <label>Title</label>
-            <input value="YC founders pivot after learning users prefer products that work" />
+            <input value="YC founders pivot after learning users prefer products that work">
           </div>
 
           <div class="field-block field-block--plain">
             <label>URL</label>
-            <input value="https://medium.com/@reliablemoat/users-prefer-products-that-work-9f41c5e2b7da" />
+            <input value="https://medium.com/@reliablemoat/users-prefer-products-that-work-9f41c5e2b7da">
           </div>
 
           <div class="field-block field-block--plain">
             <label>Text</label>
-            <textarea placeholder="Optional context"></textarea>
+            <textarea placeholder="Optional context" />
           </div>
 
           <div class="form-card__footer">
             <p>Minimal framing. Same submit mechanics.</p>
-            <button class="action-button action-button--primary" type="button">submit</button>
+            <button class="action-button action-button--primary" type="button">
+              submit
+            </button>
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Best if the current page feels too productized for a simple posting workflow.</p>
+      <p class="submit-variant__note">
+        Best if the current page feels too productized for a simple posting workflow.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 8" title="Discussion-First Minimal">
@@ -551,7 +591,7 @@ import ConceptVariant from './ConceptVariant.vue';
         <div class="form-card form-card--plain">
           <div class="field-block field-block--plain">
             <label>Title</label>
-            <input value="Ask HN: Is there a polite way to say 'your startup could be a cron job'?" />
+            <input value="Ask HN: Is there a polite way to say 'your startup could be a cron job'?">
           </div>
 
           <div class="field-block field-block--plain">
@@ -561,7 +601,7 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <div class="field-block field-block--plain field-block--muted">
             <label>URL</label>
-            <input placeholder="Optional for discussion posts" />
+            <input placeholder="Optional for discussion posts">
           </div>
 
           <div class="inline-hint-row">
@@ -569,12 +609,16 @@ import ConceptVariant from './ConceptVariant.vue';
           </div>
 
           <div class="form-card__footer form-card__footer--tight">
-            <button class="action-button action-button--primary" type="button">submit discussion</button>
+            <button class="action-button action-button--primary" type="button">
+              submit discussion
+            </button>
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Useful if discussion posts are the dominant use case and the current neutral form feels over-generalized.</p>
+      <p class="submit-variant__note">
+        Useful if discussion posts are the dominant use case and the current neutral form feels over-generalized.
+      </p>
     </ConceptVariant>
 
     <ConceptVariant class="submit-variant" eyebrow="Variant 9" title="Ledger Form With Inline Guidance">
@@ -594,7 +638,7 @@ import ConceptVariant from './ConceptVariant.vue';
         <div class="form-card form-card--plain">
           <div class="field-block field-block--plain">
             <label>Title</label>
-            <input value="Show HN: A static markdown blog powered by an 8-node Kubernetes cluster" />
+            <input value="Show HN: A static markdown blog powered by an 8-node Kubernetes cluster">
           </div>
 
           <div class="inline-hint-row">
@@ -603,7 +647,7 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <div class="field-block field-block--plain">
             <label>URL</label>
-            <input value="https://github.com/ops-heavy/clusterpress" />
+            <input value="https://github.com/ops-heavy/clusterpress">
           </div>
 
           <div class="inline-hint-row">
@@ -624,12 +668,16 @@ import ConceptVariant from './ConceptVariant.vue';
 
           <div class="form-card__footer">
             <p>Compact guidance, compact preview, standard submit flow.</p>
-            <button class="action-button action-button--primary" type="button">submit post</button>
+            <button class="action-button action-button--primary" type="button">
+              submit post
+            </button>
           </div>
         </div>
       </div>
 
-      <p class="submit-variant__note">Good when you want more coaching than classic HN, but much less chrome than the editorial concepts.</p>
+      <p class="submit-variant__note">
+        Good when you want more coaching than classic HN, but much less chrome than the editorial concepts.
+      </p>
     </ConceptVariant>
   </section>
 </template>

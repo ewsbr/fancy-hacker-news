@@ -70,20 +70,29 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
 
   let variant: ParsedLoginPage['variant'] = authMessage ? 'auth-gate' : 'login';
   let title = authMessage ?? 'Login';
-  if (path === '/changepw') { variant = 'changepw'; title = 'Change Password'; }
-  else if (path === '/forgot') { variant = 'forgot'; title = 'Reset Password'; }
-  else if (path === '/comment') { variant = 'comment'; title = 'Login to Comment'; }
+  if (path === '/changepw') {
+    variant = 'changepw';
+    title = 'Change Password';
+  }
+  else if (path === '/forgot') {
+    variant = 'forgot';
+    title = 'Reset Password';
+  }
+  else if (path === '/comment') {
+    variant = 'comment';
+    title = 'Login to Comment';
+  }
 
   const hnmain = doc.querySelector('table#hnmain');
   const context = hnmain || doc.body;
 
   const forms: LoginForm[] = [];
   const formEls = Array.from(context.querySelectorAll('form'));
-  
+
   for (const form of formEls) {
     const action = form.getAttribute('action') ?? 'login';
     const method = form.getAttribute('method') ?? 'post';
-    
+
     // Find previous <b> or text node for form title
     let formTitle: string | null = null;
     let prev = form.previousElementSibling;
@@ -91,24 +100,26 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
     if (prev && prev.tagName === 'B') {
       formTitle = textOf(prev);
     }
-  
+
     const hiddenFields: { name: string; value: string }[] = [];
     for (const el of form.querySelectorAll<HTMLInputElement>('input[type=hidden]')) {
       hiddenFields.push({ name: el.name, value: el.value });
     }
-  
+
     const submitEl = form.querySelector<HTMLInputElement>('input[type=submit]');
     const submitLabel = submitEl?.value ?? 'login';
-  
+
     const visibleFields: FormField[] = [];
     const tableRows = form.querySelectorAll('tr');
-    
+
     if (tableRows.length > 0) {
       for (const row of tableRows) {
         const tds = row.querySelectorAll('td');
-        if (tds.length < 2) continue;
+        if (tds.length < 2)
+          continue;
         const input = tds[1].querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input:not([type=hidden]):not([type=submit]), select, textarea');
-        if (!input) continue;
+        if (!input)
+          continue;
         visibleFields.push({
           label: textOf(tds[0]).replace(/:$/, '').trim(),
           name: (input as HTMLInputElement).name,
@@ -141,14 +152,14 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
         });
       }
     }
-    
+
     forms.push({
       title: formTitle,
       action,
       method,
       visibleFields,
       hiddenFields,
-      submitLabel
+      submitLabel,
     });
   }
 

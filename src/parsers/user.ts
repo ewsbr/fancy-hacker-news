@@ -1,8 +1,8 @@
-import { textOf, attrOf, hrefOf } from './shared/dom';
+import { attrOf, hrefOf, textOf } from './shared/dom';
 
-export type UserAboutSegment =
-  | { type: 'text'; text: string }
-  | { type: 'link'; text: string; href: string };
+export type UserAboutSegment
+  = | { type: 'text'; text: string }
+    | { type: 'link'; text: string; href: string };
 
 export interface UserAboutBlock {
   segments: UserAboutSegment[];
@@ -45,6 +45,7 @@ const ELEMENT_NODE = 1;
 const URL_PATTERN = /\b(?:https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
 const UNSAFE_TEXT_CONTAINERS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT']);
 const TRAILING_URL_PUNCTUATION = /[),.;:!?]+$/;
+// eslint-disable-next-line no-control-regex
 const CONTROL_CHAR = /[\u0000-\u001F\u007F]/;
 
 function isUserCollectionHref(
@@ -61,7 +62,8 @@ function isUserCollectionHref(
 
   try {
     return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
-  } catch {
+  }
+  catch {
     return false;
   }
 }
@@ -77,7 +79,8 @@ function toSafeLinkHref(rawHref: string | null | undefined): string | null {
   try {
     const { protocol } = new URL(normalizedHref, 'https://news.ycombinator.com');
     return protocol === 'http:' || protocol === 'https:' ? normalizedHref : null;
-  } catch {
+  }
+  catch {
     return null;
   }
 }
@@ -103,7 +106,8 @@ function linkifyText(text: string): UserAboutSegment[] {
 
     if (href) {
       segments.push({ type: 'link', text: linkText, href });
-    } else {
+    }
+    else {
       segments.push({ type: 'text', text: linkText });
     }
 
@@ -213,7 +217,8 @@ function withCommentsParam(href: string | null | undefined): string | null {
     }
 
     return href.startsWith('/') ? `${url.pathname}${url.search}` : `${url.pathname}${url.search}`.replace(/^\//, '');
-  } catch {
+  }
+  catch {
     return href.includes('?') ? `${href}&comments=t` : `${href}?comments=t`;
   }
 }
@@ -231,10 +236,11 @@ export function parseUserPage(doc: Document): ParsedUserPage {
 
   // Karma — find <td>karma:</td> then read the adjacent td
   let karma = 0;
-  bigbox?.querySelectorAll('td').forEach(td => {
+  bigbox?.querySelectorAll('td').forEach((td) => {
     if (td.textContent?.trim() === 'karma:') {
       const next = td.nextElementSibling;
-      if (next) karma = parseInt(next.textContent?.trim() || '0', 10) || 0;
+      if (next)
+        karma = Number.parseInt(next.textContent?.trim() || '0', 10) || 0;
     }
   });
 
@@ -249,8 +255,9 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   if (isOwnProfile) {
     const textarea = form!.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
     about = textarea?.value ?? null;
-  } else {
-    bigbox?.querySelectorAll('td').forEach(td => {
+  }
+  else {
+    bigbox?.querySelectorAll('td').forEach((td) => {
       if (td.textContent?.trim() === 'about:') {
         const next = td.nextElementSibling;
         aboutBlocks = parseUserAboutBlocks(next);
@@ -288,10 +295,10 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   const changePwLink = hrefOf(bigbox?.querySelector('a[href^="changepw"]'));
 
   // Submissions / threads links
-  const submissionsLink =
-    hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`;
-  const threadsLink =
-    hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`;
+  const submissionsLink
+    = hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`;
+  const threadsLink
+    = hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`;
 
   // Upvoted links (submissions and comments variants; only present on own profile)
   const upvotedLinks = bigbox
@@ -299,10 +306,10 @@ export function parseUserPage(doc: Document): ParsedUserPage {
         isUserCollectionHref(attrOf(el, 'href'), 'upvoted'),
       )
     : [];
-  const upvotedLink =
-    hrefOf(upvotedLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
-  const upvotedCommentsLink =
-    hrefOf(upvotedLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
+  const upvotedLink
+    = hrefOf(upvotedLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
+  const upvotedCommentsLink
+    = hrefOf(upvotedLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
 
   // Favorites links
   const favLinks = bigbox
@@ -310,12 +317,12 @@ export function parseUserPage(doc: Document): ParsedUserPage {
         isUserCollectionHref(attrOf(el, 'href'), 'favorites'),
       )
     : [];
-  const favoritesLink =
-    hrefOf(favLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ||
-    `favorites?id=${username}`;
-  const favoritesCommentsLink =
-    hrefOf(favLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ??
-    withCommentsParam(favoritesLink);
+  const favoritesLink
+    = hrefOf(favLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t')))
+      || `favorites?id=${username}`;
+  const favoritesCommentsLink
+    = hrefOf(favLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t')))
+      ?? withCommentsParam(favoritesLink);
 
   const normalizedUpvotedLink = upvotedLink ?? null;
   const normalizedUpvotedCommentsLink = upvotedCommentsLink ?? withCommentsParam(normalizedUpvotedLink);

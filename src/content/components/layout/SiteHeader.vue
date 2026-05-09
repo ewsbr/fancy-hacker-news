@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core';
-import { computed, inject, ref, shallowRef } from 'vue';
 import type { ParsedHeader } from '@/parsers/header';
-import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
-import YLogo from '@/assets/ycombinator.svg';
-import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
+import { useEventListener } from '@vueuse/core';
 import { Menu } from 'lucide-vue-next';
+import { computed, inject, ref, shallowRef } from 'vue';
+import YLogo from '@/assets/ycombinator.svg';
+import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
+import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const header = inject<ParsedHeader>('header')!;
@@ -13,7 +13,7 @@ const navOpen = ref(false);
 const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
 
-const navLinks = computed(() => header.navLinks.filter((link) => link.label.toLowerCase() !== 'hacker news'));
+const navLinks = computed(() => header.navLinks.filter(link => link.label.toLowerCase() !== 'hacker news'));
 const effectiveTopBarColor = computed(() => header.topBarColor);
 const showHeaderAccent = computed(() => header.hasCustomTopBarColor && !header.hasMemorialBar);
 const useBlackLogo = computed(() => header.hasCustomTopBarColor || header.hasMemorialBar);
@@ -66,7 +66,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
               :src="YLogo"
               class="site-header__logo-img"
               alt="Y Combinator Logo"
-            />
+            >
           </span>
           <span class="site-header__logo-text">
             Hacker News

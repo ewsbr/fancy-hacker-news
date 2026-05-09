@@ -17,10 +17,14 @@ withDefaults(
 <template>
   <component :is="tag" class="concept-variant-shell" :class="{ 'concept-variant-shell--compact': density === 'compact' }">
     <header class="concept-variant-shell__header">
-      <p v-if="eyebrow" class="concept-variant-shell__eyebrow">{{ eyebrow }}</p>
+      <p v-if="eyebrow" class="concept-variant-shell__eyebrow">
+        {{ eyebrow }}
+      </p>
 
       <div class="concept-variant-shell__title-row">
-        <h3 class="concept-variant-shell__title">{{ title }}</h3>
+        <h3 class="concept-variant-shell__title">
+          {{ title }}
+        </h3>
         <slot name="title-trailing" />
       </div>
 
