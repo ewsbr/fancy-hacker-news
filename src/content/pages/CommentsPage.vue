@@ -452,6 +452,10 @@ useEventListener(window, 'hashchange', () => {
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    text-decoration-line: underline;
+    text-decoration-color: var(--color-border-strong);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
     border-top: 1px solid var(--color-border);
   }
 
