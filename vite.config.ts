@@ -1,6 +1,7 @@
 import { posix, resolve } from 'node:path';
 import process from 'node:process';
 import vue from '@vitejs/plugin-vue';
+import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 
 /**
@@ -74,7 +75,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '',
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      Icons({
+        compiler: 'vue3',
+      }),
+    ],
 
     define: {
       // Replace Node.js globals so the IIFE bundle works in browser extensions.

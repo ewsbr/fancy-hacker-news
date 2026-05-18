@@ -7,10 +7,14 @@ import Badge from '@/content/components/ui/Badge.vue';
 import { splitTrailingWord } from '@/content/utils/text';
 import StoryMeta from './StoryMeta.vue';
 import StoryRank from './StoryRank.vue';
+import CommentIcon from '~icons/material-symbols/chat-sharp';
 
 const props = defineProps<{ story: Story }>();
 
 const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
+const showCommentRail = computed(() => !props.story.isJob);
+const commentRailHref = computed(() => props.story.commentLink || props.story.ageLink || `item?id=${props.story.id}`);
+const commentRailCount = computed(() => props.story.commentCount ?? 0);
 </script>
 
 <template>
@@ -19,6 +23,7 @@ const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
     :class="{
       'story-row--unranked': story.rank === null,
       'story-row--wide-rank': story.rank !== null && story.rank >= 100,
+      'story-row--comments-aside': showCommentRail,
     }"
   >
     <StoryRank v-if="story.rank !== null" :rank="story.rank" />
@@ -42,6 +47,15 @@ const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
       </div>
       <StoryMeta :story="story" />
     </div>
+    <a
+      v-if="showCommentRail"
+      :href="commentRailHref"
+      class="story-row__comments"
+      :aria-label="`${commentRailCount} comments on ${story.title}`"
+    >
+      <CommentIcon class="story-row__comments-icon" aria-hidden="true" />
+      <span class="story-row__comments-count">{{ commentRailCount }}</span>
+    </a>
   </article>
 </template>
 
@@ -70,6 +84,19 @@ const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
     grid-template-columns: 32px 20px 1fr;
     gap: 0 8px;
     padding-left: 4px;
+  }
+
+  &--comments-aside {
+    grid-template-columns: 28px 20px minmax(0, 1fr) 44px;
+    padding-right: 6px;
+
+    &.story-row--unranked {
+      grid-template-columns: 20px minmax(0, 1fr) 44px;
+    }
+
+    &.story-row--wide-rank {
+      grid-template-columns: 32px 20px minmax(0, 1fr) 44px;
+    }
   }
 
   &__body {
@@ -113,6 +140,58 @@ const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
 
   &__job-link-wrap {
     white-space: nowrap;
+  }
+
+  &__comments {
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    gap: 4px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 4px 0;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+
+    &:hover {
+      color: var(--color-accent-muted);
+      text-decoration: none;
+    }
+  }
+
+  &__comments-icon {
+    width: 18px;
+    height: 18px;
+    transform: scale(-1, 1);
+  }
+
+  &__comments-count {
+    font-size: 0.78rem;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .story-row {
+    &--comments-aside {
+      grid-template-columns: 24px 18px minmax(0, 1fr) 36px;
+
+      &.story-row--unranked {
+        grid-template-columns: 18px minmax(0, 1fr) 36px;
+      }
+
+      &.story-row--wide-rank {
+        grid-template-columns: 30px 18px minmax(0, 1fr) 36px;
+      }
+    }
+
+    &__comments {
+      min-width: 34px;
+    }
   }
 }
 </style>

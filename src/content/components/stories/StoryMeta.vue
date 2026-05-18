@@ -10,11 +10,6 @@ const ageLinkHref = computed(
   () => props.story.ageLink || props.story.commentLink || `item?id=${props.story.id}`,
 );
 
-function formatComments(count: number | null): string {
-  if (count === null || count === 0)
-    return 'discuss';
-  return `${count} comment${count === 1 ? '' : 's'}`;
-}
 </script>
 
 <template>
@@ -34,14 +29,8 @@ function formatComments(count: number | null): string {
     </template>
     <a v-else :href="ageLinkHref" class="story-meta__age">{{ story.age }}</a>
     <template v-if="!story.isJob">
-      <MetaSep />
-      <a v-if="story.hideUrl" :href="story.hideUrl" class="story-meta__action">hide</a>
       <MetaSep v-if="story.hideUrl" />
-      <a
-        v-if="story.commentLink"
-        :href="story.commentLink"
-        class="story-meta__comments"
-      >{{ formatComments(story.commentCount) }}</a>
+      <a v-if="story.hideUrl" :href="story.hideUrl" class="story-meta__action">hide</a>
     </template>
   </div>
 </template>
@@ -74,8 +63,7 @@ function formatComments(count: number | null): string {
   }
 
   &__age,
-  &__action,
-  &__comments {
+  &__action {
     display: inline-flex;
     align-items: center;
     min-block-size: var(--hn-meta-row-height);
@@ -89,18 +77,6 @@ function formatComments(count: number | null): string {
 
     &:hover {
       text-decoration: underline;
-    }
-  }
-
-  &__comments {
-    position: relative;
-    font-weight: var(--hn-meta-action-font-weight);
-    color: var(--color-text) !important;
-
-    &::before {
-      content: "";
-      position: absolute;
-      inset: -5px -4px;
     }
   }
 
