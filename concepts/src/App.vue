@@ -4,12 +4,13 @@ import ListsConcepts from './components/ListsConcepts.vue';
 import LogoConcepts from './components/LogoConcepts.vue';
 import MemorialBarConcepts from './components/MemorialBarConcepts.vue';
 import NotFoundConcepts from './components/NotFoundConcepts.vue';
+import SiteHeaderConcepts from './components/SiteHeaderConcepts.vue';
 import SubmitConcepts from './components/SubmitConcepts.vue';
 import TopColorsConcepts from './components/TopColorsConcepts.vue';
 import TopNoticeConcepts from './components/TopNoticeConcepts.vue';
 
 type ThemeName = 'light' | 'dark' | 'nord' | 'amoled';
-type ConceptTabName = 'logo' | 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404' | 'memorial-bar';
+type ConceptTabName = 'logo' | 'site-header' | 'submit' | 'lists' | 'top-notice' | 'top-colors' | '404' | 'memorial-bar';
 
 const storageKey = 'fancy-hn-concepts-theme';
 const themes: Array<{ name: ThemeName; label: string }> = [
@@ -21,6 +22,7 @@ const themes: Array<{ name: ThemeName; label: string }> = [
 
 const tabs: Array<{ name: ConceptTabName; label: string }> = [
   { name: 'logo', label: 'logo' },
+  { name: 'site-header', label: 'site header' },
   { name: 'submit', label: 'submit' },
   { name: 'lists', label: 'lists' },
   { name: 'top-notice', label: 'top notice' },
@@ -95,6 +97,7 @@ onMounted(() => {
     </nav>
 
     <LogoConcepts v-if="activeTab === 'logo'" />
+    <SiteHeaderConcepts v-else-if="activeTab === 'site-header'" />
     <SubmitConcepts v-else-if="activeTab === 'submit'" />
     <ListsConcepts v-else-if="activeTab === 'lists'" />
     <TopNoticeConcepts v-else-if="activeTab === 'top-notice'" />
