@@ -1,22 +1,115 @@
 <script setup lang="ts">
-import type { ParsedHeader } from '@/parsers/header';
+import type { NavLink, ParsedHeader } from '@/parsers/header';
 import { useEventListener } from '@vueuse/core';
 import { Menu } from 'lucide-vue-next';
 import { computed, inject, ref, shallowRef } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
+import HeaderMoreDropdown from '@/content/components/layout/HeaderMoreDropdown.vue';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+
+interface HeaderLinkGroup {
+  label: string;
+  links: NavLink[];
+}
 
 const header = inject<ParsedHeader>('header')!;
 const navOpen = ref(false);
 const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
 
-const navLinks = computed(() => header.navLinks.filter(link => link.label.toLowerCase() !== 'hacker news'));
+const primaryNavLabels = ['new', 'threads', 'past', 'best', 'ask', 'submit'];
+const communityOverflowLabels = new Set(['comments', 'jobs', 'whoishiring']);
+const discoveryOverflowLabels = new Set([
+  'show',
+  'front',
+  'pool',
+  'active',
+  'classic',
+  'invited',
+  'launches',
+  'leaders',
+  'lists',
+  'bestcomments',
+  'topcolors',
+]);
+const accountOverflowLabels = new Set(['favorites', 'hidden', 'upvoted', 'profile']);
+const syntheticNavLinks = [
+  { label: 'best', href: 'best' },
+  { label: 'front', href: 'front' },
+  { label: 'pool', href: 'pool' },
+  { label: 'active', href: 'active' },
+  { label: 'classic', href: 'classic' },
+  { label: 'whoishiring', href: 'https://news.ycombinator.com/submitted?id=whoishiring' },
+];
+
+const visibleNavLinks = computed(() => {
+  const links = header.navLinks.filter(link => link.label.toLowerCase() !== 'hacker news');
+  const labels = new Set(links.map(link => link.label.toLowerCase()));
+
+  return syntheticNavLinks.reduce<NavLink[]>((visibleLinks, link) => {
+    if (!labels.has(link.label)) {
+      visibleLinks.push({
+        ...link,
+        active: isCurrentHref(link.href),
+      });
+    }
+
+    return visibleLinks;
+  }, [...links]);
+});
+
+const primaryNavLinks = computed(() => {
+  const linksByLabel = new Map(visibleNavLinks.value.map(link => [link.label.toLowerCase(), link]));
+
+  return primaryNavLabels
+    .map(label => linksByLabel.get(label))
+    .filter(link => link !== undefined);
+});
+
+const overflowNavGroups = computed<HeaderLinkGroup[]>(() => {
+  const primaryLabels = new Set(primaryNavLabels);
+  const links = visibleNavLinks.value.filter(link => !primaryLabels.has(link.label.toLowerCase()));
+  const groups: HeaderLinkGroup[] = [
+    { label: 'community', links: [] },
+    { label: 'discovery', links: [] },
+    { label: 'account', links: [] },
+    { label: 'more', links: [] },
+  ];
+
+  for (const link of links) {
+    const label = link.label.toLowerCase();
+
+    if (communityOverflowLabels.has(label)) {
+      groups[0].links.push(link);
+    } else if (discoveryOverflowLabels.has(label)) {
+      groups[1].links.push(link);
+    } else if (accountOverflowLabels.has(label)) {
+      groups[2].links.push(link);
+    } else {
+      groups[3].links.push(link);
+    }
+  }
+
+  return groups.filter(group => group.links.length > 0);
+});
+
+const hasNavLinks = computed(() => primaryNavLinks.value.length > 0 || overflowNavGroups.value.length > 0);
 const effectiveTopBarColor = computed(() => header.topBarColor);
 const showHeaderAccent = computed(() => header.hasCustomTopBarColor && !header.hasMemorialBar);
 const useBlackLogo = computed(() => header.hasCustomTopBarColor || header.hasMemorialBar);
+
+function isCurrentHref(href: string) {
+  const currentOp = document.documentElement.getAttribute('op') ?? '';
+  const currentPath = window.location.pathname.replace(/^\//, '') || 'news';
+  const hrefUrl = new URL(href, window.location.origin);
+  const hrefPath = hrefUrl.pathname.replace(/^\//, '') || 'news';
+
+  return href === currentOp
+    || href.startsWith(`${currentOp}?`)
+    || hrefPath === currentPath && hrefUrl.search === window.location.search;
+}
 
 function closeNav() {
   navOpen.value = false;
@@ -75,7 +168,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
 
         <div class="site-header__mobile-actions">
           <button
-            v-if="navLinks.length > 0"
+            v-if="hasNavLinks"
             ref="navToggle"
             type="button"
             class="site-header__nav-toggle"
@@ -95,13 +188,17 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
         :class="{ 'site-header__nav--open': navOpen }"
       >
         <a
-          v-for="link in navLinks"
+          v-for="link in primaryNavLinks"
           :key="link.href"
           :href="link.href"
           class="site-header__nav-link"
           :class="{ 'site-header__nav-link--active': link.active }"
           @click="closeNav"
         >{{ link.label }}</a>
+        <HeaderMoreDropdown
+          :groups="overflowNavGroups"
+          @navigate="closeNav"
+        />
       </nav>
 
       <button
@@ -221,7 +318,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__nav {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     flex: 1;
     flex-wrap: nowrap;
     font-size: 1rem;
@@ -231,6 +328,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   &__nav-link {
     white-space: nowrap;
     color: var(--color-text-muted);
+    padding: 4px;
     transition: all 0.15s ease;
 
     &:hover {
