@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import type { NavLink, ParsedHeader } from '@/parsers/header';
 import { useEventListener } from '@vueuse/core';
-import { Menu } from 'lucide-vue-next';
+import { ChevronDown, LogOut, Menu, Send, UserRound } from 'lucide-vue-next';
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from 'reka-ui';
 import { computed, inject, ref, shallowRef } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import HeaderMoreDropdown from '@/content/components/layout/HeaderMoreDropdown.vue';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 interface HeaderLinkGroup {
   label: string;
@@ -19,7 +27,7 @@ const navOpen = ref(false);
 const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
 
-const primaryNavLabels = ['new', 'threads', 'past', 'best', 'ask', 'submit'];
+const primaryNavLabels = ['new', 'threads', 'past', 'best', 'ask'];
 const communityOverflowLabels = new Set(['comments', 'jobs', 'whoishiring']);
 const discoveryOverflowLabels = new Set([
   'show',
@@ -68,9 +76,11 @@ const primaryNavLinks = computed(() => {
     .filter(link => link !== undefined);
 });
 
+const submitNavLink = computed(() => visibleNavLinks.value.find(link => link.label.toLowerCase() === 'submit'));
+
 const overflowNavGroups = computed<HeaderLinkGroup[]>(() => {
-  const primaryLabels = new Set(primaryNavLabels);
-  const links = visibleNavLinks.value.filter(link => !primaryLabels.has(link.label.toLowerCase()));
+  const reservedLabels = new Set([...primaryNavLabels, 'submit']);
+  const links = visibleNavLinks.value.filter(link => !reservedLabels.has(link.label.toLowerCase()));
   const groups: HeaderLinkGroup[] = [
     { label: 'community', links: [] },
     { label: 'discovery', links: [] },
@@ -167,6 +177,16 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
         </a>
 
         <div class="site-header__mobile-actions">
+          <a
+            v-if="submitNavLink"
+            :href="submitNavLink.href"
+            class="site-header__submit-link site-header__submit-link--mobile"
+            :class="{ 'site-header__submit-link--active': submitNavLink.active }"
+            @click="closeNav"
+          >
+            <Send :size="14" aria-hidden="true" />
+            <span>submit</span>
+          </a>
           <button
             v-if="hasNavLinks"
             ref="navToggle"
@@ -210,17 +230,64 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
       />
 
       <div class="site-header__controls">
+        <a
+          v-if="submitNavLink"
+          :href="submitNavLink.href"
+          class="site-header__submit-link site-header__submit-link--desktop"
+          :class="{ 'site-header__submit-link--active': submitNavLink.active }"
+        >
+          <Send :size="14" aria-hidden="true" />
+          <span>submit</span>
+        </a>
+        <MetaSep
+          v-if="submitNavLink && header.hasAuthControls"
+          class="site-header__control-sep"
+        />
         <div v-if="header.hasAuthControls" class="site-header__user-controls">
-          <template v-if="header.user">
-            <strong>
-              <a :href="`user?id=${header.user.name}`">{{ header.user.name }}</a>
-            </strong>
-            <span>({{ header.user.karma }})</span>
-            <template v-if="header.logoutUrl">
-              <MetaSep />
-              <a :href="header.logoutUrl">logout</a>
-            </template>
-          </template>
+          <DropdownMenuRoot v-if="header.user">
+            <DropdownMenuTrigger as-child>
+              <button type="button" class="site-header__user-trigger">
+                <strong>{{ header.user.name }}</strong>
+                <span class="site-header__user-karma">({{ header.user.karma }})</span>
+                <ChevronDown :size="13" class="site-header__user-chevron" aria-hidden="true" />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuPortal defer :to="EXTENSION_ROOT_SELECTOR">
+              <DropdownMenuContent
+                class="site-header__user-menu-shell"
+                side="bottom"
+                align="end"
+                :side-offset="8"
+                :collision-padding="12"
+              >
+                <div class="site-header__user-menu">
+                  <DropdownMenuItem as-child text-value="profile">
+                    <a
+                      :href="`user?id=${header.user.name}`"
+                      class="site-header__user-menu-item"
+                    >
+                      <UserRound :size="14" aria-hidden="true" />
+                      <span>profile</span>
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    v-if="header.logoutUrl"
+                    as-child
+                    text-value="logout"
+                  >
+                    <a
+                      :href="header.logoutUrl"
+                      class="site-header__user-menu-item site-header__user-menu-item--danger"
+                    >
+                      <LogOut :size="14" aria-hidden="true" />
+                      <span>logout</span>
+                    </a>
+                  </DropdownMenuItem>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenuPortal>
+          </DropdownMenuRoot>
           <a v-else-if="header.loginUrl" :href="header.loginUrl">login</a>
         </div>
 
@@ -344,13 +411,44 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     }
   }
 
+  &__submit-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 0 4px;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    &--active {
+      color: var(--color-accent-muted);
+    }
+
+    &--mobile {
+      display: none;
+    }
+  }
+
   &__controls {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
     flex-shrink: 0;
     font-size: 1rem;
     font-weight: 500;
+  }
+
+  &__control-sep {
+    flex: 0 0 auto;
   }
 
   &__user-controls {
@@ -360,7 +458,6 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     color: var(--color-text-muted);
     transition: all 0.15s ease;
 
-    strong,
     a {
       white-space: nowrap;
       color: var(--color-text);
@@ -368,6 +465,66 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
 
     a:hover {
       color: var(--color-accent);
+    }
+  }
+
+  &__user-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 30px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--color-accent);
+    }
+  }
+
+  &__user-karma,
+  &__user-chevron {
+    color: var(--color-text-muted);
+  }
+
+  &__user-menu {
+    display: grid;
+    min-width: 132px;
+    padding: 6px;
+    border: 1px solid var(--color-chrome-border);
+    border-radius: 6px;
+    background: var(--color-chrome-surface);
+    box-shadow: var(--shadow-elevation);
+  }
+
+  &__user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 8px;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+
+    &:hover,
+    &[data-highlighted] {
+      background: var(--color-bg);
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    &--danger {
+      color: var(--color-text-muted);
+
+      &:hover,
+      &[data-highlighted] {
+        color: var(--color-danger);
+      }
     }
   }
 
@@ -392,6 +549,19 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     &__mobile-actions {
       display: flex;
       margin-left: auto;
+    }
+
+    &__submit-link {
+      min-height: 32px;
+      padding: 0 4px;
+
+      &--desktop {
+        display: none;
+      }
+
+      &--mobile {
+        display: inline-flex;
+      }
     }
 
     &__nav-toggle {
@@ -447,6 +617,10 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
       border-top: 1px solid var(--color-border);
       padding-top: 12px;
     }
+
+    &__control-sep {
+      display: none;
+    }
   }
 
   #fancy-hn-root[data-theme="dark"] &,
@@ -456,5 +630,9 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
       box-shadow: 0 0 0 1px rgb(255 255 255 / 0.88);
     }
   }
+}
+
+:deep(.site-header__user-menu-shell) {
+  z-index: 120;
 }
 </style>

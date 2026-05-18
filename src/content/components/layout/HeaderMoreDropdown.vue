@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ChevronDown } from 'lucide-vue-next';
 import {
+  AccordionContent,
+  AccordionHeader,
+  AccordionItem,
+  AccordionRoot,
+  AccordionTrigger,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -30,6 +35,9 @@ const open = ref(false);
 
 const hasActiveLink = computed(() => props.groups.some(group => group.links.some(link => link.active)));
 const linkCount = computed(() => props.groups.reduce((count, group) => count + group.links.length, 0));
+const defaultMobileGroup = computed(() => {
+  return props.groups.find(group => group.links.some(link => link.active))?.label ?? props.groups[0]?.label;
+});
 
 function onLinkClick() {
   emit('navigate');
@@ -93,25 +101,45 @@ function onLinkClick() {
       </DropdownMenuPortal>
     </DropdownMenuRoot>
 
-    <div class="header-more__mobile-panel" aria-label="More Hacker News links">
-      <div
+    <AccordionRoot
+      class="header-more__mobile-panel"
+      aria-label="More Hacker News links"
+      type="single"
+      collapsible
+      :default-value="defaultMobileGroup"
+    >
+      <AccordionItem
         v-for="group in groups"
         :key="group.label"
-        class="header-more__group"
+        :value="group.label"
+        class="header-more__accordion-item"
       >
-        <span class="header-more__group-label">{{ group.label }}</span>
-        <a
-          v-for="link in group.links"
-          :key="`${group.label}-${link.href}-${link.label}`"
-          :href="link.href"
-          class="header-more__link"
-          :class="{ 'header-more__link--active': link.active }"
-          @click="onLinkClick"
-        >
-          {{ link.label }}
-        </a>
-      </div>
-    </div>
+        <AccordionHeader as="div" class="header-more__accordion-header">
+          <AccordionTrigger class="header-more__accordion-trigger">
+            <span>{{ group.label }}</span>
+            <ChevronDown
+              :size="16"
+              class="header-more__accordion-chevron"
+              aria-hidden="true"
+            />
+          </AccordionTrigger>
+        </AccordionHeader>
+        <AccordionContent class="header-more__accordion-content">
+          <div class="header-more__accordion-links">
+            <a
+              v-for="link in group.links"
+              :key="`${group.label}-${link.href}-${link.label}`"
+              :href="link.href"
+              class="header-more__link"
+              :class="{ 'header-more__link--active': link.active }"
+              @click="onLinkClick"
+            >
+              {{ link.label }}
+            </a>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </AccordionRoot>
   </template>
 </template>
 
@@ -121,9 +149,8 @@ function onLinkClick() {
   align-items: center;
   gap: 4px;
   min-height: 28px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  padding: 0 4px;
+  border: 0;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -135,8 +162,6 @@ function onLinkClick() {
 .header-more__trigger:hover,
 .header-more__trigger--open,
 .header-more__trigger--active {
-  border-color: var(--color-chrome-border);
-  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -167,6 +192,15 @@ function onLinkClick() {
 }
 
 .header-more__mobile-panel {
+  display: none;
+}
+
+.header-more__accordion-item,
+.header-more__accordion-header,
+.header-more__accordion-content,
+.header-more__accordion-links,
+.header-more__accordion-trigger,
+.header-more__accordion-chevron {
   display: none;
 }
 
@@ -229,25 +263,73 @@ function onLinkClick() {
 
   .header-more__mobile-panel {
     display: grid;
-    gap: 8px;
+    gap: 4px;
   }
 
   .header-more__panel {
     display: none;
   }
 
-  .header-more__group {
-    gap: 2px;
+  .header-more__accordion-item {
+    display: block;
+    min-width: 0;
+    border-bottom: 1px solid var(--color-chrome-border);
   }
 
-  .header-more__group-label {
-    margin: 10px 16px 4px;
+  .header-more__accordion-header {
+    display: block;
+  }
+
+  .header-more__accordion-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .header-more__accordion-trigger:hover {
+    background: var(--color-bg);
+  }
+
+  .header-more__accordion-chevron {
+    display: block;
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+  }
+
+  .header-more__accordion-trigger[data-state='open'] .header-more__accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .header-more__accordion-content {
+    display: block;
+    overflow: hidden;
+  }
+
+  .header-more__accordion-links {
+    display: grid;
+    padding: 0 0 6px;
   }
 
   .header-more__link {
     min-height: 40px;
     height: auto;
-    padding: 0 16px;
+    padding: 0 12px;
     border-radius: 0;
   }
 }
