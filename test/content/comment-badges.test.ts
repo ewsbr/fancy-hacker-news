@@ -1,8 +1,47 @@
 import type { CommentNode } from '@/parsers/item';
 import { describe, expect, it } from 'vitest';
-import { getOriginalPosterTitle } from '@/content/utils/comment-badges';
+import { createApp, ref } from 'vue';
+import { useCommentDisplayContext } from '@/content/composables/comment-node';
+import {
+  COMMENT_THREAD_ROOT_AUTHOR_KEY,
+  COMMENT_THREAD_STORY_AUTHOR_KEY,
+  getOriginalPosterTitle,
+} from '@/content/utils/comment-badges';
 import { parseItemPage } from '@/parsers/item';
 import { loadFixtureDocument } from '../helpers/load-fixture';
+
+function getDisplayContextTitle(options: {
+  author: string;
+  parentAuthor?: string | null;
+  storyAuthor?: string | null;
+  threadRootAuthor?: string | null;
+}): string | null {
+  let title: string | null = null;
+
+  const app = createApp({ render: () => null });
+
+  app.provide(COMMENT_THREAD_STORY_AUTHOR_KEY, options.storyAuthor ?? null);
+  app.provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, options.threadRootAuthor ?? null);
+  app.runWithContext(() => {
+    const node = ref({
+      id: 'comment-id',
+      author: options.author,
+      indent: 1,
+    } as CommentNode);
+    const context = useCommentDisplayContext({
+      node,
+      parentAuthor: ref(options.parentAuthor ?? null),
+      threadAuthor: ref(null),
+      showLocalThreadAuthor: ref(false),
+      showOnStory: ref(false),
+      rootVariant: ref('default'),
+    });
+
+    title = context.originalPosterTitle.value;
+  });
+
+  return title;
+}
 
 function findCommentWithParent(
   comments: CommentNode[],
@@ -23,6 +62,24 @@ function findCommentWithParent(
   return null;
 }
 
+async function getFixtureCommentOriginalPosterTitle(
+  fixturePath: string,
+  targetId: string,
+): Promise<string | null> {
+  const doc = await loadFixtureDocument(fixturePath);
+  const page = parseItemPage(doc);
+  const match = findCommentWithParent(page.comments, targetId);
+
+  expect(match).not.toBeNull();
+
+  return getDisplayContextTitle({
+    author: match!.node.author,
+    parentAuthor: match!.parentAuthor,
+    storyAuthor: page.item.type === 'story' ? page.item.author : null,
+    threadRootAuthor: page.item.type === 'comment' ? page.item.author : null,
+  });
+}
+
 describe('comment OP badges', () => {
   it('marks story authors as OP', () => {
     expect(getOriginalPosterTitle({
@@ -36,13 +93,6 @@ describe('comment OP badges', () => {
       author: 'binsquare',
       threadAuthor: 'binsquare',
     })).toBe('Thread author');
-  });
-
-  it('marks direct parent authors as OP', () => {
-    expect(getOriginalPosterTitle({
-      author: 'consumer451',
-      parentAuthor: 'consumer451',
-    })).toBe('Parent author');
   });
 
   it('keeps the combined title when both conditions match', () => {
@@ -62,29 +112,17 @@ describe('comment OP badges', () => {
     })).toBeNull();
   });
 
-  it('keeps thread-author OP badges working on comment permalink pages', async () => {
-    const doc = await loadFixtureDocument('story-comment-thread-op.html');
-    const page = parseItemPage(doc);
-    const threadAuthor = page.item.author;
-    const rootTitle = getOriginalPosterTitle({
-      author: page.item.author,
-      threadAuthor,
-    });
-    const threadAuthorReply = findCommentWithParent(page.comments, '47810874');
-    const unrelatedReply = findCommentWithParent(page.comments, '47814091');
+  it('does not mark commenters as OP on story pages just because they own a parent comment', async () => {
+    await expect(getFixtureCommentOriginalPosterTitle(
+      'comments/scenarios/parent-story-not-op.html',
+      '48016906',
+    )).resolves.toBeNull();
+  });
 
-    expect(rootTitle).toBe('Thread author');
-    expect(threadAuthorReply).not.toBeNull();
-    expect(unrelatedReply).not.toBeNull();
-    expect(getOriginalPosterTitle({
-      author: threadAuthorReply!.node.author,
-      threadAuthor,
-      parentAuthor: threadAuthorReply!.parentAuthor,
-    })).toBe('Thread author');
-    expect(getOriginalPosterTitle({
-      author: unrelatedReply!.node.author,
-      threadAuthor,
-      parentAuthor: unrelatedReply!.parentAuthor,
-    })).toBeNull();
+  it('marks the root comment author as OP on comment permalink pages', async () => {
+    await expect(getFixtureCommentOriginalPosterTitle(
+      'comments/scenarios/parent-comment-op.html',
+      '48049780',
+    )).resolves.toBe('Thread author');
   });
 });

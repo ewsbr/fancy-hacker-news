@@ -43,18 +43,17 @@ function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
 
 export function useCommentDisplayContext({
   node,
-  parentAuthor,
   threadAuthor,
   showLocalThreadAuthor,
   showOnStory,
   rootVariant,
 }: CommentDisplayContextOptions) {
-  const injectedThreadAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
+  const threadRootAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
   const storyAuthor = inject(COMMENT_THREAD_STORY_AUTHOR_KEY, null);
 
   const latestUrl = computed(() => `latest?id=${encodeURIComponent(node.value.id)}`);
   const resolvedThreadAuthor = computed(() => threadAuthor.value
-    ?? injectedThreadAuthor
+    ?? threadRootAuthor
     ?? (showLocalThreadAuthor.value ? node.value.author : null));
   const nodeOnStory = computed<{ title: string; link: string } | null>(() => {
     if (!showOnStory.value || !isThreadEntry(node.value)) {
@@ -67,7 +66,6 @@ export function useCommentDisplayContext({
     author: node.value.author,
     storyAuthor,
     threadAuthor: resolvedThreadAuthor.value,
-    parentAuthor: parentAuthor.value,
   }));
   const rootClassName = computed(() => {
     if (node.value.indent > 0) {

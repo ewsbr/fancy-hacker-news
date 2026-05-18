@@ -16,7 +16,11 @@ import PollOptions from '@/content/components/stories/PollOptions.vue';
 import StoryDetail from '@/content/components/stories/StoryDetail.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
-import { COMMENT_THREAD_ROOT_AUTHOR_KEY, COMMENT_THREAD_STORY_AUTHOR_KEY, getOriginalPosterTitle } from '@/content/utils/comment-badges';
+import {
+  COMMENT_THREAD_ROOT_AUTHOR_KEY,
+  COMMENT_THREAD_STORY_AUTHOR_KEY,
+  getOriginalPosterTitle,
+} from '@/content/utils/comment-badges';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 import { createLogger, debugLog } from '@/debug';
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
