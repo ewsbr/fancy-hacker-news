@@ -164,8 +164,8 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
   }
 
   &__comments-icon {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     transform: scale(-1, 1);
   }
 
