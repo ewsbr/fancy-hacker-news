@@ -1,5 +1,3 @@
-shellEmulator: true
-
 trustPolicy: no-downgrade
 
 allowBuilds:
@@ -7,3 +5,5 @@ allowBuilds:
   vue-demi: true
 onlyBuiltDependencies:
   - vue-demi
+trustPolicyExclude:
+  - 'chokidar@4.0.3'
