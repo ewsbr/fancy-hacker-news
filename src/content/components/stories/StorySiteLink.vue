@@ -10,14 +10,14 @@ defineProps<{ site: string | null }>();
 
 <style scoped lang="scss">
 .story-site-link {
-  margin-left: 0.3rem;
+  margin-left: 5px;
   color: var(--color-text-muted);
-  white-space: nowrap;
   font-size: 0.82rem;
 
   a {
     color: inherit;
     text-decoration: none;
+    overflow-wrap: anywhere;
 
     &:hover {
       color: var(--color-text);
@@ -25,7 +25,7 @@ defineProps<{ site: string | null }>();
   }
 
   @media (max-width: 640px) {
-    margin-left: 0.4rem;
+    margin-left: 6px;
     font-size: 0.94rem;
   }
 }
