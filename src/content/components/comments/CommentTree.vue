@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
-import { computed } from 'vue';
+import { computed, useTemplateRef } from 'vue';
+import {
+  provideCommentCollapseRegistry,
+  useDelegatedCommentLongPress,
+} from '@/content/composables/comment-node';
 import CommentNode from './CommentNode.vue';
 import LazyCommentRoot from './LazyCommentRoot.vue';
 import ThreadNode from './ThreadNode.vue';
@@ -14,10 +18,14 @@ const props = withDefaults(defineProps<{
 });
 
 const rootComponent = computed(() => (props.variant === 'thread' ? ThreadNode : CommentNode));
+const treeRef = useTemplateRef('tree');
+const collapseRegistry = provideCommentCollapseRegistry();
+
+useDelegatedCommentLongPress(treeRef, collapseRegistry);
 </script>
 
 <template>
-  <div class="comment-tree">
+  <div ref="tree" class="comment-tree">
     <component
       :is="variant === 'item' && comment.lazyThread ? LazyCommentRoot : rootComponent"
       v-for="comment in comments"

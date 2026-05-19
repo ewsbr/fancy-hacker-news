@@ -2,7 +2,8 @@ import type { Ref } from 'vue';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
 import type { CommentFragmentState } from '@/state/fragment-state';
-import { computed, inject, ref, shallowRef, watch } from 'vue';
+import { onLongPress } from '@vueuse/core';
+import { computed, inject, onScopeDispose, provide, ref, shallowRef, watch } from 'vue';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
   COMMENT_THREAD_STORY_AUTHOR_KEY,
@@ -11,6 +12,7 @@ import {
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const MOBILE_MODAL_DEPTH = 4;
+const COMMENT_LONG_PRESS_DELAY = 525;
 
 export type CommentRenderableNode = CommentNodeType | ThreadEntry;
 export type CommentRootVariant = 'default' | 'thread';
@@ -37,8 +39,98 @@ interface CommentThreadUiOptions {
   isInHashPath: Ref<boolean>;
 }
 
+interface CommentCollapseRegistry {
+  register: (id: string, toggleCollapse: () => void) => () => void;
+  toggle: (id: string) => boolean;
+}
+
+const COMMENT_COLLAPSE_REGISTRY_KEY = Symbol('comment-collapse-registry');
+
 function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
   return 'onStory' in node;
+}
+
+export function provideCommentCollapseRegistry(): CommentCollapseRegistry {
+  const collapseHandlers = new Map<string, Array<() => void>>();
+
+  const registry: CommentCollapseRegistry = {
+    register(id, toggleCollapse) {
+      const handlers = collapseHandlers.get(id) ?? [];
+      handlers.push(toggleCollapse);
+      collapseHandlers.set(id, handlers);
+
+      return () => {
+        const currentHandlers = collapseHandlers.get(id);
+        if (!currentHandlers) {
+          return;
+        }
+
+        const index = currentHandlers.lastIndexOf(toggleCollapse);
+        if (index >= 0) {
+          currentHandlers.splice(index, 1);
+        }
+
+        if (currentHandlers.length === 0) {
+          collapseHandlers.delete(id);
+        }
+      };
+    },
+    toggle(id) {
+      const handlers = collapseHandlers.get(id);
+      const toggleCollapse = handlers?.[handlers.length - 1];
+
+      if (!toggleCollapse) {
+        return false;
+      }
+
+      toggleCollapse();
+      return true;
+    },
+  };
+
+  provide(COMMENT_COLLAPSE_REGISTRY_KEY, registry);
+
+  return registry;
+}
+
+export function useCommentCollapseRegistry(): CommentCollapseRegistry | null {
+  return inject<CommentCollapseRegistry | null>(COMMENT_COLLAPSE_REGISTRY_KEY, null);
+}
+
+export function useCommentCollapseRegistration(node: Ref<CommentRenderableNode>, toggleCollapse: () => void) {
+  const registry = useCommentCollapseRegistry();
+
+  if (!registry) {
+    return;
+  }
+
+  const unregister = registry.register(node.value.id, toggleCollapse);
+
+  onScopeDispose(() => {
+    unregister();
+  });
+}
+
+export function useDelegatedCommentLongPress(
+  target: Ref<HTMLElement | null>,
+  registry: CommentCollapseRegistry | null,
+) {
+  if (!registry) {
+    return;
+  }
+
+  onLongPress(
+    target,
+    (event) => {
+      const targetElement = event.target instanceof Element ? event.target : null;
+      const commentElement = targetElement?.closest<HTMLElement>('.comment-node') ?? null;
+
+      if (commentElement?.id) {
+        registry.toggle(commentElement.id);
+      }
+    },
+    { delay: COMMENT_LONG_PRESS_DELAY },
+  );
 }
 
 export function useCommentDisplayContext({

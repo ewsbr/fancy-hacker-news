@@ -4,7 +4,7 @@ import { MessageSquare } from 'lucide-vue-next';
 import { toRefs } from 'vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import {
-
+  useCommentCollapseRegistration,
   useCommentDisplayContext,
   useCommentFragmentState,
   useCommentThreadUi,
@@ -72,9 +72,12 @@ const {
   inModal,
 });
 
+const initialCollapsed = node.value.isCollapsed || (
+  node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())
+);
+
 const { isCollapsed, toggleCollapse } = useCommentCollapse({
-  initialCollapsed: node.value.isCollapsed
-    || (node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())),
+  initialCollapsed,
   forceExpanded: isForcedExpanded,
   hashNavigationVersion,
 });
@@ -93,6 +96,8 @@ const {
   enableMobileSubthreads,
   isInHashPath,
 });
+
+useCommentCollapseRegistration(node, toggleCollapse);
 </script>
 
 <template>

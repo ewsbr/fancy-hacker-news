@@ -9,7 +9,11 @@ import {
   DialogRoot,
   DialogTitle,
 } from 'reka-ui';
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, useTemplateRef, watch } from 'vue';
+import {
+  useCommentCollapseRegistry,
+  useDelegatedCommentLongPress,
+} from '@/content/composables/comment-node';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { waitForAnimationFrames } from '@/content/utils/wait';
 import CommentNode from './CommentNode.vue';
@@ -23,8 +27,11 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const bodyRef = ref<HTMLElement | null>(null);
-const closeButtonRef = ref<HTMLButtonElement | null>(null);
+const bodyRef = useTemplateRef<HTMLElement>('body');
+const closeButtonRef = useTemplateRef<HTMLButtonElement>('closeButton');
+const collapseRegistry = useCommentCollapseRegistry();
+
+useDelegatedCommentLongPress(bodyRef, collapseRegistry);
 
 async function scrollToTargetComment(targetId: string) {
   await nextTick();
@@ -88,12 +95,12 @@ watch(
               Thread by <strong>{{ node.author }}</strong>
             </DialogTitle>
             <DialogClose as-child>
-              <button ref="closeButtonRef" class="sub-thread-modal__close" aria-label="Close thread">
+              <button ref="closeButton" class="sub-thread-modal__close" aria-label="Close thread">
                 <X :size="18" />
               </button>
             </DialogClose>
           </div>
-          <div ref="bodyRef" class="sub-thread-modal__body">
+          <div ref="body" class="sub-thread-modal__body">
             <CommentNode :node="node" :depth="0" :in-modal="true" />
           </div>
         </DialogContent>
