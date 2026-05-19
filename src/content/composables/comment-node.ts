@@ -13,6 +13,15 @@ import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_LONG_PRESS_DELAY = 525;
+const COMMENT_LONG_PRESS_IGNORE_SELECTOR = [
+  '.comment-node__body-wrapper',
+  'a',
+  'button',
+  'input',
+  'textarea',
+  'select',
+  '[contenteditable="true"]',
+].join(',');
 
 export type CommentRenderableNode = CommentNodeType | ThreadEntry;
 export type CommentRootVariant = 'default' | 'thread';
@@ -48,6 +57,10 @@ const COMMENT_COLLAPSE_REGISTRY_KEY = Symbol('comment-collapse-registry');
 
 function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
   return 'onStory' in node;
+}
+
+function shouldIgnoreCommentLongPress(target: Element): boolean {
+  return target.closest(COMMENT_LONG_PRESS_IGNORE_SELECTOR) !== null;
 }
 
 export function provideCommentCollapseRegistry(): CommentCollapseRegistry {
@@ -123,7 +136,11 @@ export function useDelegatedCommentLongPress(
     target,
     (event) => {
       const targetElement = event.target instanceof Element ? event.target : null;
-      const commentElement = targetElement?.closest<HTMLElement>('.comment-node') ?? null;
+      if (!targetElement || shouldIgnoreCommentLongPress(targetElement)) {
+        return;
+      }
+
+      const commentElement = targetElement.closest<HTMLElement>('.comment-node');
 
       if (commentElement?.id) {
         registry.toggle(commentElement.id);
