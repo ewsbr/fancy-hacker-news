@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import type { Story } from '@/parsers/story-list';
 import { computed } from 'vue';
+import CommentIcon from '~icons/material-symbols/chat-sharp';
 import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
-import { splitTrailingWord } from '@/content/utils/text';
 import StoryMeta from './StoryMeta.vue';
 import StoryRank from './StoryRank.vue';
-import CommentIcon from '~icons/material-symbols/chat-sharp';
 
 const props = defineProps<{ story: Story }>();
 
-const jobTitleParts = computed(() => splitTrailingWord(props.story.title));
 const showCommentRail = computed(() => !props.story.isJob);
 const commentRailHref = computed(() => props.story.commentLink || props.story.ageLink || `item?id=${props.story.id}`);
 const commentRailCount = computed(() => props.story.commentCount ?? 0);
@@ -36,7 +34,7 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
           :class="{ 'story-row__title--dead': story.isDead }"
         >
           <template v-if="story.isJob">
-            {{ jobTitleParts.lead }}<span class="story-row__job-link-wrap">{{ jobTitleParts.tail }}<Badge variant="job" label="Job" /></span>
+            {{ story.title }}<Badge variant="job" label="Job" />
           </template>
           <template v-else>{{ story.title }}</template>
         </a>
@@ -137,11 +135,6 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
       text-decoration-skip-ink: none;
     }
   }
-
-  &__job-link-wrap {
-    white-space: nowrap;
-  }
-
   &__comments {
     align-self: center;
     display: flex;
