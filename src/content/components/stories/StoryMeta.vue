@@ -2,14 +2,17 @@
 import type { Story } from '@/parsers/story-list';
 import { computed } from 'vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
+import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
+const emit = defineEmits<{
+  hide: [id: string];
+}>();
 
 const ageLinkHref = computed(
   () => props.story.ageLink || props.story.commentLink || `item?id=${props.story.id}`,
 );
-
 </script>
 
 <template>
@@ -30,7 +33,13 @@ const ageLinkHref = computed(
     <a v-else :href="ageLinkHref" class="story-meta__age">{{ story.age }}</a>
     <template v-if="!story.isJob">
       <MetaSep v-if="story.hideUrl" />
-      <a v-if="story.hideUrl" :href="story.hideUrl" class="story-meta__action">hide</a>
+      <InlineActionLink
+        v-if="story.hideUrl"
+        :href="story.hideUrl"
+        action="hide"
+        class="story-meta__action"
+        @success="emit('hide', story.id)"
+      />
     </template>
   </div>
 </template>

@@ -17,6 +17,13 @@ const activeCollectionKind = route.params.comments === 't' ? 'comments' : 'stori
 const showTopNotice = Boolean(storyList?.introHtml) && !collectionIntro;
 const showListCard = Boolean(collectionIntro) || Boolean(storyList?.stories?.length);
 const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.messages.length;
+
+function handleStoryHidden(id: string) {
+  const index = storyList.stories.findIndex(story => story.id === id);
+  if (index >= 0) {
+    storyList.stories.splice(index, 1);
+  }
+}
 </script>
 
 <template>
@@ -35,6 +42,7 @@ const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.mes
           v-for="story in storyList?.stories ?? []"
           :key="story.id"
           :story="story"
+          @hide="handleStoryHidden"
         />
 
         <div v-if="showFallbackMessage" class="stories-page__empty-copy hn-empty-state">

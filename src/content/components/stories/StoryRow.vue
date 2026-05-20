@@ -9,6 +9,9 @@ import StoryMeta from './StoryMeta.vue';
 import StoryRank from './StoryRank.vue';
 
 const props = defineProps<{ story: Story }>();
+const emit = defineEmits<{
+  hide: [id: string];
+}>();
 
 const showCommentRail = computed(() => !props.story.isJob);
 const commentRailHref = computed(() => props.story.commentLink || props.story.ageLink || `item?id=${props.story.id}`);
@@ -43,7 +46,7 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
         <Badge v-if="story.isFlagged" variant="flagged" label="Flagged" />
         <Badge v-if="story.isDeleted" variant="deleted" label="Deleted" />
       </div>
-      <StoryMeta :story="story" />
+      <StoryMeta :story="story" @hide="emit('hide', $event)" />
     </div>
     <a
       v-if="showCommentRail"

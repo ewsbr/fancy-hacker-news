@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { ItemDetail } from '@/parsers/item';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
+import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import RichText from '@/content/components/shared/RichText.vue';
 import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
@@ -13,9 +14,13 @@ const props = defineProps<{
   item: ItemDetail;
 }>();
 
-const isFavorited = computed(() => props.item.favoriteUrl?.includes('un=t') ?? false);
+const hiddenUrl = ref(props.item.hideUrl);
 const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}`);
+
+function handleHidden() {
+  hiddenUrl.value = null;
+}
 </script>
 
 <template>
@@ -55,10 +60,15 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
             />
 
             <div class="story-detail__actions">
-              <template v-if="item.hideUrl">
+              <template v-if="hiddenUrl">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
-                  <a :href="item.hideUrl" class="story-detail__action">hide</a>
+                  <InlineActionLink
+                    :href="hiddenUrl"
+                    action="hide"
+                    class="story-detail__action"
+                    @success="handleHidden"
+                  />
                 </span>
               </template>
 
@@ -79,7 +89,12 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
               <template v-if="item.favoriteUrl">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
-                  <a :href="item.favoriteUrl" class="story-detail__action">{{ isFavorited ? 'un-favorite' : 'favorite' }}</a>
+                  <InlineActionLink
+                    :href="item.favoriteUrl"
+                    action="favorite"
+                    :favorite-target="item"
+                    class="story-detail__action"
+                  />
                 </span>
               </template>
 

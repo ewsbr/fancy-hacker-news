@@ -12,6 +12,7 @@ import FlagButton from '@/content/components/comments/FlagButton.vue';
 import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
 import CommentForm from '@/content/components/forms/CommentForm.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
+import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import PollOptions from '@/content/components/stories/PollOptions.vue';
 import StoryDetail from '@/content/components/stories/StoryDetail.vue';
 import Badge from '@/content/components/ui/Badge.vue';
@@ -37,7 +38,6 @@ const commentItemDomId = computed(() => {
   return pageData.item.id;
 });
 
-const commentIsFavorited = computed(() => pageData?.item.favoriteUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
 const commentItemOriginalPosterTitle = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
@@ -277,7 +277,12 @@ useEventListener(window, 'hashchange', () => {
                 <div class="comments-page__comment-meta-actions">
                   <MetaSep class="comments-page__comment-meta-actions-sep" />
                   <template v-if="pageData.item.favoriteUrl">
-                    <a :href="pageData.item.favoriteUrl" class="comments-page__comment-action">{{ commentIsFavorited ? 'un-favorite' : 'favorite' }}</a>
+                    <InlineActionLink
+                      :href="pageData.item.favoriteUrl"
+                      action="favorite"
+                      :favorite-target="pageData.item"
+                      class="comments-page__comment-action"
+                    />
                     <MetaSep v-if="pageData.item.flagUrl || latestUrl" />
                   </template>
                   <template v-if="pageData.item.flagUrl">

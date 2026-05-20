@@ -24,6 +24,10 @@ export interface FlagActionTarget {
   isFlagged: boolean;
 }
 
+export interface FavoriteActionTarget {
+  favoriteUrl: string | null;
+}
+
 function toAbsoluteUrl(href: string): URL {
   const trimmedHref = href.trim();
   assert(trimmedHref.length > 0, 'Expected action href to be non-empty');
@@ -41,15 +45,7 @@ function buildVoteRequestHref(href: string): string {
   return url.toString();
 }
 
-function navigateToActionGate(href: string): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  window.location.assign(href);
-}
-
-function isVoteSuccessResponse(response: Response): boolean {
+function isOkResponse(response: Response): boolean {
   try {
     return new URL(response.url).pathname === '/ok';
   }
@@ -58,15 +54,21 @@ function isVoteSuccessResponse(response: Response): boolean {
   }
 }
 
+function isManualRedirectResponse(response: Response): boolean {
+  return response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400);
+}
+
+function isActionSuccessResponse(response: Response): boolean {
+  return isManualRedirectResponse(response) || (response.ok && isOkResponse(response));
+}
+
 function buildUnvoteHref(href: string): string {
   const url = toAbsoluteUrl(href);
   url.searchParams.set('how', 'un');
   return toRelativeHref(url);
 }
 
-// HN uses `un=t` for several reversible actions. We do not have fixture coverage
-// for flag/unflag responses in this repo, so we mirror that convention here.
-function toggleFlagHref(href: string): string {
+function toggleActionHref(href: string): string {
   const url = toAbsoluteUrl(href);
 
   if (url.searchParams.get('un') === 't') {
@@ -90,19 +92,10 @@ async function sendActionRequest(href: string, appendJsParam = false): Promise<b
       method: 'GET',
       credentials: 'include',
       cache: 'no-store',
-      redirect: 'follow',
+      redirect: 'manual',
     });
 
-    if (!response.ok) {
-      return false;
-    }
-
-    if (appendJsParam && !isVoteSuccessResponse(response)) {
-      navigateToActionGate(requestHref);
-      return false;
-    }
-
-    return true;
+    return isActionSuccessResponse(response);
   }
   catch (error) {
     console.error('Fancy HN action failed', error);
@@ -156,9 +149,46 @@ export function useHnActions() {
         return false;
       }
 
-      target.flagUrl = toggleFlagHref(href);
+      target.flagUrl = toggleActionHref(href);
       target.isFlagged = !target.isFlagged;
       return true;
+    }
+    finally {
+      isBusy.value = false;
+    }
+  }
+
+  async function submitFavorite(target: FavoriteActionTarget): Promise<boolean> {
+    if (isBusy.value || !target.favoriteUrl) {
+      return false;
+    }
+
+    const href = target.favoriteUrl;
+    isBusy.value = true;
+
+    try {
+      const succeeded = await sendActionRequest(href);
+      if (!succeeded) {
+        return false;
+      }
+
+      target.favoriteUrl = toggleActionHref(href);
+      return true;
+    }
+    finally {
+      isBusy.value = false;
+    }
+  }
+
+  async function submitHide(href: string | null): Promise<boolean> {
+    if (isBusy.value || !href) {
+      return false;
+    }
+
+    isBusy.value = true;
+
+    try {
+      return await sendActionRequest(href);
     }
     finally {
       isBusy.value = false;
@@ -169,5 +199,7 @@ export function useHnActions() {
     isBusy,
     submitVote,
     submitFlag,
+    submitFavorite,
+    submitHide,
   };
 }

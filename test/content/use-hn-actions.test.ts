@@ -23,6 +23,8 @@ describe('useHnActions', () => {
 
     fetchMock = vi.fn().mockResolvedValue({
       ok: true,
+      status: 200,
+      type: 'basic',
       url: 'https://news.ycombinator.com/ok',
     });
     Object.defineProperty(globalThis, 'fetch', {
@@ -54,13 +56,39 @@ describe('useHnActions', () => {
         method: 'GET',
         credentials: 'include',
         cache: 'no-store',
-        redirect: 'follow',
+        redirect: 'manual',
       }),
     );
     expect(target.voteUn).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
   });
 
-  it('navigates to the HN vote login gate when a js vote returns the logged-out form', async () => {
+  it('treats manual vote redirects as success without following them', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 302,
+      type: 'basic',
+      url: 'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
+    });
+    const { submitVote } = useHnActions();
+    const target = {
+      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+      voteDown: null,
+      voteUn: null,
+    };
+
+    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(target.voteUn).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
+  });
+
+  it('fails closed without navigating when a js vote returns the logged-out form', async () => {
     const fixtureUrl = new URL('../fixtures/vote-nologin.html', import.meta.url);
     const loggedOutVoteHtml = await readFile(fixtureUrl, 'utf8');
     fetchMock.mockResolvedValueOnce({
@@ -81,15 +109,15 @@ describe('useHnActions', () => {
       'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
       expect.any(Object),
     );
-    expect(locationAssignMock).toHaveBeenCalledWith(
-      'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
-    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
     expect(target.voteUn).toBeNull();
   });
 
   it('fails closed for vote responses that do not resolve to HN ok', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
+      status: 200,
+      type: 'basic',
       url: 'https://news.ycombinator.com/vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123&js=t',
     });
     const { submitVote } = useHnActions();
@@ -101,9 +129,7 @@ describe('useHnActions', () => {
 
     await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(false);
 
-    expect(locationAssignMock).toHaveBeenCalledWith(
-      'https://news.ycombinator.com/vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123&js=t',
-    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
     expect(target.voteUn).toBeNull();
   });
 
@@ -151,9 +177,79 @@ describe('useHnActions', () => {
       expect.objectContaining({
         method: 'GET',
         credentials: 'include',
+        redirect: 'manual',
       }),
     );
     expect(target.isFlagged).toBe(true);
     expect(target.flagUrl).toBe('flag?id=44&auth=flagauth&goto=item%3Fid%3D123&un=t');
+  });
+
+  it('treats manual flag redirects as success without following them', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 302,
+      type: 'basic',
+      url: 'https://news.ycombinator.com/flag?id=44&auth=flagauth&goto=item%3Fid%3D123',
+    });
+    const { submitFlag } = useHnActions();
+    const target = {
+      flagUrl: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123',
+      isFlagged: false,
+    };
+
+    await expect(submitFlag(target)).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/flag?id=44&auth=flagauth&goto=item%3Fid%3D123',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(target.isFlagged).toBe(true);
+  });
+
+  it('toggles favorite links through the centralized no-redirect request', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 302,
+      type: 'basic',
+      url: 'https://news.ycombinator.com/fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+    });
+    const { submitFavorite } = useHnActions();
+    const target = {
+      favoriteUrl: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+    };
+
+    await expect(submitFavorite(target)).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(target.favoriteUrl).toBe('fave?id=44&auth=favauth&goto=item%3Fid%3D123&un=t');
+  });
+
+  it('submits hide links through the centralized no-redirect request', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 302,
+      type: 'basic',
+      url: 'https://news.ycombinator.com/hide?id=44&auth=hideauth&goto=news',
+    });
+    const { submitHide } = useHnActions();
+
+    await expect(submitHide('hide?id=44&auth=hideauth&goto=news')).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/hide?id=44&auth=hideauth&goto=news',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
   });
 });
