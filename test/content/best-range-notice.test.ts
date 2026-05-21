@@ -13,7 +13,7 @@ describe('best range notice', () => {
     });
 
     expect(wrapper.text()).toContain('Most-upvoted stories');
-    expect(wrapper.findAll('a')).toHaveLength(6);
+    expect(wrapper.findAll('a')).toHaveLength(7);
 
     const activeRange = wrapper.get('[aria-current="page"]');
     expect(activeRange.text()).toBe('1d');
