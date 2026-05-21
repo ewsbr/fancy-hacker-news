@@ -149,11 +149,25 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     text-decoration: none;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
+    border-radius: 8px;
+    background: transparent;
 
     &:visited,
-    &:active,
     &:focus {
       color: var(--color-text-muted);
+    }
+
+    &:active {
+      color: var(--color-accent-muted);
+      background: var(--color-row-hover);
+      text-decoration: none;
+      transition-duration: 0s, 0s;
+    }
+
+    @media (hover: none) {
+      transition:
+        color 0.85s ease-out,
+        background-color 0.45s ease-out;
     }
 
     @media (hover: hover) and (pointer: fine) {
