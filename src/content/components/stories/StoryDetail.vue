@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ItemDetail } from '@/parsers/item';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
 import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
@@ -14,13 +14,8 @@ const props = defineProps<{
   item: ItemDetail;
 }>();
 
-const hiddenUrl = ref(props.item.hideUrl);
 const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}`);
-
-function handleHidden() {
-  hiddenUrl.value = null;
-}
 </script>
 
 <template>
@@ -60,14 +55,14 @@ function handleHidden() {
             />
 
             <div class="story-detail__actions">
-              <template v-if="hiddenUrl">
+              <template v-if="item.hideUrl">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
                   <InlineActionLink
-                    :href="hiddenUrl"
+                    :href="item.hideUrl"
                     action="hide"
+                    :hide-target="item"
                     class="story-detail__action"
-                    @success="handleHidden"
                   />
                 </span>
               </template>

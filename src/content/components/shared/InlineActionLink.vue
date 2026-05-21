@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FavoriteActionTarget } from '@/content/composables/use-hn-actions';
+import type { FavoriteActionTarget, HideActionTarget } from '@/content/composables/use-hn-actions';
 import { computed } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
@@ -7,17 +7,22 @@ const props = defineProps<{
   href: string;
   action: 'favorite' | 'hide';
   favoriteTarget?: FavoriteActionTarget | null;
+  hideTarget?: HideActionTarget | null;
   activeLabel?: string;
   inactiveLabel?: string;
 }>();
 
-const emit = defineEmits<{
-  success: [];
-}>();
-
 const { isBusy, submitFavorite, submitHide } = useHnActions();
 
-const isActive = computed(() => (props.favoriteTarget?.favoriteUrl ?? props.href).includes('un=t'));
+const actionHref = computed(() => {
+  if (props.action === 'favorite') {
+    return props.favoriteTarget?.favoriteUrl ?? props.href;
+  }
+
+  return props.hideTarget?.hideUrl ?? props.href;
+});
+
+const isActive = computed(() => actionHref.value.includes('un=t'));
 
 const label = computed(() => {
   if (props.action === 'hide') {
@@ -34,19 +39,15 @@ const label = computed(() => {
 async function handleClick(event: MouseEvent) {
   event.preventDefault();
 
-  const succeeded = props.action === 'favorite'
-    ? await submitFavorite(props.favoriteTarget ?? { favoriteUrl: props.href })
-    : await submitHide(props.href);
-
-  if (succeeded) {
-    emit('success');
-  }
+  await (props.action === 'favorite'
+    ? submitFavorite(props.favoriteTarget ?? { favoriteUrl: props.href })
+    : submitHide(props.hideTarget ?? { hideUrl: props.href }));
 }
 </script>
 
 <template>
   <a
-    :href="href"
+    :href="actionHref"
     class="inline-action-link"
     :class="{ 'inline-action-link--busy': isBusy }"
     :aria-disabled="isBusy ? 'true' : undefined"

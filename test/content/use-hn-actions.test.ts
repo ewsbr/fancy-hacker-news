@@ -233,7 +233,7 @@ describe('useHnActions', () => {
     expect(target.favoriteUrl).toBe('fave?id=44&auth=favauth&goto=item%3Fid%3D123&un=t');
   });
 
-  it('submits hide links through the centralized no-redirect request', async () => {
+  it('toggles hide links through the centralized no-redirect request', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 302,
@@ -241,8 +241,11 @@ describe('useHnActions', () => {
       url: 'https://news.ycombinator.com/hide?id=44&auth=hideauth&goto=news',
     });
     const { submitHide } = useHnActions();
+    const target = {
+      hideUrl: 'hide?id=44&auth=hideauth&goto=news',
+    };
 
-    await expect(submitHide('hide?id=44&auth=hideauth&goto=news')).resolves.toBe(true);
+    await expect(submitHide(target)).resolves.toBe(true);
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/hide?id=44&auth=hideauth&goto=news',
@@ -251,5 +254,6 @@ describe('useHnActions', () => {
       }),
     );
     expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(target.hideUrl).toBe('hide?id=44&auth=hideauth&goto=news&un=t');
   });
 });

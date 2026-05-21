@@ -6,9 +6,6 @@ import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
 const props = defineProps<{ story: Story }>();
-const emit = defineEmits<{
-  hide: [id: string];
-}>();
 
 const ageLinkHref = computed(
   () => props.story.ageLink || props.story.commentLink || `item?id=${props.story.id}`,
@@ -37,8 +34,8 @@ const ageLinkHref = computed(
         v-if="story.hideUrl"
         :href="story.hideUrl"
         action="hide"
+        :hide-target="story"
         class="story-meta__action"
-        @success="emit('hide', story.id)"
       />
     </template>
   </div>

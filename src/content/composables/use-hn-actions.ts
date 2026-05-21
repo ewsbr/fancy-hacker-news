@@ -28,6 +28,10 @@ export interface FavoriteActionTarget {
   favoriteUrl: string | null;
 }
 
+export interface HideActionTarget {
+  hideUrl: string | null;
+}
+
 function toAbsoluteUrl(href: string): URL {
   const trimmedHref = href.trim();
   assert(trimmedHref.length > 0, 'Expected action href to be non-empty');
@@ -180,15 +184,22 @@ export function useHnActions() {
     }
   }
 
-  async function submitHide(href: string | null): Promise<boolean> {
-    if (isBusy.value || !href) {
+  async function submitHide(target: HideActionTarget): Promise<boolean> {
+    if (isBusy.value || !target.hideUrl) {
       return false;
     }
 
+    const href = target.hideUrl;
     isBusy.value = true;
 
     try {
-      return await sendActionRequest(href);
+      const succeeded = await sendActionRequest(href);
+      if (!succeeded) {
+        return false;
+      }
+
+      target.hideUrl = toggleActionHref(href);
+      return true;
     }
     finally {
       isBusy.value = false;
