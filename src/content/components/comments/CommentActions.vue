@@ -143,9 +143,17 @@ async function handleVoteClick(event: MouseEvent, href: string | null | undefine
       inset: -5px;
     }
 
-    &:hover {
-      color: var(--color-accent);
-      text-decoration: none;
+    &:visited,
+    &:active,
+    &:focus {
+      color: var(--color-text-muted);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--color-accent);
+        text-decoration: none;
+      }
     }
 
     &--up {
