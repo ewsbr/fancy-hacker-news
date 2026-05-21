@@ -1,15 +1,15 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 import { parseNewComments } from '@/parsers/new-comments';
 import { parseStoryList } from '@/parsers/story-list';
+import { createHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('user collection intro parsing', () => {
   it('extracts favorites comment tabs and empty-state guidance', async () => {
     const doc = await loadFixtureDocument('comments/user/comments-empty.html');
     const page = parseNewComments(doc);
-    const intro = parseUserCollectionIntro(page.introHtml, new JSDOM('').window.document);
+    const intro = parseUserCollectionIntro(page.introHtml, createHtmlDocument());
 
     expect(intro).toEqual({
       links: [
@@ -26,7 +26,7 @@ describe('user collection intro parsing', () => {
   it('extracts favorites story tabs without manufacturing empty guidance', async () => {
     const doc = await loadFixtureDocument('stories/user/favorites-other.html');
     const page = parseStoryList(doc);
-    const intro = parseUserCollectionIntro(page.introHtml, new JSDOM('').window.document);
+    const intro = parseUserCollectionIntro(page.introHtml, createHtmlDocument());
 
     expect(intro).toEqual({
       links: [
@@ -40,7 +40,7 @@ describe('user collection intro parsing', () => {
   it('ignores ordinary notices that are not collection switchers', async () => {
     const doc = await loadFixtureDocument('comments/bestcomments.html');
     const page = parseNewComments(doc);
-    const intro = parseUserCollectionIntro(page.introHtml, new JSDOM('').window.document);
+    const intro = parseUserCollectionIntro(page.introHtml, createHtmlDocument());
 
     expect(intro).toBeNull();
   });
@@ -54,7 +54,7 @@ describe('user collection intro parsing', () => {
       </div>
     `;
 
-    const intro = parseUserCollectionIntro(html, new JSDOM('').window.document);
+    const intro = parseUserCollectionIntro(html, createHtmlDocument());
 
     expect(intro).toEqual({
       links: [

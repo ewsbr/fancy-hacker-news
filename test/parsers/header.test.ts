@@ -1,6 +1,6 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { parseHeader } from '@/parsers/header';
+import { parseHtmlDocument, renderHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('header parser', () => {
@@ -15,7 +15,7 @@ describe('header parser', () => {
   });
 
   it('detects the memorial strip and preserves a custom top bar color', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table id="hnmain">
         <tbody>
           <tr>
@@ -43,7 +43,7 @@ describe('header parser', () => {
       </table>
     `);
 
-    const header = parseHeader(dom.window.document);
+    const header = parseHeader(doc);
 
     expect(header.topBarColor).toBe('#2faced');
     expect(header.hasCustomTopBarColor).toBe(true);
@@ -52,7 +52,7 @@ describe('header parser', () => {
   });
 
   it('supports query param overrides for top bar and memorial bar testing', () => {
-    const dom = new JSDOM(`
+    const doc = renderHtmlDocument(`
       <table id="hnmain">
         <tbody>
           <tr>
@@ -78,7 +78,7 @@ describe('header parser', () => {
       url: 'https://news.ycombinator.com/news?fhTopBarColor=2FACED&fhMemorialBar=1',
     });
 
-    const header = parseHeader(dom.window.document);
+    const header = parseHeader(doc);
 
     expect(header.topBarColor).toBe('#2faced');
     expect(header.hasCustomTopBarColor).toBe(true);
@@ -87,7 +87,7 @@ describe('header parser', () => {
   });
 
   it('supports disabling a source memorial strip via query param', () => {
-    const dom = new JSDOM(`
+    const doc = renderHtmlDocument(`
       <table id="hnmain">
         <tbody>
           <tr>
@@ -116,7 +116,7 @@ describe('header parser', () => {
       url: 'https://news.ycombinator.com/news?fhMemorialBar=0',
     });
 
-    const header = parseHeader(dom.window.document);
+    const header = parseHeader(doc);
 
     expect(header.hasMemorialBar).toBe(false);
     expect(header.memorialBarColor).toBeNull();

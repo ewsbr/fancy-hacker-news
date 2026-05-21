@@ -1,10 +1,10 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { parseUserPage } from '@/parsers/user';
+import { parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 function makePublicUserDocument(aboutHtml: string): Document {
-  return new JSDOM(`
+  return parseHtmlDocument(`
     <table id="hnmain">
       <tbody>
         <tr id="bigbox">
@@ -24,7 +24,7 @@ function makePublicUserDocument(aboutHtml: string): Document {
         </tr>
       </tbody>
     </table>
-  `).window.document;
+  `);
 }
 
 function getAboutLinks(page: ReturnType<typeof parseUserPage>): Array<{ text: string; href: string }> {

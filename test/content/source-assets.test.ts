@@ -1,10 +1,10 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
+import { parseHtmlDocument } from '../helpers/dom';
 
 describe('legacy source asset cleanup', () => {
   it('preserves extension-managed styles while removing host page assets', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <!doctype html>
       <html>
         <head>
@@ -19,7 +19,7 @@ describe('legacy source asset cleanup', () => {
       </html>
     `);
 
-    const sourceAssetIds = getLegacySourceAssetNodes(dom.window.document)
+    const sourceAssetIds = getLegacySourceAssetNodes(doc)
       .map(node => node.id)
       .sort();
 

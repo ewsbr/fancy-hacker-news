@@ -1,6 +1,6 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { parseStaticPage } from '@/parsers/static';
+import { parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('static page parser', () => {
@@ -16,7 +16,7 @@ describe('static page parser', () => {
   });
 
   it('preserves mixed paragraph text after a bold label on legacy pages', () => {
-    const doc = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <html>
         <body>
           <center>
@@ -35,7 +35,7 @@ describe('static page parser', () => {
           </center>
         </body>
       </html>
-    `).window.document;
+    `);
 
     const page = parseStaticPage(doc);
 
@@ -48,7 +48,7 @@ describe('static page parser', () => {
   });
 
   it('preserves table cell background attributes for static color tables', () => {
-    const doc = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <html>
         <body>
           <table id="hnmain">
@@ -66,7 +66,7 @@ describe('static page parser', () => {
           </table>
         </body>
       </html>
-    `).window.document;
+    `);
 
     const page = parseStaticPage(doc);
 

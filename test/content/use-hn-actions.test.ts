@@ -1,24 +1,18 @@
-import { readFile } from 'node:fs/promises';
-import { JSDOM } from 'jsdom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useHnActions } from '@/content/composables/use-hn-actions';
+import { loadFixtureHtml } from '../helpers/load-fixture';
 
 describe('useHnActions', () => {
-  let dom: JSDOM;
   let fetchMock: ReturnType<typeof vi.fn>;
   let locationAssignMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    dom = new JSDOM('', { url: 'https://news.ycombinator.com/item?id=123' });
     locationAssignMock = vi.fn();
-    Object.defineProperty(globalThis, 'window', {
-      value: {
-        location: {
-          href: dom.window.location.href,
-          assign: locationAssignMock,
-        },
+    vi.stubGlobal('window', {
+      location: {
+        href: 'https://news.ycombinator.com/item?id=123',
+        assign: locationAssignMock,
       },
-      configurable: true,
     });
 
     fetchMock = vi.fn().mockResolvedValue({
@@ -27,17 +21,12 @@ describe('useHnActions', () => {
       type: 'basic',
       url: 'https://news.ycombinator.com/ok',
     });
-    Object.defineProperty(globalThis, 'fetch', {
-      value: fetchMock,
-      configurable: true,
-    });
+    vi.stubGlobal('fetch', fetchMock);
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    dom.window.close();
-    Reflect.deleteProperty(globalThis, 'window');
-    Reflect.deleteProperty(globalThis, 'fetch');
   });
 
   it('submits upvotes with js=t and stores the derived unvote URL', async () => {
@@ -89,8 +78,7 @@ describe('useHnActions', () => {
   });
 
   it('fails closed without navigating when a js vote returns the logged-out form', async () => {
-    const fixtureUrl = new URL('../fixtures/vote-nologin.html', import.meta.url);
-    const loggedOutVoteHtml = await readFile(fixtureUrl, 'utf8');
+    const loggedOutVoteHtml = await loadFixtureHtml('vote-nologin.html');
     fetchMock.mockResolvedValueOnce({
       ok: true,
       url: 'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',

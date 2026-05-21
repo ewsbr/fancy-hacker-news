@@ -1,9 +1,26 @@
-import { readFile } from 'node:fs/promises';
-import { JSDOM } from 'jsdom';
+import { parseHtmlDocument } from './dom';
+
+const fixtureFiles = import.meta.glob('../fixtures/**/*', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+function getFixtureHtml(name: string): string {
+  const fixturePath = `../fixtures/${name}`;
+  const html = fixtureFiles[fixturePath];
+
+  if (!html) {
+    throw new Error(`Unknown fixture: ${name}`);
+  }
+
+  return html;
+}
+
+export async function loadFixtureHtml(name: string): Promise<string> {
+  return getFixtureHtml(name);
+}
 
 export async function loadFixtureDocument(name: string): Promise<Document> {
-  const fixtureUrl = new URL(`../fixtures/${name}`, import.meta.url);
-  const html = await readFile(fixtureUrl, 'utf8');
-
-  return new JSDOM(html).window.document;
+  return parseHtmlDocument(getFixtureHtml(name));
 }

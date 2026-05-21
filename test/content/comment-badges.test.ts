@@ -1,6 +1,9 @@
+// @vitest-environment jsdom
+
+import type { PropType } from 'vue';
 import type { CommentNode } from '@/parsers/item';
 import { describe, expect, it } from 'vitest';
-import { createApp, ref } from 'vue';
+import { defineComponent, h, provide, ref } from 'vue';
 import { useCommentDisplayContext } from '@/content/composables/comment-node';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
@@ -9,6 +12,46 @@ import {
 } from '@/content/utils/comment-badges';
 import { parseItemPage } from '@/parsers/item';
 import { loadFixtureDocument } from '../helpers/load-fixture';
+import { mountComponent } from '../helpers/mount-component';
+
+const DisplayContextProbe = defineComponent({
+  name: 'DisplayContextProbe',
+  props: {
+    author: {
+      type: String,
+      required: true,
+    },
+    parentAuthor: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
+    storyAuthor: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
+    threadRootAuthor: {
+      type: String as PropType<string | null>,
+      default: null,
+    },
+  },
+  setup(props) {
+    const node = ref({
+      id: 'comment-id',
+      author: props.author,
+      indent: 1,
+    } as CommentNode);
+    const context = useCommentDisplayContext({
+      node,
+      parentAuthor: ref(props.parentAuthor),
+      threadAuthor: ref(null),
+      showLocalThreadAuthor: ref(false),
+      showOnStory: ref(false),
+      rootVariant: ref('default'),
+    });
+
+    return () => h('div', context.originalPosterTitle.value ?? '');
+  },
+});
 
 function getDisplayContextTitle(options: {
   author: string;
@@ -16,31 +59,31 @@ function getDisplayContextTitle(options: {
   storyAuthor?: string | null;
   threadRootAuthor?: string | null;
 }): string | null {
-  let title: string | null = null;
+  const wrapper = mountComponent(defineComponent({
+    name: 'DisplayContextProvider',
+    setup() {
+      provide(COMMENT_THREAD_STORY_AUTHOR_KEY, options.storyAuthor ?? null);
+      provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, options.threadRootAuthor ?? null);
 
-  const app = createApp({ render: () => null });
-
-  app.provide(COMMENT_THREAD_STORY_AUTHOR_KEY, options.storyAuthor ?? null);
-  app.provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, options.threadRootAuthor ?? null);
-  app.runWithContext(() => {
-    const node = ref({
-      id: 'comment-id',
+      return () => h(DisplayContextProbe, {
+        author: options.author,
+        parentAuthor: options.parentAuthor ?? null,
+        storyAuthor: options.storyAuthor ?? null,
+        threadRootAuthor: options.threadRootAuthor ?? null,
+      });
+    },
+  }), {
+    props: {
       author: options.author,
-      indent: 1,
-    } as CommentNode);
-    const context = useCommentDisplayContext({
-      node,
-      parentAuthor: ref(options.parentAuthor ?? null),
-      threadAuthor: ref(null),
-      showLocalThreadAuthor: ref(false),
-      showOnStory: ref(false),
-      rootVariant: ref('default'),
-    });
-
-    title = context.originalPosterTitle.value;
+      parentAuthor: options.parentAuthor ?? null,
+      storyAuthor: options.storyAuthor ?? null,
+      threadRootAuthor: options.threadRootAuthor ?? null,
+    },
   });
+  const title = wrapper.text().trim();
 
-  return title;
+  wrapper.unmount();
+  return title || null;
 }
 
 function findCommentWithParent(

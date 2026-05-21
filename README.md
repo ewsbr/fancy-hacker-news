@@ -58,12 +58,16 @@ Production builds write extension assets to `dist/`. Package commands write brow
 
 ## Testing
 
-Tests run with Vitest and jsdom:
+Tests run with Vitest in two lanes:
+
+- `node` is the default environment for route resolution, parsers, and pure content logic.
+- `jsdom` is opt-in for Vue SFC tests and specs that need browser globals like `document`, `window`, or `KeyboardEvent`. Use `// @vitest-environment jsdom` at the top of those files.
+
+HTML snapshots of real Hacker News pages live in `test/fixtures/`. Fixture and parser tests should load documents through the shared helpers in `test/helpers/` instead of creating global browser state for the whole suite.
 
 - `pnpm test` — run the full test suite once.
 - `pnpm test:watch` — run the suite in watch mode.
 
-HTML snapshots of real Hacker News pages live in `test/fixtures/`. Parser coverage should use fixtures instead of live network requests.
 
 ## Browser Support
 

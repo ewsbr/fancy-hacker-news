@@ -1,4 +1,3 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import {
   applyBootTheme,
@@ -9,6 +8,7 @@ import {
   applyThemeToHost,
   THEMES,
 } from '@/state/theme-metadata';
+import { parseHtmlDocument } from '../helpers/dom';
 
 describe('theme metadata', () => {
   it('derives bootstrap palettes from the canonical theme metadata', () => {
@@ -23,8 +23,8 @@ describe('theme metadata', () => {
   });
 
   it('applies non-light themes to the extension host and clears light mode', () => {
-    const dom = new JSDOM('<div id="fancy-hn-root" data-theme="dark"></div>');
-    const host = dom.window.document.getElementById('fancy-hn-root');
+    const doc = parseHtmlDocument('<div id="fancy-hn-root" data-theme="dark"></div>');
+    const host = doc.getElementById('fancy-hn-root');
 
     expect(host).toBeTruthy();
 
@@ -36,13 +36,13 @@ describe('theme metadata', () => {
   });
 
   it('applies bootstrap styles and host attributes from shared theme data', () => {
-    const dom = new JSDOM('<!doctype html><html><body><div id="fancy-hn-root"></div></body></html>');
-    const styleEl = dom.window.document.createElement('style');
+    const doc = parseHtmlDocument('<!doctype html><html><body><div id="fancy-hn-root"></div></body></html>');
+    const styleEl = doc.createElement('style');
 
-    applyBootTheme(dom.window.document, styleEl, 'amoled');
+    applyBootTheme(doc, styleEl, 'amoled');
 
-    expect(dom.window.document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY]).toBe('amoled');
-    expect(dom.window.document.getElementById('fancy-hn-root')?.getAttribute('data-theme')).toBe('amoled');
+    expect(doc.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY]).toBe('amoled');
+    expect(doc.getElementById('fancy-hn-root')?.getAttribute('data-theme')).toBe('amoled');
     expect(styleEl.textContent).toContain('background:#000000!important');
     expect(styleEl.textContent).toContain('color:#e0e0e0!important');
   });

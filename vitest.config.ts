@@ -6,6 +6,11 @@ export default defineConfig(configEnv => mergeConfig(
   defineConfig({
     test: {
       environment: 'node',
+      environmentOptions: {
+        jsdom: {
+          url: 'https://news.ycombinator.com/',
+        },
+      },
       include: ['test/**/*.test.ts'],
     },
   }),

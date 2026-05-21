@@ -1,20 +1,14 @@
-import { readFile } from 'node:fs/promises';
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { parseHeader } from '@/parsers/header';
 import { parseItemPage } from '@/parsers/item';
 import { parseNewComments } from '@/parsers/new-comments';
 import { parseStoryList } from '@/parsers/story-list';
 import { parseThreadsPage } from '@/parsers/threads';
-import { loadFixtureDocument } from '../helpers/load-fixture';
+import { parseHtmlDocument } from '../helpers/dom';
+import { loadFixtureDocument, loadFixtureHtml } from '../helpers/load-fixture';
 
 function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): ReturnType<typeof parseItemPage>['comments'] {
   return nodes.flatMap(node => [node, ...flattenComments(node.children)]);
-}
-
-async function loadFixtureHtml(name: string): Promise<string> {
-  const fixtureUrl = new URL(`../fixtures/${name}`, import.meta.url);
-  return readFile(fixtureUrl, 'utf8');
 }
 
 describe('story list fixtures', () => {
@@ -100,7 +94,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses story status markers on item pages, including deleted stories', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="123">
           <td class="title"><span class="rank"></span></td>
@@ -123,7 +117,7 @@ describe('story list fixtures', () => {
       <table class="comment-tree"></table>
     `);
 
-    const page = parseItemPage(dom.window.document);
+    const page = parseItemPage(doc);
 
     expect(page.item).toMatchObject({
       type: 'story',
@@ -135,7 +129,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses story unvote links on item pages when HN renders them outside td.votelinks', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="123">
           <td class="title"><span class="rank"></span></td>
@@ -161,7 +155,7 @@ describe('story list fixtures', () => {
       <table class="comment-tree"></table>
     `);
 
-    const page = parseItemPage(dom.window.document);
+    const page = parseItemPage(doc);
 
     expect(page.item.voteUp).toContain('how=up');
     expect(page.item.voteUn).toContain('how=un');
@@ -169,7 +163,7 @@ describe('story list fixtures', () => {
   });
 
   it('tracks dead status for flat comments on new comments pages', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table>
         <tr class="athing" id="456">
           <td class="votelinks"></td>
@@ -188,7 +182,7 @@ describe('story list fixtures', () => {
       </table>
     `);
 
-    const page = parseNewComments(dom.window.document);
+    const page = parseNewComments(doc);
 
     expect(page.comments[0]).toMatchObject({
       id: '456',
@@ -257,7 +251,7 @@ describe('story list fixtures', () => {
 
   it('parses comment unvote links from wrapped item-page rows', async () => {
     const rowHtml = await loadFixtureHtml('unvote.html');
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="999">
           <td class="title"><span class="rank"></span></td>
@@ -280,7 +274,7 @@ describe('story list fixtures', () => {
       <table class="comment-tree"><tbody>${rowHtml}</tbody></table>
     `);
 
-    const page = parseItemPage(dom.window.document);
+    const page = parseItemPage(doc);
 
     expect(page.comments).toHaveLength(1);
     expect(page.comments[0]).toMatchObject({
@@ -291,7 +285,7 @@ describe('story list fixtures', () => {
   });
 
   it('uses root shells for extreme threads while eagerly parsing the hash-target root', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="999">
           <td class="title"><span class="rank"></span></td>
@@ -367,7 +361,7 @@ describe('story list fixtures', () => {
       </tbody></table>
     `);
 
-    const page = parseItemPage(dom.window.document, {
+    const page = parseItemPage(doc, {
       extremeThreadCommentThreshold: 2,
       initialHashTargetId: 'c4',
     });
@@ -392,7 +386,7 @@ describe('story list fixtures', () => {
   });
 
   it('does not create lazy loaders for roots with no replies', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="999">
           <td class="title"><span class="rank"></span></td>
@@ -455,7 +449,7 @@ describe('story list fixtures', () => {
       </tbody></table>
     `);
 
-    const page = parseItemPage(dom.window.document, {
+    const page = parseItemPage(doc, {
       extremeThreadCommentThreshold: 1,
     });
 
@@ -468,7 +462,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses flat comment unvote links when they are rendered in the header span', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <table>
         <tr class="athing" id="456">
           <td class="votelinks">
@@ -489,7 +483,7 @@ describe('story list fixtures', () => {
       </table>
     `);
 
-    const page = parseNewComments(dom.window.document);
+    const page = parseNewComments(doc);
 
     expect(page.comments[0]).toMatchObject({
       id: '456',
@@ -499,7 +493,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses thread unvote links when they are rendered in the header span', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <title>alice's comments | Hacker News</title>
       <table>
         <tr class="athing comtr" id="456">
@@ -526,7 +520,7 @@ describe('story list fixtures', () => {
       </table>
     `);
 
-    const page = parseThreadsPage(dom.window.document);
+    const page = parseThreadsPage(doc);
 
     expect(page.threads[0]).toMatchObject({
       id: '456',

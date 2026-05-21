@@ -1,4 +1,10 @@
 <script setup lang="ts">
+withDefaults(defineProps<{
+  activeHours?: string;
+}>(), {
+  activeHours: '48',
+});
+
 const bestRangeLinks = [
   { hours: 2, label: '2h' },
   { hours: 6, label: '6h' },
@@ -7,12 +13,6 @@ const bestRangeLinks = [
   { hours: 48, label: '2d' },
   { hours: 168, label: '7d' },
 ] as const;
-
-withDefaults(defineProps<{
-  activeHours?: string;
-}>(), {
-  activeHours: '48',
-});
 </script>
 
 <template>

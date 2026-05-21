@@ -1,11 +1,11 @@
-import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 import { extractRichTextHtml, parseCommentBody } from '@/parsers/shared/body';
+import { parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('comment body parsing', () => {
   it('dedents the shared HN code-block prefix while preserving relative indentation', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <div class="commtext c00">
         Before
         <pre><code>    first line
@@ -14,13 +14,13 @@ describe('comment body parsing', () => {
       </div>
     `);
 
-    const html = extractRichTextHtml(dom.window.document.querySelector('.commtext'));
+    const html = extractRichTextHtml(doc.querySelector('.commtext'));
 
     expect(html).toContain('<pre><code>first line\n  second line\nthird line</code></pre>');
   });
 
   it('keeps quoted code blocks as code while trimming the shared HN prefix', () => {
-    const dom = new JSDOM(`
+    const doc = parseHtmlDocument(`
       <div class="comment">
         <div class="commtext c00">
           <pre><code>  &gt; quoted line
@@ -30,7 +30,7 @@ describe('comment body parsing', () => {
       </div>
     `);
 
-    const parsed = parseCommentBody(dom.window.document.querySelector('.comment'));
+    const parsed = parseCommentBody(doc.querySelector('.comment'));
 
     expect(parsed.html).toContain('<pre><code>&gt; quoted line\nplain line</code></pre>');
     expect(parsed.html).not.toContain('<blockquote>');
