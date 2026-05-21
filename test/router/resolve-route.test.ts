@@ -24,6 +24,23 @@ describe('resolveRoute', () => {
     });
   });
 
+  it('preserves the best page hour range', () => {
+    expect(resolveRoute(makeLocation('/best?h=12'))).toEqual({
+      page: 'stories',
+      params: {
+        type: 'best',
+        h: '12',
+      },
+    });
+
+    expect(resolveRoute(makeLocation('/news?h=12'))).toEqual({
+      page: 'stories',
+      params: {
+        type: 'top',
+      },
+    });
+  });
+
   it('routes comment list variants to the flat comment renderer', () => {
     expect(resolveRoute(makeLocation('/bestcomments'))).toEqual({
       page: 'newcomments',

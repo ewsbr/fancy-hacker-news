@@ -89,6 +89,9 @@ export function resolveRoute(loc: Location): RouteDescriptor {
     const site = sp.get('site');
     if (site !== null)
       params.site = site;
+    const hours = sp.get('h');
+    if (path === '/best' && hours !== null)
+      params.h = hours;
     return { page: 'stories', params };
   }
 

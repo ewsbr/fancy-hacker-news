@@ -2,6 +2,7 @@
 import type { ParsedStoryList } from '@/parsers/story-list';
 import type { RouteDescriptor } from '@/router';
 import { inject } from 'vue';
+import BestRangeNotice from '@/content/components/shared/BestRangeNotice.vue';
 import TopNotice from '@/content/components/shared/TopNotice.vue';
 import UserCollectionHeader from '@/content/components/shared/UserCollectionHeader.vue';
 import StoryRow from '@/content/components/stories/StoryRow.vue';
@@ -21,6 +22,10 @@ const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.mes
 
 <template>
   <div class="stories-page">
+    <BestRangeNotice
+      v-if="route.page === 'stories' && route.params.type === 'best'"
+      :active-hours="route.params.h"
+    />
     <TopNotice v-if="showTopNotice" :html="storyList.introHtml!" />
 
     <div v-if="showListCard" class="stories-page__card hn-content-card">

@@ -8,7 +8,7 @@ defineProps<{
   <aside class="top-notice" v-html="html" />
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .top-notice {
   margin-bottom: 6px;
   padding: 5px 9px;
@@ -19,11 +19,11 @@ defineProps<{
   font-size: 0.88rem;
   line-height: 1.5;
 
-  :deep(div) {
+  div {
     margin: 0 !important;
   }
 
-  :deep(a) {
+  a {
     color: var(--color-accent);
 
     &:hover {
@@ -31,20 +31,20 @@ defineProps<{
     }
   }
 
-  :deep(p) {
+  p {
     margin: 0;
   }
 
-  :deep(p + p) {
+  p + p {
     margin-top: 3px;
   }
 
-  :deep(u) {
+  u {
     text-decoration-thickness: 1px;
   }
 
-  :deep(i),
-  :deep(em) {
+  i,
+  em {
     color: var(--color-text);
   }
 }

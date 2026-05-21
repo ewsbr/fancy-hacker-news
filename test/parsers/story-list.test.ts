@@ -80,8 +80,9 @@ describe('story list fixtures', () => {
     const doc = await loadFixtureDocument('stories/best.html');
     const storyList = parseStoryList(doc);
 
-    expect(storyList.introHtml).toContain('Most-upvoted stories of the last 48 hours');
-    expect(storyList.introHtml).toContain('best?h=24');
+    expect(storyList.introHtml).toBe(
+      '<div style="margin-left:14px; margin-top:6px; margin-bottom:14px">Most-upvoted stories of the last 48 hours. You can change the number of hours like this: <a href="best?h=24"><u>best?h=24</u></a>.</div>',
+    );
   });
 
   it('detects dead stories when the status marker sits outside the title link', async () => {
