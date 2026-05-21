@@ -9,11 +9,11 @@ import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import { constants } from 'node:fs';
 import { access, cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, join, relative, sep } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import process from 'node:process';
 import { deflateRawSync } from 'node:zlib';
 
-const TARGETS = new Set(['chrome', 'firefox']);
+const TARGETS = ['chrome', 'firefox'];
 const ZIP_LOCAL_FILE_HEADER_SIGNATURE = 0x04034B50;
 const ZIP_CENTRAL_DIRECTORY_SIGNATURE = 0x02014B50;
 const ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054B50;
@@ -23,14 +23,6 @@ const ZIP_COMPRESSION_DEFLATE = 8;
 
 const rootDir = join(import.meta.dirname, '..');
 const artifactsDir = join(rootDir, 'web-ext-artifacts');
-
-const target = process.argv[2];
-if (!TARGETS.has(target)) {
-  console.error(`Usage: node scripts/${basename(import.meta.filename)} <chrome|firefox>`);
-  process.exit(1);
-}
-
-const stageDir = join(artifactsDir, `${target}-package`);
 
 function run(command, args) {
   return new Promise((resolve, reject) => {
@@ -73,7 +65,7 @@ async function readManifest() {
   return JSON.parse(await readFile(join(rootDir, 'manifest.json'), 'utf8'));
 }
 
-function makeTargetManifest(manifest) {
+function makeTargetManifest(manifest, target) {
   const targetManifest = structuredClone(manifest);
 
   if (target === 'chrome') {
@@ -203,19 +195,19 @@ async function listFiles(dir) {
   return files;
 }
 
-function toZipPath(path) {
-  return relative(stageDir, path).split(sep).join('/');
+function toZipPath(sourceDir, path) {
+  return relative(sourceDir, path).split(sep).join('/');
 }
 
 async function writeZip(sourceDir, zipPath) {
-  const files = (await listFiles(sourceDir)).sort((a, b) => toZipPath(a).localeCompare(toZipPath(b)));
+  const files = (await listFiles(sourceDir)).sort((a, b) => toZipPath(sourceDir, a).localeCompare(toZipPath(sourceDir, b)));
   const fileParts = [];
   const centralDirectoryParts = [];
   const metadata = [];
   let offset = 0;
 
   for (const file of files) {
-    const name = Buffer.from(toZipPath(file), 'utf8');
+    const name = Buffer.from(toZipPath(sourceDir, file), 'utf8');
     const content = await readFile(file);
     const compressedContent = deflateRawSync(content);
     const { date, time } = getDosDateParts((await stat(file)).mtime);
@@ -259,22 +251,35 @@ async function removeSourceMaps(dir) {
   );
 }
 
-async function stagePackage(manifest) {
+async function stagePackage(manifest, target) {
+  const stageDir = join(artifactsDir, `${target}-package`);
+
   await rm(stageDir, { recursive: true, force: true });
   await mkdir(stageDir, { recursive: true });
 
-  await writeFile(join(stageDir, 'manifest.json'), formatJson(makeTargetManifest(manifest)));
+  await writeFile(join(stageDir, 'manifest.json'), formatJson(makeTargetManifest(manifest, target)));
   await cp(join(rootDir, 'icons'), join(stageDir, 'icons'), { recursive: true });
   await cp(join(rootDir, 'dist'), join(stageDir, 'dist'), { recursive: true });
   await removeSourceMaps(join(stageDir, 'dist'));
+
+  return stageDir;
+}
+
+async function packageTarget(manifest, target) {
+  const zipPath = join(artifactsDir, `fancy-hn-${target}-v${manifest.version}.zip`);
+  const stageDir = await stagePackage(manifest, target);
+
+  await rm(zipPath, { force: true });
+  await writeZip(stageDir, zipPath);
+
+  console.log(`Created ${zipPath}`);
 }
 
 async function main() {
   const manifest = await readManifest();
-  const zipPath = join(artifactsDir, `fancy-hn-${target}-v${manifest.version}.zip`);
 
-  console.log(`Building ${target} extension...`);
-  await run(getPnpmCommand(), ['run', `build:${target === 'chrome' ? 'chromium' : 'firefox'}`]);
+  console.log('Building shared extension assets...');
+  await run(getPnpmCommand(), ['run', 'build']);
 
   await assertPathExists(join(rootDir, 'dist', 'content', 'content.js'));
   await assertPathExists(join(rootDir, 'dist', 'content', 'anti-fouc.js'));
@@ -282,11 +287,10 @@ async function main() {
   await assertPathExists(join(rootDir, 'dist', 'background', 'background.js'));
 
   await mkdir(artifactsDir, { recursive: true });
-  await rm(zipPath, { force: true });
-  await stagePackage(manifest);
-  await writeZip(stageDir, zipPath);
 
-  console.log(`Created ${zipPath}`);
+  for (const target of TARGETS) {
+    await packageTarget(manifest, target);
+  }
 }
 
 main().catch((error) => {

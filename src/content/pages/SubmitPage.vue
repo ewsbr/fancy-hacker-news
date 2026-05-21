@@ -5,6 +5,7 @@ import { computed, inject, ref } from 'vue';
 import SubmitForm from '@/content/components/forms/SubmitForm.vue';
 import StoryRow from '@/content/components/stories/StoryRow.vue';
 import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
+import { pickPseudoRandomIndex } from '@/utils/random';
 
 const SUBMIT_PLACEHOLDERS = [
   {
@@ -79,8 +80,22 @@ const SUBMIT_PLACEHOLDERS = [
   },
 ] as const;
 
+function buildPlaceholderSeed(pageData: ParsedSubmitPage): string {
+  const formFields = pageData.form?.fields.map(field => `${field.name}:${field.type}:${field.value}`).join('|') ?? '';
+
+  return [
+    pageData.form?.action ?? '',
+    pageData.form?.fnid ?? '',
+    pageData.form?.fnop ?? '',
+    pageData.form?.bookmarkletHref ?? '',
+    pageData.warningMessage ?? '',
+    formFields,
+  ].join('::');
+}
+
 const pageData = inject<ParsedSubmitPage>('pageData')!;
-const placeholderSet = SUBMIT_PLACEHOLDERS[Math.floor(Math.random() * SUBMIT_PLACEHOLDERS.length)];
+const placeholderIndex = pickPseudoRandomIndex(buildPlaceholderSeed(pageData), SUBMIT_PLACEHOLDERS.length);
+const placeholderSet = SUBMIT_PLACEHOLDERS[placeholderIndex];
 const formPlaceholders = {
   title: placeholderSet.title,
   text: placeholderSet.text ?? '',

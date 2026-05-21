@@ -5,41 +5,39 @@ import { ref } from 'vue';
 import ConceptVariant from './ConceptVariant.vue';
 import MockThemeToggle from './MockThemeToggle.vue';
 
-const primaryLinks = [
-  { label: 'new', href: '#' },
-  { label: 'threads', href: '#' },
-  { label: 'past', href: '#' },
-  { label: 'comments', href: '#' },
-  { label: 'ask', href: '#' },
-  { label: 'show', href: '#' },
-];
+interface MockLink {
+  label: string;
+  href: string;
+}
 
-const expandedLinks = [
-  { label: 'jobs', href: '#' },
-  { label: 'best', href: '#' },
-  { label: 'classic', href: '#' },
-  { label: 'whoishiring', href: '#' },
-];
+interface MockLinkGroup {
+  title: string;
+  links: MockLink[];
+}
 
-const v4PrimaryLinks = [
-  { label: 'new', href: '#' },
-  { label: 'threads', href: '#' },
-  { label: 'past', href: '#' },
-  { label: 'comments', href: '#' },
-  { label: 'ask', href: '#' },
-  { label: 'show', href: '#' },
-];
+const MOCK_LINK_HREF = '#';
 
-const v5PrimaryLinks = [
-  { label: 'new', href: '#' },
-  { label: 'threads', href: '#' },
-  { label: 'past', href: '#' },
-  { label: 'best', href: '#' },
-  { label: 'ask', href: '#' },
-  { label: 'show', href: '#' },
-];
+function makeMockLinks(labels: string[]): MockLink[] {
+  return labels.map(label => ({ label, href: MOCK_LINK_HREF }));
+}
 
-const submitLink = { label: 'submit', href: '#' };
+const primaryLinks = makeMockLinks(['new', 'threads', 'past', 'comments', 'ask', 'show']);
+const expandedLinks = makeMockLinks(['jobs', 'best', 'classic', 'whoishiring']);
+const v4PrimaryLinks = primaryLinks;
+const v5PrimaryLinks = makeMockLinks(['new', 'threads', 'past', 'best', 'ask', 'show']);
+const v4DropdownGroups: MockLinkGroup[] = [
+  { title: 'community', links: makeMockLinks(['jobs', 'whoishiring']) },
+  { title: 'discovery', links: makeMockLinks(['best', 'classic']) },
+];
+const v5DropdownGroups: MockLinkGroup[] = [
+  { title: 'community', links: makeMockLinks(['comments', 'jobs', 'whoishiring']) },
+  { title: 'discovery', links: makeMockLinks(['classic']) },
+];
+const v5MobileGroups: MockLinkGroup[] = [
+  { title: 'community', links: makeMockLinks(['comments', 'jobs', 'whoishiring']) },
+  { title: 'more', links: makeMockLinks(['classic']) },
+];
+const submitLink = makeMockLinks(['submit'])[0];
 const allLinks = [...primaryLinks, ...expandedLinks, submitLink];
 
 const navOpen1 = ref(false);
@@ -211,15 +209,20 @@ const moreOpen1 = ref(false);
                   explore <ChevronDown :size="14" />
                 </button>
                 <div v-show="navOpen2" class="sh-v4__mega-dropdown">
-                  <div class="sh-v4__dropdown-group">
-                    <strong class="sh-v4__group-title">community</strong>
-                    <a href="#" class="sh-v4__dropdown-link">jobs</a>
-                    <a href="#" class="sh-v4__dropdown-link">whoishiring</a>
-                  </div>
-                  <div class="sh-v4__dropdown-group">
-                    <strong class="sh-v4__group-title">discovery</strong>
-                    <a href="#" class="sh-v4__dropdown-link">best</a>
-                    <a href="#" class="sh-v4__dropdown-link">classic</a>
+                  <div
+                    v-for="group in v4DropdownGroups"
+                    :key="group.title"
+                    class="sh-v4__dropdown-group"
+                  >
+                    <strong class="sh-v4__group-title">{{ group.title }}</strong>
+                    <a
+                      v-for="link in group.links"
+                      :key="link.label"
+                      :href="link.href"
+                      class="sh-v4__dropdown-link"
+                    >
+                      {{ link.label }}
+                    </a>
                   </div>
                 </div>
               </div>
@@ -273,30 +276,40 @@ const moreOpen1 = ref(false);
                   explore <ChevronDown :size="14" />
                 </button>
                 <div v-show="navOpenDropdown5" class="sh-v5__mega-dropdown">
-                  <div class="sh-v5__dropdown-group">
-                    <strong class="sh-v5__group-title">community</strong>
-                    <a href="#" class="sh-v5__dropdown-link">comments</a>
-                    <a href="#" class="sh-v5__dropdown-link">jobs</a>
-                    <a href="#" class="sh-v5__dropdown-link">whoishiring</a>
-                  </div>
-                  <div class="sh-v5__dropdown-group">
-                    <strong class="sh-v5__group-title">discovery</strong>
-                    <a href="#" class="sh-v5__dropdown-link">classic</a>
+                  <div
+                    v-for="group in v5DropdownGroups"
+                    :key="group.title"
+                    class="sh-v5__dropdown-group"
+                  >
+                    <strong class="sh-v5__group-title">{{ group.title }}</strong>
+                    <a
+                      v-for="link in group.links"
+                      :key="link.label"
+                      :href="link.href"
+                      class="sh-v5__dropdown-link"
+                    >
+                      {{ link.label }}
+                    </a>
                   </div>
                 </div>
               </div>
 
               <div class="sh-v5__mobile-groups">
                 <hr>
-                <div class="sh-v5__mobile-group">
-                  <span class="sh-v5__mobile-group-title">community</span>
-                  <a href="#" class="sh-v5__link">comments</a>
-                  <a href="#" class="sh-v5__link">jobs</a>
-                  <a href="#" class="sh-v5__link">whoishiring</a>
-                </div>
-                <div class="sh-v5__mobile-group">
-                  <span class="sh-v5__mobile-group-title">more</span>
-                  <a href="#" class="sh-v5__link">classic</a>
+                <div
+                  v-for="group in v5MobileGroups"
+                  :key="group.title"
+                  class="sh-v5__mobile-group"
+                >
+                  <span class="sh-v5__mobile-group-title">{{ group.title }}</span>
+                  <a
+                    v-for="link in group.links"
+                    :key="link.label"
+                    :href="link.href"
+                    class="sh-v5__link"
+                  >
+                    {{ link.label }}
+                  </a>
                 </div>
               </div>
 

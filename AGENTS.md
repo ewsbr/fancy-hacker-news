@@ -25,13 +25,10 @@ There is still no SPA routing and no custom backend.
 
 ```bash
 pnpm dev               # build anti-FOUC script, then watch content script
-pnpm build             # build content, anti-FOUC, and background targets
-pnpm build:firefox     # Firefox-flavoured production build
-pnpm build:chromium    # Chromium-flavoured production build
+pnpm build             # build shared Firefox/Chromium content, anti-FOUC, and background targets
 pnpm typecheck         # vue-tsc --noEmit
 pnpm test              # run Vitest once
-pnpm package:firefox   # package Firefox zip
-pnpm package:chrome    # package Chrome zip
+pnpm package           # build once and package both Firefox and Chrome zips
 pnpm concepts:dev      # run the design concepts playground
 ```
 

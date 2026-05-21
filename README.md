@@ -33,14 +33,11 @@ CSS-only customization is very limited. We cannot rearrange elements, add fancy 
 
 Build:
 
-- `pnpm build` — production build for the content script, anti-FOUC bootstrap, and background script.
-- `pnpm build:firefox` — Firefox-targeted production build.
-- `pnpm build:chromium` — Chromium-targeted production build.
+- `pnpm build` — production build for the shared Firefox/Chromium content script, anti-FOUC bootstrap, and background script.
 
 Package:
 
-- `pnpm package:firefox` — build and create a clean AMO-ready ZIP in `web-ext-artifacts/`.
-- `pnpm package:chrome` — build and create a clean Chrome Web Store-ready ZIP in `web-ext-artifacts/`.
+- `pnpm package` — build once and create both the AMO-ready Firefox ZIP and the Chrome Web Store-ready ZIP in `web-ext-artifacts/`.
 
 Develop and verify:
 

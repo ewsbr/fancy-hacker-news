@@ -8,7 +8,9 @@ import { defineConfig } from 'vite';
  * Each entry (content script, background) is built as a standalone IIFE so it
  * works as a classic browser-extension script without a module loader.
  *
- * Build both:
+ * Production builds target both Firefox and Chromium from the same output.
+ *
+ * Core commands:
  *   pnpm build              → runs content then background
  *   pnpm build:content      → content script only
  *   pnpm build:background   → background/service-worker only
@@ -71,8 +73,6 @@ function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBui
 }
 
 export default defineConfig(({ mode }) => {
-  const isFirefox = mode === 'firefox';
-
   return {
     base: '',
     plugins: [
@@ -101,7 +101,7 @@ export default defineConfig(({ mode }) => {
       outDir: cfg.outDir,
       emptyOutDir: cfg.emptyOutDir,
       sourcemap: true,
-      target: ['chrome88', isFirefox ? 'firefox109' : 'chrome88'],
+      target: ['chrome88', 'firefox109'],
       assetsInlineLimit: 0, // Prevent Vite from inlining fonts as base64 data URIs
       cssCodeSplit: false,
 
