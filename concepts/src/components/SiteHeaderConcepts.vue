@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import YLogo from '@app/assets/ycombinator.svg';
+import { ChevronDown, Menu, User } from 'lucide-vue-next';
 import { ref } from 'vue';
 import ConceptVariant from './ConceptVariant.vue';
 import MockThemeToggle from './MockThemeToggle.vue';
-import { Menu, User, ChevronDown } from 'lucide-vue-next';
-import YLogo from '@app/assets/ycombinator.svg';
 
 const primaryLinks = [
   { label: 'new', href: '#' },
@@ -61,7 +61,7 @@ const moreOpen1 = ref(false);
       </h2>
     </div>
     <p class="concept-app__section-copy">
-      With the addition of /best, /classic, and /whoishiring, the header no longer gracefully scales down. 
+      With the addition of /best, /classic, and /whoishiring, the header no longer gracefully scales down.
       These concepts explore different interaction models for desktop overflow and mobile layout.
     </p>
   </section>
@@ -77,9 +77,11 @@ const moreOpen1 = ref(false);
                 <img :src="YLogo" class="sh-logo-img" alt="Y Combinator Logo">
                 <span class="sh-logo-text">Hacker News</span>
               </a>
-              
+
               <div class="sh-v1__controls-mobile">
-                <button type="button" class="icon-button"><User :size="18" /></button>
+                <button type="button" class="icon-button">
+                  <User :size="18" />
+                </button>
                 <MockThemeToggle />
                 <button type="button" class="sh-mobile-toggle" @click="navOpen1 = !navOpen1">
                   <Menu :size="18" />
@@ -91,7 +93,7 @@ const moreOpen1 = ref(false);
               <div class="sh-v1__nav-primary">
                 <a v-for="link in primaryLinks" :key="link.label" href="#" class="sh-v1__link">{{ link.label }}</a>
               </div>
-              
+
               <div class="sh-v1__more-container">
                 <button type="button" class="sh-v1__more-btn" @click="moreOpen1 = !moreOpen1">
                   more <ChevronDown :size="14" />
@@ -117,7 +119,9 @@ const moreOpen1 = ref(false);
             </div>
           </div>
         </header>
-        <div class="mock-content">Page content...</div>
+        <div class="mock-content">
+          Page content...
+        </div>
       </div>
     </ConceptVariant>
 
@@ -141,7 +145,9 @@ const moreOpen1 = ref(false);
             </nav>
           </div>
         </header>
-        <div class="mock-content">Page content...</div>
+        <div class="mock-content">
+          Page content...
+        </div>
       </div>
     </ConceptVariant>
 
@@ -162,12 +168,16 @@ const moreOpen1 = ref(false);
               </nav>
             </div>
             <div class="sh-v3__right">
-              <button type="button" class="icon-button"><User :size="18" /></button>
+              <button type="button" class="icon-button">
+                <User :size="18" />
+              </button>
               <MockThemeToggle />
             </div>
           </div>
         </header>
-        <div class="mock-content">Page content...</div>
+        <div class="mock-content">
+          Page content...
+        </div>
       </div>
     </ConceptVariant>
 
@@ -183,7 +193,9 @@ const moreOpen1 = ref(false);
               </a>
 
               <div class="sh-v4__controls-mobile">
-                <button type="button" class="icon-button"><User :size="18" /></button>
+                <button type="button" class="icon-button">
+                  <User :size="18" />
+                </button>
                 <MockThemeToggle />
                 <button type="button" class="sh-mobile-toggle" @click="navOpen3 = !navOpen3">
                   <Menu :size="18" />
@@ -193,7 +205,7 @@ const moreOpen1 = ref(false);
 
             <nav class="sh-v4__nav" :class="{ 'sh-v4__nav--open': navOpen3 }">
               <a v-for="link in v4PrimaryLinks" :key="link.label" href="#" class="sh-v4__link">{{ link.label }}</a>
-              
+
               <div class="sh-v4__dropdown-container">
                 <button type="button" class="sh-v4__dropdown-btn" @click="navOpen2 = !navOpen2">
                   explore <ChevronDown :size="14" />
@@ -218,12 +230,16 @@ const moreOpen1 = ref(false);
 
             <div class="sh-v4__right sh-v4__controls-desktop">
               <a href="#" class="sh-v4__link sh-v4__submit-desktop">{{ submitLink.label }}</a>
-              <button type="button" class="icon-button"><User :size="18" /></button>
+              <button type="button" class="icon-button">
+                <User :size="18" />
+              </button>
               <MockThemeToggle />
             </div>
           </div>
         </header>
-        <div class="mock-content">Page content...</div>
+        <div class="mock-content">
+          Page content...
+        </div>
       </div>
     </ConceptVariant>
 
@@ -239,7 +255,9 @@ const moreOpen1 = ref(false);
               </a>
 
               <div class="sh-v5__controls-mobile">
-                <button type="button" class="icon-button"><User :size="18" /></button>
+                <button type="button" class="icon-button">
+                  <User :size="18" />
+                </button>
                 <MockThemeToggle />
                 <button type="button" class="sh-mobile-toggle" @click="navOpen4 = !navOpen4">
                   <Menu :size="18" />
@@ -287,15 +305,18 @@ const moreOpen1 = ref(false);
 
             <div class="sh-v5__right sh-v5__controls-desktop">
               <a href="#" class="sh-v5__link sh-v5__submit-desktop">{{ submitLink.label }}</a>
-              <button type="button" class="icon-button"><User :size="18" /></button>
+              <button type="button" class="icon-button">
+                <User :size="18" />
+              </button>
               <MockThemeToggle />
             </div>
           </div>
         </header>
-        <div class="mock-content">Page content...</div>
+        <div class="mock-content">
+          Page content...
+        </div>
       </div>
     </ConceptVariant>
-
   </section>
 </template>
 

@@ -1,9 +1,10 @@
+shellEmulator: true
 trustPolicy: no-downgrade
 
 allowBuilds:
   '@parcel/watcher': false
   vue-demi: true
+trustPolicyExclude:
+  - chokidar@4.0.3
 onlyBuiltDependencies:
   - vue-demi
-trustPolicyExclude:
-  - 'chokidar@4.0.3'

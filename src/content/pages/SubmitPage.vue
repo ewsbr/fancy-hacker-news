@@ -76,7 +76,7 @@ const SUBMIT_PLACEHOLDERS = [
     title: 'DynamoDB introduces eventual pricing',
     text: null,
     url: 'https://www.theregister.com/2026/02/19/dynamodb_billing/',
-  }
+  },
 ] as const;
 
 const pageData = inject<ParsedSubmitPage>('pageData')!;
