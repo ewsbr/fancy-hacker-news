@@ -167,7 +167,7 @@ useCommentCollapseRegistration(node, toggleCollapse);
       </button>
 
       <div v-else class="comment-node__thread">
-        <button class="comment-node__line" title="Collapse thread" @click="toggleCollapse" />
+        <button class="comment-node__line" type="button" title="Long press to collapse thread" />
         <div class="comment-node__children">
           <CommentNode
             v-for="child in node.children"

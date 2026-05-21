@@ -13,8 +13,13 @@ import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_LONG_PRESS_DELAY = 525;
-const COMMENT_LONG_PRESS_IGNORE_SELECTOR = [
-  '.comment-node__body-wrapper',
+const COMMENT_LONG_PRESS_HEADER_SELECTOR = '.comment-node__header';
+const COMMENT_LONG_PRESS_LINE_SELECTOR = '.comment-node__line';
+const COMMENT_LONG_PRESS_TARGET_SELECTOR = [
+  COMMENT_LONG_PRESS_HEADER_SELECTOR,
+  COMMENT_LONG_PRESS_LINE_SELECTOR,
+].join(',');
+const COMMENT_LONG_PRESS_INTERACTIVE_SELECTOR = [
   'a',
   'button',
   'input',
@@ -59,8 +64,18 @@ function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
   return 'onStory' in node;
 }
 
-function shouldIgnoreCommentLongPress(target: Element): boolean {
-  return target.closest(COMMENT_LONG_PRESS_IGNORE_SELECTOR) !== null;
+function findLongPressCollapseTarget(target: Element): HTMLElement | null {
+  const pressTarget = target.closest<HTMLElement>(COMMENT_LONG_PRESS_TARGET_SELECTOR);
+  if (!pressTarget) {
+    return null;
+  }
+
+  const isThreadLine = pressTarget.matches(COMMENT_LONG_PRESS_LINE_SELECTOR);
+  if (!isThreadLine && target.closest(COMMENT_LONG_PRESS_INTERACTIVE_SELECTOR)) {
+    return null;
+  }
+
+  return pressTarget.closest<HTMLElement>('.comment-node');
 }
 
 export function provideCommentCollapseRegistry(): CommentCollapseRegistry {
@@ -132,15 +147,34 @@ export function useDelegatedCommentLongPress(
     return;
   }
 
+  function preventLongPressContextMenu(event: MouseEvent) {
+    const targetElement = event.target instanceof Element ? event.target : null;
+    if (targetElement && findLongPressCollapseTarget(targetElement)) {
+      event.preventDefault();
+    }
+  }
+
+  const stopContextMenuListener = watch(
+    target,
+    (element, _previousElement, onCleanup) => {
+      element?.addEventListener('contextmenu', preventLongPressContextMenu);
+
+      onCleanup(() => {
+        element?.removeEventListener('contextmenu', preventLongPressContextMenu);
+      });
+    },
+    { immediate: true },
+  );
+
   onLongPress(
     target,
     (event) => {
       const targetElement = event.target instanceof Element ? event.target : null;
-      if (!targetElement || shouldIgnoreCommentLongPress(targetElement)) {
+      if (!targetElement) {
         return;
       }
 
-      const commentElement = targetElement.closest<HTMLElement>('.comment-node');
+      const commentElement = findLongPressCollapseTarget(targetElement);
 
       if (commentElement?.id) {
         registry.toggle(commentElement.id);
@@ -148,6 +182,10 @@ export function useDelegatedCommentLongPress(
     },
     { delay: COMMENT_LONG_PRESS_DELAY },
   );
+
+  onScopeDispose(() => {
+    stopContextMenuListener();
+  });
 }
 
 export function useCommentDisplayContext({
