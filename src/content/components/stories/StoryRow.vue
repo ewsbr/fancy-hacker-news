@@ -153,19 +153,29 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     font-weight: 800;
     font-variant-numeric: tabular-nums;
 
-    &:hover {
-      color: var(--color-accent-muted);
-      text-decoration: none;
+    &:visited,
+    &:active,
+    &:focus {
+      color: var(--color-text-muted);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--color-accent-muted);
+        text-decoration: none;
+      }
     }
   }
 
   &__comments-icon {
     width: 24px;
     height: 24px;
+    color: inherit;
     transform: scale(-1, 1);
   }
 
   &__comments-count {
+    color: inherit;
     font-size: 0.78rem;
     line-height: 1;
   }
