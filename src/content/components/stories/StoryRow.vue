@@ -136,6 +136,8 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     }
   }
   &__comments {
+    --story-comments-color: var(--color-text-muted);
+
     align-self: center;
     display: flex;
     flex-direction: column;
@@ -145,7 +147,7 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     min-width: 40px;
     min-height: 40px;
     padding: 4px 0;
-    color: var(--color-text-muted);
+    color: var(--story-comments-color);
     text-decoration: none;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
@@ -154,11 +156,12 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
 
     &:visited,
     &:focus {
-      color: var(--color-text-muted);
+      --story-comments-color: var(--color-text-muted);
     }
 
     &:active {
-      color: var(--color-accent-muted);
+      --story-comments-color: var(--color-accent-muted);
+
       background: var(--color-row-hover);
       text-decoration: none;
       transition-duration: 0s, 0s;
@@ -172,7 +175,8 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
-        color: var(--color-accent-muted);
+        --story-comments-color: var(--color-accent-muted);
+
         text-decoration: none;
       }
     }
@@ -181,12 +185,12 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
   &__comments-icon {
     width: 24px;
     height: 24px;
-    color: inherit;
+    color: var(--story-comments-color);
     transform: scale(-1, 1);
   }
 
   &__comments-count {
-    color: inherit;
+    color: var(--story-comments-color);
     font-size: 0.78rem;
     line-height: 1;
   }
