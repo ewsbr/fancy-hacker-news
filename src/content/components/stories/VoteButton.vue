@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
 import { Triangle } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{
@@ -13,16 +13,27 @@ const props = defineProps<{
 
 const { isBusy, submitVote } = useHnActions();
 
-const currentHref = computed(() => props.voteUnHref || props.href || null);
-const currentDirection = computed(() => (props.voteUnHref ? 'un' : 'up'));
+const currentVoteUnHref = ref(props.voteUnHref ?? null);
+const currentHref = computed(() => currentVoteUnHref.value || props.href || null);
+const currentDirection = computed(() => (currentVoteUnHref.value ? 'un' : 'up'));
 
-function handleClick(event: MouseEvent) {
+watch(
+  () => props.voteUnHref,
+  (voteUnHref) => {
+    currentVoteUnHref.value = voteUnHref ?? null;
+  },
+);
+
+async function handleClick(event: MouseEvent) {
   if (!props.voteTarget || !currentHref.value) {
     return;
   }
 
   event.preventDefault();
-  void submitVote(props.voteTarget, currentHref.value, currentDirection.value);
+  const succeeded = await submitVote(props.voteTarget, currentHref.value, currentDirection.value);
+  if (succeeded) {
+    currentVoteUnHref.value = props.voteTarget.voteUn;
+  }
 }
 </script>
 
@@ -32,9 +43,9 @@ function handleClick(event: MouseEvent) {
       v-if="currentHref"
       :href="currentHref"
       class="vote-btn"
-      :class="{ 'vote-btn--active': !!voteUnHref, 'vote-btn--busy': isBusy }"
-      :title="voteUnHref ? 'unvote' : 'upvote'"
-      :aria-label="voteUnHref ? 'unvote' : 'upvote'"
+      :class="{ 'vote-btn--active': !!currentVoteUnHref, 'vote-btn--busy': isBusy }"
+      :title="currentVoteUnHref ? 'unvote' : 'upvote'"
+      :aria-label="currentVoteUnHref ? 'unvote' : 'upvote'"
       :aria-disabled="isBusy ? 'true' : undefined"
       @click="handleClick"
     >
@@ -97,6 +108,12 @@ function handleClick(event: MouseEvent) {
 
   &--active {
     color: var(--color-accent);
+
+    &:visited,
+    &:active,
+    &:focus {
+      color: var(--color-accent);
+    }
   }
 
   &--busy {
