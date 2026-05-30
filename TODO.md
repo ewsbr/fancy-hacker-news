@@ -1,0 +1,11 @@
+- Untested/poorly tested features
+  - flags
+  - downvote
+  - top bar colors
+  - /vouched
+  - these same configs in the user page
+
+- Maybe add inline replies
+- Jobs?
+- Add xcancel links / archive.org
+- Add the /newpoll page

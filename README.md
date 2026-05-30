@@ -23,7 +23,7 @@ Some features, like downvote levels, upvoting and flagging are not available via
 
 > Why not customize via CSS?
 
-CSS-only customization is very limited. We cannot rearrange elements, add fancy features (like the downvote level counters) or fix some structural issues, such as the left spacing on code blocks.
+CSS-only customization is very limited. We cannot rearrange elements, add HN-only features (like the downvote level counters) or fix some structural issues, such as the "everything is a table" HTML.
 
 **Non-goals**:
 - SPA routing. Yes, we will re-render the page on every navigation.
