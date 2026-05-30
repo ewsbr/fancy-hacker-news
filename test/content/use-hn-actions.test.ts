@@ -78,7 +78,7 @@ describe('useHnActions', () => {
   });
 
   it('fails closed without navigating when a js vote returns the logged-out form', async () => {
-    const loggedOutVoteHtml = await loadFixtureHtml('vote-nologin.html');
+    const loggedOutVoteHtml = await loadFixtureHtml('misc/auth/vote-nologin.html');
     fetchMock.mockResolvedValueOnce({
       ok: true,
       url: 'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',

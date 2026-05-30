@@ -5,7 +5,7 @@ import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('submit and reply parsers', () => {
   it('parses the submit form fields and bookmarklet link', async () => {
-    const doc = await loadFixtureDocument('submit.html');
+    const doc = await loadFixtureDocument('misc/forms/submit.html');
     const page = parseSubmitPage(doc);
 
     expect(page.isLoggedOut).toBe(false);
@@ -39,7 +39,7 @@ describe('submit and reply parsers', () => {
   });
 
   it('parses reply-page parent context links and story context', async () => {
-    const doc = await loadFixtureDocument('reply.html');
+    const doc = await loadFixtureDocument('misc/forms/reply.html');
     const page = parseReplyPage(doc);
 
     expect(page.isLoggedOut).toBe(false);

@@ -91,7 +91,7 @@ describe('parseUserPage', () => {
   });
 
   it('extracts favorites and upvoted comment links from the profile fixture', async () => {
-    const doc = await loadFixtureDocument('user.html');
+    const doc = await loadFixtureDocument('misc/user/profile-auth.html');
     const page = parseUserPage(doc);
 
     expect(page.favoritesLink).toBe('favorites?id=ewsbr');
@@ -101,7 +101,7 @@ describe('parseUserPage', () => {
   });
 
   it('accepts leading-slash and absolute collection URLs', async () => {
-    const doc = await loadFixtureDocument('user.html');
+    const doc = await loadFixtureDocument('misc/user/profile-auth.html');
 
     const favoriteLinks = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a[href*="favorites?id=ewsbr"]'));
     favoriteLinks[0]?.setAttribute('href', '/favorites?id=ewsbr');
@@ -120,7 +120,7 @@ describe('parseUserPage', () => {
   });
 
   it('builds missing comments links from the base collection href', async () => {
-    const doc = await loadFixtureDocument('user.html');
+    const doc = await loadFixtureDocument('misc/user/profile-auth.html');
 
     doc
       .querySelector<HTMLAnchorElement>('a[href="favorites?id=ewsbr&comments=t"]')

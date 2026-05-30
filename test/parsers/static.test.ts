@@ -5,7 +5,7 @@ import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('static page parser', () => {
   it('promotes standalone legacy bold headings from the FAQ fixture', async () => {
-    const doc = await loadFixtureDocument('newsfaq.html');
+    const doc = await loadFixtureDocument('static/newsfaq.html');
     const page = parseStaticPage(doc);
 
     expect(page.contentHtml).toContain('<h1>Hacker News FAQ</h1>');

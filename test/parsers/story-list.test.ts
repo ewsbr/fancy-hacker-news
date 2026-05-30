@@ -13,7 +13,7 @@ function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): R
 
 describe('story list fixtures', () => {
   it('parses the Hacker News header from the news fixture', async () => {
-    const doc = await loadFixtureDocument('news.html');
+    const doc = await loadFixtureDocument('stories/news.html');
     const header = parseHeader(doc);
 
     expect(header.navLinks).toHaveLength(9);
@@ -30,7 +30,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses ranked stories and pagination from the news fixture', async () => {
-    const doc = await loadFixtureDocument('news.html');
+    const doc = await loadFixtureDocument('stories/news.html');
     const storyList = parseStoryList(doc);
     const firstStory = storyList.stories[0];
     const lastStory = storyList.stories[storyList.stories.length - 1];
@@ -80,7 +80,7 @@ describe('story list fixtures', () => {
   });
 
   it('detects dead stories when the status marker sits outside the title link', async () => {
-    const doc = await loadFixtureDocument('jobs.html');
+    const doc = await loadFixtureDocument('stories/jobs.html');
     const storyList = parseStoryList(doc);
     const deadStory = storyList.stories.find(story => story.id === '47442774');
 
@@ -232,7 +232,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses dead comments from the item-page comment tree fixture', async () => {
-    const doc = await loadFixtureDocument('story-artemis-withdead.html');
+    const doc = await loadFixtureDocument('stories/threads/story-artemis-withdead.html');
     const page = parseItemPage(doc);
     const comments = flattenComments(page.comments);
 
@@ -250,7 +250,7 @@ describe('story list fixtures', () => {
   });
 
   it('parses comment unvote links from wrapped item-page rows', async () => {
-    const rowHtml = await loadFixtureHtml('unvote.html');
+    const rowHtml = await loadFixtureHtml('stories/threads/fragments/comment-unvote.html');
     const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="999">
@@ -530,7 +530,7 @@ describe('story list fixtures', () => {
   });
 
   it('normalizes item-page comment nav links to in-page hashes', async () => {
-    const doc = await loadFixtureDocument('story.html');
+    const doc = await loadFixtureDocument('stories/threads/story.html');
     const page = parseItemPage(doc);
     const comments = flattenComments(page.comments);
     const nestedComment = comments.find(comment => comment.id === '47537932');
@@ -544,7 +544,7 @@ describe('story list fixtures', () => {
   });
 
   it('preserves thread-page nav links exactly as rendered by HN', async () => {
-    const doc = await loadFixtureDocument('user-comments.html');
+    const doc = await loadFixtureDocument('comments/user/comments-authored.html');
     const page = parseThreadsPage(doc);
 
     expect(page.threads[0]).toMatchObject({

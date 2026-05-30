@@ -5,7 +5,7 @@ import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('header parser', () => {
   it('parses the default top bar color from a standard fixture', async () => {
-    const doc = await loadFixtureDocument('news.html');
+    const doc = await loadFixtureDocument('stories/news.html');
     const header = parseHeader(doc);
 
     expect(header.topBarColor).toBe('#ff6600');
