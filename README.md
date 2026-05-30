@@ -68,6 +68,17 @@ HTML snapshots of real Hacker News pages live in `test/fixtures/`. Fixture and p
 - `pnpm test` — run the full test suite once.
 - `pnpm test:watch` — run the suite in watch mode.
 
+## Releasing
+To create a release, run `pnpm run package`. Then generate upload the release artifacts to GitHub manually.
+
+Release notes are generated with [git-cliff](https://git-cliff.org/).
+```bash
+# Message for the changelog entry
+git-cliff --unreleased --config cliff.toml
+
+# Message for Firefox extension release notes
+git-cliff --unreleased --config cliff.amo.toml
+```
 
 ## Browser Support
 
