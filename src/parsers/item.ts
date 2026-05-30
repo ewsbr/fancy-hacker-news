@@ -13,7 +13,7 @@ import {
 import { parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
 
-const EXTREME_THREAD_COMMENT_THRESHOLD = 2000;
+const EXTREME_THREAD_COMMENT_THRESHOLD = 1000;
 
 export interface ParsedItemPage {
   item: ItemDetail;
