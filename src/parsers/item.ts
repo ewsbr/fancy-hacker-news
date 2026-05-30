@@ -2,7 +2,7 @@ import type { CommentPlaceholderKind } from './shared/body';
 import { debugLog, debugMeasure } from '@/debug';
 import { parseAge } from './shared/age';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
-import { findUnvoteHref, isNewUser } from './shared/comment';
+import { isNewUser } from './shared/comment';
 import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
 import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
 import {
