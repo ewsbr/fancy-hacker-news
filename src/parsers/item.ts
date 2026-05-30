@@ -126,6 +126,36 @@ interface CommentThreadSlice {
   containsTarget: boolean;
 }
 
+function findScopedUnvoteHref(scope: ParentNode | null | undefined, id: string): string | null {
+  if (!scope || !id) {
+    return null;
+  }
+
+  return hrefOf(
+    scope.querySelector(`a#un_${id}, #unv_${id} a[href^="vote?"][href*="how=un"]`),
+  );
+}
+
+function findPollOptionsTable(fatitem: Element): Element | null {
+  const toptextRow = fatitem.querySelector('.toptext')?.closest('tr');
+  let currentRow = toptextRow?.nextElementSibling;
+
+  while (currentRow) {
+    if (currentRow.querySelector('form[action="comment"]')) {
+      return null;
+    }
+
+    const table = currentRow.querySelector('table');
+    if (table?.querySelector('tr.athing td.comment')) {
+      return table;
+    }
+
+    currentRow = currentRow.nextElementSibling;
+  }
+
+  return null;
+}
+
 function parseCommentRow(tr: Element): CommentNode {
   const row = parseThreadCommentRow(tr, { navLinkMode: 'hash' });
 
@@ -270,7 +300,7 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
     const votelinks = athing?.querySelector('td.votelinks');
     parsedItem.voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
     parsedItem.voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-    parsedItem.voteUn = findUnvoteHref(fatitem);
+    parsedItem.voteUn = findScopedUnvoteHref(fatitem, id);
 
     if (isStory) {
       const titleline = athing?.querySelector('.titleline');
@@ -364,20 +394,23 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
   // Poll options live inside fatitem as tr.athing rows that are NOT .submission and NOT .comtr
   const pollOptions: PollOption[] = debugMeasure('item:parse-poll', () => {
     const options: PollOption[] = [];
-    const pollRows = fatitem.querySelectorAll('tr.athing:not(.submission):not(.comtr)');
+    const pollTable = findPollOptionsTable(fatitem);
+    const pollRows = pollTable?.querySelectorAll('tr.athing') ?? [];
+
     for (const row of pollRows) {
       const id = attrOf(row, 'id') || '';
       const commentTd = row.querySelector('td.comment');
       if (!commentTd)
         continue;
+
       const text = commentTd.textContent?.trim() || '';
       const voteUp = hrefOf(row.querySelector('td.votelinks a[href^="vote?"]'));
-      const voteUn = findUnvoteHref(row);
 
       // Score is in the next sibling tr's td.default span.score
       const nextRow = row.nextElementSibling;
       const scoreText = textOf(nextRow?.querySelector('.score'));
       const score = parseScore(scoreText);
+      const voteUn = findScopedUnvoteHref(row, id) || findScopedUnvoteHref(nextRow, id);
 
       options.push({ id, text, score, voteUp, voteUn });
     }

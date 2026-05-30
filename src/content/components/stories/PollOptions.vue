@@ -7,9 +7,30 @@ const props = defineProps<{
   options: PollOption[];
 }>();
 
+function comparePollOptions(left: PollOption, right: PollOption): number {
+  const leftScore = left.score;
+  const rightScore = right.score;
+
+  if (leftScore != null && rightScore != null && leftScore !== rightScore) {
+    return rightScore - leftScore;
+  }
+
+  if (leftScore != null && rightScore == null) {
+    return -1;
+  }
+
+  if (leftScore == null && rightScore != null) {
+    return 1;
+  }
+
+  return left.text.localeCompare(right.text, undefined, { sensitivity: 'base' });
+}
+
+const displayedOptions = computed(() => [...props.options].sort(comparePollOptions));
+
 const maxScore = computed(() => {
   let max = 0;
-  for (const opt of props.options) {
+  for (const opt of displayedOptions.value) {
     if (opt.score != null && opt.score > max)
       max = opt.score;
   }
@@ -18,7 +39,7 @@ const maxScore = computed(() => {
 
 const totalVotes = computed(() => {
   let sum = 0;
-  for (const opt of props.options) {
+  for (const opt of displayedOptions.value) {
     if (opt.score != null)
       sum += opt.score;
   }
@@ -32,7 +53,7 @@ const totalVotes = computed(() => {
       <span class="poll-options__total">{{ totalVotes }} total votes</span>
     </div>
     <div
-      v-for="opt in options"
+      v-for="opt in displayedOptions"
       :key="opt.id"
       class="poll-options__item"
     >
