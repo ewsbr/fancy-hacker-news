@@ -194,6 +194,16 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
 
 @media (max-width: 640px) {
   .story-row {
+    grid-template-columns: 24px 18px minmax(0, 1fr);
+
+    &--unranked {
+      grid-template-columns: 18px minmax(0, 1fr);
+    }
+
+    &--wide-rank {
+      grid-template-columns: 30px 18px minmax(0, 1fr);
+    }
+
     &--comments-aside {
       grid-template-columns: 24px 18px minmax(0, 1fr) 36px;
 

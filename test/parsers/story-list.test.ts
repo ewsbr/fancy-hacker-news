@@ -93,6 +93,24 @@ describe('story list fixtures', () => {
     });
   });
 
+  it('detects job posts mixed into the front page', async () => {
+    const html = await loadFixtureHtml('stories/frontpage-withjob.html');
+    const doc = parseHtmlDocument(`<table><tbody>${html}</tbody></table>`);
+    const storyList = parseStoryList(doc);
+
+    const jobStory = storyList.stories.find(story => story.id === '48503717');
+
+    expect(jobStory).toMatchObject({
+      id: '48503717',
+      rank: 18,
+      title: 'Hazel (YC W24) Is Hiring a Full Stack Engineer',
+      isJob: true,
+      score: null,
+      author: null,
+      commentCount: null,
+    });
+  });
+
   it('parses story status markers on item pages, including deleted stories', () => {
     const doc = parseHtmlDocument(`
       <table class="fatitem">
