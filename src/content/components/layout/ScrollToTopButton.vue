@@ -1,18 +1,59 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
-import { ArrowBigUpDash } from 'lucide-vue-next';
-import { onMounted, ref, shallowRef } from 'vue';
+import { ArrowBigDownDash, ArrowBigUpDash } from 'lucide-vue-next';
+import { computed, onMounted, ref, shallowRef } from 'vue';
 
-const isVisible = ref(false);
 const SHOW_AFTER_SCROLL_TOP = 280;
 
 const scrollContainer = shallowRef<HTMLElement | null>(null);
+const currentScrollTop = ref(0);
+const savedReturnScrollTop = ref<number | null>(null);
+const restoreArmed = ref(false);
 
-function syncVisibility() {
-  isVisible.value = (scrollContainer.value?.scrollTop ?? 0) > SHOW_AFTER_SCROLL_TOP;
+const buttonMode = computed<'top' | 'restore' | null>(() => {
+  if (savedReturnScrollTop.value != null && restoreArmed.value) {
+    return 'restore';
+  }
+
+  if (currentScrollTop.value > SHOW_AFTER_SCROLL_TOP) {
+    return 'top';
+  }
+
+  return null;
+});
+const buttonLabel = computed(() => (
+  buttonMode.value === 'restore'
+    ? 'Return to previous position'
+    : 'Scroll to top'
+));
+
+function syncScrollState() {
+  const nextScrollTop = scrollContainer.value?.scrollTop ?? 0;
+  currentScrollTop.value = nextScrollTop;
+
+  if (savedReturnScrollTop.value == null) {
+    return;
+  }
+
+  if (restoreArmed.value && nextScrollTop > SHOW_AFTER_SCROLL_TOP) {
+    savedReturnScrollTop.value = null;
+    restoreArmed.value = false;
+    return;
+  }
+
+  if (nextScrollTop <= SHOW_AFTER_SCROLL_TOP) {
+    restoreArmed.value = true;
+  }
 }
 
 function scrollToTop() {
+  const nextReturnScrollTop = scrollContainer.value?.scrollTop ?? 0;
+
+  if (nextReturnScrollTop > SHOW_AFTER_SCROLL_TOP) {
+    savedReturnScrollTop.value = nextReturnScrollTop;
+  }
+
+  restoreArmed.value = false;
   scrollContainer.value?.scrollTo({
     top: 0,
     left: 0,
@@ -20,25 +61,51 @@ function scrollToTop() {
   });
 }
 
+function returnToSavedPosition() {
+  const nextScrollTop = savedReturnScrollTop.value;
+
+  if (nextScrollTop == null) {
+    return;
+  }
+
+  savedReturnScrollTop.value = null;
+  restoreArmed.value = false;
+  scrollContainer.value?.scrollTo({
+    top: nextScrollTop,
+    left: 0,
+    behavior: 'smooth',
+  });
+}
+
+function handleButtonClick() {
+  if (buttonMode.value === 'restore') {
+    returnToSavedPosition();
+    return;
+  }
+
+  scrollToTop();
+}
+
 onMounted(() => {
   scrollContainer.value = document.getElementById('fancy-hn-root');
-  syncVisibility();
+  syncScrollState();
 });
 
-useEventListener(scrollContainer, 'scroll', syncVisibility, { passive: true });
+useEventListener(scrollContainer, 'scroll', syncScrollState, { passive: true });
 </script>
 
 <template>
   <Transition name="scroll-to-top">
     <button
-      v-if="isVisible"
+      v-if="buttonMode != null"
       type="button"
       class="scroll-to-top"
-      aria-label="Scroll to top"
-      title="Scroll to top"
-      @click="scrollToTop"
+      :aria-label="buttonLabel"
+      :title="buttonLabel"
+      @click="handleButtonClick"
     >
-      <ArrowBigUpDash :size="28" aria-hidden="true" />
+      <ArrowBigDownDash v-if="buttonMode === 'restore'" :size="28" aria-hidden="true" />
+      <ArrowBigUpDash v-else :size="28" aria-hidden="true" />
     </button>
   </Transition>
 </template>
