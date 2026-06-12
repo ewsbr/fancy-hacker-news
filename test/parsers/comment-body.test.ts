@@ -46,4 +46,16 @@ describe('comment body parsing', () => {
     expect(parsed.html).not.toContain('\n    ;; ANSWER SECTION:');
     expect(parsed.html).not.toContain('\n    canvas.ucdavis.edu.');
   });
+
+  it('preserves long linked URLs from HN comment bodies', () => {
+    const doc = parseHtmlDocument(`
+      <div class="comment"><div class="commtext c00">Here's their preprint from a month ago, in case you can't access the Nature paper: <a href="https://www.biorxiv.org/content/10.64898/2026.05.08.723607v1" rel="nofollow">https://www.biorxiv.org/content/10.64898/2026.05.08.723607v1</a><p>Nature - <a href="https://www.nature.com/articles/s41586-026-10738-7" rel="nofollow">https://www.nature.com/articles/s41586-026-10738-7</a></p></div><div class="reply"><p><font size="1"><u><a href="reply?id=48506202&amp;goto=item%3Fid%3D48505231%2348506202" rel="nofollow">reply</a></u></font></p></div></div>
+    `);
+
+    const parsed = parseCommentBody(doc.querySelector('.comment'));
+
+    expect(parsed.html).toContain('case you can\'t access the Nature paper: <a href="https://www.biorxiv.org/content/10.64898/2026.05.08.723607v1" rel="nofollow">https://www.biorxiv.org/content/10.64898/2026.05.08.723607v1</a>');
+    expect(parsed.html).toContain('<p>Nature - <a href="https://www.nature.com/articles/s41586-026-10738-7" rel="nofollow">https://www.nature.com/articles/s41586-026-10738-7</a></p>');
+    expect(parsed.html).not.toContain('reply?id=48506202');
+  });
 });

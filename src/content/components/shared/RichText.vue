@@ -20,7 +20,8 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
 .rich-text {
   font-size: 1rem;
   line-height: 1.6;
-  word-break: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
 
   :deep(p) {
     margin-top: 10px;
@@ -50,10 +51,17 @@ const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
   }
 
   :deep(a) {
+    overflow-wrap: break-word;
     text-decoration: underline;
+
     &:hover {
       color: var(--color-accent);
     }
+  }
+
+  :deep(a[href^="http://"]),
+  :deep(a[href^="https://"]) {
+    word-break: break-all;
   }
 
   :deep(blockquote) {
