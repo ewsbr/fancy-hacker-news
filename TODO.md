@@ -17,3 +17,6 @@
 - Job-hunting
 - Add the /newpoll page
 - Show read comments (will probably require local state)
+
+# Bugs
+- Weird missing auth cookie after clicking the story link and going back

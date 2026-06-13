@@ -33,7 +33,7 @@ CSS-only customization is very limited. We cannot rearrange elements, add HN-onl
 
 Build:
 
-- `pnpm build` — production build for the shared Firefox/Chromium content script, anti-FOUC bootstrap, and background script.
+- `pnpm build` — production build for the shared Firefox/Chromium content script and anti-FOUC bootstrap.
 
 Package:
 

@@ -13,7 +13,7 @@ There is still no SPA routing and no custom backend.
 | UI | Vue 3, Composition API, `<script setup lang="ts">` |
 | Language | TypeScript, strict mode |
 | Styling | Raw SCSS with global tokens/reset + scoped component styles |
-| Build | Vite 8, separate content/background/anti-FOUC targets |
+| Build | Vite 8, separate content and anti-FOUC targets |
 | Testing | Vitest with fixture-based parser and content tests |
 | Package manager | pnpm |
 | Icons | `lucide-vue-next` |
@@ -25,7 +25,7 @@ There is still no SPA routing and no custom backend.
 
 ```bash
 pnpm dev               # build anti-FOUC script, then watch content script
-pnpm build             # build shared Firefox/Chromium content, anti-FOUC, and background targets
+pnpm build             # build shared Firefox/Chromium content and anti-FOUC targets
 pnpm typecheck         # vue-tsc --noEmit
 pnpm test              # run Vitest once
 pnpm package           # build once and package both Firefox and Chrome zips
@@ -78,7 +78,6 @@ src/
   state/item-page-state.ts            # large item/comment performance helpers
   styles/main.scss                    # global styling entrypoint
   styles/_theme-tokens.scss           # theme variables
-  background/background.js            # MV3 service worker
 
 manifest.json                         # extension entrypoints and injected assets
 vite.config.ts                        # Vite targets, IIFE output, asset URL handling
