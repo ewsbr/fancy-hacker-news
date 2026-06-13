@@ -5,15 +5,14 @@ import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 
 /**
- * Each entry (content script, background) is built as a standalone IIFE so it
+ * Each entry is built as a standalone IIFE so it
  * works as a classic browser-extension script without a module loader.
  *
  * Production builds target both Firefox and Chromium from the same output.
  *
  * Core commands:
- *   pnpm build              → runs content then background
+ *   pnpm build              → builds content and anti-FOUC scripts
  *   pnpm build:content      → content script only
- *   pnpm build:background   → background/service-worker only
  */
 const entries = {
   content: {
@@ -30,13 +29,6 @@ const entries = {
     outDir: 'dist/content',
     emptyOutDir: false,
   },
-  background: {
-    entry: resolve(import.meta.dirname, 'src/background/background.js'),
-    libName: 'HNBackground',
-    fileName: () => 'background.js',
-    outDir: 'dist/background',
-    emptyOutDir: false,
-  },
 };
 
 type BuildTarget = keyof typeof entries;
@@ -45,11 +37,9 @@ interface RenderBuiltUrlContext {
   type: 'asset' | 'public';
 }
 
-const TARGET: BuildTarget = process.env.BUILD_TARGET === 'background'
-  ? 'background'
-  : process.env.BUILD_TARGET === 'anti-fouc'
-    ? 'antiFouc'
-    : 'content';
+const TARGET: BuildTarget = process.env.BUILD_TARGET === 'anti-fouc'
+  ? 'antiFouc'
+  : 'content';
 const cfg = entries[TARGET];
 
 function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBuiltUrlContext) {
