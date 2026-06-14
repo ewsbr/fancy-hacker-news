@@ -14,6 +14,16 @@ There is no SPA routing, and the redesigned UI keeps Hacker News behavior native
 
 ![Redesigned frontpage](./images/image.png)
 
+<p align="center">
+    <a href="https://addons.mozilla.org/en-US/firefox/addon/fancy-hacker-news/">
+        <img src="./images/banners/firefox-banner.webp" alt="Firefox extension banner" />
+    </a>
+    &nbsp;
+    <a href="https://chromewebstore.google.com/detail/ofhiglbjpjpdodndhoblgnjgkakhfofi/preview?authuser=0">
+        <img src="./images/banners/chrome-banner.png" alt="Chrome extension banner" />
+    </a>
+</p>
+
 ## Goals
 > Hacker News, but like it was designed after 2020.
 
