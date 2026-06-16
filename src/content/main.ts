@@ -39,10 +39,18 @@ import { parseUserPage } from '@/parsers/user';
 import { resolveRoute } from '@/router';
 import { makeItemPageReactive } from '@/state/item-page-state';
 import {
-  applyThemeToHost,
   BOOTSTRAP_THEME_DATASET_KEY,
   isThemeName,
 } from '@/state/theme-metadata';
+import {
+  applySettingsToHost,
+  loadExtensionSettings,
+  makeDefaultSettings,
+} from '@/state/settings';
+import {
+  createExtensionSettingsState,
+  EXTENSION_SETTINGS_KEY,
+} from '@/state/settings-context';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -118,14 +126,26 @@ function cleanupOriginalBody(host: HTMLElement) {
   hideOriginalStyle = null;
 }
 
-function applyBootstrappedTheme(host: HTMLElement) {
+function makeFallbackSettings() {
   const theme = document.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY];
-  if (!isThemeName(theme)) {
-    host.removeAttribute('data-theme');
-    return;
-  }
 
-  applyThemeToHost(host, theme);
+  return makeDefaultSettings({
+    systemTheme: isThemeName(theme) ? theme : undefined,
+  });
+}
+
+async function loadSettingsForMount() {
+  try {
+    return await loadExtensionSettings();
+  }
+  catch (error) {
+    if (error instanceof Error) {
+      mainLogger.warn('Failed to load settings, using defaults', { error: error.message });
+      return makeFallbackSettings();
+    }
+
+    throw error;
+  }
 }
 
 function applyHeaderColorVariables(host: HTMLElement, header: ParsedHeader) {
@@ -233,6 +253,7 @@ async function mountApp() {
       return resolved;
     });
     const parsedPageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
+    const settings = await timeline.stepAsync('load-settings', async () => loadSettingsForMount());
 
     if (route.page === 'item') {
       timeline.step('prepare-item-hash-state', () => {
@@ -272,7 +293,7 @@ async function mountApp() {
     const host = timeline.step('create-host', () => {
       const nextHost = document.createElement('div');
       nextHost.id = 'fancy-hn-root';
-      applyBootstrappedTheme(nextHost);
+      applySettingsToHost(nextHost, settings);
       applyHeaderColorVariables(nextHost, header);
       document.body.appendChild(nextHost);
       return nextHost;
@@ -292,6 +313,7 @@ async function mountApp() {
     // to it, then fill it after two animation frames to ensure the browser has
     // had a chance to paint the mounted UI.
     const renderTime = ref(0);
+    const settingsState = createExtensionSettingsState(settings);
 
     const app = createApp(App);
     app.provide('header', header);
@@ -300,6 +322,7 @@ async function mountApp() {
     app.provide('pageData', pageData);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
+    app.provide(EXTENSION_SETTINGS_KEY, settingsState);
     timeline.step('app-mount', () => {
       app.mount(mountPoint);
     });

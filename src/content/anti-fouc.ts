@@ -1,9 +1,12 @@
-import { isThemeName } from '@/state/theme-metadata';
+import {
+  LEGACY_THEME_STORAGE_KEY,
+  resolveStoredSettings,
+  SETTINGS_STORAGE_KEY,
+} from '@/state/settings';
 import {
   applyBootTheme,
   detectSystemTheme,
   getBootThemeStyleElement,
-  STORAGE_KEY,
 } from './theme-bootstrap';
 import { ensureResponsiveViewport } from './utils/viewport';
 
@@ -15,13 +18,21 @@ applyBootTheme(document, antiFoucStyle, detectSystemTheme());
 document.documentElement.appendChild(antiFoucStyle);
 
 try {
-  chrome.storage.local.get(STORAGE_KEY, (result) => {
-    const stored = result?.[STORAGE_KEY];
-    if (isThemeName(stored)) {
-      applyBootTheme(document, antiFoucStyle, stored);
-    }
+  chrome.storage.local.get([SETTINGS_STORAGE_KEY, LEGACY_THEME_STORAGE_KEY], (result) => {
+    const resolved = resolveStoredSettings(
+      result?.[SETTINGS_STORAGE_KEY],
+      result?.[LEGACY_THEME_STORAGE_KEY],
+      { systemTheme: detectSystemTheme() },
+    );
+
+    applyBootTheme(document, antiFoucStyle, resolved.settings.theme);
   });
 }
-catch {
-  // chrome.storage may not be available in dev
+catch (error) {
+  if (error instanceof ReferenceError) {
+    // chrome.storage is not available on the local design/test pages.
+  }
+  else {
+    throw error;
+  }
 }

@@ -4,6 +4,9 @@ import vue from '@vitejs/plugin-vue';
 import Icons from 'unplugin-icons/vite';
 import { defineConfig } from 'vite';
 
+const projectRoot = import.meta.dirname;
+const settingsRoot = resolve(projectRoot, 'src/settings');
+
 /**
  * Each entry is built as a standalone IIFE so it
  * works as a classic browser-extension script without a module loader.
@@ -11,25 +14,33 @@ import { defineConfig } from 'vite';
  * Production builds target both Firefox and Chromium from the same output.
  *
  * Core commands:
- *   pnpm build              → builds content and anti-FOUC scripts
- *   pnpm build:content      → content script only
+ *   pnpm build              → builds content, anti-FOUC, and settings assets
+ *   pnpm build:content      → content and anti-FOUC scripts only
  */
 const entries = {
   content: {
-    entry: resolve(import.meta.dirname, 'src/content/main.ts'),
+    kind: 'script',
+    entry: resolve(projectRoot, 'src/content/main.ts'),
     libName: 'HNContent',
     fileName: () => 'content.js',
     outDir: 'dist/content',
     emptyOutDir: false,
   },
   antiFouc: {
-    entry: resolve(import.meta.dirname, 'src/content/anti-fouc.ts'),
+    kind: 'script',
+    entry: resolve(projectRoot, 'src/content/anti-fouc.ts'),
     libName: 'HNAntiFouc',
     fileName: () => 'anti-fouc.js',
     outDir: 'dist/content',
     emptyOutDir: false,
   },
-};
+  settings: {
+    kind: 'html',
+    entry: resolve(settingsRoot, 'settings.html'),
+    outDir: resolve(projectRoot, 'dist/settings'),
+    emptyOutDir: true,
+  },
+} as const;
 
 type BuildTarget = keyof typeof entries;
 interface RenderBuiltUrlContext {
@@ -39,6 +50,8 @@ interface RenderBuiltUrlContext {
 
 const TARGET: BuildTarget = process.env.BUILD_TARGET === 'anti-fouc'
   ? 'antiFouc'
+  : process.env.BUILD_TARGET === 'settings'
+    ? 'settings'
   : 'content';
 const cfg = entries[TARGET];
 
@@ -63,7 +76,10 @@ function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBui
 }
 
 export default defineConfig(({ mode }) => {
+  const isScriptTarget = cfg.kind === 'script';
+
   return {
+    root: isScriptTarget ? projectRoot : settingsRoot,
     base: '',
     plugins: [
       vue(),
@@ -83,7 +99,7 @@ export default defineConfig(({ mode }) => {
 
     resolve: {
       alias: {
-        '@': resolve(import.meta.dirname, 'src'),
+        '@': resolve(projectRoot, 'src'),
       },
     },
 
@@ -97,11 +113,16 @@ export default defineConfig(({ mode }) => {
 
       rollupOptions: {
         input: cfg.entry,
-        output: {
-          format: 'iife',
-          entryFileNames: cfg.fileName(),
-          assetFileNames: 'assets/[name].[ext]',
-        },
+        output: isScriptTarget
+          ? {
+              format: 'iife',
+              entryFileNames: cfg.fileName(),
+              assetFileNames: 'assets/[name].[ext]',
+            }
+          : {
+              entryFileNames: 'assets/[name].js',
+              assetFileNames: 'assets/[name].[ext]',
+            },
       },
     },
   };

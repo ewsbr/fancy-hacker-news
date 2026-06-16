@@ -4,10 +4,12 @@ import { provide, ref } from 'vue';
 import ScrollToTopButton from '@/content/components/layout/ScrollToTopButton.vue';
 import SearchModal from '@/content/components/layout/SearchModal.vue';
 import { isSearchShortcutEvent } from '@/content/utils/keyboard';
+import { useExtensionSettings } from '@/state/settings-context';
 import SiteFooter from './SiteFooter.vue';
 import SiteHeader from './SiteHeader.vue';
 
 const searchOpen = ref(false);
+const settings = useExtensionSettings();
 
 function openSearch() {
   if (!searchOpen.value) {
@@ -36,7 +38,7 @@ useEventListener(document, 'keydown', onGlobalKeydown);
       <slot />
     </main>
     <SiteFooter />
-    <ScrollToTopButton />
+    <ScrollToTopButton v-if="settings.features.scrollToTop" />
   </div>
 
   <SearchModal :open="searchOpen" @update:open="searchOpen = $event" />
@@ -54,7 +56,7 @@ useEventListener(document, 'keydown', onGlobalKeydown);
   &__main {
     flex: 1;
     width: 100%;
-    max-width: 1024px;
+    max-width: var(--fhn-content-max-width);
     margin: 8px auto 0;
     padding: 0 8px;
 

@@ -12,13 +12,11 @@ export interface ThemeMetadata {
 }
 
 interface ThemeConfig {
-  storageKey: string;
   bootstrapDatasetKey: string;
   themes: ThemeMetadata[];
 }
 
 const themeConfig = {
-  storageKey: 'fancy-hn-theme',
   bootstrapDatasetKey: 'fancyHnTheme',
   themes: [
     {
@@ -65,7 +63,6 @@ const themeMetadataByName = new Map<ThemeName, ThemeMetadata>(
   themeMetadata.map(theme => [theme.name, theme]),
 );
 
-export const STORAGE_KEY = themeConfig.storageKey;
 export const BOOTSTRAP_THEME_DATASET_KEY = themeConfig.bootstrapDatasetKey;
 export const THEMES = Object.freeze(themeMetadata) as readonly ThemeMetadata[];
 export const THEME_NAMES = Object.freeze(

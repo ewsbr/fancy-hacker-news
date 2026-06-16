@@ -10,6 +10,7 @@ import {
   getOriginalPosterTitle,
 } from '@/content/utils/comment-badges';
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
+import { useExtensionSettings } from '@/state/settings-context';
 
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_LONG_PRESS_DELAY = 525;
@@ -143,7 +144,13 @@ export function useDelegatedCommentLongPress(
   target: Ref<HTMLElement | null>,
   registry: CommentCollapseRegistry | null,
 ) {
+  const settings = useExtensionSettings();
+
   if (!registry) {
+    return;
+  }
+
+  if (!settings.features.longPressCommentCollapse) {
     return;
   }
 

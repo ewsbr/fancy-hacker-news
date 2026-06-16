@@ -246,7 +246,8 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
     display: flex;
     align-items: center;
     gap: 24px;
-    max-width: max(1024px, 64rem);
+    width: 100%;
+    max-width: var(--fhn-content-max-width);
     margin: 0 auto;
     padding: 8px 16px;
   }

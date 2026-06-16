@@ -8,6 +8,10 @@ import {
   applyThemeToHost,
   THEMES,
 } from '@/state/theme-metadata';
+import {
+  resolveStoredSettings,
+  SETTINGS_SCHEMA_VERSION,
+} from '@/state/settings';
 import { parseHtmlDocument } from '../helpers/dom';
 
 describe('theme metadata', () => {
@@ -45,5 +49,25 @@ describe('theme metadata', () => {
     expect(doc.getElementById('fancy-hn-root')?.getAttribute('data-theme')).toBe('amoled');
     expect(styleEl.textContent).toContain('background:#000000!important');
     expect(styleEl.textContent).toContain('color:#e0e0e0!important');
+  });
+
+  it('applies bootstrap theme from canonical settings storage shape', () => {
+    const doc = parseHtmlDocument('<!doctype html><html><body><div id="fancy-hn-root"></div></body></html>');
+    const styleEl = doc.createElement('style');
+    const resolved = resolveStoredSettings({
+      schemaVersion: SETTINGS_SCHEMA_VERSION,
+      theme: 'nord',
+      contentWidth: 'default',
+      features: {
+        scrollToTop: true,
+        longPressCommentCollapse: true,
+      },
+    }, 'amoled', { systemTheme: 'light' });
+
+    applyBootTheme(doc, styleEl, resolved.settings.theme);
+
+    expect(doc.documentElement.dataset[BOOTSTRAP_THEME_DATASET_KEY]).toBe('nord');
+    expect(doc.getElementById('fancy-hn-root')?.getAttribute('data-theme')).toBe('nord');
+    expect(styleEl.textContent).toContain('background:#2e3440!important');
   });
 });

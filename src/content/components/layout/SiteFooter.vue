@@ -209,7 +209,8 @@ const socialLinks = [
 
   // Block structure
   &__container {
-    max-width: 1024px;
+    width: 100%;
+    max-width: var(--fhn-content-max-width);
     margin: 0 auto;
   }
 

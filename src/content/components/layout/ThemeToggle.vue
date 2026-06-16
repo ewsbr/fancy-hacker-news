@@ -17,6 +17,12 @@ import {
   THEMES,
 } from '@/state/theme-metadata';
 
+withDefaults(defineProps<{
+  portalTo?: string;
+}>(), {
+  portalTo: EXTENSION_ROOT_SELECTOR,
+});
+
 const { theme, setTheme } = useTheme();
 const open = ref(false);
 const themeCardRefs = ref<Partial<Record<ThemeName, HTMLButtonElement | null>>>({});
@@ -71,7 +77,7 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
       </button>
     </PopoverTrigger>
 
-    <PopoverPortal defer :to="EXTENSION_ROOT_SELECTOR">
+    <PopoverPortal defer :to="portalTo">
       <PopoverContent
         class="theme-toggle__popover-shell"
         side="bottom"

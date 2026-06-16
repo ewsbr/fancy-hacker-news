@@ -1,9 +1,8 @@
 import type { ThemeName } from '@/state/theme-metadata';
+import { detectSystemTheme } from '@/state/settings';
 import {
   applyThemeToHost,
   BOOTSTRAP_THEME_DATASET_KEY,
-  STORAGE_KEY,
-
   THEMES,
 } from '@/state/theme-metadata';
 
@@ -26,13 +25,7 @@ export const THEME_BOOTSTRAP_PALETTES = Object.freeze(
   ) as Record<ThemeName, ThemeBootstrapPalette>,
 );
 
-export { BOOTSTRAP_THEME_DATASET_KEY, STORAGE_KEY };
-
-export function detectSystemTheme(): ThemeName {
-  return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
-}
+export { BOOTSTRAP_THEME_DATASET_KEY, detectSystemTheme };
 
 export function applyBootTheme(
   doc: Document,
