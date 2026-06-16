@@ -1,12 +1,27 @@
 // @vitest-environment jsdom
 
+import type { ParsedHeader } from '@/parsers/header';
 import { flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import { mountComponent } from '../helpers/mount-component';
 
-describe('VoteButton', () => {
+describe('vote button', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
+
+  function makeHeader(user: ParsedHeader['user']): ParsedHeader {
+    return {
+      navLinks: [],
+      hasAuthControls: true,
+      user,
+      loginUrl: user == null ? 'login?goto=news' : null,
+      logoutUrl: user == null ? null : 'logout?auth=logoutauth',
+      topBarColor: '#ff6600',
+      hasCustomTopBarColor: false,
+      hasMemorialBar: false,
+      memorialBarColor: null,
+    };
+  }
 
   beforeEach(() => {
     window.history.pushState({}, '', 'https://news.ycombinator.com/item?id=123');
@@ -45,6 +60,62 @@ describe('VoteButton', () => {
     expect(link.classes()).toContain('vote-btn--active');
     expect(link.attributes('title')).toBe('unvote');
     expect(link.attributes('href')).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+  });
+
+  it('lets logged-out upvote links navigate to the HN login gate', () => {
+    const target = {
+      voteUp: 'vote?id=10&how=up&goto=item%3Fid%3D123',
+      voteUn: null,
+    };
+    const wrapper = mountComponent(VoteButton, {
+      props: {
+        href: target.voteUp,
+        voteUnHref: target.voteUn,
+        voteTarget: target,
+      },
+      global: {
+        provide: {
+          header: makeHeader(null),
+        },
+      },
+    });
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    wrapper.get('a.vote-btn').element.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('keeps logged-in upvotes in the background without browser navigation', async () => {
+    const target = {
+      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+      voteUn: null,
+    };
+    const wrapper = mountComponent(VoteButton, {
+      props: {
+        href: target.voteUp,
+        voteUnHref: target.voteUn,
+        voteTarget: target,
+      },
+      global: {
+        provide: {
+          header: makeHeader({ name: 'ews', karma: 123 }),
+        },
+      },
+    });
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    wrapper.get('a.vote-btn').element.dispatchEvent(event);
+    await flushPromises();
+
+    expect(event.defaultPrevented).toBe(true);
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
       expect.objectContaining({

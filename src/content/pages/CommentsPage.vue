@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ParsedHeader } from '@/parsers/header';
 import type { CommentNode as ParsedCommentNode, ParsedItemPage } from '@/parsers/item';
 import type { CommentFragmentState } from '@/state/fragment-state';
 import { useEventListener } from '@vueuse/core';
@@ -17,6 +16,7 @@ import PollOptions from '@/content/components/stories/PollOptions.vue';
 import StoryDetail from '@/content/components/stories/StoryDetail.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { useCurrentUser } from '@/content/composables/current-user';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
   COMMENT_THREAD_STORY_AUTHOR_KEY,
@@ -29,7 +29,7 @@ import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
-const header = inject<ParsedHeader>('header');
+const currentUser = useCurrentUser();
 const commentItemDomId = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
     return null;
@@ -39,6 +39,7 @@ const commentItemDomId = computed(() => {
 });
 
 const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
+const loginUrl = computed(() => currentUser.loginUrl ?? 'login');
 const commentItemOriginalPosterTitle = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
     return null;
@@ -65,7 +66,7 @@ const storyReplyState = computed<'dead' | 'login' | 'unavailable' | null>(() => 
     return 'dead';
   }
 
-  if (!header?.user) {
+  if (!currentUser.isLoggedIn) {
     return 'login';
   }
 
@@ -324,7 +325,7 @@ useEventListener(window, 'hashchange', () => {
         <span>This thread is dead. You can't post a comment.</span>
       </div>
       <div v-else-if="storyReplyState === 'login'" class="comments-page__login-prompt">
-        <a href="login">Log in</a> to post a comment.
+        <a :href="loginUrl">Log in</a> to post a comment.
       </div>
       <div v-else-if="storyReplyState === 'unavailable'" class="comments-page__thread-state">
         Commenting is unavailable on this thread.

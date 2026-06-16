@@ -2,6 +2,7 @@
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
 import { Triangle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
+import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{
@@ -12,6 +13,8 @@ const props = defineProps<{
 }>();
 
 const { isBusy, submitVote } = useHnActions();
+const currentUser = useCurrentUser();
+const canSubmitInBackground = canSubmitAuthActionInBackground(currentUser);
 
 const currentVoteUnHref = ref(props.voteUnHref ?? null);
 const currentHref = computed(() => currentVoteUnHref.value || props.href || null);
@@ -25,7 +28,7 @@ watch(
 );
 
 async function handleClick(event: MouseEvent) {
-  if (!props.voteTarget || !currentHref.value) {
+  if (!props.voteTarget || !currentHref.value || !canSubmitInBackground) {
     return;
   }
 

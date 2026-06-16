@@ -4,6 +4,7 @@ import { Triangle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 
 const props = defineProps<{
@@ -20,6 +21,8 @@ const props = defineProps<{
 }>();
 
 const { isBusy, submitVote } = useHnActions();
+const currentUser = useCurrentUser();
+const canSubmitVotesInBackground = canSubmitAuthActionInBackground(currentUser);
 const currentVoteUn = ref(props.voteUn ?? null);
 const hasVoteActions = computed(() => !!(props.voteUp || currentVoteUn.value || props.voteDown));
 const hasReplyAction = computed(() => !!props.replyLink);
@@ -34,7 +37,7 @@ watch(
 );
 
 async function handleVoteClick(event: MouseEvent, href: string | null | undefined, direction: 'up' | 'down' | 'un') {
-  if (!props.voteTarget || !href) {
+  if (!props.voteTarget || !href || !canSubmitVotesInBackground) {
     return;
   }
 

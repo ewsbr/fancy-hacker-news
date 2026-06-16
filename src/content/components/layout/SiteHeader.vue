@@ -15,6 +15,7 @@ import HeaderMoreDropdown from '@/content/components/layout/HeaderMoreDropdown.v
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import YCombinatorLogo from '@/content/components/layout/YCombinatorLogo.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { useCurrentUser } from '@/content/composables/current-user';
 import {
   createOverflowNavGroups,
   createPrimaryNavLinks,
@@ -23,6 +24,7 @@ import {
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
 const header = inject<ParsedHeader>('header')!;
+const currentUser = useCurrentUser();
 const navOpen = ref(false);
 const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
@@ -171,15 +173,15 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
           <span>submit</span>
         </a>
         <MetaSep
-          v-if="submitNavLink && header.hasAuthControls"
+          v-if="submitNavLink && currentUser.hasAuthControls"
           class="site-header__control-sep"
         />
-        <div v-if="header.hasAuthControls" class="site-header__user-controls">
-          <DropdownMenuRoot v-if="header.user">
+        <div v-if="currentUser.hasAuthControls" class="site-header__user-controls">
+          <DropdownMenuRoot v-if="currentUser.user">
             <DropdownMenuTrigger as-child>
               <button type="button" class="site-header__user-trigger">
-                <strong>{{ header.user.name }}</strong>
-                <span class="site-header__user-karma">({{ header.user.karma }})</span>
+                <strong>{{ currentUser.user.name }}</strong>
+                <span class="site-header__user-karma">({{ currentUser.user.karma }})</span>
                 <ChevronDown :size="13" class="site-header__user-chevron" aria-hidden="true" />
               </button>
             </DropdownMenuTrigger>
@@ -195,7 +197,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
                 <div class="site-header__user-menu">
                   <DropdownMenuItem as-child text-value="profile">
                     <a
-                      :href="`user?id=${header.user.name}`"
+                      :href="currentUser.profileUrl ?? ''"
                       class="site-header__user-menu-item"
                     >
                       <UserRound :size="14" aria-hidden="true" />
@@ -203,12 +205,12 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    v-if="header.logoutUrl"
+                    v-if="currentUser.logoutUrl"
                     as-child
                     text-value="logout"
                   >
                     <a
-                      :href="header.logoutUrl"
+                      :href="currentUser.logoutUrl"
                       class="site-header__user-menu-item site-header__user-menu-item--danger"
                     >
                       <LogOut :size="14" aria-hidden="true" />
@@ -219,7 +221,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
               </DropdownMenuContent>
             </DropdownMenuPortal>
           </DropdownMenuRoot>
-          <a v-else-if="header.loginUrl" :href="header.loginUrl">login</a>
+          <a v-else-if="currentUser.loginUrl" :href="currentUser.loginUrl">login</a>
         </div>
 
         <ThemeToggle />
