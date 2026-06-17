@@ -29,6 +29,7 @@ function mountShell(scrollToTop: boolean) {
     features: {
       scrollToTop,
       longPressCommentCollapse: true,
+      openLinksInNewTab: false,
     },
   });
 

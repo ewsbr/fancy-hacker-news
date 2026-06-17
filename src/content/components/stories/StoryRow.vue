@@ -2,6 +2,7 @@
 import type { Story } from '@/parsers/story-list';
 import { computed } from 'vue';
 import CommentIcon from '~icons/material-symbols/chat-sharp';
+import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
@@ -10,6 +11,8 @@ import StoryRank from './StoryRank.vue';
 
 const props = defineProps<{ story: Story }>();
 
+const titleHref = computed(() => props.story.url ?? `item?id=${props.story.id}`);
+const titleLinkAttrs = useNewTabLinkAttrs(titleHref);
 const showCommentRail = computed(() => !props.story.isJob);
 const commentRailHref = computed(() => props.story.commentLink || props.story.ageLink || `item?id=${props.story.id}`);
 const commentRailCount = computed(() => props.story.commentCount ?? 0);
@@ -29,9 +32,10 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     <div class="story-row__body">
       <div class="story-row__title-line">
         <a
-          :href="story.url ?? `item?id=${story.id}`"
+          :href="titleHref"
           class="story-row__title"
           :class="{ 'story-row__title--dead': story.isDead }"
+          v-bind="titleLinkAttrs"
         >
           <template v-if="story.isJob">
             {{ story.title }}<Badge variant="job" label="Job" />

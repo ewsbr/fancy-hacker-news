@@ -61,6 +61,7 @@ describe('theme metadata', () => {
       features: {
         scrollToTop: true,
         longPressCommentCollapse: true,
+        openLinksInNewTab: false,
       },
     }, 'amoled', { systemTheme: 'light' });
 

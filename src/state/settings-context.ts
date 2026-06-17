@@ -42,6 +42,7 @@ export function replaceExtensionSettingsState(
   target.features = {
     scrollToTop: settings.features.scrollToTop,
     longPressCommentCollapse: settings.features.longPressCommentCollapse,
+    openLinksInNewTab: settings.features.openLinksInNewTab,
   };
 }
 

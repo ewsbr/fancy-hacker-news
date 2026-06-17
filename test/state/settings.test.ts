@@ -18,6 +18,7 @@ function makeSettings(overrides: Partial<ExtensionSettings> = {}): ExtensionSett
     features: {
       scrollToTop: true,
       longPressCommentCollapse: false,
+      openLinksInNewTab: true,
     },
     ...overrides,
   };
@@ -75,6 +76,26 @@ describe('extension settings', () => {
     });
   });
 
+  it('defaults new-tab links off for stored settings from before the feature existed', () => {
+    const storedSettings = {
+      schemaVersion: SETTINGS_SCHEMA_VERSION,
+      theme: 'dark',
+      contentWidth: 'wide',
+      features: {
+        scrollToTop: true,
+        longPressCommentCollapse: false,
+      },
+    };
+
+    expect(parseStoredSettings(storedSettings)).toEqual({
+      ...storedSettings,
+      features: {
+        ...storedSettings.features,
+        openLinksInNewTab: false,
+      },
+    });
+  });
+
   it('migrates a valid legacy theme into canonical settings', async () => {
     const { local, storedValues } = installChromeStorage({
       [LEGACY_THEME_STORAGE_KEY]: 'nord',
@@ -98,6 +119,7 @@ describe('extension settings', () => {
       features: {
         scrollToTop: true,
         longPressCommentCollapse: 'yes',
+        openLinksInNewTab: false,
       },
     })).toBeNull();
   });

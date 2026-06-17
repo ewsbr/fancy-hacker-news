@@ -2,6 +2,7 @@
 import type { ItemDetail } from '@/parsers/item';
 import { computed } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
+import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
 import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import RichText from '@/content/components/shared/RichText.vue';
@@ -16,6 +17,7 @@ const props = defineProps<{
 
 const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}`);
+const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
 </script>
 
 <template>
@@ -33,6 +35,7 @@ const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}
               :href="item.url"
               class="story-detail__title"
               :class="{ 'story-detail__title--dead': item.isDead }"
+              v-bind="titleLinkAttrs"
             >
               {{ item.title }}
             </component>

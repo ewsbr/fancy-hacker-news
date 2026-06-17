@@ -53,6 +53,7 @@ export const CONTENT_WIDTH_VALUES = Object.freeze(
 export interface FeatureSettings {
   scrollToTop: boolean;
   longPressCommentCollapse: boolean;
+  openLinksInNewTab: boolean;
 }
 
 export interface ExtensionSettings {
@@ -80,6 +81,7 @@ export const extensionSettingsSchema = z.object({
   features: z.object({
     scrollToTop: z.boolean(),
     longPressCommentCollapse: z.boolean(),
+    openLinksInNewTab: z.boolean().default(false),
   }).strict(),
 }).strict();
 
@@ -97,6 +99,7 @@ export function cloneExtensionSettings(settings: ExtensionSettings): ExtensionSe
     features: {
       scrollToTop: settings.features.scrollToTop,
       longPressCommentCollapse: settings.features.longPressCommentCollapse,
+      openLinksInNewTab: settings.features.openLinksInNewTab,
     },
   };
 }
@@ -114,6 +117,7 @@ export function makeDefaultSettings(options?: {
     features: {
       scrollToTop: true,
       longPressCommentCollapse: true,
+      openLinksInNewTab: false,
     },
   };
 }

@@ -33,6 +33,7 @@ function mountHarness(longPressCommentCollapse: boolean) {
     features: {
       scrollToTop: true,
       longPressCommentCollapse,
+      openLinksInNewTab: false,
     },
   });
   const RegistryConsumer = defineComponent({

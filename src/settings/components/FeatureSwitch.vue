@@ -31,10 +31,6 @@ const emit = defineEmits<{
 
 <style scoped lang="scss">
 .feature-switch {
-  --feature-switch-track-off: color-mix(in srgb, var(--color-text) 14%, var(--color-surface));
-  --feature-switch-track-off-border: color-mix(in srgb, var(--color-text) 28%, var(--color-border));
-  --feature-switch-thumb-off: color-mix(in srgb, var(--color-text-muted) 88%, var(--color-text));
-
   min-width: 0;
   min-height: 46px;
   padding: 7px 8px;
@@ -80,9 +76,9 @@ const emit = defineEmits<{
     position: relative;
     width: 38px;
     height: 22px;
-    border: 1px solid var(--feature-switch-track-off-border);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
-    background: var(--feature-switch-track-off);
+    background: var(--color-code-bg);
     transition: background 0.15s, border-color 0.15s;
 
     .feature-switch[data-state="checked"] & {
@@ -98,7 +94,7 @@ const emit = defineEmits<{
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--feature-switch-thumb-off);
+    background: var(--color-text-muted);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
     transition: transform 0.15s, background 0.15s;
 

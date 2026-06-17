@@ -3,6 +3,7 @@ import type { Component } from 'vue';
 import type { ContentWidth, FeatureSettings } from '@/state/settings';
 import {
   ArrowUpToLine,
+  ExternalLink,
   ListCollapse,
 } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
@@ -43,6 +44,11 @@ const featureOptions = [
     key: 'longPressCommentCollapse',
     label: 'Long-press comment collapse',
     icon: ListCollapse,
+  },
+  {
+    key: 'openLinksInNewTab',
+    label: 'Open links in new tab',
+    icon: ExternalLink,
   },
 ] satisfies FeatureOption[];
 

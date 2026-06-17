@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { addNewTabTargetsToHtml } from '@/content/composables/link-targets';
+import { useExtensionSettings } from '@/state/settings-context';
 
 const props = defineProps<{
   html: string;
 }>();
 
+const settings = useExtensionSettings();
 const startsWithParagraph = computed(() => /^<p[\s>]/i.test(props.html.trim()));
+const renderedHtml = computed(() => addNewTabTargetsToHtml(props.html, settings.features.openLinksInNewTab));
 </script>
 
 <template>
   <div
     class="rich-text"
     :class="{ 'rich-text--starts-with-paragraph': startsWithParagraph }"
-    v-html="html"
+    v-html="renderedHtml"
   />
 </template>
 

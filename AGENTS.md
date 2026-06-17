@@ -107,6 +107,7 @@ test/                                 # Vitest coverage for parsers and content 
 - Preserve auth and CSRF data exactly. `auth=` params and hidden fields like `hmac` must be taken from the DOM, never fabricated.
 - Keep rendering isolated to `#fancy-hn-root`; do not leak styling back into the underlying HN page.
 - SCSS is the styling system. Shared tokens live in `src/styles/`; component/page styling stays in scoped `lang="scss"` blocks.
+- Prefer existing theme tokens from `src/styles/_theme-tokens.scss` over local `color-mix()` usage. Use `color-mix()` only when a value genuinely needs runtime blending, not as the default way to derive nearby colors.
 - Use `reka-ui` for interactive UI primitives such as dropdowns, popovers, menus, dialogs, tooltips, and similar focus-managed controls. Do not hand-roll primitive behavior when a suitable `reka-ui` primitive exists.
 - Portaled `reka-ui` content does not inherit scoped SFC selectors on the portal root. Follow the existing shell/surface pattern: give the Reka content a lightweight shell class for positioning/z-index, then render a styled inner surface element inside it so scoped styles still apply.
 - Content CSS ships as a real stylesheet injected by `manifest.json`.
