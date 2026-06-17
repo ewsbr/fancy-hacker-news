@@ -11,6 +11,7 @@ import { constants } from 'node:fs';
 import { access, cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 import { deflateRawSync } from 'node:zlib';
 
 const TARGETS = ['chrome', 'firefox'];
@@ -65,14 +66,27 @@ async function readManifest() {
   return JSON.parse(await readFile(join(rootDir, 'manifest.json'), 'utf8'));
 }
 
-function makeTargetManifest(manifest, target) {
+export function makeTargetManifest(manifest, target) {
   const targetManifest = structuredClone(manifest);
 
   if (target === 'chrome') {
     delete targetManifest.browser_specific_settings;
+    delete targetManifest.background.scripts;
+  }
+  else if (target === 'firefox') {
+    delete targetManifest.background.service_worker;
+  }
+  else {
+    throw new Error(`Unsupported package target: ${target}`);
   }
 
   return targetManifest;
+}
+
+function isMainModule() {
+  const entrypoint = process.argv[1];
+
+  return entrypoint != null && import.meta.url === pathToFileURL(entrypoint).href;
 }
 
 function makeCrc32Table() {
@@ -291,7 +305,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}
