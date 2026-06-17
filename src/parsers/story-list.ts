@@ -1,5 +1,7 @@
 import { parseAge } from './shared/age';
-import { findUnvoteHref, isNewUser } from './shared/comment';
+import type { ToggleActionState, VoteDirection, VoteState } from './shared/actions';
+import { parseToggleActionState, parseVoteState } from './shared/actions';
+import { isNewUser } from './shared/comment';
 import {
   hrefOf,
   textOf,
@@ -23,9 +25,8 @@ export interface Story {
   commentCount: number | null;
   commentLink: string | null;
   isJob: boolean;
-  hideUrl: string | null;
-  voteUp: string | null;
-  voteUn: string | null;
+  hideAction: ToggleActionState;
+  voteState: VoteState;
   isDead: boolean;
   isFlagged: boolean;
   isDeleted: boolean;
@@ -38,7 +39,11 @@ export interface ParsedStoryList {
   startRank: number;
 }
 
-export function parseStoryList(doc: Document): ParsedStoryList {
+export interface ParseStoryListOptions {
+  preferredVoteDirection?: VoteDirection;
+}
+
+export function parseStoryList(doc: Document, options: ParseStoryListOptions = {}): ParsedStoryList {
   const bigbox = doc.querySelector('#bigbox > td');
   const introHtml = bigbox
     ? Array.from(bigbox.children)
@@ -71,9 +76,10 @@ export function parseStoryList(doc: Document): ParsedStoryList {
     const siteEl = titleLineEl?.querySelector('span.sitestr') ?? null;
     const site = textOf(siteEl) || null;
 
-    // Vote link
-    const voteEl = row.querySelector<HTMLAnchorElement>(`a#up_${id}`);
-    const voteUp = hrefOf(voteEl);
+    const voteState = parseVoteState(row, {
+      itemId: id,
+      preferredDirection: options.preferredVoteDirection,
+    });
 
     // Subtext row is the next <tr> after the athing row
     const subtextTd = row.nextElementSibling?.querySelector('td.subtext') ?? null;
@@ -87,10 +93,9 @@ export function parseStoryList(doc: Document): ParsedStoryList {
     let score: number | null = null;
     let author: string | null = null;
     let authorIsNew = false;
-    let hideUrl: string | null = null;
+    let hideAction: ToggleActionState = { kind: 'unavailable' };
     let commentCount: number | null = null;
     let commentLink: string | null = null;
-    let voteUn: string | null = null;
 
     if (sublineEl) {
       score = parseScore(textOf(sublineEl.querySelector(`span.score#score_${id}`)));
@@ -99,7 +104,7 @@ export function parseStoryList(doc: Document): ParsedStoryList {
       author = textOf(authorEl) || null;
       authorIsNew = isNewUser(authorEl);
 
-      hideUrl = hrefOf(sublineEl.querySelector('a.clicky.hider'));
+      hideAction = parseToggleActionState(hrefOf(sublineEl.querySelector('a.clicky.hider')));
 
       // Last a[href^="item?id="] in the subline is the comment/discuss link
       const commentAnchors = Array.from(
@@ -108,9 +113,6 @@ export function parseStoryList(doc: Document): ParsedStoryList {
       const commentAnchor = commentAnchors[commentAnchors.length - 1] ?? null;
       commentLink = hrefOf(commentAnchor);
       commentCount = parseCommentCount(textOf(commentAnchor));
-
-      // Unvote link (JS-populated; almost always null on parse)
-      voteUn = findUnvoteHref(sublineEl);
     }
 
     stories.push({
@@ -128,9 +130,14 @@ export function parseStoryList(doc: Document): ParsedStoryList {
       commentCount,
       commentLink,
       isJob,
-      hideUrl,
-      voteUp,
-      voteUn,
+      hideAction,
+      voteState: sublineEl
+        ? parseVoteState(row, {
+            itemId: id,
+            unvoteScopes: [sublineEl],
+            preferredDirection: options.preferredVoteDirection,
+          })
+        : voteState,
       isDead: titleStatus.isDead,
       isFlagged: titleStatus.isFlagged,
       isDeleted: titleStatus.isDeleted,

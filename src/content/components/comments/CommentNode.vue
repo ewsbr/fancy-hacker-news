@@ -9,6 +9,7 @@ import {
   useCommentFlagActionTarget,
   useCommentFragmentState,
   useCommentThreadUi,
+  useCommentVoteActionTarget,
 } from '@/content/composables/comment-node';
 import { useCommentCollapse } from '@/state/comment-collapse';
 import CommentBody from './CommentBody.vue';
@@ -74,6 +75,7 @@ const {
 });
 
 const flagTarget = useCommentFlagActionTarget(node);
+const voteTarget = useCommentVoteActionTarget(node);
 
 const initialCollapsed = node.value.isCollapsed || (
   node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())
@@ -144,14 +146,11 @@ useCommentCollapseRegistration(node, toggleCollapse);
             <div class="comment-node__actions">
               <CommentActions
                 :item-id="node.id"
-                :vote-up="node.voteUp"
-                :vote-un="node.voteUn"
-                :vote-down="node.voteDown"
-                :vote-target="node"
+                :vote-state="voteTarget?.voteState ?? node.voteState"
+                :vote-target="voteTarget"
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
-                :flag-url="flagTarget?.flagUrl ?? node.flagUrl"
                 :flag-target="flagTarget"
               />
             </div>

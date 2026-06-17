@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
+import type { VoteState } from '@/parsers/shared/actions';
 import { Triangle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
+import { getVoteActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
-  href: string | null;
-  voteUnHref?: string | null;
+  voteState?: VoteState;
   itemId?: string;
   voteTarget?: VoteActionTarget | null;
 }>();
@@ -16,14 +17,46 @@ const { isBusy, submitVote } = useHnActions();
 const currentUser = useCurrentUser();
 const canSubmitInBackground = canSubmitAuthActionInBackground(currentUser);
 
-const currentVoteUnHref = ref(props.voteUnHref ?? null);
-const currentHref = computed(() => currentVoteUnHref.value || props.href || null);
-const currentDirection = computed(() => (currentVoteUnHref.value ? 'un' : 'up'));
+const currentVoteState = ref<VoteState>(props.voteState ?? props.voteTarget?.voteState ?? { kind: 'unavailable' });
+const currentHref = computed(() => getVoteActionHref(currentVoteState.value, currentVoteState.value.kind === 'active' ? 'un' : 'up'));
+const isActive = computed(() => currentVoteState.value.kind === 'active' || currentVoteState.value.kind === 'disabled-active');
+const isDisabled = computed(() => currentVoteState.value.kind === 'disabled-active');
+const currentLabel = computed(() => {
+  if (currentVoteState.value.kind === 'active') {
+    return currentVoteState.value.direction === 'down' ? 'undown' : 'unvote';
+  }
+
+  if (currentVoteState.value.kind === 'disabled-active') {
+    if (currentVoteState.value.direction === 'up') {
+      return 'upvoted';
+    }
+
+    if (currentVoteState.value.direction === 'down') {
+      return 'downvoted';
+    }
+
+    return 'voted';
+  }
+
+  return 'upvote';
+});
+const currentDirection = computed(() => currentVoteState.value.kind === 'active' ? 'un' : 'up');
 
 watch(
-  () => props.voteUnHref,
-  (voteUnHref) => {
-    currentVoteUnHref.value = voteUnHref ?? null;
+  () => props.voteState,
+  (voteState) => {
+    if (voteState) {
+      currentVoteState.value = voteState;
+    }
+  },
+);
+
+watch(
+  () => props.voteTarget?.voteState,
+  (voteState) => {
+    if (voteState) {
+      currentVoteState.value = voteState;
+    }
   },
 );
 
@@ -33,9 +66,9 @@ async function handleClick(event: MouseEvent) {
   }
 
   event.preventDefault();
-  const succeeded = await submitVote(props.voteTarget, currentHref.value, currentDirection.value);
+  const succeeded = await submitVote(props.voteTarget, currentDirection.value);
   if (succeeded) {
-    currentVoteUnHref.value = props.voteTarget.voteUn;
+    currentVoteState.value = props.voteTarget.voteState;
   }
 }
 </script>
@@ -46,14 +79,23 @@ async function handleClick(event: MouseEvent) {
       v-if="currentHref"
       :href="currentHref"
       class="vote-btn"
-      :class="{ 'vote-btn--active': !!currentVoteUnHref, 'vote-btn--busy': isBusy }"
-      :title="currentVoteUnHref ? 'unvote' : 'upvote'"
-      :aria-label="currentVoteUnHref ? 'unvote' : 'upvote'"
+      :class="{ 'vote-btn--active': isActive, 'vote-btn--busy': isBusy }"
+      :title="currentLabel"
+      :aria-label="currentLabel"
       :aria-disabled="isBusy ? 'true' : undefined"
       @click="handleClick"
     >
       <Triangle :size="13" fill="currentColor" :stroke-width="0" />
     </a>
+    <span
+      v-else-if="isDisabled"
+      class="vote-btn vote-btn--active vote-btn--disabled"
+      :title="currentLabel"
+      :aria-label="currentLabel"
+      aria-disabled="true"
+    >
+      <Triangle :size="13" fill="currentColor" :stroke-width="0" />
+    </span>
     <span v-else class="vote-btn vote-btn--inactive" aria-hidden="true">
       <Triangle :size="13" fill="currentColor" :stroke-width="0" />
     </span>
@@ -121,6 +163,11 @@ async function handleClick(event: MouseEvent) {
 
   &--busy {
     opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &--disabled {
+    cursor: default;
     pointer-events: none;
   }
 

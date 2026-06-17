@@ -28,7 +28,7 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     }"
   >
     <StoryRank v-if="story.rank !== null" :rank="story.rank" />
-    <VoteButton class="story-row__vote" :href="story.voteUp" :vote-un-href="story.voteUn" :item-id="story.id" :vote-target="story" />
+    <VoteButton class="story-row__vote" :vote-state="story.voteState" :item-id="story.id" :vote-target="story" />
     <div class="story-row__body">
       <div class="story-row__title-line">
         <a

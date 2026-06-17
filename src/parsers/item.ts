@@ -1,6 +1,8 @@
 import type { CommentPlaceholderKind } from './shared/body';
+import type { ToggleActionState, VoteState } from './shared/actions';
 import { debugLog, debugMeasure } from '@/debug';
 import { parseAge } from './shared/age';
+import { parseToggleActionState, parseVoteState } from './shared/actions';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
 import { isNewUser } from './shared/comment';
 import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
@@ -26,8 +28,7 @@ export interface PollOption {
   id: string;
   text: string;
   score: number | null;
-  voteUp: string | null;
-  voteUn: string | null;
+  voteState: VoteState;
 }
 
 export interface ItemDetail {
@@ -48,13 +49,11 @@ export interface ItemDetail {
   contextLink: string | null;
   storyTitle: string | null;
   storyLink: string | null;
-  voteUp: string | null;
-  voteDown: string | null;
-  voteUn: string | null;
-  hideUrl: string | null;
+  voteState: VoteState;
+  hideAction: ToggleActionState;
   pastUrl: string | null;
-  favoriteUrl: string | null;
-  flagUrl: string | null;
+  favoriteAction: ToggleActionState;
+  flagAction: ToggleActionState;
   isDead: boolean;
   isFlagged: boolean;
   isDeleted: boolean;
@@ -94,10 +93,8 @@ export interface CommentNode {
   isDead: boolean;
   isFlagged: boolean;
   collapsedCount: number;
-  voteUp: string | null;
-  voteDown: string | null;
-  voteUn: string | null;
-  flagUrl: string | null;
+  voteState: VoteState;
+  flagAction: ToggleActionState;
   editUrl: string | null;
   deleteUrl: string | null;
   replyLink: string | null;
@@ -124,16 +121,6 @@ interface CommentTreeBuildResult {
 interface CommentThreadSlice {
   rows: Element[];
   containsTarget: boolean;
-}
-
-function findScopedUnvoteHref(scope: ParentNode | null | undefined, id: string): string | null {
-  if (!scope || !id) {
-    return null;
-  }
-
-  return hrefOf(
-    scope.querySelector(`a#un_${id}, #unv_${id} a[href^="vote?"][href*="how=un"]`),
-  );
 }
 
 function findPollOptionsTable(fatitem: Element): Element | null {
@@ -285,22 +272,20 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
       contextLink: null,
       storyTitle: null,
       storyLink: null,
-      voteUp: null,
-      voteDown: null,
-      voteUn: null,
-      hideUrl: null,
+      voteState: { kind: 'unavailable' },
+      hideAction: { kind: 'unavailable' },
       pastUrl: null,
-      favoriteUrl: null,
-      flagUrl: null,
+      favoriteAction: { kind: 'unavailable' },
+      flagAction: { kind: 'unavailable' },
       isDead: false,
       isFlagged: false,
       isDeleted: false,
     };
 
-    const votelinks = athing?.querySelector('td.votelinks');
-    parsedItem.voteUp = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=up"]'));
-    parsedItem.voteDown = hrefOf(votelinks?.querySelector('a[href^="vote?"][href*="how=down"]'));
-    parsedItem.voteUn = findScopedUnvoteHref(fatitem, id);
+    parsedItem.voteState = parseVoteState(athing, {
+      itemId: id,
+      unvoteScopes: [fatitem],
+    });
 
     if (isStory) {
       const titleline = athing?.querySelector('.titleline');
@@ -324,10 +309,10 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
       parsedItem.ageTimestamp = ageInfo.timestamp;
       parsedItem.ageLink = ageInfo.link;
 
-      parsedItem.hideUrl = hrefOf(subtext?.querySelector('a[href^="hide?"]'));
+      parsedItem.hideAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="hide?"]')));
       parsedItem.pastUrl = hrefOf(subtext?.querySelector('a.hnpast'));
-      parsedItem.favoriteUrl = hrefOf(subtext?.querySelector('a[href^="fave?"]'));
-      parsedItem.flagUrl = hrefOf(subtext?.querySelector('a[href^="flag?"]'));
+      parsedItem.favoriteAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="fave?"]')));
+      parsedItem.flagAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="flag?"]')));
 
       const toptext = fatitem.querySelector('.toptext');
       const bodyHtml = extractRichTextHtml(toptext);
@@ -351,7 +336,11 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
     const navs = comhead?.querySelector('.navs');
     parsedItem.parentLink = hrefOf(navs?.querySelector('a[href^="item?id="]'));
     parsedItem.contextLink = hrefOf(navs?.querySelector('a[href*="context"]'));
-    parsedItem.favoriteUrl = hrefOf(navs?.querySelector('a[href^="fave?"]'));
+    parsedItem.favoriteAction = parseToggleActionState(hrefOf(navs?.querySelector('a[href^="fave?"]')));
+    parsedItem.flagAction = parseToggleActionState(
+      hrefOf(navs?.querySelector('a[href^="flag?"]'))
+      || hrefOf(athing?.querySelector('.reply a[href^="flag?"]')),
+    );
     parsedItem.isDead = comhead?.textContent?.includes('[dead]') || false;
     parsedItem.isFlagged = comhead?.textContent?.includes('[flagged]') || false;
 
@@ -404,15 +393,17 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
         continue;
 
       const text = commentTd.textContent?.trim() || '';
-      const voteUp = hrefOf(row.querySelector('td.votelinks a[href^="vote?"]'));
+      const voteState = parseVoteState(row, {
+        itemId: id,
+        unvoteScopes: [row, row.nextElementSibling],
+      });
 
       // Score is in the next sibling tr's td.default span.score
       const nextRow = row.nextElementSibling;
       const scoreText = textOf(nextRow?.querySelector('.score'));
       const score = parseScore(scoreText);
-      const voteUn = findScopedUnvoteHref(row, id) || findScopedUnvoteHref(nextRow, id);
 
-      options.push({ id, text, score, voteUp, voteUn });
+      options.push({ id, text, score, voteState });
     }
     return options;
   }, () => ({}));

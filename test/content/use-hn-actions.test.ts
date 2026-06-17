@@ -32,12 +32,14 @@ describe('useHnActions', () => {
   it('submits upvotes with js=t and stores the derived unvote URL', async () => {
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      voteDown: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+      },
     };
 
-    await submitVote(target, target.voteUp, 'up');
+    await submitVote(target, 'up');
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
@@ -48,7 +50,13 @@ describe('useHnActions', () => {
         redirect: 'manual',
       }),
     );
-    expect(target.voteUn).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
+    expect(target.voteState).toEqual({
+      kind: 'active',
+      direction: 'up',
+      unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123',
+      upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+      downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+    });
   });
 
   it('treats manual vote redirects as success without following them', async () => {
@@ -60,12 +68,14 @@ describe('useHnActions', () => {
     });
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      voteDown: null,
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: null,
+      },
     };
 
-    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(true);
+    await expect(submitVote(target, 'up')).resolves.toBe(true);
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
@@ -74,7 +84,10 @@ describe('useHnActions', () => {
       }),
     );
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.voteUn).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123');
+    expect(target.voteState).toMatchObject({
+      kind: 'active',
+      unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123',
+    });
   });
 
   it('fails closed without navigating when a js vote returns the logged-out form', async () => {
@@ -86,19 +99,21 @@ describe('useHnActions', () => {
     });
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: 'vote?id=47558997&how=up&goto=news',
-      voteDown: null,
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=47558997&how=up&goto=news',
+        downHref: null,
+      },
     };
 
-    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(false);
+    await expect(submitVote(target, 'up')).resolves.toBe(false);
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
       expect.any(Object),
     );
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.voteUn).toBeNull();
+    expect(target.voteState.kind).toBe('available');
   });
 
   it('fails closed for vote responses that do not resolve to HN ok', async () => {
@@ -110,51 +125,74 @@ describe('useHnActions', () => {
     });
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123',
-      voteDown: null,
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123',
+        downHref: null,
+      },
     };
 
-    await expect(submitVote(target, target.voteUp, 'up')).resolves.toBe(false);
+    await expect(submitVote(target, 'up')).resolves.toBe(false);
 
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.voteUn).toBeNull();
+    expect(target.voteState.kind).toBe('available');
   });
 
   it('clears the stored unvote link after unvoting', async () => {
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      voteDown: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
-      voteUn: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123&js=t',
+      voteState: {
+        kind: 'active' as const,
+        direction: 'up' as const,
+        unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123&js=t',
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+      },
     };
 
-    await submitVote(target, target.voteUn, 'un');
+    await submitVote(target, 'un');
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://news.ycombinator.com/vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123&js=t',
       expect.any(Object),
     );
-    expect(target.voteUn).toBeNull();
+    expect(target.voteState).toEqual({
+      kind: 'available',
+      upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+      downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+    });
   });
 
   it('fails closed for blank vote hrefs', async () => {
     const { submitVote } = useHnActions();
     const target = {
-      voteUp: null,
-      voteDown: null,
-      voteUn: null,
+      voteState: { kind: 'unavailable' as const },
     };
 
-    await expect(submitVote(target, '   ', 'up')).resolves.toBe(false);
+    await expect(submitVote(target, 'up')).resolves.toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(target.voteUn).toBeNull();
+    expect(target.voteState.kind).toBe('unavailable');
+  });
+
+  it('does not submit disabled active vote states', async () => {
+    const { submitVote } = useHnActions();
+    const target = {
+      voteState: {
+        kind: 'disabled-active' as const,
+        direction: 'up' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: null,
+      },
+    };
+
+    await expect(submitVote(target, 'up')).resolves.toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('toggles flag state and derives the matching unflag URL', async () => {
     const { submitFlag } = useHnActions();
     const target = {
-      flagUrl: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123',
+      flagAction: { kind: 'available' as const, href: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123' },
       isFlagged: false,
     };
 
@@ -169,7 +207,10 @@ describe('useHnActions', () => {
       }),
     );
     expect(target.isFlagged).toBe(true);
-    expect(target.flagUrl).toBe('flag?id=44&auth=flagauth&goto=item%3Fid%3D123&un=t');
+    expect(target.flagAction).toEqual({
+      kind: 'active',
+      href: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123&un=t',
+    });
   });
 
   it('treats manual flag redirects as success without following them', async () => {
@@ -181,7 +222,7 @@ describe('useHnActions', () => {
     });
     const { submitFlag } = useHnActions();
     const target = {
-      flagUrl: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123',
+      flagAction: { kind: 'available' as const, href: 'flag?id=44&auth=flagauth&goto=item%3Fid%3D123' },
       isFlagged: false,
     };
 
@@ -206,7 +247,7 @@ describe('useHnActions', () => {
     });
     const { submitFavorite } = useHnActions();
     const target = {
-      favoriteUrl: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+      favoriteAction: { kind: 'available' as const, href: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123' },
     };
 
     await expect(submitFavorite(target)).resolves.toBe(true);
@@ -218,7 +259,10 @@ describe('useHnActions', () => {
       }),
     );
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.favoriteUrl).toBe('fave?id=44&auth=favauth&goto=item%3Fid%3D123&un=t');
+    expect(target.favoriteAction).toEqual({
+      kind: 'active',
+      href: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123&un=t',
+    });
   });
 
   it('toggles hide links through the centralized no-redirect request', async () => {
@@ -230,7 +274,7 @@ describe('useHnActions', () => {
     });
     const { submitHide } = useHnActions();
     const target = {
-      hideUrl: 'hide?id=44&auth=hideauth&goto=news',
+      hideAction: { kind: 'available' as const, href: 'hide?id=44&auth=hideauth&goto=news' },
     };
 
     await expect(submitHide(target)).resolves.toBe(true);
@@ -242,6 +286,9 @@ describe('useHnActions', () => {
       }),
     );
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.hideUrl).toBe('hide?id=44&auth=hideauth&goto=news&un=t');
+    expect(target.hideAction).toEqual({
+      kind: 'active',
+      href: 'hide?id=44&auth=hideauth&goto=news&un=t',
+    });
   });
 });

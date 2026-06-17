@@ -175,7 +175,7 @@ describe('item parser', () => {
 
     const page = parseItemPage(doc);
 
-    expect(page.item.voteUn).toBeNull();
+    expect(page.item.voteState.kind).toBe('available');
     expect(page.pollOptions.map(option => option.id)).toEqual([
       '48322269',
       '48322268',
@@ -186,7 +186,11 @@ describe('item parser', () => {
     expect(page.pollOptions[0]).toMatchObject({
       id: '48322269',
       text: 'Multiple times per day',
-      voteUn: 'vote?id=48322269&how=un&goto=item%3Fid%3D48322267&js=t',
+      voteState: {
+        kind: 'active',
+        direction: 'up',
+        unvoteHref: 'vote?id=48322269&how=un&goto=item%3Fid%3D48322267&js=t',
+      },
     });
   });
 });

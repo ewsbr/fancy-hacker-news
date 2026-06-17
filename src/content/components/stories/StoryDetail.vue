@@ -10,14 +10,17 @@ import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
   item: ItemDetail;
 }>();
 
-const isFlagged = computed(() => props.item.flagUrl?.includes('un=t') ?? false);
 const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.item.id)}`);
 const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
+const hideHref = computed(() => getToggleActionHref(props.item.hideAction));
+const favoriteHref = computed(() => getToggleActionHref(props.item.favoriteAction));
+const flagHref = computed(() => getToggleActionHref(props.item.flagAction));
 </script>
 
 <template>
@@ -25,7 +28,7 @@ const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
     <div class="story-detail__main">
       <div class="story-detail__layout">
         <div class="story-detail__vote">
-          <VoteButton :href="item.voteUp" :vote-un-href="item.voteUn" :item-id="item.id" :vote-target="item" />
+          <VoteButton :vote-state="item.voteState" :item-id="item.id" :vote-target="item" />
         </div>
 
         <div class="story-detail__content">
@@ -58,11 +61,11 @@ const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
             />
 
             <div class="story-detail__actions">
-              <template v-if="item.hideUrl">
+              <template v-if="hideHref">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
                   <InlineActionLink
-                    :href="item.hideUrl"
+                    :href="hideHref"
                     action="hide"
                     :hide-target="item"
                     class="story-detail__action"
@@ -84,11 +87,11 @@ const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
                 </span>
               </template>
 
-              <template v-if="item.favoriteUrl">
+              <template v-if="favoriteHref">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
                   <InlineActionLink
-                    :href="item.favoriteUrl"
+                    :href="favoriteHref"
                     action="favorite"
                     :favorite-target="item"
                     class="story-detail__action"
@@ -96,10 +99,10 @@ const titleLinkAttrs = useNewTabLinkAttrs(computed(() => props.item.url));
                 </span>
               </template>
 
-              <template v-if="item.flagUrl">
+              <template v-if="flagHref">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
-                  <FlagButton :href="item.flagUrl" :is-unflag="isFlagged" :flag-target="item" />
+                  <FlagButton :href="flagHref" :flag-target="item" />
                 </span>
               </template>
             </div>

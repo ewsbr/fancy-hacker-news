@@ -9,9 +9,9 @@ describe('PollOptions', () => {
     const wrapper = mountComponent(PollOptions, {
       props: {
         options: [
-          { id: 'c', text: 'Gamma', score: 3, voteUp: null, voteUn: null },
-          { id: 'a', text: 'Alpha', score: 5, voteUp: null, voteUn: null },
-          { id: 'b', text: 'Beta', score: 5, voteUp: null, voteUn: null },
+          { id: 'c', text: 'Gamma', score: 3, voteState: { kind: 'unavailable' } },
+          { id: 'a', text: 'Alpha', score: 5, voteState: { kind: 'unavailable' } },
+          { id: 'b', text: 'Beta', score: 5, voteState: { kind: 'unavailable' } },
         ],
       },
       global: {
@@ -32,9 +32,9 @@ describe('PollOptions', () => {
     const wrapper = mountComponent(PollOptions, {
       props: {
         options: [
-          { id: 'c', text: 'zebra', score: null, voteUp: null, voteUn: null },
-          { id: 'a', text: 'Alpha', score: null, voteUp: null, voteUn: null },
-          { id: 'b', text: 'beta', score: null, voteUp: null, voteUn: null },
+          { id: 'c', text: 'zebra', score: null, voteState: { kind: 'unavailable' } },
+          { id: 'a', text: 'Alpha', score: null, voteState: { kind: 'unavailable' } },
+          { id: 'b', text: 'beta', score: null, voteState: { kind: 'unavailable' } },
         ],
       },
       global: {

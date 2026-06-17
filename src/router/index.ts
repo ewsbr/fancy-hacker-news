@@ -76,7 +76,6 @@ const STATIC_PAGES = new Set([
 const USER_LISTS = new Map<string, string>([
   ['/submitted', 'submitted'],
   ['/threads', 'threads'],
-  ['/upvoted', 'upvoted'],
   ['/hidden', 'hidden'],
 ]);
 
@@ -120,12 +119,12 @@ export function resolveRoute(loc: Location): RouteDescriptor {
     return { page: USER_LISTS.get(path)!, params: { id: sp.get('id') ?? '' } };
   }
 
-  if (path === '/favorites') {
+  if (path === '/favorites' || path === '/upvoted') {
     const params: Record<string, string> = { id: sp.get('id') ?? '' };
     const comments = sp.get('comments');
     if (comments !== null)
       params.comments = comments;
-    return { page: 'favorites', params };
+    return { page: path === '/favorites' ? 'favorites' : 'upvoted', params };
   }
 
   if (path === '/submit')

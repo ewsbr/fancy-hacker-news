@@ -42,13 +42,15 @@ describe('vote button', () => {
 
   it('switches to the unvote state after a successful upvote response', async () => {
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: null,
+      },
     };
     const wrapper = mountComponent(VoteButton, {
       props: {
-        href: target.voteUp,
-        voteUnHref: target.voteUn,
+        voteState: target.voteState,
         voteTarget: target,
       },
     });
@@ -70,13 +72,15 @@ describe('vote button', () => {
 
   it('lets logged-out upvote links navigate to the HN login gate', () => {
     const target = {
-      voteUp: 'vote?id=10&how=up&goto=item%3Fid%3D123',
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&goto=item%3Fid%3D123',
+        downHref: null,
+      },
     };
     const wrapper = mountComponent(VoteButton, {
       props: {
-        href: target.voteUp,
-        voteUnHref: target.voteUn,
+        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -95,13 +99,15 @@ describe('vote button', () => {
 
   it('keeps logged-in upvotes in the background without browser navigation', async () => {
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+        downHref: null,
+      },
     };
     const wrapper = mountComponent(VoteButton, {
       props: {
-        href: target.voteUp,
-        voteUnHref: target.voteUn,
+        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -122,5 +128,29 @@ describe('vote button', () => {
         redirect: 'manual',
       }),
     );
+  });
+
+  it('renders disabled active votes without a clickable link', () => {
+    const wrapper = mountComponent(VoteButton, {
+      props: {
+        voteState: {
+          kind: 'disabled-active',
+          direction: 'up',
+          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+          downHref: null,
+        },
+        voteTarget: {
+          voteState: {
+            kind: 'disabled-active',
+            direction: 'up',
+            upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
+            downHref: null,
+          },
+        },
+      },
+    });
+
+    expect(wrapper.find('a.vote-btn').exists()).toBe(false);
+    expect(wrapper.get('.vote-btn--disabled').attributes('title')).toBe('upvoted');
   });
 });

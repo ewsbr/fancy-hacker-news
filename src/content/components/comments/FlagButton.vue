@@ -2,9 +2,10 @@
 import type { FlagActionTarget } from '@/content/composables/use-hn-actions';
 import { computed } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
-  href: string;
+  href?: string | null;
   /** Whether this is an unflag action (detected from URL containing un=t) */
   isUnflag?: boolean;
   flagTarget?: FlagActionTarget | null;
@@ -12,8 +13,15 @@ const props = defineProps<{
 
 const { isBusy, submitFlag } = useHnActions();
 
+const actionHref = computed(() => props.flagTarget
+  ? getToggleActionHref(props.flagTarget.flagAction)
+  : (props.href ?? null));
+
 const isUnflagAction = computed(
-  () => props.flagTarget?.isFlagged ?? props.isUnflag ?? props.href.includes('un=t'),
+  () => props.flagTarget?.flagAction.kind === 'active'
+    || props.flagTarget?.isFlagged === true
+    || props.isUnflag === true
+    || props.href?.includes('un=t') === true,
 );
 
 function handleClick(event: MouseEvent) {
@@ -34,7 +42,8 @@ function handleClick(event: MouseEvent) {
 
 <template>
   <a
-    :href="href"
+    v-if="actionHref"
+    :href="actionHref"
     class="flag-button"
     :class="{ 'flag-button--busy': isBusy }"
     :aria-disabled="isBusy ? 'true' : undefined"

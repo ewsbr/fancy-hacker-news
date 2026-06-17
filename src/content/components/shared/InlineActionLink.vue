@@ -2,9 +2,10 @@
 import type { FavoriteActionTarget, HideActionTarget } from '@/content/composables/use-hn-actions';
 import { computed } from 'vue';
 import { useHnActions } from '@/content/composables/use-hn-actions';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
-  href: string;
+  href?: string | null;
   action: 'favorite' | 'hide';
   favoriteTarget?: FavoriteActionTarget | null;
   hideTarget?: HideActionTarget | null;
@@ -14,15 +15,19 @@ const props = defineProps<{
 
 const { isBusy, submitFavorite, submitHide } = useHnActions();
 
-const actionHref = computed(() => {
+const actionState = computed(() => {
   if (props.action === 'favorite') {
-    return props.favoriteTarget?.favoriteUrl ?? props.href;
+    return props.favoriteTarget?.favoriteAction ?? null;
   }
 
-  return props.hideTarget?.hideUrl ?? props.href;
+  return props.hideTarget?.hideAction ?? null;
 });
 
-const isActive = computed(() => actionHref.value.includes('un=t'));
+const actionHref = computed(() => {
+  return actionState.value ? getToggleActionHref(actionState.value) : (props.href ?? null);
+});
+
+const isActive = computed(() => actionState.value?.kind === 'active' || actionHref.value?.includes('un=t') === true);
 
 const label = computed(() => {
   if (props.action === 'hide') {
@@ -37,16 +42,21 @@ const label = computed(() => {
 });
 
 async function handleClick(event: MouseEvent) {
-  event.preventDefault();
+  const hasTarget = props.action === 'favorite' ? props.favoriteTarget != null : props.hideTarget != null;
+  if (!hasTarget) {
+    return;
+  }
 
+  event.preventDefault();
   await (props.action === 'favorite'
-    ? submitFavorite(props.favoriteTarget ?? { favoriteUrl: props.href })
-    : submitHide(props.hideTarget ?? { hideUrl: props.href }));
+    ? submitFavorite(props.favoriteTarget!)
+    : submitHide(props.hideTarget!));
 }
 </script>
 
 <template>
   <a
+    v-if="actionHref"
     :href="actionHref"
     class="inline-action-link"
     :class="{ 'inline-action-link--busy': isBusy }"

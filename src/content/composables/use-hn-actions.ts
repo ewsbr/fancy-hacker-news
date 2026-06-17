@@ -1,4 +1,6 @@
 import { ref } from 'vue';
+import type { ToggleActionState, VoteDirection, VoteState } from '@/parsers/shared/actions';
+import { getToggleActionHref, getVoteActionHref } from '@/parsers/shared/actions';
 import { assert } from '@/utils/assert';
 
 const HN_ORIGIN = 'https://news.ycombinator.com';
@@ -11,25 +13,23 @@ function getActionBaseUrl(): string {
   return HN_ORIGIN;
 }
 
-export type VoteDirection = 'up' | 'down' | 'un';
+export type VoteSubmitDirection = 'up' | 'down' | 'un';
 
 export interface VoteActionTarget {
-  voteUp: string | null;
-  voteDown?: string | null;
-  voteUn: string | null;
+  voteState: VoteState;
 }
 
 export interface FlagActionTarget {
-  flagUrl: string | null;
+  flagAction: ToggleActionState;
   isFlagged: boolean;
 }
 
 export interface FavoriteActionTarget {
-  favoriteUrl: string | null;
+  favoriteAction: ToggleActionState;
 }
 
 export interface HideActionTarget {
-  hideUrl: string | null;
+  hideAction: ToggleActionState;
 }
 
 function toAbsoluteUrl(href: string): URL {
@@ -85,6 +85,40 @@ function toggleActionHref(href: string): string {
   return toRelativeHref(url);
 }
 
+function toggleActionState(action: ToggleActionState): ToggleActionState {
+  if (action.kind === 'available') {
+    return { kind: 'active', href: toggleActionHref(action.href) };
+  }
+
+  if (action.kind === 'active') {
+    return { kind: 'available', href: toggleActionHref(action.href) };
+  }
+
+  return action;
+}
+
+function makeActiveVoteState(
+  currentState: Extract<VoteState, { kind: 'available' | 'active' }>,
+  href: string,
+  direction: Exclude<VoteDirection, 'unknown'>,
+): VoteState {
+  return {
+    kind: 'active',
+    direction,
+    unvoteHref: buildUnvoteHref(href),
+    upHref: currentState.upHref,
+    downHref: currentState.downHref,
+  };
+}
+
+function makeAvailableVoteState(currentState: Extract<VoteState, { kind: 'active' }>): VoteState {
+  return {
+    kind: 'available',
+    upHref: currentState.upHref,
+    downHref: currentState.downHref,
+  };
+}
+
 async function sendActionRequest(href: string, appendJsParam = false): Promise<boolean> {
   if (!href.trim()) {
     return false;
@@ -112,10 +146,14 @@ export function useHnActions() {
 
   async function submitVote(
     target: VoteActionTarget,
-    href: string,
-    direction: VoteDirection,
+    direction: VoteSubmitDirection,
   ): Promise<boolean> {
     if (isBusy.value) {
+      return false;
+    }
+
+    const href = getVoteActionHref(target.voteState, direction);
+    if (href == null) {
       return false;
     }
 
@@ -127,11 +165,17 @@ export function useHnActions() {
         return false;
       }
 
-      // This mirrors HN's client-side vote behavior: the request fires, then the
-      // UI flips between vote and unvote locally without waiting for new markup.
-      // The downvote path follows the same URL convention, but we do not have
-      // fixture coverage for a karma-enabled account in this repo.
-      target.voteUn = direction === 'un' ? null : buildUnvoteHref(href);
+      const currentState = target.voteState;
+      if (direction === 'un') {
+        if (currentState.kind === 'active') {
+          target.voteState = makeAvailableVoteState(currentState);
+        }
+        return true;
+      }
+
+      if (currentState.kind === 'available' || currentState.kind === 'active') {
+        target.voteState = makeActiveVoteState(currentState, href, direction);
+      }
       return true;
     }
     finally {
@@ -140,11 +184,11 @@ export function useHnActions() {
   }
 
   async function submitFlag(target: FlagActionTarget): Promise<boolean> {
-    if (isBusy.value || !target.flagUrl) {
+    const href = getToggleActionHref(target.flagAction);
+    if (isBusy.value || href == null) {
       return false;
     }
 
-    const href = target.flagUrl;
     isBusy.value = true;
 
     try {
@@ -153,7 +197,7 @@ export function useHnActions() {
         return false;
       }
 
-      target.flagUrl = toggleActionHref(href);
+      target.flagAction = toggleActionState(target.flagAction);
       target.isFlagged = !target.isFlagged;
       return true;
     }
@@ -163,11 +207,11 @@ export function useHnActions() {
   }
 
   async function submitFavorite(target: FavoriteActionTarget): Promise<boolean> {
-    if (isBusy.value || !target.favoriteUrl) {
+    const href = getToggleActionHref(target.favoriteAction);
+    if (isBusy.value || href == null) {
       return false;
     }
 
-    const href = target.favoriteUrl;
     isBusy.value = true;
 
     try {
@@ -176,7 +220,7 @@ export function useHnActions() {
         return false;
       }
 
-      target.favoriteUrl = toggleActionHref(href);
+      target.favoriteAction = toggleActionState(target.favoriteAction);
       return true;
     }
     finally {
@@ -185,11 +229,11 @@ export function useHnActions() {
   }
 
   async function submitHide(target: HideActionTarget): Promise<boolean> {
-    if (isBusy.value || !target.hideUrl) {
+    const href = getToggleActionHref(target.hideAction);
+    if (isBusy.value || href == null) {
       return false;
     }
 
-    const href = target.hideUrl;
     isBusy.value = true;
 
     try {
@@ -198,7 +242,7 @@ export function useHnActions() {
         return false;
       }
 
-      target.hideUrl = toggleActionHref(href);
+      target.hideAction = toggleActionState(target.hideAction);
       return true;
     }
     finally {

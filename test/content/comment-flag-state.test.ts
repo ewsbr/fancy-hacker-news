@@ -10,6 +10,8 @@ import { mountComponent } from '../helpers/mount-component';
 
 const FLAG_URL = 'flag?id=10&auth=flagauth&goto=item%3Fid%3D123%2310';
 const UNFLAG_URL = 'flag?id=10&auth=flagauth&goto=item%3Fid%3D123%2310&un=t';
+const VOTE_URL = 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310';
+const UNVOTE_URL = 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123%2310';
 
 function makeCommentNode(): CommentNodeType {
   const children: CommentNodeType[] = [];
@@ -30,10 +32,8 @@ function makeCommentNode(): CommentNodeType {
     isDead: false,
     isFlagged: false,
     collapsedCount: 0,
-    voteUp: null,
-    voteDown: null,
-    voteUn: null,
-    flagUrl: FLAG_URL,
+    voteState: { kind: 'unavailable' },
+    flagAction: { kind: 'available', href: FLAG_URL },
     editUrl: null,
     deleteUrl: null,
     replyLink: null,
@@ -103,10 +103,41 @@ describe('comment flag state', () => {
     expect(buttons.map(button => button.text())).toEqual(['unflag', 'unflag']);
     expect(buttons.map(button => button.attributes('href'))).toEqual([UNFLAG_URL, UNFLAG_URL]);
     expect(wrapper.findAll('.badge--flagged')).toHaveLength(2);
-    expect(node.flagUrl).toBe(FLAG_URL);
+    expect(node.flagAction).toEqual({ kind: 'available', href: FLAG_URL });
     expect(node.isFlagged).toBe(false);
     expect(fetchMock).toHaveBeenCalledWith(
       `https://news.ycombinator.com/${FLAG_URL}`,
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+  });
+
+  it('updates duplicated comment vote controls through sidecar state', async () => {
+    const node = makeCommentNode();
+    node.voteState = {
+      kind: 'available',
+      upHref: VOTE_URL,
+      downHref: null,
+    };
+    node.flagAction = { kind: 'unavailable' };
+    const wrapper = mountDuplicatedCommentNode(node);
+
+    expect(wrapper.findAll('.comment-actions__vote--up').map(button => button.text())).toEqual(['upvote', 'upvote']);
+
+    await wrapper.find('.comment-actions__vote--up').trigger('click');
+    await flushPromises();
+
+    const buttons = wrapper.findAll('.comment-actions__vote--active');
+    expect(buttons.map(button => button.text())).toEqual(['unvote', 'unvote']);
+    expect(buttons.map(button => button.attributes('href'))).toEqual([UNVOTE_URL, UNVOTE_URL]);
+    expect(node.voteState).toEqual({
+      kind: 'available',
+      upHref: VOTE_URL,
+      downHref: null,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://news.ycombinator.com/${VOTE_URL}&js=t`,
       expect.objectContaining({
         redirect: 'manual',
       }),

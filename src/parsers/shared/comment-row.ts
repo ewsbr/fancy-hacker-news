@@ -1,9 +1,11 @@
 import type { CommentPlaceholderKind } from './body';
+import type { ToggleActionState, VoteDirection, VoteState } from './actions';
 import { assert } from '@/utils/assert';
 import { parseInteger } from '@/utils/number';
 import { parseAge } from './age';
+import { parseToggleActionState, parseVoteState } from './actions';
 import { parseCommentBody } from './body';
-import { findUnvoteHref, isNewUser, parseGrayLevel } from './comment';
+import { isNewUser, parseGrayLevel } from './comment';
 import { attrOf, hrefOf, textOf } from './dom';
 import { parseScore } from './score';
 
@@ -34,16 +36,14 @@ export interface ParsedCommentRowCommon {
   isDead: boolean;
   isFlagged: boolean;
   isDeleted: boolean;
-  voteUp: string | null;
-  voteDown: string | null;
-  voteUn: string | null;
+  voteState: VoteState;
 }
 
 export interface ParsedThreadCommentRow extends ParsedCommentRowCommon {
   indent: number;
   isCollapsed: boolean;
   collapsedCount: number;
-  flagUrl: string | null;
+  flagAction: ToggleActionState;
   editUrl: string | null;
   deleteUrl: string | null;
   replyLink: string | null;
@@ -54,6 +54,7 @@ export interface ParsedThreadCommentRow extends ParsedCommentRowCommon {
 export interface ParseThreadCommentRowOptions {
   navLinkMode?: 'preserve' | 'hash';
   includeOnStory?: boolean;
+  preferredVoteDirection?: VoteDirection;
 }
 
 const EMPTY_NAV_LINKS: ParsedCommentNavLinks = Object.freeze({
@@ -102,7 +103,6 @@ function parseCollapsedCount(comhead: Element | null | undefined): number {
 }
 
 function parseCommentActions(
-  tr: Element,
   commentEl: Element | null,
   navs: Element | null | undefined,
 ) {
@@ -110,15 +110,14 @@ function parseCommentActions(
 
   return {
     replyLink: hrefOf(replyDiv?.querySelector('a[href^="reply?"]')),
-    flagUrl: hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
+    flagAction: parseToggleActionState(
+      hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
       || hrefOf(navs?.querySelector('a[href^="flag?"]')),
+    ),
     editUrl: hrefOf(navs?.querySelector('a[href^="edit?"]'))
       || hrefOf(replyDiv?.querySelector('a[href^="edit?"]')),
     deleteUrl: hrefOf(navs?.querySelector('a[href^="delete-confirm?"]'))
       || hrefOf(replyDiv?.querySelector('a[href^="delete-confirm?"]')),
-    voteUp: hrefOf(tr.querySelector('td.votelinks a[href^="vote?"][href*="how=up"]')),
-    voteDown: hrefOf(tr.querySelector('td.votelinks a[href^="vote?"][href*="how=down"]')),
-    voteUn: findUnvoteHref(tr),
   };
 }
 
@@ -156,10 +155,11 @@ export function parseThreadCommentRow(
   const commentEl = tr.querySelector('.comment');
   const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
   const commentBody = parseCommentBody(commentEl ?? commtext);
-  const actions = parseCommentActions(tr, commentEl, comhead?.querySelector('.navs'));
+  const actions = parseCommentActions(commentEl, comhead?.querySelector('.navs'));
   const navs = comhead?.querySelector('.navs');
   const navLinkMode = options.navLinkMode ?? 'preserve';
   const ageInfo = parseAge(comhead?.querySelector('.age'));
+  const isCollapsed = tr.classList.contains('coll');
 
   return {
     id,
@@ -173,15 +173,17 @@ export function parseThreadCommentRow(
     placeholderKind: commentBody.placeholderKind,
     grayLevel: parseGrayLevel(commtext),
     indent: parseCommentIndent(tr),
-    isCollapsed: tr.classList.contains('coll'),
+    isCollapsed,
     isDead: comhead?.textContent?.includes('[dead]') ?? false,
     isFlagged: (comhead?.textContent?.includes('[flagged]') ?? false) || commentBody.placeholderKind === 'flagged',
     isDeleted: commentBody.placeholderKind === 'deleted',
     collapsedCount: parseCollapsedCount(comhead),
-    voteUp: actions.voteUp,
-    voteDown: actions.voteDown,
-    voteUn: actions.voteUn,
-    flagUrl: actions.flagUrl,
+    voteState: parseVoteState(tr, {
+      itemId: id,
+      isCollapsed,
+      preferredDirection: options.preferredVoteDirection,
+    }),
+    flagAction: actions.flagAction,
     editUrl: actions.editUrl,
     deleteUrl: actions.deleteUrl,
     replyLink: actions.replyLink,

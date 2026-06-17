@@ -60,6 +60,16 @@ describe('resolveRoute', () => {
     });
   });
 
+  it('preserves comment tabs for upvoted user collections', () => {
+    expect(resolveRoute(makeLocation('/upvoted?id=ewsbr&comments=t'))).toEqual({
+      page: 'upvoted',
+      params: {
+        id: 'ewsbr',
+        comments: 't',
+      },
+    });
+  });
+
   it('routes logged-out action gates to the login renderer', () => {
     expect(resolveRoute(makeLocation('/hide?id=42009039'))).toEqual({
       page: 'login',

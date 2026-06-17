@@ -1,11 +1,3 @@
-import { hrefOf } from './dom';
-
-export function findUnvoteHref(scope: ParentNode | null | undefined): string | null {
-  if (!scope)
-    return null;
-  return hrefOf(scope.querySelector('a[href^="vote?"][href*="how=un"]'));
-}
-
 export function isNewUser(hnuserEl: Element | null | undefined): boolean {
   if (!hnuserEl)
     return false;

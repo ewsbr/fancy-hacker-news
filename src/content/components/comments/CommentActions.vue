@@ -1,50 +1,89 @@
 <script setup lang="ts">
 import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/use-hn-actions';
+import type { VoteState } from '@/parsers/shared/actions';
 import { Triangle } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
-import { useHnActions } from '@/content/composables/use-hn-actions';
+import { type VoteSubmitDirection, useHnActions } from '@/content/composables/use-hn-actions';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
   itemId?: string;
-  voteUp?: string | null;
-  voteUn?: string | null;
-  voteDown?: string | null;
+  voteState?: VoteState;
   voteTarget?: VoteActionTarget | null;
   replyLink?: string | null;
   editUrl?: string | null;
   deleteUrl?: string | null;
-  flagUrl?: string | null;
   flagTarget?: FlagActionTarget | null;
 }>();
 
 const { isBusy, submitVote } = useHnActions();
 const currentUser = useCurrentUser();
 const canSubmitVotesInBackground = canSubmitAuthActionInBackground(currentUser);
-const currentVoteUn = ref(props.voteUn ?? null);
-const hasVoteActions = computed(() => !!(props.voteUp || currentVoteUn.value || props.voteDown));
+const currentVoteState = ref<VoteState>(props.voteState ?? props.voteTarget?.voteState ?? { kind: 'unavailable' });
+const upHref = computed(() => currentVoteState.value.kind === 'available' ? currentVoteState.value.upHref : null);
+const downHref = computed(() => currentVoteState.value.kind === 'available' ? currentVoteState.value.downHref : null);
+const unvoteHref = computed(() => currentVoteState.value.kind === 'active' ? currentVoteState.value.unvoteHref : null);
+const activeVoteLabel = computed(() => currentVoteState.value.kind === 'active' && currentVoteState.value.direction === 'down'
+  ? 'undown'
+  : 'unvote');
+const disabledVoteLabel = computed(() => {
+  if (currentVoteState.value.kind !== 'disabled-active') {
+    return 'voted';
+  }
+
+  if (currentVoteState.value.direction === 'up') {
+    return 'upvoted';
+  }
+
+  if (currentVoteState.value.direction === 'down') {
+    return 'downvoted';
+  }
+
+  return 'voted';
+});
+const isDisabledDownvote = computed(() => currentVoteState.value.kind === 'disabled-active' && currentVoteState.value.direction === 'down');
+const hasVoteActions = computed(() => {
+  if (currentVoteState.value.kind === 'available') {
+    return !!(currentVoteState.value.upHref || currentVoteState.value.downHref);
+  }
+
+  return currentVoteState.value.kind === 'active' || currentVoteState.value.kind === 'disabled-active';
+});
 const hasReplyAction = computed(() => !!props.replyLink);
 const hasEditAction = computed(() => !!props.editUrl);
 const hasDeleteAction = computed(() => !!props.deleteUrl);
+const flagHref = computed(() => props.flagTarget ? getToggleActionHref(props.flagTarget.flagAction) : null);
 
 watch(
-  () => props.voteUn,
-  (voteUn) => {
-    currentVoteUn.value = voteUn ?? null;
+  () => props.voteState,
+  (voteState) => {
+    if (voteState) {
+      currentVoteState.value = voteState;
+    }
   },
 );
 
-async function handleVoteClick(event: MouseEvent, href: string | null | undefined, direction: 'up' | 'down' | 'un') {
-  if (!props.voteTarget || !href || !canSubmitVotesInBackground) {
+watch(
+  () => props.voteTarget?.voteState,
+  (voteState) => {
+    if (voteState) {
+      currentVoteState.value = voteState;
+    }
+  },
+);
+
+async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection) {
+  if (!props.voteTarget || !canSubmitVotesInBackground) {
     return;
   }
 
   event.preventDefault();
-  const succeeded = await submitVote(props.voteTarget, href, direction);
+  const succeeded = await submitVote(props.voteTarget, direction);
   if (succeeded) {
-    currentVoteUn.value = props.voteTarget.voteUn;
+    currentVoteState.value = props.voteTarget.voteState;
   }
 }
 </script>
@@ -53,41 +92,58 @@ async function handleVoteClick(event: MouseEvent, href: string | null | undefine
   <div class="comment-actions">
     <div v-if="hasVoteActions" class="comment-actions__votes">
       <a
-        v-if="voteUp && !currentVoteUn"
-        :href="voteUp"
+        v-if="upHref"
+        :href="upHref"
         class="comment-actions__vote comment-actions__vote--up"
         :class="{ 'comment-actions__vote--busy': isBusy }"
         title="upvote"
         :aria-disabled="isBusy ? 'true' : undefined"
-        @click="handleVoteClick($event, voteUp, 'up')"
+        @click="handleVoteClick($event, 'up')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
         <span>upvote</span>
       </a>
       <a
-        v-if="currentVoteUn"
-        :href="currentVoteUn"
-        class="comment-actions__vote comment-actions__vote--up comment-actions__vote--active"
-        :class="{ 'comment-actions__vote--busy': isBusy }"
-        title="unvote"
+        v-if="unvoteHref"
+        :href="unvoteHref"
+        class="comment-actions__vote comment-actions__vote--active"
+        :class="{
+          'comment-actions__vote--down': activeVoteLabel === 'undown',
+          'comment-actions__vote--up': activeVoteLabel !== 'undown',
+          'comment-actions__vote--busy': isBusy,
+        }"
+        :title="activeVoteLabel"
         :aria-disabled="isBusy ? 'true' : undefined"
-        @click="handleVoteClick($event, currentVoteUn, 'un')"
+        @click="handleVoteClick($event, 'un')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
-        <span>unvote</span>
+        <span>{{ activeVoteLabel }}</span>
       </a>
       <a
-        v-if="voteDown"
-        :href="voteDown"
+        v-if="downHref"
+        :href="downHref"
         class="comment-actions__vote comment-actions__vote--down"
         :class="{ 'comment-actions__vote--busy': isBusy }"
         title="downvote"
         :aria-disabled="isBusy ? 'true' : undefined"
-        @click="handleVoteClick($event, voteDown, 'down')"
+        @click="handleVoteClick($event, 'down')"
       >
         <Triangle :size="10" fill="currentColor" :stroke-width="0" />
         <span>downvote</span>
       </a>
+      <span
+        v-if="currentVoteState.kind === 'disabled-active'"
+        class="comment-actions__vote comment-actions__vote--active comment-actions__vote--disabled"
+        :class="{
+          'comment-actions__vote--down': isDisabledDownvote,
+          'comment-actions__vote--up': !isDisabledDownvote,
+        }"
+        :title="disabledVoteLabel"
+        aria-disabled="true"
+      >
+        <Triangle :size="10" fill="currentColor" :stroke-width="0" />
+        <span>{{ disabledVoteLabel }}</span>
+      </span>
     </div>
 
     <template v-if="replyLink">
@@ -102,9 +158,9 @@ async function handleVoteClick(event: MouseEvent, href: string | null | undefine
       <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction" />
       <a :href="deleteUrl" class="comment-actions__link comment-actions__link--delete">delete</a>
     </template>
-    <template v-if="flagUrl">
+    <template v-if="flagHref">
       <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
-      <FlagButton :href="flagUrl" :flag-target="flagTarget" />
+      <FlagButton :href="flagHref" :flag-target="flagTarget" />
     </template>
   </div>
 </template>
@@ -179,6 +235,11 @@ async function handleVoteClick(event: MouseEvent, href: string | null | undefine
 
     &--busy {
       opacity: 0.6;
+      pointer-events: none;
+    }
+
+    &--disabled {
+      cursor: default;
       pointer-events: none;
     }
   }

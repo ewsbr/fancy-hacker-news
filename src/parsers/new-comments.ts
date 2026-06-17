@@ -1,4 +1,5 @@
 import type { CommentPlaceholderKind } from './shared/body';
+import type { ToggleActionState, VoteDirection, VoteState } from './shared/actions';
 import { parseStoryContext, parseThreadCommentRow } from './shared/comment-row';
 import { attrOf } from './shared/dom';
 import { findMoreLink } from './shared/pagination';
@@ -17,9 +18,8 @@ export interface FlatComment {
   isFlagged: boolean;
   isDeleted: boolean;
   onStory: { title: string; link: string };
-  voteUp: string | null;
-  voteDown: string | null;
-  voteUn: string | null;
+  voteState: VoteState;
+  flagAction: ToggleActionState;
 }
 
 export interface ParsedNewComments {
@@ -28,7 +28,11 @@ export interface ParsedNewComments {
   moreLink: string | null;
 }
 
-export function parseNewComments(doc: Document): ParsedNewComments {
+export interface ParseNewCommentsOptions {
+  preferredVoteDirection?: VoteDirection;
+}
+
+export function parseNewComments(doc: Document, options: ParseNewCommentsOptions = {}): ParsedNewComments {
   const bigbox = doc.querySelector('#bigbox > td');
   const introHtml = bigbox
     ? Array.from(bigbox.children)
@@ -45,7 +49,10 @@ export function parseNewComments(doc: Document): ParsedNewComments {
     if (!id)
       continue;
 
-    const row = parseThreadCommentRow(tr, { includeOnStory: true });
+    const row = parseThreadCommentRow(tr, {
+      includeOnStory: true,
+      preferredVoteDirection: options.preferredVoteDirection,
+    });
     const onStory = row.onStory ?? parseStoryContext(tr.querySelector('.comhead'));
     if (!onStory)
       continue;
@@ -64,9 +71,8 @@ export function parseNewComments(doc: Document): ParsedNewComments {
       isFlagged: row.isFlagged,
       isDeleted: row.isDeleted,
       onStory,
-      voteUp: row.voteUp,
-      voteDown: row.voteDown,
-      voteUn: row.voteUn,
+      voteState: row.voteState,
+      flagAction: row.flagAction,
     };
 
     comments.push(comment);

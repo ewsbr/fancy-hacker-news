@@ -1,5 +1,5 @@
 import type { Ref } from 'vue';
-import type { FlagActionTarget } from '@/content/composables/use-hn-actions';
+import type { FlagActionTarget, VoteActionTarget } from '@/content/composables/use-hn-actions';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
 import type { CommentFragmentState } from '@/state/fragment-state';
@@ -68,6 +68,7 @@ interface CommentCollapseRegistry {
 }
 
 interface CommentActionStateRegistry {
+  getVoteTarget: (node: CommentRenderableNode) => VoteActionTarget | null;
   getFlagTarget: (node: CommentRenderableNode) => FlagActionTarget | null;
 }
 
@@ -140,19 +141,40 @@ export function provideCommentCollapseRegistry(longPressCommentCollapse: boolean
   return registry;
 }
 
+function createCommentVoteTarget(node: CommentRenderableNode): VoteActionTarget {
+  return reactive({
+    voteState: node.voteState,
+  });
+}
+
 function createCommentFlagTarget(node: CommentRenderableNode): FlagActionTarget {
   return reactive({
-    flagUrl: node.flagUrl,
+    flagAction: node.flagAction,
     isFlagged: node.isFlagged,
   });
 }
 
 export function provideCommentActionStateRegistry(): CommentActionStateRegistry {
+  const voteTargets = new Map<string, VoteActionTarget>();
   const flagTargets = new Map<string, FlagActionTarget>();
 
   const registry: CommentActionStateRegistry = {
+    getVoteTarget(node) {
+      if (node.voteState.kind === 'unavailable') {
+        return null;
+      }
+
+      const currentTarget = voteTargets.get(node.id);
+      if (currentTarget) {
+        return currentTarget;
+      }
+
+      const target = createCommentVoteTarget(node);
+      voteTargets.set(node.id, target);
+      return target;
+    },
     getFlagTarget(node) {
-      if (node.flagUrl == null) {
+      if (node.flagAction.kind !== 'available' && node.flagAction.kind !== 'active') {
         return null;
       }
 
@@ -172,8 +194,18 @@ export function provideCommentActionStateRegistry(): CommentActionStateRegistry 
   return registry;
 }
 
+export function useCommentVoteActionTarget(node: Ref<CommentRenderableNode>): VoteActionTarget | null {
+  if (node.value.voteState.kind === 'unavailable') {
+    return null;
+  }
+
+  const registry = inject<CommentActionStateRegistry | null>(COMMENT_ACTION_STATE_REGISTRY_KEY, null);
+
+  return registry?.getVoteTarget(node.value) ?? createCommentVoteTarget(node.value);
+}
+
 export function useCommentFlagActionTarget(node: Ref<CommentRenderableNode>): FlagActionTarget | null {
-  if (node.value.flagUrl == null) {
+  if (node.value.flagAction.kind !== 'available' && node.value.flagAction.kind !== 'active') {
     return null;
   }
 

@@ -74,7 +74,8 @@ function parsePageData(page: string, doc: Document): unknown {
     return parseNewComments(doc);
   if (page === 'favorites' || page === 'upvoted') {
     const isComments = new URLSearchParams(location.search).get('comments') === 't';
-    return isComments ? parseNewComments(doc) : parseStoryList(doc);
+    const parserOptions = page === 'upvoted' ? { preferredVoteDirection: 'up' as const } : undefined;
+    return isComments ? parseNewComments(doc, parserOptions) : parseStoryList(doc, parserOptions);
   }
   if (page === 'submitted' || page === 'hidden')
     return parseStoryList(doc);

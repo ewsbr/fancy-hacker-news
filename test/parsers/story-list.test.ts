@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseHeader } from '@/parsers/header';
 import { parseItemPage } from '@/parsers/item';
 import { parseNewComments } from '@/parsers/new-comments';
+import { parseToggleActionState } from '@/parsers/shared/actions';
 import { parseStoryList } from '@/parsers/story-list';
 import { parseThreadsPage } from '@/parsers/threads';
 import { parseHtmlDocument } from '../helpers/dom';
@@ -175,9 +176,13 @@ describe('story list fixtures', () => {
 
     const page = parseItemPage(doc);
 
-    expect(page.item.voteUp).toContain('how=up');
-    expect(page.item.voteUn).toContain('how=un');
-    expect(page.item.voteUn).toContain('js=t');
+    expect(page.item.voteState).toMatchObject({
+      kind: 'active',
+      direction: 'up',
+      upHref: expect.stringContaining('how=up'),
+      unvoteHref: expect.stringContaining('how=un'),
+    });
+    expect(page.item.voteState.kind === 'active' ? page.item.voteState.unvoteHref : '').toContain('js=t');
   });
 
   it('tracks dead status for flat comments on new comments pages', () => {
@@ -208,6 +213,161 @@ describe('story list fixtures', () => {
       isFlagged: false,
       isDeleted: false,
       bodyHtml: 'still visible body',
+    });
+  });
+
+  it('parses visible upvote and downvote links as available comment votes', () => {
+    const doc = parseHtmlDocument(`
+      <table>
+        <tr class="athing" id="456">
+          <td class="votelinks">
+            <a href="vote?id=456&amp;how=up&amp;auth=upauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+            <a href="vote?id=456&amp;how=down&amp;auth=downauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+          </td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment"><div class="commtext c00">visible vote body</div></div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(doc);
+
+    expect(page.comments[0].voteState).toEqual({
+      kind: 'available',
+      upHref: 'vote?id=456&how=up&auth=upauth&goto=newcomments',
+      downHref: 'vote?id=456&how=down&auth=downauth&goto=newcomments',
+    });
+  });
+
+  it('parses undown links as active downvotes', () => {
+    const doc = parseHtmlDocument(`
+      <table>
+        <tr class="athing" id="456">
+          <td class="votelinks">
+            <a href="vote?id=456&amp;how=down&amp;auth=downauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+          </td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span id="unv_456"> | <a id="un_456" href="vote?id=456&amp;how=un&amp;auth=unauth&amp;goto=newcomments&amp;js=t">undown</a></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment"><div class="commtext c00">downvoted body</div></div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(doc);
+
+    expect(page.comments[0].voteState).toMatchObject({
+      kind: 'active',
+      direction: 'down',
+      downHref: 'vote?id=456&how=down&auth=downauth&goto=newcomments',
+      unvoteHref: 'vote?id=456&how=un&auth=unauth&goto=newcomments&js=t',
+    });
+  });
+
+  it('parses hidden non-collapsed vote links without unvote markup as disabled active votes', () => {
+    const doc = parseHtmlDocument(`
+      <table>
+        <tr class="athing" id="456">
+          <td class="votelinks">
+            <a class="nosee clicky" href="vote?id=456&amp;how=up&amp;auth=upauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+          </td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span id="unv_456"></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment"><div class="commtext c00">already voted body</div></div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(doc);
+
+    expect(page.comments[0].voteState).toEqual({
+      kind: 'disabled-active',
+      direction: 'up',
+      upHref: 'vote?id=456&how=up&auth=upauth&goto=newcomments',
+      downHref: null,
+    });
+  });
+
+  it('keeps hidden vote links on initially collapsed comments available', () => {
+    const doc = parseHtmlDocument(`
+      <table>
+        <tr class="athing coll" id="456">
+          <td class="votelinks">
+            <a class="nosee clicky" href="vote?id=456&amp;how=up&amp;auth=upauth&amp;goto=newcomments"><div class="votearrow"></div></a>
+          </td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span id="unv_456"></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment"><div class="commtext c00">collapsed body</div></div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(doc);
+
+    expect(page.comments[0].voteState).toEqual({
+      kind: 'available',
+      upHref: 'vote?id=456&how=up&auth=upauth&goto=newcomments',
+      downHref: null,
+    });
+  });
+
+  it('parses spacer-only vote cells as unavailable', () => {
+    const doc = parseHtmlDocument(`
+      <table>
+        <tr class="athing" id="456">
+          <td class="votelinks"><center><img src="s.gif" height="1" width="14"></center></td>
+          <td class="default">
+            <span class="comhead">
+              <a href="user?id=alice" class="hnuser">alice</a>
+              <span class="age" title="2026-04-05T12:00:00"><a href="item?id=456">1 hour ago</a></span>
+              <span class="onstory"><a href="item?id=123">Example story</a></span>
+            </span>
+            <div class="comment"><div class="commtext c00">dead body</div></div>
+          </td>
+        </tr>
+      </table>
+    `);
+
+    const page = parseNewComments(doc);
+
+    expect(page.comments[0].voteState).toEqual({ kind: 'unavailable' });
+  });
+
+  it('parses toggle action hrefs as available or active based on un=t', () => {
+    expect(parseToggleActionState('flag?id=44&auth=flag')).toEqual({
+      kind: 'available',
+      href: 'flag?id=44&auth=flag',
+    });
+    expect(parseToggleActionState('fave?id=44&auth=fav&un=t')).toEqual({
+      kind: 'active',
+      href: 'fave?id=44&auth=fav&un=t',
+    });
+    expect(parseToggleActionState('hide?id=44&auth=hide')).toEqual({
+      kind: 'available',
+      href: 'hide?id=44&auth=hide',
     });
   });
 
@@ -297,8 +457,12 @@ describe('story list fixtures', () => {
     expect(page.comments).toHaveLength(1);
     expect(page.comments[0]).toMatchObject({
       id: '47652278',
-      voteUp: expect.stringContaining('how=up'),
-      voteUn: expect.stringContaining('how=un'),
+      voteState: {
+        kind: 'active',
+        direction: 'up',
+        upHref: expect.stringContaining('how=up'),
+        unvoteHref: expect.stringContaining('how=un'),
+      },
     });
   });
 
@@ -505,8 +669,12 @@ describe('story list fixtures', () => {
 
     expect(page.comments[0]).toMatchObject({
       id: '456',
-      voteUp: expect.stringContaining('how=up'),
-      voteUn: expect.stringContaining('how=un'),
+      voteState: {
+        kind: 'active',
+        direction: 'up',
+        upHref: expect.stringContaining('how=up'),
+        unvoteHref: expect.stringContaining('how=un'),
+      },
     });
   });
 
@@ -542,8 +710,12 @@ describe('story list fixtures', () => {
 
     expect(page.threads[0]).toMatchObject({
       id: '456',
-      voteUp: expect.stringContaining('how=up'),
-      voteUn: expect.stringContaining('how=un'),
+      voteState: {
+        kind: 'active',
+        direction: 'up',
+        upHref: expect.stringContaining('how=up'),
+        unvoteHref: expect.stringContaining('how=un'),
+      },
     });
   });
 

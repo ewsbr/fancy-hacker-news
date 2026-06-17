@@ -42,13 +42,15 @@ describe('comment actions', () => {
 
   it('lets logged-out comment vote links navigate to the HN login gate', () => {
     const target = {
-      voteUp: 'vote?id=10&how=up&goto=item%3Fid%3D123%2310',
-      voteDown: null,
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&goto=item%3Fid%3D123%2310',
+        downHref: null,
+      },
     };
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteUp: target.voteUp,
+        voteState: target.voteState,
         voteTarget: target,
         replyLink: 'reply?id=10&goto=item%3Fid%3D123%2310',
       },
@@ -68,13 +70,15 @@ describe('comment actions', () => {
 
   it('keeps logged-in comment votes in the background without browser navigation', async () => {
     const target = {
-      voteUp: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
-      voteDown: null,
-      voteUn: null,
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+        downHref: null,
+      },
     };
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteUp: target.voteUp,
+        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -95,6 +99,47 @@ describe('comment actions', () => {
         redirect: 'manual',
       }),
     );
+  });
+
+  it('renders active downvotes with an undown label', () => {
+    const wrapper = mountComponent(CommentActions, {
+      props: {
+        voteState: {
+          kind: 'active',
+          direction: 'down',
+          unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123%2310',
+          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+          downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123%2310',
+        },
+        voteTarget: {
+          voteState: {
+            kind: 'active',
+            direction: 'down',
+            unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123%2310',
+            upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+            downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123%2310',
+          },
+        },
+      },
+    });
+
+    expect(wrapper.get('.comment-actions__vote--active').text()).toContain('undown');
+  });
+
+  it('renders disabled active votes as non-clickable state text', () => {
+    const wrapper = mountComponent(CommentActions, {
+      props: {
+        voteState: {
+          kind: 'disabled-active',
+          direction: 'unknown',
+          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+          downHref: null,
+        },
+      },
+    });
+
+    expect(wrapper.find('a.comment-actions__vote').exists()).toBe(false);
+    expect(wrapper.get('.comment-actions__vote--disabled').text()).toContain('voted');
   });
 
   it('keeps reply links as native HN navigation', () => {

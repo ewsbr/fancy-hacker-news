@@ -24,6 +24,7 @@ import {
 } from '@/content/utils/comment-badges';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
 import { createLogger, debugLog } from '@/debug';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 
 const commentsLogger = createLogger('comments');
@@ -39,6 +40,8 @@ const commentItemDomId = computed(() => {
 });
 
 const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
+const itemFavoriteHref = computed(() => pageData ? getToggleActionHref(pageData.item.favoriteAction) : null);
+const itemFlagHref = computed(() => pageData ? getToggleActionHref(pageData.item.flagAction) : null);
 const loginUrl = computed(() => currentUser.loginUrl ?? 'login');
 const commentItemOriginalPosterTitle = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
@@ -277,17 +280,17 @@ useEventListener(window, 'hashchange', () => {
                 />
                 <div class="comments-page__comment-meta-actions">
                   <MetaSep class="comments-page__comment-meta-actions-sep" />
-                  <template v-if="pageData.item.favoriteUrl">
+                  <template v-if="itemFavoriteHref">
                     <InlineActionLink
-                      :href="pageData.item.favoriteUrl"
+                      :href="itemFavoriteHref"
                       action="favorite"
                       :favorite-target="pageData.item"
                       class="comments-page__comment-action"
                     />
-                    <MetaSep v-if="pageData.item.flagUrl || latestUrl" />
+                    <MetaSep v-if="itemFlagHref || latestUrl" />
                   </template>
-                  <template v-if="pageData.item.flagUrl">
-                    <FlagButton :href="pageData.item.flagUrl" :flag-target="pageData.item" />
+                  <template v-if="itemFlagHref">
+                    <FlagButton :href="itemFlagHref" :flag-target="pageData.item" />
                     <MetaSep v-if="latestUrl" />
                   </template>
                   <template v-if="latestUrl">
@@ -307,9 +310,7 @@ useEventListener(window, 'hashchange', () => {
               <CommentActions
                 class="comments-page__comment-actions"
                 :item-id="pageData.item.id"
-                :vote-up="pageData.item.voteUp"
-                :vote-un="pageData.item.voteUn"
-                :vote-down="pageData.item.voteDown"
+                :vote-state="pageData.item.voteState"
                 :vote-target="pageData.item"
               />
             </div>

@@ -4,12 +4,14 @@ import { computed } from 'vue';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
 import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{ story: Story }>();
 
 const ageLinkHref = computed(
   () => props.story.ageLink || props.story.commentLink || `item?id=${props.story.id}`,
 );
+const hideHref = computed(() => getToggleActionHref(props.story.hideAction));
 </script>
 
 <template>
@@ -29,10 +31,10 @@ const ageLinkHref = computed(
     </template>
     <a v-else :href="ageLinkHref" class="story-meta__age">{{ story.age }}</a>
     <template v-if="!story.isJob">
-      <MetaSep v-if="story.hideUrl" />
+      <MetaSep v-if="hideHref" />
       <InlineActionLink
-        v-if="story.hideUrl"
-        :href="story.hideUrl"
+        v-if="hideHref"
+        :href="hideHref"
         action="hide"
         :hide-target="story"
         class="story-meta__action"
