@@ -3,6 +3,7 @@ import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
 import { computed, useTemplateRef } from 'vue';
 import {
+  provideCommentActionStateRegistry,
   provideCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
@@ -21,6 +22,7 @@ const rootComponent = computed(() => (props.variant === 'thread' ? ThreadNode : 
 const treeRef = useTemplateRef('tree');
 const collapseRegistry = provideCommentCollapseRegistry();
 
+provideCommentActionStateRegistry();
 useDelegatedCommentLongPress(treeRef, collapseRegistry);
 </script>
 

@@ -1,9 +1,10 @@
 import type { Ref } from 'vue';
+import type { FlagActionTarget } from '@/content/composables/use-hn-actions';
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
 import type { CommentFragmentState } from '@/state/fragment-state';
 import { onLongPress } from '@vueuse/core';
-import { computed, inject, onScopeDispose, provide, ref, shallowRef, watch } from 'vue';
+import { computed, inject, onScopeDispose, provide, reactive, ref, shallowRef, watch } from 'vue';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
   COMMENT_THREAD_STORY_AUTHOR_KEY,
@@ -59,7 +60,12 @@ interface CommentCollapseRegistry {
   toggle: (id: string) => boolean;
 }
 
+interface CommentActionStateRegistry {
+  getFlagTarget: (node: CommentRenderableNode) => FlagActionTarget | null;
+}
+
 const COMMENT_COLLAPSE_REGISTRY_KEY = Symbol('comment-collapse-registry');
+const COMMENT_ACTION_STATE_REGISTRY_KEY = Symbol('comment-action-state-registry');
 
 function isThreadEntry(node: CommentRenderableNode): node is ThreadEntry {
   return 'onStory' in node;
@@ -120,6 +126,48 @@ export function provideCommentCollapseRegistry(): CommentCollapseRegistry {
   provide(COMMENT_COLLAPSE_REGISTRY_KEY, registry);
 
   return registry;
+}
+
+function createCommentFlagTarget(node: CommentRenderableNode): FlagActionTarget {
+  return reactive({
+    flagUrl: node.flagUrl,
+    isFlagged: node.isFlagged,
+  });
+}
+
+export function provideCommentActionStateRegistry(): CommentActionStateRegistry {
+  const flagTargets = new Map<string, FlagActionTarget>();
+
+  const registry: CommentActionStateRegistry = {
+    getFlagTarget(node) {
+      if (node.flagUrl == null) {
+        return null;
+      }
+
+      const currentTarget = flagTargets.get(node.id);
+      if (currentTarget) {
+        return currentTarget;
+      }
+
+      const target = createCommentFlagTarget(node);
+      flagTargets.set(node.id, target);
+      return target;
+    },
+  };
+
+  provide(COMMENT_ACTION_STATE_REGISTRY_KEY, registry);
+
+  return registry;
+}
+
+export function useCommentFlagActionTarget(node: Ref<CommentRenderableNode>): FlagActionTarget | null {
+  if (node.value.flagUrl == null) {
+    return null;
+  }
+
+  const registry = inject<CommentActionStateRegistry | null>(COMMENT_ACTION_STATE_REGISTRY_KEY, null);
+
+  return registry?.getFlagTarget(node.value) ?? createCommentFlagTarget(node.value);
 }
 
 export function useCommentCollapseRegistry(): CommentCollapseRegistry | null {

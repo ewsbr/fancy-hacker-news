@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { computed } from 'vue';
 import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
@@ -30,6 +31,7 @@ const props = defineProps<{
   node: CommentHeaderNode;
   isCollapsed: boolean;
   latestUrl?: string | null;
+  isFlagged?: boolean;
   originalPosterTitle?: string | null;
 }>();
 
@@ -50,6 +52,7 @@ const DOWNVOTE_LABELS: Record<string, string> = {
 };
 
 const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel.toLowerCase()] || null : null;
+const isFlagged = computed(() => props.isFlagged ?? props.node.isFlagged ?? false);
 </script>
 
 <template>
@@ -73,7 +76,7 @@ const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLe
           :age-timestamp="node.ageTimestamp"
           :is-deleted="node.isDeleted"
           :is-dead="node.isDead"
-          :is-flagged="node.isFlagged"
+          :is-flagged="isFlagged"
           :downvote-label="downvoteOpacity"
           :original-poster-title="originalPosterTitle"
         />

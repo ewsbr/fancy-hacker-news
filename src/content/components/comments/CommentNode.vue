@@ -6,6 +6,7 @@ import CommentActions from '@/content/components/comments/CommentActions.vue';
 import {
   useCommentCollapseRegistration,
   useCommentDisplayContext,
+  useCommentFlagActionTarget,
   useCommentFragmentState,
   useCommentThreadUi,
 } from '@/content/composables/comment-node';
@@ -72,6 +73,8 @@ const {
   inModal,
 });
 
+const flagTarget = useCommentFlagActionTarget(node);
+
 const initialCollapsed = node.value.isCollapsed || (
   node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())
 );
@@ -125,6 +128,7 @@ useCommentCollapseRegistration(node, toggleCollapse);
           :node="node"
           :is-collapsed="isCollapsed"
           :latest-url="latestUrl"
+          :is-flagged="flagTarget?.isFlagged ?? node.isFlagged"
           :original-poster-title="originalPosterTitle"
           @toggle="toggleCollapse"
         />
@@ -147,8 +151,8 @@ useCommentCollapseRegistration(node, toggleCollapse);
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"
                 :delete-url="node.deleteUrl"
-                :flag-url="node.flagUrl"
-                :flag-target="node"
+                :flag-url="flagTarget?.flagUrl ?? node.flagUrl"
+                :flag-target="flagTarget"
               />
             </div>
           </div>
