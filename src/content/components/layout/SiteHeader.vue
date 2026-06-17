@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ParsedHeader } from '@/parsers/header';
 import { useEventListener } from '@vueuse/core';
-import { ChevronDown, LogOut, Menu, Send, UserRound } from 'lucide-vue-next';
+import { ChevronDown, LogOut, Menu, Send, Settings, UserRound } from 'lucide-vue-next';
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -22,12 +22,18 @@ import {
   createVisibleNavLinks,
 } from '@/content/utils/header-links';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
+import { createLogger } from '@/debug';
+import {
+  makeOpenSettingsMessage,
+  openSettingsResponseSchema,
+} from '@/utils/extension-messages';
 
 const header = inject<ParsedHeader>('header')!;
 const currentUser = useCurrentUser();
 const navOpen = ref(false);
 const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
+const headerLogger = createLogger('site-header');
 
 const visibleNavLinks = computed(() => createVisibleNavLinks(header.navLinks, isCurrentHref));
 
@@ -72,6 +78,56 @@ function onDocumentPointerDown(event: PointerEvent) {
   }
 
   closeNav();
+}
+
+function reportOpenSettingsError(error: unknown) {
+  if (error instanceof Error) {
+    headerLogger.warn('Failed to open settings page', { error: error.message });
+    return;
+  }
+
+  throw error;
+}
+
+function getChromeRuntimeErrorMessage(): string | null {
+  if (typeof chrome === 'undefined') {
+    return null;
+  }
+
+  return chrome.runtime?.lastError?.message ?? null;
+}
+
+function sendOpenSettingsMessage(): Promise<void> {
+  if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
+    return Promise.reject(new Error('Cannot open Fancy HN settings because chrome.runtime.sendMessage is unavailable.'));
+  }
+
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(makeOpenSettingsMessage(), (response: unknown) => {
+      const errorMessage = getChromeRuntimeErrorMessage();
+      if (errorMessage) {
+        reject(new Error(`Cannot open Fancy HN settings: ${errorMessage}`));
+        return;
+      }
+
+      const parsedResponse = openSettingsResponseSchema.safeParse(response);
+      if (!parsedResponse.success) {
+        reject(new Error('Cannot open Fancy HN settings because the background worker returned an invalid response.'));
+        return;
+      }
+
+      if (!parsedResponse.data.ok) {
+        reject(new Error(`Cannot open Fancy HN settings: ${parsedResponse.data.error}`));
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+function openSettingsPage() {
+  void sendOpenSettingsMessage().catch(reportOpenSettingsError);
 }
 
 useEventListener(document, 'pointerdown', onDocumentPointerDown);
@@ -224,7 +280,18 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
           <a v-else-if="currentUser.loginUrl" :href="currentUser.loginUrl">login</a>
         </div>
 
-        <ThemeToggle />
+        <div class="site-header__utility-controls">
+          <button
+            type="button"
+            class="site-header__settings-trigger"
+            aria-label="Open settings"
+            title="Open settings"
+            @click="openSettingsPage"
+          >
+            <Settings :size="18" aria-hidden="true" />
+          </button>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   </header>
@@ -384,6 +451,37 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
 
   &__control-sep {
     flex: 0 0 auto;
+  }
+
+  &__utility-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+  }
+
+  &__settings-trigger {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.15s;
+
+    &:hover {
+      color: var(--color-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus-ring-strong);
+      outline-offset: 2px;
+    }
   }
 
   &__user-controls {
@@ -552,6 +650,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
       margin-left: 0;
       border-top: 1px solid var(--color-border);
       padding-top: 12px;
+      gap: 12px;
     }
 
     &__control-sep {

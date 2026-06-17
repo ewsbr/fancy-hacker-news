@@ -14,7 +14,7 @@ const settingsRoot = resolve(projectRoot, 'src/settings');
  * Production builds target both Firefox and Chromium from the same output.
  *
  * Core commands:
- *   pnpm build              → builds content, anti-FOUC, and settings assets
+ *   pnpm build              → builds content, anti-FOUC, settings, and background assets
  *   pnpm build:content      → content and anti-FOUC scripts only
  */
 const entries = {
@@ -37,7 +37,15 @@ const entries = {
   settings: {
     kind: 'html',
     entry: resolve(settingsRoot, 'settings.html'),
-    outDir: resolve(projectRoot, 'dist/settings'),
+    outDir: resolve(projectRoot, 'dist'),
+    emptyOutDir: false,
+  },
+  background: {
+    kind: 'script',
+    entry: resolve(projectRoot, 'src/background/main.ts'),
+    libName: 'HNBackground',
+    fileName: () => 'background.js',
+    outDir: 'dist/background',
     emptyOutDir: true,
   },
 } as const;
@@ -52,7 +60,9 @@ const TARGET: BuildTarget = process.env.BUILD_TARGET === 'anti-fouc'
   ? 'antiFouc'
   : process.env.BUILD_TARGET === 'settings'
     ? 'settings'
-  : 'content';
+    : process.env.BUILD_TARGET === 'background'
+      ? 'background'
+      : 'content';
 const cfg = entries[TARGET];
 
 function renderExtensionAssetUrl(filename: string, { hostType, type }: RenderBuiltUrlContext) {
@@ -120,8 +130,8 @@ export default defineConfig(({ mode }) => {
               assetFileNames: 'assets/[name].[ext]',
             }
           : {
-              entryFileNames: 'assets/[name].js',
-              assetFileNames: 'assets/[name].[ext]',
+              entryFileNames: 'settings/assets/[name].js',
+              assetFileNames: 'settings/assets/[name].[ext]',
             },
       },
     },

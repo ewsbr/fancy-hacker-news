@@ -6,6 +6,11 @@
 
   "permissions": ["storage"],
 
+  "background": {
+    "scripts": ["dist/background/background.js"],
+    "service_worker": "dist/background/background.js"
+  },
+
   "content_scripts": [
     {
       "matches": ["*://news.ycombinator.com/*"],
@@ -27,7 +32,7 @@
     "128": "icons/icon128.png"
   },
   "options_ui": {
-    "page": "dist/settings/settings.html",
+    "page": "dist/settings.html",
     "open_in_tab": true
   },
 

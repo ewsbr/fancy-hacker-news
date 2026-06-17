@@ -280,8 +280,9 @@ async function main() {
   await assertPathExists(join(rootDir, 'dist', 'content', 'content.js'));
   await assertPathExists(join(rootDir, 'dist', 'content', 'anti-fouc.js'));
   await assertPathExists(join(rootDir, 'dist', 'content', 'assets', 'style.css'));
-  await assertPathExists(join(rootDir, 'dist', 'settings', 'settings.html'));
+  await assertPathExists(join(rootDir, 'dist', 'settings.html'));
   await assertPathExists(join(rootDir, 'dist', 'settings', 'assets', 'style.css'));
+  await assertPathExists(join(rootDir, 'dist', 'background', 'background.js'));
 
   await mkdir(artifactsDir, { recursive: true });
 
