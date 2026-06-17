@@ -11,7 +11,6 @@ import {
   getOriginalPosterTitle,
 } from '@/content/utils/comment-badges';
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
-import { useExtensionSettings } from '@/state/settings-context';
 
 const MOBILE_MODAL_DEPTH = 4;
 const COMMENT_LONG_PRESS_DELAY = 525;
@@ -55,6 +54,14 @@ interface CommentThreadUiOptions {
   isInHashPath: Ref<boolean>;
 }
 
+interface CommentThreadUiEligibilityInput {
+  isMobileLayout: boolean;
+  inModal: boolean | undefined;
+  enableMobileSubthreads: boolean | undefined;
+  depth: number | undefined;
+  childCount: number;
+}
+
 interface CommentCollapseRegistry {
   register: (id: string, toggleCollapse: () => void) => () => void;
   toggle: (id: string) => boolean;
@@ -85,7 +92,12 @@ function findLongPressCollapseTarget(target: Element): HTMLElement | null {
   return pressTarget.closest<HTMLElement>('.comment-node');
 }
 
-export function provideCommentCollapseRegistry(): CommentCollapseRegistry {
+export function provideCommentCollapseRegistry(longPressCommentCollapse: boolean): CommentCollapseRegistry | null {
+  if (!longPressCommentCollapse) {
+    provide(COMMENT_COLLAPSE_REGISTRY_KEY, null);
+    return null;
+  }
+
   const collapseHandlers = new Map<string, Array<() => void>>();
 
   const registry: CommentCollapseRegistry = {
@@ -192,13 +204,7 @@ export function useDelegatedCommentLongPress(
   target: Ref<HTMLElement | null>,
   registry: CommentCollapseRegistry | null,
 ) {
-  const settings = useExtensionSettings();
-
   if (!registry) {
-    return;
-  }
-
-  if (!settings.features.longPressCommentCollapse) {
     return;
   }
 
@@ -312,6 +318,25 @@ export function useCommentFragmentState({ node, inModal }: CommentFragmentStateO
   };
 }
 
+export function getCommentThreadUiEligibility({
+  isMobileLayout,
+  inModal,
+  enableMobileSubthreads,
+  depth,
+  childCount,
+}: CommentThreadUiEligibilityInput) {
+  const currentDepth = depth ?? 0;
+
+  return {
+    currentDepth,
+    usesMobileSubthreadModal: isMobileLayout
+      && !inModal
+      && enableMobileSubthreads !== false
+      && currentDepth >= MOBILE_MODAL_DEPTH
+      && childCount > 0,
+  };
+}
+
 export function useCommentThreadUi({
   node,
   depth,
@@ -323,16 +348,29 @@ export function useCommentThreadUi({
   // comment tree on breakpoint changes would fan out reactive work to thousands
   // of nodes, so resize correctness is traded for tree stability here.
   const isMobileLayout = inject<boolean>('isMobileLayout', false);
-  const isModalOpen = ref(false);
+  const { currentDepth, usesMobileSubthreadModal } = getCommentThreadUiEligibility({
+    isMobileLayout,
+    inModal: inModal.value,
+    enableMobileSubthreads: enableMobileSubthreads.value,
+    depth: depth.value,
+    childCount: node.value.children.length,
+  });
 
-  const currentDepth = computed(() => depth.value ?? 0);
+  if (!usesMobileSubthreadModal) {
+    return {
+      childrenInModal: false,
+      closeModal: () => {},
+      currentDepth,
+      isModalOpen: false,
+      openModal: () => {},
+      threadButtonLabel: '',
+    };
+  }
+
+  const isModalOpen = ref(false);
   const directReplyCount = computed(() => node.value.children.length);
   const totalReplyCount = computed(() => node.value.descendantCount);
   const nestedReplyCount = computed(() => Math.max(0, totalReplyCount.value - directReplyCount.value));
-  const childrenInModal = computed(() => enableMobileSubthreads.value
-    && isMobileLayout
-    && !inModal.value
-    && currentDepth.value >= MOBILE_MODAL_DEPTH);
   const threadButtonLabel = computed(() => {
     const directReplyLabel = directReplyCount.value === 1 ? 'reply' : 'replies';
 
@@ -344,9 +382,9 @@ export function useCommentThreadUi({
   });
 
   watch(
-    [childrenInModal, isInHashPath],
-    ([shouldUseModal, inHashPath]) => {
-      if (shouldUseModal && inHashPath) {
+    isInHashPath,
+    (inHashPath) => {
+      if (inHashPath) {
         isModalOpen.value = true;
       }
     },
@@ -362,7 +400,7 @@ export function useCommentThreadUi({
   }
 
   return {
-    childrenInModal,
+    childrenInModal: true,
     closeModal,
     currentDepth,
     isModalOpen,

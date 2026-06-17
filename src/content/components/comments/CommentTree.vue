@@ -7,6 +7,7 @@ import {
   provideCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
+import { useExtensionSettings } from '@/state/settings-context';
 import CommentNode from './CommentNode.vue';
 import LazyCommentRoot from './LazyCommentRoot.vue';
 import ThreadNode from './ThreadNode.vue';
@@ -20,7 +21,8 @@ const props = withDefaults(defineProps<{
 
 const rootComponent = computed(() => (props.variant === 'thread' ? ThreadNode : CommentNode));
 const treeRef = useTemplateRef('tree');
-const collapseRegistry = provideCommentCollapseRegistry();
+const settings = useExtensionSettings();
+const collapseRegistry = provideCommentCollapseRegistry(settings.features.longPressCommentCollapse);
 
 provideCommentActionStateRegistry();
 useDelegatedCommentLongPress(treeRef, collapseRegistry);
