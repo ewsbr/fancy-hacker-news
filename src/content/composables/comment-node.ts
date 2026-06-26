@@ -283,6 +283,7 @@ export function useDelegatedCommentLongPress(
 
 export function useCommentDisplayContext({
   node,
+  parentAuthor,
   threadAuthor,
   showLocalThreadAuthor,
   showOnStory,
@@ -306,6 +307,7 @@ export function useCommentDisplayContext({
     author: node.value.author,
     storyAuthor,
     threadAuthor: resolvedThreadAuthor.value,
+    parentAuthor: storyAuthor == null ? parentAuthor.value ?? null : null,
   }));
   const rootClassName = computed(() => {
     if (node.value.indent > 0) {

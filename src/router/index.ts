@@ -1,41 +1,8 @@
 /**
- * URL → page resolver.
- * Pure function — no SPA navigation, no side effects.
+ * Pure URL -> route resolver and typed route contract.
  */
 
-export interface RouteDescriptor {
-  page: string;
-  params: Record<string, string>;
-}
-
-const STORY_LISTS = new Set([
-  '/',
-  '/news',
-  '/newest',
-  '/front',
-  '/ask',
-  '/show',
-  '/jobs',
-  '/shownew',
-  '/pool',
-  '/active',
-  '/best',
-  '/noobstories',
-  '/asknew',
-  '/classic',
-  '/invited',
-  '/launches',
-  '/from',
-]);
-
-const COMMENT_LISTS = new Set([
-  '/newcomments',
-  '/noobcomments',
-  '/bestcomments',
-  '/highlights',
-]);
-
-const STORY_TYPE: Record<string, string> = {
+const STORY_TYPE = {
   '/': 'top',
   '/news': 'top',
   '/newest': 'new',
@@ -53,7 +20,113 @@ const STORY_TYPE: Record<string, string> = {
   '/invited': 'invited',
   '/launches': 'launches',
   '/from': 'from',
-};
+} as const;
+
+type StoryPath = keyof typeof STORY_TYPE;
+export type StoryListType = typeof STORY_TYPE[StoryPath];
+
+interface CommonRouteParams {
+  type: string;
+  site: string;
+  h: string;
+  id: string;
+  goto: string;
+  comments: string;
+  path: string;
+}
+
+type RouteParams<Params extends Partial<CommonRouteParams> = Partial<CommonRouteParams>> =
+  Params & Partial<Omit<CommonRouteParams, keyof Params>>;
+
+interface RouteByPage {
+  stories: {
+    page: 'stories';
+    params: RouteParams<{ type: StoryListType; site?: string; h?: string }>;
+  };
+  item: {
+    page: 'item';
+    params: RouteParams<{ id: string }>;
+  };
+  login: {
+    page: 'login';
+    params: RouteParams;
+  };
+  static: {
+    page: 'static';
+    params: RouteParams;
+  };
+  user: {
+    page: 'user';
+    params: RouteParams<{ id: string }>;
+  };
+  threads: {
+    page: 'threads';
+    params: RouteParams<{ id: string }>;
+  };
+  newcomments: {
+    page: 'newcomments';
+    params: RouteParams<{ type?: 'noob'; id?: string }>;
+  };
+  submitted: {
+    page: 'submitted';
+    params: RouteParams<{ id: string }>;
+  };
+  hidden: {
+    page: 'hidden';
+    params: RouteParams<{ id: string }>;
+  };
+  favorites: {
+    page: 'favorites';
+    params: RouteParams<{ id: string; comments?: string }>;
+  };
+  upvoted: {
+    page: 'upvoted';
+    params: RouteParams<{ id: string; comments?: string }>;
+  };
+  submit: {
+    page: 'submit';
+    params: RouteParams;
+  };
+  reply: {
+    page: 'reply';
+    params: RouteParams<{ id: string; goto: string }>;
+  };
+  formatdoc: {
+    page: 'formatdoc';
+    params: RouteParams;
+  };
+  leaders: {
+    page: 'leaders';
+    params: RouteParams;
+  };
+  lists: {
+    page: 'lists';
+    params: RouteParams;
+  };
+  topcolors: {
+    page: 'topcolors';
+    params: RouteParams;
+  };
+  'delete-confirm': {
+    page: 'delete-confirm';
+    params: RouteParams;
+  };
+  notfound: {
+    page: 'notfound';
+    params: RouteParams<{ path: string }>;
+  };
+}
+
+export type PageName = keyof RouteByPage;
+export type RouteDescriptor = RouteByPage[PageName];
+export type RouteForPage<Page extends PageName> = RouteByPage[Page];
+
+const COMMENT_LISTS = new Set([
+  '/newcomments',
+  '/noobcomments',
+  '/bestcomments',
+  '/highlights',
+]);
 
 const AUTH_PAGES = new Set([
   '/login',
@@ -73,18 +146,25 @@ const STATIC_PAGES = new Set([
   '/security.html',
 ]);
 
-const USER_LISTS = new Map<string, string>([
+const USER_LISTS = new Map<string, 'submitted' | 'threads' | 'hidden'>([
   ['/submitted', 'submitted'],
   ['/threads', 'threads'],
   ['/hidden', 'hidden'],
 ]);
 
+function getStoryListType(path: string): StoryListType | null {
+  return Object.prototype.hasOwnProperty.call(STORY_TYPE, path)
+    ? STORY_TYPE[path as StoryPath]
+    : null;
+}
+
 export function resolveRoute(loc: Location): RouteDescriptor {
   const path = loc.pathname;
   const sp = new URLSearchParams(loc.search);
+  const storyType = getStoryListType(path);
 
-  if (STORY_LISTS.has(path)) {
-    const params: Record<string, string> = { type: STORY_TYPE[path] };
+  if (storyType !== null) {
+    const params: RouteByPage['stories']['params'] = { type: storyType };
     const site = sp.get('site');
     if (site !== null)
       params.site = site;
@@ -115,12 +195,13 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   if (path === '/user')
     return { page: 'user', params: { id: sp.get('id') ?? '' } };
 
-  if (USER_LISTS.has(path)) {
-    return { page: USER_LISTS.get(path)!, params: { id: sp.get('id') ?? '' } };
+  const userListPage = USER_LISTS.get(path);
+  if (userListPage) {
+    return { page: userListPage, params: { id: sp.get('id') ?? '' } };
   }
 
   if (path === '/favorites' || path === '/upvoted') {
-    const params: Record<string, string> = { id: sp.get('id') ?? '' };
+    const params: RouteByPage['favorites']['params'] = { id: sp.get('id') ?? '' };
     const comments = sp.get('comments');
     if (comments !== null)
       params.comments = comments;
@@ -146,4 +227,11 @@ export function resolveRoute(loc: Location): RouteDescriptor {
 
   // Catch-all
   return { page: 'static', params: {} };
+}
+
+export function makeNotFoundRoute(loc: Location): RouteForPage<'notfound'> {
+  return {
+    page: 'notfound',
+    params: { path: loc.pathname + loc.search },
+  };
 }

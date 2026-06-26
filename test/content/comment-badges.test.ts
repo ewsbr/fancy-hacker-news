@@ -155,6 +155,13 @@ describe('comment OP badges', () => {
     })).toBeNull();
   });
 
+  it('marks parent authors through comment display context outside story pages', () => {
+    expect(getDisplayContextTitle({
+      author: 'reply-author',
+      parentAuthor: 'reply-author',
+    })).toBe('Parent author');
+  });
+
   it('does not mark commenters as OP on story pages just because they own a parent comment', async () => {
     await expect(getFixtureCommentOriginalPosterTitle(
       'comments/scenarios/parent-story-not-op.html',

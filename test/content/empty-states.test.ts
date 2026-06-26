@@ -1,4 +1,4 @@
-import type { RouteDescriptor } from '@/router';
+import type { PageName, RouteDescriptor } from '@/router';
 import { describe, expect, it } from 'vitest';
 import {
   getCommentListEmptyMessage,
@@ -6,8 +6,8 @@ import {
   getThreadsEmptyMessage,
 } from '@/content/utils/empty-states';
 
-function makeRoute(page: string, params: Record<string, string> = {}): RouteDescriptor {
-  return { page, params };
+function makeRoute(page: PageName, params: RouteDescriptor['params'] = {}): RouteDescriptor {
+  return { page, params } as RouteDescriptor;
 }
 
 describe('empty state messaging', () => {
@@ -21,7 +21,7 @@ describe('empty state messaging', () => {
   it('uses route-specific story list messages for special feeds', () => {
     expect(getStoryListEmptyMessage(makeRoute('stories', { type: 'jobs' }))).toBe('No job posts found.');
     expect(getStoryListEmptyMessage(makeRoute('stories', { type: 'show' }))).toBe('No Show HN posts found.');
-    expect(getStoryListEmptyMessage(makeRoute('stories'))).toBe('No stories found.');
+    expect(getStoryListEmptyMessage(makeRoute('stories', { type: 'top' }))).toBe('No stories found.');
   });
 
   it('uses route-specific comment list messages', () => {

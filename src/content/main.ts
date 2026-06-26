@@ -10,6 +10,7 @@ import type { CommentNode, ParsedItemPage } from '@/parsers/item';
  * 5. Mount Vue app with parsed data via provide/inject
  */
 import { createApp, reactive, ref } from 'vue';
+import { parseRoutePage, type ParsedRoutePage } from '@/content/route-page';
 import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
 import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
@@ -22,21 +23,8 @@ import {
   flushDebugSession,
   isDebugMode,
 } from '@/debug';
-import { parseDeleteConfirmPage } from '@/parsers/delete-confirm';
 import { parseHeader } from '@/parsers/header';
-import { parseItemPage } from '@/parsers/item';
-import { parseLeadersPage } from '@/parsers/leaders';
-import { parseListsPage } from '@/parsers/lists';
-import { parseLoginPage } from '@/parsers/login';
-import { parseNewComments } from '@/parsers/new-comments';
-import { parseReplyPage } from '@/parsers/reply';
-import { parseStaticPage } from '@/parsers/static';
-import { parseStoryList } from '@/parsers/story-list';
-import { parseSubmitPage } from '@/parsers/submit';
-import { parseThreadsPage } from '@/parsers/threads';
-import { parseTopColorsPage } from '@/parsers/top-colors';
-import { parseUserPage } from '@/parsers/user';
-import { resolveRoute } from '@/router';
+import { makeNotFoundRoute, resolveRoute } from '@/router';
 import { makeItemPageReactive } from '@/state/item-page-state';
 import {
   BOOTSTRAP_THEME_DATASET_KEY,
@@ -55,60 +43,6 @@ import App from './App.vue';
 import '@/styles/main.scss';
 
 const mainLogger = createLogger('main');
-
-function parsePageData(page: string, doc: Document): unknown {
-  if (page === 'login')
-    return parseLoginPage(doc);
-  if (page === 'stories')
-    return parseStoryList(doc);
-  if (page === 'item') {
-    return parseItemPage(doc, {
-      initialHashTargetId: location.hash.slice(1) || null,
-    });
-  }
-  if (page === 'user')
-    return parseUserPage(doc);
-  if (page === 'threads')
-    return parseThreadsPage(doc);
-  if (page === 'newcomments')
-    return parseNewComments(doc);
-  if (page === 'favorites' || page === 'upvoted') {
-    const isComments = new URLSearchParams(location.search).get('comments') === 't';
-    const parserOptions = page === 'upvoted' ? { preferredVoteDirection: 'up' as const } : undefined;
-    return isComments ? parseNewComments(doc, parserOptions) : parseStoryList(doc, parserOptions);
-  }
-  if (page === 'submitted' || page === 'hidden')
-    return parseStoryList(doc);
-  if (page === 'submit') {
-    const submitPage = parseSubmitPage(doc);
-    return submitPage.form ? submitPage : parseLoginPage(doc);
-  }
-  if (page === 'reply') {
-    const replyPage = parseReplyPage(doc);
-    return replyPage.isLoggedOut ? parseLoginPage(doc) : replyPage;
-  }
-  if (page === 'formatdoc')
-    return parseStaticPage(doc);
-  if (page === 'leaders')
-    return parseLeadersPage(doc);
-  if (page === 'delete-confirm')
-    return parseDeleteConfirmPage(doc);
-  if (page === 'lists')
-    return parseListsPage(doc);
-  if (page === 'topcolors')
-    return parseTopColorsPage(doc);
-  if (page === 'notfound')
-    return null;
-  if (location.pathname === '/x') {
-    const submitPage = parseSubmitPage(doc);
-    if (submitPage.form) {
-      return submitPage;
-    }
-  }
-  // Everything else (explicit 'static' + catch-all routes) falls back to StaticPage —
-  // parse the content so the component always receives a valid ParsedStaticPage.
-  return parseStaticPage(doc);
-}
 
 let hideOriginalStyle: HTMLStyleElement | null = null;
 
@@ -215,6 +149,14 @@ function resetInitialHashScroll() {
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
+function isItemRoutePage(routePage: ParsedRoutePage): routePage is Extract<ParsedRoutePage, { route: { page: 'item' } }> {
+  if (routePage.route.page !== 'item') {
+    return false;
+  }
+
+  return true;
+}
+
 // Re-injection guard: when the extension is reloaded while a tab is already open
 // (common in Firefox during development), the new content script is injected into
 // the already-modified DOM. The original HN nodes have been removed by
@@ -246,27 +188,26 @@ async function mountApp() {
       // HN sends HTTP 200 for all missing pages; the body is just "Unknown."
       // Detect this and use a dedicated page rather than falling through to StaticPage.
       if (document.body.textContent?.trim() === 'Unknown.') {
-        return {
-          page: 'notfound',
-          params: { path: location.pathname + location.search },
-        };
+        return makeNotFoundRoute(location);
       }
       return resolved;
     });
-    const parsedPageData = timeline.step(`parse-page:${route.page}`, () => parsePageData(route.page, document));
+    const parsedRoutePage = timeline.step(`parse-page:${route.page}`, () => parseRoutePage(route, document, location));
     const settings = await timeline.stepAsync('load-settings', async () => loadSettingsForMount());
 
-    if (route.page === 'item') {
+    if (isItemRoutePage(parsedRoutePage)) {
       timeline.step('prepare-item-hash-state', () => {
-        prepareInitialItemHashState(parsedPageData as ParsedItemPage);
+        prepareInitialItemHashState(parsedRoutePage.pageData);
       });
     }
 
-    const pageData = timeline.step('reactive-page-data', () => (
-      route.page === 'item'
-        ? makeItemPageReactive(parsedPageData as ParsedItemPage)
-        : makeReactive(parsedPageData)
-    ));
+    const pageData = timeline.step('reactive-page-data', () => {
+      if (isItemRoutePage(parsedRoutePage)) {
+        return makeItemPageReactive(parsedRoutePage.pageData);
+      }
+
+      return makeReactive(parsedRoutePage.pageData);
+    });
 
     await timeline.stepAsync('prime-extension-fonts', async () => {
       await primeExtensionFonts();
@@ -321,6 +262,7 @@ async function mountApp() {
     app.provide('route', route);
     app.provide('originalDoc', document);
     app.provide('pageData', pageData);
+    app.provide('pageComponent', parsedRoutePage.component);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
     app.provide(EXTENSION_SETTINGS_KEY, settingsState);
@@ -354,7 +296,7 @@ async function mountApp() {
       renderTime.value = firstContentPaintMs;
 
       if (isDebugMode()) {
-        const itemSummary = route.page === 'item'
+        const itemSummary = isItemRoutePage(parsedRoutePage)
           ? (() => {
               const itemPage = pageData as ParsedItemPage;
               let commentCount = 0;
