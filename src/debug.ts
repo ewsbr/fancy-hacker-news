@@ -151,8 +151,7 @@ export function isDebugMode(): boolean {
   try {
     const search = new URLSearchParams(location.search);
     return search.get(DEBUG_SEARCH_PARAM) === '1';
-  }
-  catch {
+  } catch {
     return false;
   }
 }
@@ -208,8 +207,7 @@ function ensureDebugPerformanceObservers() {
 
       observer.observe({ type: entryType, buffered: true } as PerformanceObserverInit);
       observers.push(observer);
-    }
-    catch {
+    } catch {
       continue;
     }
   }
@@ -254,8 +252,7 @@ function recordUserTiming<T>(label: string, fn: () => T): T {
 
   try {
     return fn();
-  }
-  finally {
+  } finally {
     performance.mark(endMark);
     performance.measure(measureName(label), startMark, endMark);
   }
@@ -270,8 +267,7 @@ async function recordUserTimingAsync<T>(label: string, fn: () => Promise<T>): Pr
 
   try {
     return await fn();
-  }
-  finally {
+  } finally {
     performance.mark(endMark);
     performance.measure(measureName(label), startMark, endMark);
   }

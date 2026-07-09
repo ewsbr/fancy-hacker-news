@@ -21,7 +21,7 @@ const header: ParsedHeader = {
   memorialBarColor: null,
 };
 
-describe('SiteHeader settings', () => {
+describe('siteHeader settings', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();

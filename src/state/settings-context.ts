@@ -1,4 +1,10 @@
 import type { InjectionKey } from 'vue';
+import type {
+  ContentWidth,
+  ExtensionSettings,
+  FeatureSettings,
+} from './settings';
+import type { ThemeName } from './theme-metadata';
 import { inject, reactive } from 'vue';
 import { createLogger } from '@/debug';
 import {
@@ -8,12 +14,6 @@ import {
   normalizeExtensionSettings,
   saveExtensionSettings,
 } from './settings';
-import type {
-  ContentWidth,
-  ExtensionSettings,
-  FeatureSettings,
-} from './settings';
-import type { ThemeName } from './theme-metadata';
 
 export const EXTENSION_SETTINGS_KEY: InjectionKey<ExtensionSettings> = Symbol('extension-settings');
 

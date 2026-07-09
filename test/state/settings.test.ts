@@ -1,3 +1,4 @@
+import type { ExtensionSettings } from '@/state/settings';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   LEGACY_THEME_STORAGE_KEY,
@@ -8,7 +9,6 @@ import {
   SETTINGS_SCHEMA_VERSION,
   SETTINGS_STORAGE_KEY,
 } from '@/state/settings';
-import type { ExtensionSettings } from '@/state/settings';
 
 function makeSettings(overrides: Partial<ExtensionSettings> = {}): ExtensionSettings {
   return {

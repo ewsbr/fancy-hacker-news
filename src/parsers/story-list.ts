@@ -1,6 +1,6 @@
-import { parseAge } from './shared/age';
 import type { ToggleActionState, VoteDirection, VoteState } from './shared/actions';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
+import { parseAge } from './shared/age';
 import { isNewUser } from './shared/comment';
 import {
   hrefOf,

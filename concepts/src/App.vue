@@ -43,8 +43,7 @@ watch(
   (value) => {
     if (value === 'light') {
       document.documentElement.removeAttribute('data-theme');
-    }
-    else {
+    } else {
       document.documentElement.setAttribute('data-theme', value);
     }
 

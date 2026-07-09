@@ -35,75 +35,75 @@ interface CommonRouteParams {
   path: string;
 }
 
-type RouteParams<Params extends Partial<CommonRouteParams> = Partial<CommonRouteParams>> =
-  Params & Partial<Omit<CommonRouteParams, keyof Params>>;
+type RouteParams<Params extends Partial<CommonRouteParams> = Partial<CommonRouteParams>>
+  = Params & Partial<Omit<CommonRouteParams, keyof Params>>;
 
 interface RouteByPage {
-  stories: {
+  'stories': {
     page: 'stories';
     params: RouteParams<{ type: StoryListType; site?: string; h?: string }>;
   };
-  item: {
+  'item': {
     page: 'item';
     params: RouteParams<{ id: string }>;
   };
-  login: {
+  'login': {
     page: 'login';
     params: RouteParams;
   };
-  static: {
+  'static': {
     page: 'static';
     params: RouteParams;
   };
-  user: {
+  'user': {
     page: 'user';
     params: RouteParams<{ id: string }>;
   };
-  threads: {
+  'threads': {
     page: 'threads';
     params: RouteParams<{ id: string }>;
   };
-  newcomments: {
+  'newcomments': {
     page: 'newcomments';
     params: RouteParams<{ type?: 'noob'; id?: string }>;
   };
-  submitted: {
+  'submitted': {
     page: 'submitted';
     params: RouteParams<{ id: string }>;
   };
-  hidden: {
+  'hidden': {
     page: 'hidden';
     params: RouteParams<{ id: string }>;
   };
-  favorites: {
+  'favorites': {
     page: 'favorites';
     params: RouteParams<{ id: string; comments?: string }>;
   };
-  upvoted: {
+  'upvoted': {
     page: 'upvoted';
     params: RouteParams<{ id: string; comments?: string }>;
   };
-  submit: {
+  'submit': {
     page: 'submit';
     params: RouteParams;
   };
-  reply: {
+  'reply': {
     page: 'reply';
     params: RouteParams<{ id: string; goto: string }>;
   };
-  formatdoc: {
+  'formatdoc': {
     page: 'formatdoc';
     params: RouteParams;
   };
-  leaders: {
+  'leaders': {
     page: 'leaders';
     params: RouteParams;
   };
-  lists: {
+  'lists': {
     page: 'lists';
     params: RouteParams;
   };
-  topcolors: {
+  'topcolors': {
     page: 'topcolors';
     params: RouteParams;
   };
@@ -111,7 +111,7 @@ interface RouteByPage {
     page: 'delete-confirm';
     params: RouteParams;
   };
-  notfound: {
+  'notfound': {
     page: 'notfound';
     params: RouteParams<{ path: string }>;
   };
@@ -153,7 +153,7 @@ const USER_LISTS = new Map<string, 'submitted' | 'threads' | 'hidden'>([
 ]);
 
 function getStoryListType(path: string): StoryListType | null {
-  return Object.prototype.hasOwnProperty.call(STORY_TYPE, path)
+  return Object.hasOwn(STORY_TYPE, path)
     ? STORY_TYPE[path as StoryPath]
     : null;
 }

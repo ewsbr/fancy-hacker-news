@@ -20,8 +20,7 @@ describe('login page parser', () => {
       expect(page.variant).toBe('auth-gate');
       expect(page.title).toBe('Please log in.');
       expect(page.authMessage).toBe('Please log in.');
-    }
-    finally {
+    } finally {
       vi.unstubAllGlobals();
     }
   });
@@ -51,8 +50,7 @@ describe('login page parser', () => {
       expect(page.title).toBe('You have to be logged in to reply.');
       expect(page.authMessage).toBe('You have to be logged in to reply.');
       expect(page.forms[0]?.submitLabel).toBe('login');
-    }
-    finally {
+    } finally {
       vi.unstubAllGlobals();
     }
   });

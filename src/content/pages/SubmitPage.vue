@@ -115,8 +115,7 @@ function toSite(value: string): string | null {
   try {
     const hostname = new URL(value).hostname.replace(/^www\./, '');
     return hostname || null;
-  }
-  catch {
+  } catch {
     return null;
   }
 }

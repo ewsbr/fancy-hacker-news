@@ -73,12 +73,10 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
   if (path === '/changepw') {
     variant = 'changepw';
     title = 'Change Password';
-  }
-  else if (path === '/forgot') {
+  } else if (path === '/forgot') {
     variant = 'forgot';
     title = 'Reset Password';
-  }
-  else if (path === '/comment') {
+  } else if (path === '/comment') {
     variant = 'comment';
     title = 'Login to Comment';
   }

@@ -5,13 +5,13 @@ import {
   THEME_BOOTSTRAP_PALETTES,
 } from '@/content/theme-bootstrap';
 import {
-  applyThemeToHost,
-  THEMES,
-} from '@/state/theme-metadata';
-import {
   resolveStoredSettings,
   SETTINGS_SCHEMA_VERSION,
 } from '@/state/settings';
+import {
+  applyThemeToHost,
+  THEMES,
+} from '@/state/theme-metadata';
 import { parseHtmlDocument } from '../helpers/dom';
 
 describe('theme metadata', () => {

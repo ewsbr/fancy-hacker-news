@@ -51,7 +51,7 @@ function mountShell(scrollToTop: boolean) {
   });
 }
 
-describe('AppShell settings', () => {
+describe('appShell settings', () => {
   afterEach(() => {
     document.body.replaceChildren();
   });

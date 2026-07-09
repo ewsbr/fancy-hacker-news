@@ -62,8 +62,7 @@ function isUserCollectionHref(
 
   try {
     return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
-  }
-  catch {
+  } catch {
     return false;
   }
 }
@@ -79,8 +78,7 @@ function toSafeLinkHref(rawHref: string | null | undefined): string | null {
   try {
     const { protocol } = new URL(normalizedHref, 'https://news.ycombinator.com');
     return protocol === 'http:' || protocol === 'https:' ? normalizedHref : null;
-  }
-  catch {
+  } catch {
     return null;
   }
 }
@@ -106,8 +104,7 @@ function linkifyText(text: string): UserAboutSegment[] {
 
     if (href) {
       segments.push({ type: 'link', text: linkText, href });
-    }
-    else {
+    } else {
       segments.push({ type: 'text', text: linkText });
     }
 
@@ -217,8 +214,7 @@ function withCommentsParam(href: string | null | undefined): string | null {
     }
 
     return href.startsWith('/') ? `${url.pathname}${url.search}` : `${url.pathname}${url.search}`.replace(/^\//, '');
-  }
-  catch {
+  } catch {
     return href.includes('?') ? `${href}&comments=t` : `${href}?comments=t`;
   }
 }
@@ -255,8 +251,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   if (isOwnProfile) {
     const textarea = form!.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
     about = textarea?.value ?? null;
-  }
-  else {
+  } else {
     bigbox?.querySelectorAll('td').forEach((td) => {
       if (td.textContent?.trim() === 'about:') {
         const next = td.nextElementSibling;

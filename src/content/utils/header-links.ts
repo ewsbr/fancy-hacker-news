@@ -74,14 +74,11 @@ export function createOverflowNavGroups(visibleNavLinks: NavLink[]): HeaderLinkG
 
     if (communityOverflowLabels.has(label)) {
       groups[0].links.push(link);
-    }
-    else if (discoveryOverflowLabels.has(label)) {
+    } else if (discoveryOverflowLabels.has(label)) {
       groups[1].links.push(link);
-    }
-    else if (accountOverflowLabels.has(label)) {
+    } else if (accountOverflowLabels.has(label)) {
       groups[2].links.push(link);
-    }
-    else {
+    } else {
       groups[3].links.push(link);
     }
   }

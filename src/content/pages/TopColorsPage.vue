@@ -27,8 +27,7 @@ async function copy(hex: string) {
     copyTimer = setTimeout(() => {
       copied.value = null;
     }, 1200);
-  }
-  catch {
+  } catch {
     // clipboard unavailable — silently ignore
   }
 }

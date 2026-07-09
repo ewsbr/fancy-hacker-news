@@ -11,9 +11,9 @@ import logoDarkUrl from '@/assets/logo-dark.svg';
 import logoLightUrl from '@/assets/logo-light.svg';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
 import {
+  applySettingsToRootHost,
   CONTENT_WIDTH_PRESETS,
   loadExtensionSettings,
-  applySettingsToRootHost,
 } from '@/state/settings';
 import {
   replaceExtensionSettingsState,
@@ -72,8 +72,7 @@ onMounted(async () => {
     const storedSettings = await loadExtensionSettings();
     replaceExtensionSettingsState(settings, storedSettings);
     applySettingsToRootHost(settings);
-  }
-  catch (error) {
+  } catch (error) {
     if (error instanceof Error) {
       loadError.value = error.message;
       return;

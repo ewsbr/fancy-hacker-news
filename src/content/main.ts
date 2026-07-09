@@ -1,3 +1,4 @@
+import type { ParsedRoutePage } from '@/content/route-page';
 import type { ParsedHeader } from '@/parsers/header';
 import type { CommentNode, ParsedItemPage } from '@/parsers/item';
 /**
@@ -10,7 +11,7 @@ import type { CommentNode, ParsedItemPage } from '@/parsers/item';
  * 5. Mount Vue app with parsed data via provide/inject
  */
 import { createApp, reactive, ref } from 'vue';
-import { parseRoutePage, type ParsedRoutePage } from '@/content/route-page';
+import { parseRoutePage } from '@/content/route-page';
 import { primeExtensionFonts } from '@/content/utils/load-extension-fonts';
 import { getLogoForegroundColor } from '@/content/utils/logo-contrast';
 import { getLegacySourceAssetNodes } from '@/content/utils/source-assets';
@@ -27,10 +28,6 @@ import { parseHeader } from '@/parsers/header';
 import { makeNotFoundRoute, resolveRoute } from '@/router';
 import { makeItemPageReactive } from '@/state/item-page-state';
 import {
-  BOOTSTRAP_THEME_DATASET_KEY,
-  isThemeName,
-} from '@/state/theme-metadata';
-import {
   applySettingsToHost,
   loadExtensionSettings,
   makeDefaultSettings,
@@ -39,6 +36,10 @@ import {
   createExtensionSettingsState,
   EXTENSION_SETTINGS_KEY,
 } from '@/state/settings-context';
+import {
+  BOOTSTRAP_THEME_DATASET_KEY,
+  isThemeName,
+} from '@/state/theme-metadata';
 import App from './App.vue';
 import '@/styles/main.scss';
 
@@ -72,8 +73,7 @@ function makeFallbackSettings() {
 async function loadSettingsForMount() {
   try {
     return await loadExtensionSettings();
-  }
-  catch (error) {
+  } catch (error) {
     if (error instanceof Error) {
       mainLogger.warn('Failed to load settings, using defaults', { error: error.message });
       return makeFallbackSettings();
@@ -88,8 +88,7 @@ function applyHeaderColorVariables(host: HTMLElement, header: ParsedHeader) {
     host.style.setProperty('--color-hn-top-bar', header.topBarColor);
     host.style.setProperty('--color-hn-top-bar-contrast', getLogoForegroundColor(header.topBarColor));
     host.setAttribute('data-hn-custom-top-bar', 'true');
-  }
-  else {
+  } else {
     host.style.removeProperty('--color-hn-top-bar');
     host.style.removeProperty('--color-hn-top-bar-contrast');
     host.removeAttribute('data-hn-custom-top-bar');
@@ -338,8 +337,7 @@ async function mountApp() {
         }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
       }, 0);
     })();
-  }
-  catch (e) {
+  } catch (e) {
     // On failure, restore original HN page.
     // Remove the hide rule so the original DOM becomes visible again.
     mainLogger.error('Failed to render', e);

@@ -1,5 +1,5 @@
-import { ref } from 'vue';
 import type { ToggleActionState, VoteDirection, VoteState } from '@/parsers/shared/actions';
+import { ref } from 'vue';
 import { getToggleActionHref, getVoteActionHref } from '@/parsers/shared/actions';
 import { assert } from '@/utils/assert';
 
@@ -52,8 +52,7 @@ function buildVoteRequestHref(href: string): string {
 function isOkResponse(response: Response): boolean {
   try {
     return new URL(response.url).pathname === '/ok';
-  }
-  catch {
+  } catch {
     return false;
   }
 }
@@ -77,8 +76,7 @@ function toggleActionHref(href: string): string {
 
   if (url.searchParams.get('un') === 't') {
     url.searchParams.delete('un');
-  }
-  else {
+  } else {
     url.searchParams.set('un', 't');
   }
 
@@ -134,8 +132,7 @@ async function sendActionRequest(href: string, appendJsParam = false): Promise<b
     });
 
     return isActionSuccessResponse(response);
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Fancy HN action failed', error);
     return false;
   }
@@ -177,8 +174,7 @@ export function useHnActions() {
         target.voteState = makeActiveVoteState(currentState, href, direction);
       }
       return true;
-    }
-    finally {
+    } finally {
       isBusy.value = false;
     }
   }
@@ -200,8 +196,7 @@ export function useHnActions() {
       target.flagAction = toggleActionState(target.flagAction);
       target.isFlagged = !target.isFlagged;
       return true;
-    }
-    finally {
+    } finally {
       isBusy.value = false;
     }
   }
@@ -222,8 +217,7 @@ export function useHnActions() {
 
       target.favoriteAction = toggleActionState(target.favoriteAction);
       return true;
-    }
-    finally {
+    } finally {
       isBusy.value = false;
     }
   }
@@ -244,8 +238,7 @@ export function useHnActions() {
 
       target.hideAction = toggleActionState(target.hideAction);
       return true;
-    }
-    finally {
+    } finally {
       isBusy.value = false;
     }
   }

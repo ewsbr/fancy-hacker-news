@@ -36,11 +36,9 @@ async function loadThread() {
     }
 
     loadedRoot.value = parsedRoot;
-  }
-  catch {
+  } catch {
     loadError.value = 'Failed to load this thread.';
-  }
-  finally {
+  } finally {
     isLoading.value = false;
   }
 }

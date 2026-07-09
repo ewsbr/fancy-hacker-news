@@ -4,23 +4,23 @@ const HN_ORIGIN = 'https://news.ycombinator.com';
 
 export type VoteDirection = 'up' | 'down' | 'unknown';
 
-export type VoteState =
-  | { kind: 'unavailable' }
-  | { kind: 'available'; upHref: string | null; downHref: string | null }
-  | {
-    kind: 'active';
-    direction: VoteDirection;
-    unvoteHref: string;
-    upHref: string | null;
-    downHref: string | null;
-  }
-  | { kind: 'disabled-active'; direction: VoteDirection; upHref: string | null; downHref: string | null };
+export type VoteState
+  = | { kind: 'unavailable' }
+    | { kind: 'available'; upHref: string | null; downHref: string | null }
+    | {
+      kind: 'active';
+      direction: VoteDirection;
+      unvoteHref: string;
+      upHref: string | null;
+      downHref: string | null;
+    }
+    | { kind: 'disabled-active'; direction: VoteDirection; upHref: string | null; downHref: string | null };
 
-export type ToggleActionState =
-  | { kind: 'unavailable' }
-  | { kind: 'available'; href: string }
-  | { kind: 'active'; href: string }
-  | { kind: 'disabled-active' };
+export type ToggleActionState
+  = | { kind: 'unavailable' }
+    | { kind: 'available'; href: string }
+    | { kind: 'active'; href: string }
+    | { kind: 'disabled-active' };
 
 export interface ParseVoteStateOptions {
   itemId?: string | null;
@@ -70,8 +70,7 @@ function isNoseeVoteElement(element: Element | null): boolean {
 function isUnParamHref(href: string): boolean {
   try {
     return new URL(href, HN_ORIGIN).searchParams.get('un') === 't';
-  }
-  catch {
+  } catch {
     return href.includes('un=t');
   }
 }

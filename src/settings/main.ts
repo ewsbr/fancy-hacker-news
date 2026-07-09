@@ -14,7 +14,7 @@ loadExtensionFonts();
 
 const host = document.getElementById('fancy-hn-root');
 if (!(host instanceof HTMLElement)) {
-  throw new Error('Expected #fancy-hn-root to exist before mounting settings.');
+  throw new TypeError('Expected #fancy-hn-root to exist before mounting settings.');
 }
 
 const settings = createExtensionSettingsState(makeDefaultSettings());

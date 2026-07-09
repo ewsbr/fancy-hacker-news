@@ -19,8 +19,7 @@ function matchesUserCollectionHref(
 
   try {
     return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
-  }
-  catch {
+  } catch {
     return false;
   }
 }

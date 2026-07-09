@@ -1,4 +1,18 @@
 import type { Component } from 'vue';
+import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
+import type { ParsedItemPage } from '@/parsers/item';
+import type { ParsedLeadersPage } from '@/parsers/leaders';
+import type { ParsedListsPage } from '@/parsers/lists';
+import type { ParsedLoginPage } from '@/parsers/login';
+import type { ParsedNewComments } from '@/parsers/new-comments';
+import type { ParsedReplyPage } from '@/parsers/reply';
+import type { ParsedStaticPage } from '@/parsers/static';
+import type { ParsedStoryList } from '@/parsers/story-list';
+import type { ParsedSubmitPage } from '@/parsers/submit';
+import type { ParsedThreadsPage } from '@/parsers/threads';
+import type { ParsedTopColorsPage } from '@/parsers/top-colors';
+import type { ParsedUserPage } from '@/parsers/user';
+import type { PageName, RouteDescriptor, RouteForPage } from '@/router';
 import CommentsPage from '@/content/pages/CommentsPage.vue';
 import DeleteConfirmPage from '@/content/pages/DeleteConfirmPage.vue';
 import FormatDocPage from '@/content/pages/FormatDocPage.vue';
@@ -14,54 +28,40 @@ import SubmitPage from '@/content/pages/SubmitPage.vue';
 import ThreadsPage from '@/content/pages/ThreadsPage.vue';
 import TopColorsPage from '@/content/pages/TopColorsPage.vue';
 import UserPage from '@/content/pages/UserPage.vue';
-import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
 import { parseDeleteConfirmPage } from '@/parsers/delete-confirm';
-import type { ParsedItemPage } from '@/parsers/item';
 import { parseItemPage } from '@/parsers/item';
-import type { ParsedLeadersPage } from '@/parsers/leaders';
 import { parseLeadersPage } from '@/parsers/leaders';
-import type { ParsedListsPage } from '@/parsers/lists';
 import { parseListsPage } from '@/parsers/lists';
-import type { ParsedLoginPage } from '@/parsers/login';
 import { parseLoginPage } from '@/parsers/login';
-import type { ParsedNewComments } from '@/parsers/new-comments';
 import { parseNewComments } from '@/parsers/new-comments';
-import type { ParsedReplyPage } from '@/parsers/reply';
 import { parseReplyPage } from '@/parsers/reply';
-import type { ParsedStaticPage } from '@/parsers/static';
 import { parseStaticPage } from '@/parsers/static';
-import type { ParsedStoryList } from '@/parsers/story-list';
 import { parseStoryList } from '@/parsers/story-list';
-import type { ParsedSubmitPage } from '@/parsers/submit';
 import { parseSubmitPage } from '@/parsers/submit';
-import type { ParsedThreadsPage } from '@/parsers/threads';
 import { parseThreadsPage } from '@/parsers/threads';
-import type { ParsedTopColorsPage } from '@/parsers/top-colors';
 import { parseTopColorsPage } from '@/parsers/top-colors';
-import type { ParsedUserPage } from '@/parsers/user';
 import { parseUserPage } from '@/parsers/user';
-import type { PageName, RouteDescriptor, RouteForPage } from '@/router';
 
 interface RoutePageDataByPage {
-  stories: ParsedStoryList;
-  item: ParsedItemPage;
-  login: ParsedLoginPage;
-  static: ParsedStaticPage | ParsedSubmitPage;
-  user: ParsedUserPage;
-  threads: ParsedThreadsPage;
-  newcomments: ParsedNewComments;
-  submitted: ParsedStoryList;
-  hidden: ParsedStoryList;
-  favorites: ParsedStoryList | ParsedNewComments;
-  upvoted: ParsedStoryList | ParsedNewComments;
-  submit: ParsedSubmitPage | ParsedLoginPage;
-  reply: ParsedReplyPage | ParsedLoginPage;
-  formatdoc: ParsedStaticPage;
-  leaders: ParsedLeadersPage;
-  lists: ParsedListsPage;
-  topcolors: ParsedTopColorsPage;
+  'stories': ParsedStoryList;
+  'item': ParsedItemPage;
+  'login': ParsedLoginPage;
+  'static': ParsedStaticPage | ParsedSubmitPage;
+  'user': ParsedUserPage;
+  'threads': ParsedThreadsPage;
+  'newcomments': ParsedNewComments;
+  'submitted': ParsedStoryList;
+  'hidden': ParsedStoryList;
+  'favorites': ParsedStoryList | ParsedNewComments;
+  'upvoted': ParsedStoryList | ParsedNewComments;
+  'submit': ParsedSubmitPage | ParsedLoginPage;
+  'reply': ParsedReplyPage | ParsedLoginPage;
+  'formatdoc': ParsedStaticPage;
+  'leaders': ParsedLeadersPage;
+  'lists': ParsedListsPage;
+  'topcolors': ParsedTopColorsPage;
   'delete-confirm': ParsedDeleteConfirmPage;
-  notfound: null;
+  'notfound': null;
 }
 
 export type RoutePageData = RoutePageDataByPage[PageName];
@@ -88,10 +88,10 @@ type RouteHandlerTable = {
   [Page in PageName]: RouteHandler<Page>;
 };
 
-type RuntimeRouteHandler = {
+interface RuntimeRouteHandler {
   parse: (doc: Document, context: RouteParseContext<RouteDescriptor>) => RoutePageData;
   component: (pageData: RoutePageData, context: RouteParseContext<RouteDescriptor>) => Component;
-};
+}
 
 const UPVOTED_PARSER_OPTIONS = { preferredVoteDirection: 'up' as const };
 
@@ -155,73 +155,73 @@ function getUserCollectionComponent(
 }
 
 const ROUTE_HANDLERS = {
-  stories: {
+  'stories': {
     parse: doc => parseStoryList(doc),
     component: () => StoriesPage,
   },
-  item: {
+  'item': {
     parse: (doc, context) => parseItemPage(doc, {
       initialHashTargetId: context.location.hash.slice(1) || null,
     }),
     component: () => CommentsPage,
   },
-  login: {
+  'login': {
     parse: doc => parseLoginPage(doc),
     component: () => LoginPage,
   },
-  static: {
+  'static': {
     parse: (doc, context) => parseStaticOrSubmitPage(doc, context.location),
     component: pageData => isSubmitPageData(pageData) ? SubmitPage : StaticPage,
   },
-  user: {
+  'user': {
     parse: doc => parseUserPage(doc),
     component: () => UserPage,
   },
-  threads: {
+  'threads': {
     parse: doc => parseThreadsPage(doc),
     component: () => ThreadsPage,
   },
-  newcomments: {
+  'newcomments': {
     parse: doc => parseNewComments(doc),
     component: () => NewCommentsPage,
   },
-  submitted: {
+  'submitted': {
     parse: doc => parseStoryList(doc),
     component: () => StoriesPage,
   },
-  hidden: {
+  'hidden': {
     parse: doc => parseStoryList(doc),
     component: () => StoriesPage,
   },
-  favorites: {
+  'favorites': {
     parse: parseUserCollectionPage,
     component: getUserCollectionComponent,
   },
-  upvoted: {
+  'upvoted': {
     parse: parseUserCollectionPage,
     component: getUserCollectionComponent,
   },
-  submit: {
+  'submit': {
     parse: doc => parseSubmitOrLoginPage(doc),
     component: pageData => isLoginPageData(pageData) ? LoginPage : SubmitPage,
   },
-  reply: {
+  'reply': {
     parse: doc => parseReplyOrLoginPage(doc),
     component: pageData => isLoginPageData(pageData) ? LoginPage : ReplyPage,
   },
-  formatdoc: {
+  'formatdoc': {
     parse: doc => parseStaticPage(doc),
     component: () => FormatDocPage,
   },
-  leaders: {
+  'leaders': {
     parse: doc => parseLeadersPage(doc),
     component: () => LeadersPage,
   },
-  lists: {
+  'lists': {
     parse: doc => parseListsPage(doc),
     component: () => ListsPage,
   },
-  topcolors: {
+  'topcolors': {
     parse: doc => parseTopColorsPage(doc),
     component: () => TopColorsPage,
   },
@@ -229,7 +229,7 @@ const ROUTE_HANDLERS = {
     parse: doc => parseDeleteConfirmPage(doc),
     component: () => DeleteConfirmPage,
   },
-  notfound: {
+  'notfound': {
     parse: () => null,
     component: () => NotFoundPage,
   },

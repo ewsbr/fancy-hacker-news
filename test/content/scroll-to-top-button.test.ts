@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { nextTick } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import ScrollToTopButton from '@/content/components/layout/ScrollToTopButton.vue';
 import { mountComponent } from '../helpers/mount-component';
 
@@ -21,7 +21,7 @@ async function setScrollTop(root: HTMLElement, scrollTop: number) {
   await nextTick();
 }
 
-describe('ScrollToTopButton', () => {
+describe('scrollToTopButton', () => {
   afterEach(() => {
     document.body.replaceChildren();
     vi.restoreAllMocks();

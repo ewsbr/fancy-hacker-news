@@ -52,8 +52,7 @@ function getPnpmCommand() {
 async function assertPathExists(path) {
   try {
     await access(path, constants.R_OK);
-  }
-  catch {
+  } catch {
     throw new Error(`Expected ${path} to exist before packaging.`);
   }
 }
@@ -72,11 +71,9 @@ export function makeTargetManifest(manifest, target) {
   if (target === 'chrome') {
     delete targetManifest.browser_specific_settings;
     delete targetManifest.background.scripts;
-  }
-  else if (target === 'firefox') {
+  } else if (target === 'firefox') {
     delete targetManifest.background.service_worker;
-  }
-  else {
+  } else {
     throw new Error(`Unsupported package target: ${target}`);
   }
 
@@ -287,9 +284,13 @@ async function packageTarget(manifest, target) {
 
 async function main() {
   const manifest = await readManifest();
+  const pnpmCommand = getPnpmCommand();
+
+  console.log('Running quality checks...');
+  await run(pnpmCommand, ['run', 'check:quality']);
 
   console.log('Building shared extension assets...');
-  await run(getPnpmCommand(), ['run', 'build']);
+  await run(pnpmCommand, ['run', 'build']);
 
   await assertPathExists(join(rootDir, 'dist', 'content', 'content.js'));
   await assertPathExists(join(rootDir, 'dist', 'content', 'anti-fouc.js'));

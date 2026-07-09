@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import PollOptions from '@/content/components/stories/PollOptions.vue';
 import { mountComponent } from '../helpers/mount-component';
 
-describe('PollOptions', () => {
+describe('pollOptions', () => {
   it('renders poll options by score descending with alphabetical tie-breaking', () => {
     const wrapper = mountComponent(PollOptions, {
       props: {

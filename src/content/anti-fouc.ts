@@ -27,12 +27,10 @@ try {
 
     applyBootTheme(document, antiFoucStyle, resolved.settings.theme);
   });
-}
-catch (error) {
+} catch (error) {
   if (error instanceof ReferenceError) {
     // chrome.storage is not available on the local design/test pages.
-  }
-  else {
+  } else {
     throw error;
   }
 }

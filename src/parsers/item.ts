@@ -1,8 +1,8 @@
-import type { CommentPlaceholderKind } from './shared/body';
 import type { ToggleActionState, VoteState } from './shared/actions';
+import type { CommentPlaceholderKind } from './shared/body';
 import { debugLog, debugMeasure } from '@/debug';
-import { parseAge } from './shared/age';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
+import { parseAge } from './shared/age';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
 import { isNewUser } from './shared/comment';
 import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';

@@ -1,9 +1,9 @@
-import type { CommentPlaceholderKind } from './body';
 import type { ToggleActionState, VoteDirection, VoteState } from './actions';
+import type { CommentPlaceholderKind } from './body';
 import { assert } from '@/utils/assert';
 import { parseInteger } from '@/utils/number';
-import { parseAge } from './age';
 import { parseToggleActionState, parseVoteState } from './actions';
+import { parseAge } from './age';
 import { parseCommentBody } from './body';
 import { isNewUser, parseGrayLevel } from './comment';
 import { attrOf, hrefOf, textOf } from './dom';

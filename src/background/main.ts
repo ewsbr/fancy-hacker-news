@@ -1,10 +1,10 @@
+import type {
+  OpenSettingsResponse,
+} from '@/utils/extension-messages';
 import { EXTENSION_MESSAGE_TYPES } from '@/constants/extension-messages';
 import { createLogger } from '@/debug';
 import {
   extensionMessageSchema,
-} from '@/utils/extension-messages';
-import type {
-  OpenSettingsResponse,
 } from '@/utils/extension-messages';
 
 const backgroundLogger = createLogger('background');

@@ -1,10 +1,10 @@
+import type { ThemeName } from './theme-metadata';
 import { z } from 'zod';
 import {
   applyThemeToHost,
   BOOTSTRAP_THEME_DATASET_KEY,
   isThemeName,
 } from './theme-metadata';
-import type { ThemeName } from './theme-metadata';
 
 export const SETTINGS_STORAGE_KEY = 'fancy-hn-settings';
 export const LEGACY_THEME_STORAGE_KEY = 'fancy-hn-theme';

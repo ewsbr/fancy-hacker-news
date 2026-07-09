@@ -47,11 +47,13 @@ Build:
 
 Package:
 
-- `pnpm package` — build once and create both the AMO-ready Firefox ZIP and the Chrome Web Store-ready ZIP in `web-ext-artifacts/`.
+- `pnpm package` — run quality checks, build once, and create both the AMO-ready Firefox ZIP and the Chrome Web Store-ready ZIP in `web-ext-artifacts/`.
 
 Develop and verify:
 
 - `pnpm dev` — watch mode for the content script.
+- `pnpm check` — run lint, typecheck, tests, and the production build.
+- `pnpm lint` — run ESLint.
 - `pnpm typecheck` — run `vue-tsc --noEmit`.
 - `pnpm test` — run Vitest once.
 - `pnpm test:watch` — run Vitest in watch mode.

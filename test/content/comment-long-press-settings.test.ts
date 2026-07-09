@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { onLongPress } from '@vueuse/core';
 import { mount } from '@vue/test-utils';
+import { onLongPress } from '@vueuse/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 import {

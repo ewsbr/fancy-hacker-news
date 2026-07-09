@@ -18,8 +18,7 @@ function isHttpNavigationHref(href: string): boolean {
   try {
     const url = new URL(trimmedHref, getLinkBaseUrl());
     return url.protocol === 'http:' || url.protocol === 'https:';
-  }
-  catch {
+  } catch {
     return false;
   }
 }

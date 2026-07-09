@@ -1,5 +1,5 @@
-import type { CommentPlaceholderKind } from './shared/body';
 import type { ToggleActionState, VoteDirection, VoteState } from './shared/actions';
+import type { CommentPlaceholderKind } from './shared/body';
 import { parseStoryContext, parseThreadCommentRow } from './shared/comment-row';
 import { attrOf } from './shared/dom';
 import { findMoreLink } from './shared/pagination';

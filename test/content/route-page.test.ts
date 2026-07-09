@@ -1,5 +1,5 @@
+import type { ParsedRoutePage } from '@/content/route-page';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseRoutePage, type ParsedRoutePage } from '@/content/route-page';
 import CommentsPage from '@/content/pages/CommentsPage.vue';
 import LoginPage from '@/content/pages/LoginPage.vue';
 import NewCommentsPage from '@/content/pages/NewCommentsPage.vue';
@@ -7,6 +7,7 @@ import NotFoundPage from '@/content/pages/NotFoundPage.vue';
 import ReplyPage from '@/content/pages/ReplyPage.vue';
 import StoriesPage from '@/content/pages/StoriesPage.vue';
 import SubmitPage from '@/content/pages/SubmitPage.vue';
+import { parseRoutePage } from '@/content/route-page';
 import { makeNotFoundRoute, resolveRoute } from '@/router';
 import { createHtmlDocument, parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';

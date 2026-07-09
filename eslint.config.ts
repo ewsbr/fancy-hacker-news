@@ -13,6 +13,7 @@ export default antfu(
   },
   {
     rules: {
+      'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
       'toml/array-bracket-newline': 'off',
       'no-alert': 'off',
     },
