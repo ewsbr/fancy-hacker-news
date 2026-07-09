@@ -2,10 +2,10 @@
 import type { Story } from '@/parsers/story-list';
 import { computed } from 'vue';
 import CommentIcon from '~icons/material-symbols/chat-sharp';
-import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
+import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import StoryMeta from './StoryMeta.vue';
 import StoryRank from './StoryRank.vue';
 
@@ -28,7 +28,7 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     }"
   >
     <StoryRank v-if="story.rank !== null" :rank="story.rank" />
-    <VoteButton class="story-row__vote" :vote-state="story.voteState" :item-id="story.id" :vote-target="story" />
+    <VoteButton class="story-row__vote" :vote-target="story" />
     <div class="story-row__body">
       <div class="story-row__title-line">
         <a

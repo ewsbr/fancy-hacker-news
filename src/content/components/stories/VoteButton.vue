@@ -1,37 +1,34 @@
 <script setup lang="ts">
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
-import type { VoteState } from '@/parsers/shared/actions';
 import { Triangle } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 import { getVoteActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
-  voteState?: VoteState;
-  itemId?: string;
-  voteTarget?: VoteActionTarget | null;
+  voteTarget: VoteActionTarget;
 }>();
 
 const { isBusy, submitVote } = useHnActions();
 const currentUser = useCurrentUser();
 const canSubmitInBackground = canSubmitAuthActionInBackground(currentUser);
 
-const currentVoteState = ref<VoteState>(props.voteState ?? props.voteTarget?.voteState ?? { kind: 'unavailable' });
-const currentHref = computed(() => getVoteActionHref(currentVoteState.value, currentVoteState.value.kind === 'active' ? 'un' : 'up'));
-const isActive = computed(() => currentVoteState.value.kind === 'active' || currentVoteState.value.kind === 'disabled-active');
-const isDisabled = computed(() => currentVoteState.value.kind === 'disabled-active');
+const voteState = computed(() => props.voteTarget.voteState);
+const currentHref = computed(() => getVoteActionHref(voteState.value, voteState.value.kind === 'active' ? 'un' : 'up'));
+const isActive = computed(() => voteState.value.kind === 'active' || voteState.value.kind === 'disabled-active');
+const isDisabled = computed(() => voteState.value.kind === 'disabled-active');
 const currentLabel = computed(() => {
-  if (currentVoteState.value.kind === 'active') {
-    return currentVoteState.value.direction === 'down' ? 'undown' : 'unvote';
+  if (voteState.value.kind === 'active') {
+    return voteState.value.direction === 'down' ? 'undown' : 'unvote';
   }
 
-  if (currentVoteState.value.kind === 'disabled-active') {
-    if (currentVoteState.value.direction === 'up') {
+  if (voteState.value.kind === 'disabled-active') {
+    if (voteState.value.direction === 'up') {
       return 'upvoted';
     }
 
-    if (currentVoteState.value.direction === 'down') {
+    if (voteState.value.direction === 'down') {
       return 'downvoted';
     }
 
@@ -40,36 +37,15 @@ const currentLabel = computed(() => {
 
   return 'upvote';
 });
-const currentDirection = computed(() => currentVoteState.value.kind === 'active' ? 'un' : 'up');
-
-watch(
-  () => props.voteState,
-  (voteState) => {
-    if (voteState) {
-      currentVoteState.value = voteState;
-    }
-  },
-);
-
-watch(
-  () => props.voteTarget?.voteState,
-  (voteState) => {
-    if (voteState) {
-      currentVoteState.value = voteState;
-    }
-  },
-);
+const currentDirection = computed(() => voteState.value.kind === 'active' ? 'un' : 'up');
 
 async function handleClick(event: MouseEvent) {
-  if (!props.voteTarget || !currentHref.value || !canSubmitInBackground) {
+  if (!currentHref.value || !canSubmitInBackground) {
     return;
   }
 
   event.preventDefault();
-  const succeeded = await submitVote(props.voteTarget, currentDirection.value);
-  if (succeeded) {
-    currentVoteState.value = props.voteTarget.voteState;
-  }
+  await submitVote(props.voteTarget, currentDirection.value);
 }
 </script>
 

@@ -309,8 +309,6 @@ useEventListener(window, 'hashchange', () => {
               </div>
               <CommentActions
                 class="comments-page__comment-actions"
-                :item-id="pageData.item.id"
-                :vote-state="pageData.item.voteState"
                 :vote-target="pageData.item"
               />
             </div>

@@ -45,8 +45,6 @@ defineProps<{
     </div>
 
     <CommentActions
-      :item-id="comment.id"
-      :vote-state="comment.voteState"
       :vote-target="comment"
       :flag-target="comment.flagAction.kind === 'available' || comment.flagAction.kind === 'active' ? comment : null"
     />

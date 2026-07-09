@@ -3,6 +3,7 @@
 import type { ParsedHeader } from '@/parsers/header';
 import { flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { reactive } from 'vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import { mountComponent } from '../helpers/mount-component';
 
@@ -41,16 +42,15 @@ describe('vote button', () => {
   });
 
   it('switches to the unvote state after a successful upvote response', async () => {
-    const target = {
+    const target = reactive({
       voteState: {
         kind: 'available' as const,
         upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
         downHref: null,
       },
-    };
+    });
     const wrapper = mountComponent(VoteButton, {
       props: {
-        voteState: target.voteState,
         voteTarget: target,
       },
     });
@@ -80,7 +80,6 @@ describe('vote button', () => {
     };
     const wrapper = mountComponent(VoteButton, {
       props: {
-        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -107,7 +106,6 @@ describe('vote button', () => {
     };
     const wrapper = mountComponent(VoteButton, {
       props: {
-        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -133,12 +131,6 @@ describe('vote button', () => {
   it('renders disabled active votes without a clickable link', () => {
     const wrapper = mountComponent(VoteButton, {
       props: {
-        voteState: {
-          kind: 'disabled-active',
-          direction: 'up',
-          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-          downHref: null,
-        },
         voteTarget: {
           voteState: {
             kind: 'disabled-active',

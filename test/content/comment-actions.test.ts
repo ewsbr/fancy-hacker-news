@@ -3,6 +3,7 @@
 import type { ParsedHeader } from '@/parsers/header';
 import { flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { reactive } from 'vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import { mountComponent } from '../helpers/mount-component';
 
@@ -50,7 +51,6 @@ describe('comment actions', () => {
     };
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteState: target.voteState,
         voteTarget: target,
         replyLink: 'reply?id=10&goto=item%3Fid%3D123%2310',
       },
@@ -78,7 +78,6 @@ describe('comment actions', () => {
     };
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteState: target.voteState,
         voteTarget: target,
       },
       global: {
@@ -101,16 +100,44 @@ describe('comment actions', () => {
     );
   });
 
+  it('switches to the undown state after submitting a downvote', async () => {
+    const target = reactive({
+      voteState: {
+        kind: 'available' as const,
+        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+        downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123%2310',
+      },
+    });
+    const wrapper = mountComponent(CommentActions, {
+      props: {
+        voteTarget: target,
+      },
+      global: {
+        provide: {
+          header: makeHeader({ name: 'ews', karma: 123 }),
+        },
+      },
+    });
+
+    await wrapper.get('.comment-actions__vote--down').trigger('click');
+    await flushPromises();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://news.ycombinator.com/vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123%2310&js=t',
+      expect.objectContaining({
+        redirect: 'manual',
+      }),
+    );
+    const activeVote = wrapper.get('.comment-actions__vote--active');
+    expect(activeVote.classes()).toContain('comment-actions__vote--down');
+    expect(activeVote.attributes('title')).toBe('undown');
+    expect(activeVote.attributes('href')).toBe('vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123%2310');
+    expect(activeVote.text()).toContain('undown');
+  });
+
   it('renders active downvotes with an undown label', () => {
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteState: {
-          kind: 'active',
-          direction: 'down',
-          unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123%2310',
-          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
-          downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123%2310',
-        },
         voteTarget: {
           voteState: {
             kind: 'active',
@@ -129,11 +156,13 @@ describe('comment actions', () => {
   it('renders disabled active votes as non-clickable state text', () => {
     const wrapper = mountComponent(CommentActions, {
       props: {
-        voteState: {
-          kind: 'disabled-active',
-          direction: 'unknown',
-          upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
-          downHref: null,
+        voteTarget: {
+          voteState: {
+            kind: 'disabled-active',
+            direction: 'unknown',
+            upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123%2310',
+            downHref: null,
+          },
         },
       },
     });

@@ -58,7 +58,7 @@ const totalVotes = computed(() => {
       class="poll-options__item"
     >
       <div class="poll-options__vote">
-        <VoteButton :vote-state="opt.voteState" :vote-target="opt" />
+        <VoteButton :vote-target="opt" />
       </div>
       <div class="poll-options__content">
         <div class="poll-options__text">

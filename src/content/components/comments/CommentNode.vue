@@ -145,8 +145,6 @@ useCommentCollapseRegistration(node, toggleCollapse);
 
             <div class="comment-node__actions">
               <CommentActions
-                :item-id="node.id"
-                :vote-state="voteTarget?.voteState ?? node.voteState"
                 :vote-target="voteTarget"
                 :reply-link="node.replyLink"
                 :edit-url="node.editUrl"

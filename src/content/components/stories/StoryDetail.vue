@@ -2,7 +2,6 @@
 import type { ItemDetail } from '@/parsers/item';
 import { computed } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
-import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import AuthorByline from '@/content/components/shared/AuthorByline.vue';
 import InlineActionLink from '@/content/components/shared/InlineActionLink.vue';
 import RichText from '@/content/components/shared/RichText.vue';
@@ -10,6 +9,7 @@ import StorySiteLink from '@/content/components/stories/StorySiteLink.vue';
 import VoteButton from '@/content/components/stories/VoteButton.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { useNewTabLinkAttrs } from '@/content/composables/link-targets';
 import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ const flagHref = computed(() => getToggleActionHref(props.item.flagAction));
     <div class="story-detail__main">
       <div class="story-detail__layout">
         <div class="story-detail__vote">
-          <VoteButton :vote-state="item.voteState" :item-id="item.id" :vote-target="item" />
+          <VoteButton :vote-target="item" />
         </div>
 
         <div class="story-detail__content">
