@@ -18,18 +18,21 @@ export function parseLeadersPage(doc: Document): ParsedLeadersPage {
 
   for (const row of rows) {
     const tds = row.querySelectorAll('td');
-    if (tds.length < 2)
+    if (tds.length < 2) {
       continue;
+    }
 
     const rankText = tds[0].textContent?.trim().replace('.', '') ?? '';
     const rank = Number.parseInt(rankText, 10);
-    if (Number.isNaN(rank))
+    if (Number.isNaN(rank)) {
       continue;
+    }
 
     const userLink = tds[1].querySelector('a.hnuser');
     const username = userLink?.textContent?.trim() ?? '';
-    if (!username)
+    if (!username) {
       continue;
+    }
 
     const karmaText = tds[2]?.textContent?.trim() ?? '';
     const karma = karmaText === '' ? null : Number.parseInt(karmaText.replace(/,/g, ''), 10);

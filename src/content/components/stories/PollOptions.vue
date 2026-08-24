@@ -31,8 +31,9 @@ const displayedOptions = computed(() => [...props.options].sort(comparePollOptio
 const maxScore = computed(() => {
   let max = 0;
   for (const opt of displayedOptions.value) {
-    if (opt.score != null && opt.score > max)
+    if (opt.score != null && opt.score > max) {
       max = opt.score;
+    }
   }
   return max || 1;
 });
@@ -40,8 +41,9 @@ const maxScore = computed(() => {
 const totalVotes = computed(() => {
   let sum = 0;
   for (const opt of displayedOptions.value) {
-    if (opt.score != null)
+    if (opt.score != null) {
       sum += opt.score;
+    }
   }
   return sum;
 });

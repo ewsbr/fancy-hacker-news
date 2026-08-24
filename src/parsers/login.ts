@@ -23,7 +23,7 @@ export interface LoginForm {
 }
 
 export interface ParsedLoginPage {
-  variant: 'login' | 'changepw' | 'forgot' | 'comment' | 'auth-gate';
+  variant: 'login' | 'changepw' | 'forgot' | 'comment' | 'auth-gate' | 'rate-limited';
   title: string;
   authMessage: string | null;
   forms: LoginForm[];
@@ -66,17 +66,24 @@ function extractAuthMessage(doc: Document): string | null {
 
 export function parseLoginPage(doc: Document): ParsedLoginPage {
   const path = location.pathname;
-  const authMessage = extractAuthMessage(doc);
+  // HN serves rate-limit responses as text/plain. Browsers represent those
+  // documents as <body><pre>Sorry.</pre></body>, so the usual leading-text
+  // extractor cannot see the message as a direct body text node.
+  const bodyText = doc.body?.textContent?.trim() ?? '';
+  const isRateLimited = /^Sorry\.?$/i.test(bodyText);
+  const authMessage = isRateLimited ? bodyText : extractAuthMessage(doc);
 
-  let variant: ParsedLoginPage['variant'] = authMessage ? 'auth-gate' : 'login';
-  let title = authMessage ?? 'Login';
-  if (path === '/changepw') {
+  let variant: ParsedLoginPage['variant'] = isRateLimited
+    ? 'rate-limited'
+    : authMessage ? 'auth-gate' : 'login';
+  let title = isRateLimited ? 'Rate limited' : authMessage ?? 'Login';
+  if (!isRateLimited && path === '/changepw') {
     variant = 'changepw';
     title = 'Change Password';
-  } else if (path === '/forgot') {
+  } else if (!isRateLimited && path === '/forgot') {
     variant = 'forgot';
     title = 'Reset Password';
-  } else if (path === '/comment') {
+  } else if (!isRateLimited && path === '/comment') {
     variant = 'comment';
     title = 'Login to Comment';
   }
@@ -113,11 +120,13 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
     if (tableRows.length > 0) {
       for (const row of tableRows) {
         const tds = row.querySelectorAll('td');
-        if (tds.length < 2)
+        if (tds.length < 2) {
           continue;
+        }
         const input = tds[1].querySelector<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input:not([type=hidden]):not([type=submit]), select, textarea');
-        if (!input)
+        if (!input) {
           continue;
+        }
         visibleFields.push({
           label: textOf(tds[0]).replace(/:$/, '').trim(),
           name: (input as HTMLInputElement).name,

@@ -166,11 +166,13 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   if (storyType !== null) {
     const params: RouteByPage['stories']['params'] = { type: storyType };
     const site = sp.get('site');
-    if (site !== null)
+    if (site !== null) {
       params.site = site;
+    }
     const hours = sp.get('h');
-    if (path === '/best' && hours !== null)
+    if (path === '/best' && hours !== null) {
       params.h = hours;
+    }
     return { page: 'stories', params };
   }
 
@@ -188,12 +190,15 @@ export function resolveRoute(loc: Location): RouteDescriptor {
     };
   }
 
-  if (path === '/item')
+  if (path === '/item') {
     return { page: 'item', params: { id: sp.get('id') ?? '' } };
-  if (path === '/reply')
+  }
+  if (path === '/reply') {
     return { page: 'reply', params: { id: sp.get('id') ?? '', goto: sp.get('goto') ?? '' } };
-  if (path === '/user')
+  }
+  if (path === '/user') {
     return { page: 'user', params: { id: sp.get('id') ?? '' } };
+  }
 
   const userListPage = USER_LISTS.get(path);
   if (userListPage) {
@@ -203,27 +208,36 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   if (path === '/favorites' || path === '/upvoted') {
     const params: RouteByPage['favorites']['params'] = { id: sp.get('id') ?? '' };
     const comments = sp.get('comments');
-    if (comments !== null)
+    if (comments !== null) {
       params.comments = comments;
+    }
     return { page: path === '/favorites' ? 'favorites' : 'upvoted', params };
   }
 
-  if (path === '/submit')
+  if (path === '/submit') {
     return { page: 'submit', params: {} };
-  if (path === '/formatdoc')
+  }
+  if (path === '/formatdoc') {
     return { page: 'formatdoc', params: {} };
-  if (path === '/lists')
+  }
+  if (path === '/lists') {
     return { page: 'lists', params: {} };
-  if (path === '/topcolors')
+  }
+  if (path === '/topcolors') {
     return { page: 'topcolors', params: {} };
-  if (path === '/leaders')
+  }
+  if (path === '/leaders') {
     return { page: 'leaders', params: {} };
-  if (path === '/delete-confirm')
+  }
+  if (path === '/delete-confirm') {
     return { page: 'delete-confirm', params: {} };
-  if (AUTH_PAGES.has(path))
+  }
+  if (AUTH_PAGES.has(path)) {
     return { page: 'login', params: {} };
-  if (STATIC_PAGES.has(path))
+  }
+  if (STATIC_PAGES.has(path)) {
     return { page: 'static', params: {} };
+  }
 
   // Catch-all
   return { page: 'static', params: {} };

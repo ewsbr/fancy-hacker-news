@@ -235,8 +235,9 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   bigbox?.querySelectorAll('td').forEach((td) => {
     if (td.textContent?.trim() === 'karma:') {
       const next = td.nextElementSibling;
-      if (next)
+      if (next) {
         karma = Number.parseInt(next.textContent?.trim() || '0', 10) || 0;
+      }
     }
   });
 

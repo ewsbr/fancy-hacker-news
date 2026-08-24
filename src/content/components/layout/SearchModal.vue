@@ -24,8 +24,9 @@ const inputRef = ref<HTMLInputElement | null>(null);
 
 function submit() {
   const q = query.value.trim();
-  if (!q)
+  if (!q) {
     return;
+  }
   window.open(`https://hn.algolia.com/?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer');
   emit('update:open', false);
 }

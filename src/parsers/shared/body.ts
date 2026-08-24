@@ -16,10 +16,12 @@ const COMMENT_RICH_TEXT_CLASS_NAMES = new Set(['comment', 'commtext']);
 
 function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
   const normalized = text.trim();
-  if (normalized === '[flagged]')
+  if (normalized === '[flagged]') {
     return 'flagged';
-  if (normalized === '[deleted]')
+  }
+  if (normalized === '[deleted]') {
     return 'deleted';
+  }
   return null;
 }
 
@@ -30,18 +32,21 @@ function getFirstLeafText(node: Node): Text | null {
     }
     if (child.nodeType === ELEMENT_NODE) {
       const found = getFirstLeafText(child);
-      if (found)
+      if (found) {
         return found;
+      }
     }
   }
   return null;
 }
 
 function isInlineNode(node: Node): boolean {
-  if (node.nodeType === TEXT_NODE)
+  if (node.nodeType === TEXT_NODE) {
     return true;
-  if (node.nodeType === ELEMENT_NODE)
+  }
+  if (node.nodeType === ELEMENT_NODE) {
     return INLINE_TAGS.has((node as Element).nodeName);
+  }
   return false;
 }
 
@@ -52,8 +57,9 @@ function normalizeQuotedContent(container: Element, doc: Document): void {
   let index = 0;
 
   function flushQuotes() {
-    if (!quoteParagraphs.length)
+    if (!quoteParagraphs.length) {
       return;
+    }
     const blockquote = doc.createElement('blockquote');
     for (const paragraph of quoteParagraphs) {
       blockquote.appendChild(paragraph);
@@ -157,8 +163,9 @@ function normalizeCommentCodeBlocks(container: Element): void {
 }
 
 export function extractRichTextHtml(source: Element | null | undefined): string {
-  if (!source)
+  if (!source) {
     return '';
+  }
 
   const clone = source.cloneNode(true) as Element;
   if (shouldNormalizeCommentCodeBlocks(source)) {

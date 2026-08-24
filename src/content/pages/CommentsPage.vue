@@ -55,8 +55,9 @@ const commentItemOriginalPosterTitle = computed(() => {
 });
 
 const totalCommentCount = computed(() => {
-  if (!pageData)
+  if (!pageData) {
     return 0;
+  }
   return pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
 });
 

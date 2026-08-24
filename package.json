@@ -2,7 +2,7 @@
   "name": "fancy-hn",
   "type": "module",
   "version": "1.5.0",
-  "packageManager": "pnpm@11.10.0",
+  "packageManager": "pnpm@11.23.0",
   "description": "A browser extension that replaces the Hacker News UI with a cleaner, more modern design.",
   "author": "",
   "license": "ISC",

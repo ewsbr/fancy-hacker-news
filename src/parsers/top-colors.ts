@@ -10,15 +10,17 @@ const HEX_RE = /^#[0-9a-f]{6}$/i;
 
 export function parseTopColorsPage(doc: Document): ParsedTopColorsPage {
   const bigbox = doc.querySelector('#bigbox');
-  if (!bigbox)
+  if (!bigbox) {
     return { colors: [] };
+  }
 
   const colors: string[] = [];
 
   for (const row of bigbox.querySelectorAll('tr')) {
     const cell = row.querySelector('td');
-    if (!cell)
+    if (!cell) {
       continue;
+    }
 
     const hex = cell.textContent?.trim() ?? '';
     if (HEX_RE.test(hex)) {

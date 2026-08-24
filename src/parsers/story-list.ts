@@ -56,8 +56,9 @@ export function parseStoryList(doc: Document, options: ParseStoryListOptions = {
 
   for (const row of doc.querySelectorAll<HTMLElement>('tr.athing.submission')) {
     const id = row.getAttribute('id');
-    if (!id)
+    if (!id) {
       continue;
+    }
 
     // Rank
     const rankText = textOf(row.querySelector('td.title > span.rank')).replace('.', '');

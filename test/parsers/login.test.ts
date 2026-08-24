@@ -1,8 +1,25 @@
 import { describe, expect, it, vi } from 'vitest';
 import { parseLoginPage } from '@/parsers/login';
 import { parseHtmlDocument } from '../helpers/dom';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('login page parser', () => {
+  it('recognizes HN\'s bare rate-limit response without discarding its message', async () => {
+    const doc = await loadFixtureDocument('misc/auth/sorry.html');
+
+    vi.stubGlobal('location', new URL('https://news.ycombinator.com/login?goto=news'));
+    try {
+      const page = parseLoginPage(doc);
+
+      expect(page.variant).toBe('rate-limited');
+      expect(page.title).toBe('Rate limited');
+      expect(page.authMessage).toBe('Sorry.');
+      expect(page.forms).toEqual([]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('parses bare auth-gate messages from the source body', () => {
     const doc = parseHtmlDocument(`
       <html>

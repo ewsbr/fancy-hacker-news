@@ -13,7 +13,9 @@ export default antfu(
   },
   {
     rules: {
-      'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      'antfu/if-newline': 'off',
+      'curly': ['error', 'multi-line'],
+      'style/brace-style': ['error', '1tbs'],
       'toml/array-bracket-newline': 'off',
       'no-alert': 'off',
     },

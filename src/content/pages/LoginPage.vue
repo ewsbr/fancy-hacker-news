@@ -8,6 +8,7 @@ import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
 const page = inject<ParsedLoginPage>('pageData')!;
 
 const isLogin = ref(true);
+const isRateLimited = computed(() => page.variant === 'rate-limited');
 const isStandardLoginExperience = computed(() => page.variant !== 'forgot' && page.variant !== 'changepw');
 
 const loginForm = computed(() =>
@@ -19,26 +20,37 @@ const registerForm = computed(() =>
 );
 
 const currentForm = computed(() => {
-  if (!isStandardLoginExperience.value)
+  if (!isStandardLoginExperience.value) {
     return page.forms[0];
+  }
   return isLogin.value ? loginForm.value : (registerForm.value || loginForm.value);
 });
 
 const canToggle = computed(() => isStandardLoginExperience.value && registerForm.value);
 
 const title = computed(() => {
-  if (page.variant === 'forgot')
+  if (isRateLimited.value) {
+    return page.title;
+  }
+  if (page.variant === 'forgot') {
     return 'Reset Password';
-  if (page.variant === 'changepw')
+  }
+  if (page.variant === 'changepw') {
     return 'Change Password';
+  }
   return isLogin.value ? 'Welcome back' : 'Create an account';
 });
 
 const subheader = computed(() => {
-  if (page.variant === 'forgot')
+  if (isRateLimited.value) {
+    return 'Hacker News has temporarily limited requests. Please wait a moment and try again.';
+  }
+  if (page.variant === 'forgot') {
     return 'Reset your password to continue';
-  if (page.variant === 'changepw')
+  }
+  if (page.variant === 'changepw') {
     return 'Update your password to continue';
+  }
   return isLogin.value
     ? 'Sign in to your account to continue'
     : 'Join the Hacker News community';
@@ -54,10 +66,12 @@ const submitLabel = computed(() => {
 
 function getPlaceholder(label: string) {
   const l = label.toLowerCase();
-  if (l.includes('username'))
+  if (l.includes('username')) {
     return 'Your HN username';
-  if (l.includes('password'))
+  }
+  if (l.includes('password')) {
     return '••••••••';
+  }
   return '';
 }
 </script>
@@ -79,9 +93,13 @@ function getPlaceholder(label: string) {
       </header>
 
       <!-- Form Card -->
-      <NoticeBanner v-if="page.authMessage" :message="page.authMessage" />
+      <NoticeBanner
+        v-if="page.authMessage"
+        :message="page.authMessage"
+        :role="isRateLimited ? 'alert' : 'status'"
+      />
 
-      <main class="login-card">
+      <main v-if="!isRateLimited" class="login-card">
         <div v-if="!currentForm" class="login-card__empty">
           No authentication forms found.
         </div>

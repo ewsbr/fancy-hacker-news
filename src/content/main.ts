@@ -303,8 +303,9 @@ async function mountApp() {
               const stack = [...itemPage.comments];
               while (stack.length > 0) {
                 const node = stack.pop();
-                if (!node)
+                if (!node) {
                   continue;
+                }
                 commentCount += 1;
                 maxDepth = Math.max(maxDepth, node.indent);
                 stack.push(...node.children);

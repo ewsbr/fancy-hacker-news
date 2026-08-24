@@ -389,8 +389,9 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
     for (const row of pollRows) {
       const id = attrOf(row, 'id') || '';
       const commentTd = row.querySelector('td.comment');
-      if (!commentTd)
+      if (!commentTd) {
         continue;
+      }
 
       const text = commentTd.textContent?.trim() || '';
       const voteState = parseVoteState(row, {

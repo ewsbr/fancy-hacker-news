@@ -46,16 +46,18 @@ export function parseNewComments(doc: Document, options: ParseNewCommentsOptions
 
   for (const tr of rows) {
     const id = attrOf(tr, 'id');
-    if (!id)
+    if (!id) {
       continue;
+    }
 
     const row = parseThreadCommentRow(tr, {
       includeOnStory: true,
       preferredVoteDirection: options.preferredVoteDirection,
     });
     const onStory = row.onStory ?? parseStoryContext(tr.querySelector('.comhead'));
-    if (!onStory)
+    if (!onStory) {
       continue;
+    }
 
     const comment: FlatComment = {
       id,

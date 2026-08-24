@@ -14,19 +14,22 @@ export interface ParsedListsPage {
 
 export function parseListsPage(doc: Document): ParsedListsPage {
   const bigbox = doc.querySelector('#bigbox');
-  if (!bigbox)
+  if (!bigbox) {
     return { entries: [] };
+  }
 
   const entries: ListEntry[] = [];
 
   for (const row of bigbox.querySelectorAll('tr')) {
     const cells = row.querySelectorAll('td');
-    if (cells.length < 2)
+    if (cells.length < 2) {
       continue;
+    }
 
     const linkEl = cells[0].querySelector('a');
-    if (!linkEl)
+    if (!linkEl) {
       continue;
+    }
 
     entries.push({
       name: linkEl.textContent?.trim() ?? '',
