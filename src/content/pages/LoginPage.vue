@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { ParsedLoginPage } from '@/parsers/login';
-import { ArrowLeft, ArrowRight, HelpCircle, UserPlus } from 'lucide-vue-next';
-import { computed, inject, ref } from 'vue';
+import type { FormField, LoginForm, ParsedLoginPage } from '@/parsers/login';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, HelpCircle, UserPlus } from 'lucide-vue-next';
+import { computed, inject, reactive, ref } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import NoticeBanner from '@/content/components/ui/NoticeBanner.vue';
 
 const page = inject<ParsedLoginPage>('pageData')!;
 
 const isLogin = ref(true);
+const visiblePasswords = reactive<Record<string, boolean>>({});
 const isRateLimited = computed(() => page.variant === 'rate-limited');
 const isStandardLoginExperience = computed(() => page.variant !== 'forgot' && page.variant !== 'changepw');
 
@@ -49,7 +50,7 @@ const subheader = computed(() => {
     return 'Reset your password to continue';
   }
   if (page.variant === 'changepw') {
-    return 'Update your password to continue';
+    return 'Enter your current and new password';
   }
   return isLogin.value
     ? 'Sign in to your account to continue'
@@ -73,6 +74,53 @@ function getPlaceholder(label: string) {
     return '••••••••';
   }
   return '';
+}
+
+function isPasswordField(field: FormField) {
+  return field.type.toLowerCase() === 'password';
+}
+
+function getFieldKey(form: LoginForm, field: FormField, index: number) {
+  return `${form.submitLabel}:${field.name}:${index}`;
+}
+
+function getInputType(field: FormField, fieldKey: string) {
+  return isPasswordField(field) && visiblePasswords[fieldKey] ? 'text' : field.type;
+}
+
+function togglePassword(fieldKey: string) {
+  visiblePasswords[fieldKey] = !visiblePasswords[fieldKey];
+}
+
+function isNewPasswordForm(form: LoginForm) {
+  return page.variant === 'changepw'
+    || form.submitLabel.toLowerCase().includes('create')
+    || form.hiddenFields.some(field => field.name === 'creating');
+}
+
+function getAutocomplete(field: FormField, form: LoginForm) {
+  const label = field.label.toLowerCase();
+  const name = field.name.toLowerCase();
+
+  if (isPasswordField(field)) {
+    const isExistingPassword = label.includes('old')
+      || label.includes('current')
+      || name.includes('old')
+      || name.includes('current');
+    return isNewPasswordForm(form) && !isExistingPassword
+      ? 'new-password'
+      : 'current-password';
+  }
+
+  if (label.includes('username') || name === 'acct' || name === 'username' || name === 's') {
+    return 'username';
+  }
+
+  if (field.type.toLowerCase() === 'email') {
+    return 'email';
+  }
+
+  return undefined;
 }
 </script>
 
@@ -121,22 +169,40 @@ function getPlaceholder(label: string) {
 
           <div class="login-form__fields">
             <div
-              v-for="field in currentForm.visibleFields"
-              :key="field.name"
+              v-for="(field, index) in currentForm.visibleFields"
+              :key="getFieldKey(currentForm, field, index)"
               class="login-form__field"
             >
               <label :for="field.name" class="login-form__label">{{ field.label }}</label>
-              <input
-                :id="field.name"
-                :type="field.type"
-                :name="field.name"
-                :defaultValue="field.value"
-                class="login-form__input"
-                :placeholder="getPlaceholder(field.label)"
-                :autofocus="field.type === 'text' || field.name === 's'"
-                autocomplete="on"
-                required
-              >
+              <div class="login-form__input-wrap">
+                <input
+                  :id="field.name"
+                  :type="getInputType(field, getFieldKey(currentForm, field, index))"
+                  :name="field.name"
+                  :defaultValue="field.value"
+                  class="login-form__input"
+                  :class="{ 'login-form__input--password': isPasswordField(field) }"
+                  :placeholder="getPlaceholder(field.label)"
+                  :autofocus="field.type === 'text' || field.name === 's'"
+                  :autocomplete="getAutocomplete(field, currentForm)"
+                  required
+                >
+                <button
+                  v-if="isPasswordField(field)"
+                  type="button"
+                  class="login-form__password-toggle"
+                  :aria-label="visiblePasswords[getFieldKey(currentForm, field, index)] ? 'Hide password' : 'Show password'"
+                  :aria-pressed="visiblePasswords[getFieldKey(currentForm, field, index)] || false"
+                  @click="togglePassword(getFieldKey(currentForm, field, index))"
+                >
+                  <EyeOff
+                    v-if="visiblePasswords[getFieldKey(currentForm, field, index)]"
+                    :size="18"
+                    aria-hidden="true"
+                  />
+                  <Eye v-else :size="18" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -278,6 +344,10 @@ function getPlaceholder(label: string) {
     letter-spacing: 0.05em;
   }
 
+  &__input-wrap {
+    position: relative;
+  }
+
   &__input {
     width: 100%;
     padding: 10px 14px;
@@ -289,6 +359,10 @@ function getPlaceholder(label: string) {
     font-size: 0.9rem;
     transition: all 0.15s ease;
 
+    &--password {
+      padding-right: 46px;
+    }
+
     &::placeholder {
       color: var(--color-text-muted);
       opacity: 0.4;
@@ -298,6 +372,34 @@ function getPlaceholder(label: string) {
       outline: none;
       border-color: var(--color-accent);
       box-shadow: 0 0 0 2px var(--color-focus-ring);
+    }
+  }
+
+  &__password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+
+    &:hover {
+      color: var(--color-text);
+      background: var(--color-row-hover);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: -2px;
     }
   }
 
