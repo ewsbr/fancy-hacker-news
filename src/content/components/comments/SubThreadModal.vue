@@ -15,6 +15,7 @@ import {
   useCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
+import { provideCommentHeightEstimates } from '@/content/composables/comment-placeholders';
 import { useCommentRenderCompletion } from '@/content/composables/comment-rendering';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { waitForAnimationFrames } from '@/content/utils/wait';
@@ -37,6 +38,7 @@ const collapseRegistry = useCommentCollapseRegistry();
 const whenCommentsRendered = useCommentRenderCompletion();
 const fragmentLoading = useCommentFragmentLoading();
 const fragmentState = inject(COMMENT_FRAGMENT_STATE_KEY, null);
+provideCommentHeightEstimates(bodyRef, { inModal: true });
 
 useDelegatedCommentLongPress(bodyRef, collapseRegistry);
 
@@ -213,11 +215,16 @@ watch(
 
   &__body {
     overflow-y: auto;
+    scrollbar-gutter: stable;
     padding: 16px;
     flex: 1;
     touch-action: pan-y;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+
+    &[inert] {
+      overflow-y: hidden;
+    }
   }
 }
 </style>

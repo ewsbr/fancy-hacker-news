@@ -66,19 +66,29 @@ describe('fragment loading lifetime', () => {
       expect(root.scrollTop).toBe(0);
       expect(root.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
       expect(history.scrollRestoration).toBe('manual');
+      expect(root.classList.contains('is-loading-comments')).toBe(true);
       root.scrollTop = 2400;
       vi.advanceTimersByTime(200);
       expect(loading.showIndicator.value).toBe(true);
       expect(root.scrollTop).toBe(0);
+      root.scrollTop = 2400;
+      root.dispatchEvent(new Event('scroll'));
+      expect(root.scrollTop).toBe(0);
+      page.startPositioning();
+      root.scrollTop = 1800;
+      root.dispatchEvent(new Event('scroll'));
+      expect(root.scrollTop).toBe(1800);
       page.finish();
       expect(history.scrollRestoration).toBe('manual');
       modal.finish();
       expect(history.scrollRestoration).toBe('auto');
+      expect(root.classList.contains('is-loading-comments')).toBe(false);
 
       root.scrollTop = 1800;
       const later = loading.begin('another-comment');
       vi.advanceTimersByTime(200);
       expect(root.scrollTop).toBe(1800);
+      expect(root.classList.contains('is-loading-comments')).toBe(false);
       expect(history.scrollRestoration).toBe('auto');
       later.finish();
     } finally {

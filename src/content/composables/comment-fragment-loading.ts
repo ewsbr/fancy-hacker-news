@@ -1,7 +1,7 @@
 import type { InjectionKey } from 'vue';
 import { useEventListener } from '@vueuse/core';
 import { inject, onScopeDispose, provide, readonly, ref } from 'vue';
-import { FRAGMENT_LOADING_DELAY_MS, FRAGMENT_NAVIGATION_TIMEOUT_MS } from '@/constants/comment-navigation';
+import { FRAGMENT_LOADING_DELAY_MS, FRAGMENT_NAVIGATION_TIMEOUT_MS, INITIAL_COMMENT_LOADING_CLASS } from '@/constants/comment-navigation';
 import { getExtensionRootHost } from '@/content/utils/root-host';
 import { createLogger } from '@/debug';
 
@@ -40,8 +40,14 @@ export function provideCommentFragmentLoading() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
 
+  // Firefox may retry inner-scroll restoration as placeholder geometry changes.
+  useEventListener(getExtensionRootHost(), 'scroll', () => {
+    if (isPending.value) resetInitialScroll();
+  }, { passive: true });
+
   function settle() {
     clearTimers();
+    getExtensionRootHost()?.classList.remove(INITIAL_COMMENT_LOADING_CLASS);
     if (previousScrollRestoration !== null) {
       history.scrollRestoration = previousScrollRestoration;
       previousScrollRestoration = null;
@@ -97,6 +103,7 @@ export function provideCommentFragmentLoading() {
       settle();
     } else {
       if (isInitialNavigation.value && previousScrollRestoration === null) {
+        getExtensionRootHost()?.classList.add(INITIAL_COMMENT_LOADING_CLASS);
         // Refresh can restore the extension's scroll container after mounting.
         previousScrollRestoration = history.scrollRestoration;
         history.scrollRestoration = 'manual';

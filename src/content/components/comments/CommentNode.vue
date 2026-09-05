@@ -2,6 +2,7 @@
 import type { CommentRenderableNode } from '@/content/composables/comment-node';
 import { MessageSquare } from 'lucide-vue-next';
 import { toRefs } from 'vue';
+import { COMMENT_REPLY_GAP_PX } from '@/constants/comment-rendering';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import {
   useCommentCollapseRegistration,
@@ -11,10 +12,12 @@ import {
   useCommentThreadUi,
   useCommentVoteActionTarget,
 } from '@/content/composables/comment-node';
+import { useCommentPlaceholderHeight } from '@/content/composables/comment-placeholders';
 import { useProgressiveComments } from '@/content/composables/comment-rendering';
-import { useCommentCollapse } from '@/state/comment-collapse';
+import { isCommentInitiallyCollapsed, useCommentCollapse } from '@/state/comment-collapse';
 import CommentBody from './CommentBody.vue';
 import CommentHeader from './CommentHeader.vue';
+import CommentPlaceholder from './CommentPlaceholder.vue';
 import OnStoryHeader from './OnStoryHeader.vue';
 import SubThreadModal from './SubThreadModal.vue';
 
@@ -34,8 +37,6 @@ const props = withDefaults(defineProps<{
   rootVariant: 'default',
   enableMobileSubthreads: true,
 });
-
-const HEAVY_DOWNVOTE = new Set(['cce', 'cdd']);
 
 const {
   depth,
@@ -78,9 +79,7 @@ const {
 const flagTarget = useCommentFlagActionTarget(node);
 const voteTarget = useCommentVoteActionTarget(node);
 
-const initialCollapsed = node.value.isCollapsed || (
-  node.value.grayLevel !== null && HEAVY_DOWNVOTE.has(node.value.grayLevel.toLowerCase())
-);
+const initialCollapsed = isCommentInitiallyCollapsed(node.value);
 
 const { isCollapsed, toggleCollapse } = useCommentCollapse({
   initialCollapsed,
@@ -108,6 +107,12 @@ useCommentCollapseRegistration(node, toggleCollapse);
 const visibleChildren = useProgressiveComments(
   () => node.value.children,
   () => !isCollapsed.value && !childrenInModal,
+);
+const placeholderHeight = useCommentPlaceholderHeight(
+  () => node.value.children,
+  () => visibleChildren.value.length,
+  currentDepth + 1,
+  COMMENT_REPLY_GAP_PX,
 );
 </script>
 
@@ -175,7 +180,7 @@ const visibleChildren = useProgressiveComments(
 
       <div v-else class="comment-node__thread">
         <button class="comment-node__line" type="button" title="Long press to collapse thread" />
-        <div class="comment-node__children">
+        <div class="comment-node__children" :style="{ gap: `${COMMENT_REPLY_GAP_PX}px` }">
           <CommentNode
             v-for="child in visibleChildren"
             :key="child.id"
@@ -188,6 +193,7 @@ const visibleChildren = useProgressiveComments(
             :show-on-story="showOnStory"
             :enable-mobile-subthreads="enableMobileSubthreads"
           />
+          <CommentPlaceholder :height="placeholderHeight" />
         </div>
       </div>
     </template>

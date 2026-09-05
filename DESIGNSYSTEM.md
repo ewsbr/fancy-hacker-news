@@ -174,6 +174,8 @@ Themes:
 - Share the initial component budget across roots and replies; continue mounting in short batches after the first paint
 - Keep mounted comments in the DOM for browser search and selection; do not recycle offscreen nodes
 - Apply `content-visibility: auto` at root boundaries to skip offscreen layout, with a remembered intrinsic height and room for focus/highlight overflow
+- Reserve the unmounted remainder of each root/reply list with one inert visual placeholder. Use the same subtree estimates for placeholders and offscreen root intrinsic heights
+- Estimate only inline content: collapsed comments reserve their header, deferred roots reserve their shell/control, and mobile subthread replies are estimated inside their modal. Estimates depend on text length and surface width; actual layout can still correct the scroll range
 - Fragment targets and their ancestors bypass batching; final scrolling waits for queued replies to finish so the target does not move afterward
 - Threads above the parser's deferred-thread threshold retain their explicit `Load thread` control
 
@@ -184,6 +186,7 @@ Themes:
 - Start initial fragment loading at the top of the extension scroll container; suspend browser scroll restoration until positioning finishes or navigation is cancelled
 - Keep covered comments mounted and measurable, but inert. Never hide them with `display: none` or unmount them to show the cover
 - Page and mobile subthread positioning share one loading lifetime. Reveal comments only after both have finished their instant scrolls
+- Reserve a stable scrollbar gutter on the extension root and modal body. Hide scrollbars only under the initial loading cover, preserving programmatic scrolling; release the restriction on completion, cancellation, timeout, and disposal
 - Delay the `Loading comments` activity message to avoid flashing it on fast navigation; use the timing limits in `src/constants/comment-navigation.ts`
 - Later fragment changes use a non-blocking status indicator, without covering content or moving keyboard focus
 - Clearing the fragment, closing a pending modal, failed lookup, timeout, and page disposal must release their pending work. Stale navigation must never scroll or dismiss a newer navigation's indicator

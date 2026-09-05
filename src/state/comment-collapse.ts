@@ -1,5 +1,10 @@
 import type { Ref } from 'vue';
 import { computed, ref } from 'vue';
+import { COMMENT_COLLAPSED_GRAY_LEVELS } from '@/constants/comment-rendering';
+
+export function isCommentInitiallyCollapsed(node: { isCollapsed: boolean; grayLevel: string | null }) {
+  return node.isCollapsed || COMMENT_COLLAPSED_GRAY_LEVELS.has(node.grayLevel?.toLowerCase() ?? '');
+}
 
 interface CommentCollapseOptions {
   initialCollapsed: boolean;

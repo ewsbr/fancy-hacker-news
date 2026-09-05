@@ -2,11 +2,13 @@
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import type { ThreadEntry } from '@/parsers/threads';
 import { computed, useTemplateRef } from 'vue';
+import { COMMENT_ROOT_GAP_PX } from '@/constants/comment-rendering';
 import {
   provideCommentActionStateRegistry,
   provideCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
+import { provideCommentHeightEstimates } from '@/content/composables/comment-placeholders';
 import { provideCommentRendering } from '@/content/composables/comment-rendering';
 import { useExtensionSettings } from '@/state/settings-context';
 import CommentList from './CommentList.vue';
@@ -24,6 +26,7 @@ const props = withDefaults(defineProps<{
 const rootComponent = computed(() => (props.variant === 'thread' ? ThreadNode : CommentNode));
 const treeRef = useTemplateRef('tree');
 const settings = useExtensionSettings();
+const estimateHeight = provideCommentHeightEstimates(treeRef, { enableMobileSubthreads: props.variant === 'item' });
 const collapseRegistry = provideCommentCollapseRegistry(settings.features.longPressCommentCollapse);
 
 provideCommentActionStateRegistry();
@@ -34,13 +37,14 @@ defineExpose({ whenIdle });
 </script>
 
 <template>
-  <div ref="tree" class="comment-tree" :aria-busy="isRendering">
+  <div ref="tree" class="comment-tree" :aria-busy="isRendering" :style="{ gap: `${COMMENT_ROOT_GAP_PX}px` }">
     <CommentList v-slot="{ visibleComments }" :comments="comments">
       <component
         :is="variant === 'item' && comment.lazyThread ? LazyCommentRoot : rootComponent"
         v-for="comment in visibleComments"
         :key="comment.id"
         :node="comment"
+        :style="{ '--comment-estimated-height': `${estimateHeight(comment)}px` }"
       />
     </CommentList>
   </div>
@@ -50,13 +54,12 @@ defineExpose({ whenIdle });
 .comment-tree {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 
   // Keep completed roots searchable while skipping offscreen layout and paint.
   :deep(> .comment-node),
   :deep(> .lazy-comment-root) {
     content-visibility: auto;
-    contain-intrinsic-block-size: auto 240px;
+    contain-intrinsic-block-size: auto var(--comment-estimated-height);
     overflow-clip-margin: 12px;
   }
 }
