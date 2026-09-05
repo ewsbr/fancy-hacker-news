@@ -27,30 +27,31 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource-variable/atkinson-hyperlegible-next": "^5.2.6",
-    "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "@fontsource-variable/manrope": "^5.2.8",
-    "@iconify-json/material-symbols": "^1.2.73",
-    "@vueuse/core": "^14.3.0",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@iconify-json/material-symbols": "^1.2.90",
+    "@vueuse/core": "^14.4.0",
     "lucide-vue-next": "^1.0.0",
-    "reka-ui": "^2.9.7",
-    "vue": "^3.5.34",
-    "zod": "^4.4.3"
+    "reka-ui": "^2.10.4",
+    "vue": "^3.5.42",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^8.2.0",
-    "@types/chrome": "^0.1.42",
+    "@antfu/eslint-config": "^8.3.0",
+    "@types/chrome": "^0.1.43",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^25.6.2",
-    "@vitejs/plugin-vue": "^6.0.6",
-    "@vue/test-utils": "^2.4.10",
+    "@types/node": "^25.9.5",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.5.0",
+    "eslint": "^10.10.0",
     "jiti": "^2.7.0",
     "jsdom": "^29.1.1",
-    "sass": "^1.99.0",
+    "sass": "^1.104.0",
     "typescript": "^6.0.3",
     "unplugin-icons": "^23.0.1",
-    "vite": "^8.0.11",
+    "vite": "^8.2.2",
     "vitest": "4.1.2",
-    "vue-tsc": "^3.2.8"
+    "vue-tsc": "^3.3.11"
   }
 }
