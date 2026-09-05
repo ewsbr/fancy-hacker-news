@@ -2,7 +2,7 @@
 import type { CommentNode as ParsedCommentNode, ParsedItemPage } from '@/parsers/item';
 import type { CommentFragmentState } from '@/state/fragment-state';
 import { useEventListener } from '@vueuse/core';
-import { computed, inject, nextTick, onMounted, provide, ref, shallowRef } from 'vue';
+import { computed, inject, nextTick, onMounted, provide, ref, shallowRef, useTemplateRef } from 'vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
 import CommentBody from '@/content/components/comments/CommentBody.vue';
 import CommentTree from '@/content/components/comments/CommentTree.vue';
@@ -30,6 +30,7 @@ import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
+const commentTreeRef = useTemplateRef('commentTree');
 const currentUser = useCurrentUser();
 const commentItemDomId = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
@@ -182,7 +183,7 @@ function findCommentPath(
 
 async function syncHashPath() {
   const targetId = location.hash.slice(1) || null;
-  hashNavigationVersion.value += 1;
+  const navigationVersion = ++hashNavigationVersion.value;
   hashTargetId.value = targetId;
   mainThreadHashTargetId.value = targetId;
 
@@ -202,7 +203,12 @@ async function syncHashPath() {
   hashPathIds.value = nextHashPathIds;
 
   await nextTick();
+  // Replies mounted above a fragment can move it after an early scroll.
+  await commentTreeRef.value?.whenIdle();
   await waitForLayoutToSettle();
+  if (navigationVersion !== hashNavigationVersion.value) {
+    return;
+  }
 
   const target = await waitForRenderedHashTarget([targetId]);
   const mainThreadTarget = await waitForRenderedHashTarget(
@@ -211,12 +217,17 @@ async function syncHashPath() {
     true,
   );
 
+  if (navigationVersion !== hashNavigationVersion.value) {
+    return;
+  }
   mainThreadHashTargetId.value = mainThreadTarget?.targetId ?? null;
 
   if (mainThreadTarget) {
     scrollMainPageTarget(mainThreadTarget.element);
     await waitForAnimationFrame();
-    scrollMainPageTarget(mainThreadTarget.element);
+    if (navigationVersion === hashNavigationVersion.value) {
+      scrollMainPageTarget(mainThreadTarget.element);
+    }
     return;
   }
 
@@ -335,7 +346,7 @@ useEventListener(window, 'hashchange', () => {
       <div v-if="totalCommentCount > 0" class="comments-page__comments-header">
         {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
       </div>
-      <CommentTree v-if="totalCommentCount > 0" :comments="pageData.comments" />
+      <CommentTree v-if="totalCommentCount > 0" ref="commentTree" :comments="pageData.comments" />
       <div v-else class="comments-page__empty-state">
         No comments yet.
       </div>

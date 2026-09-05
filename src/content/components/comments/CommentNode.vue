@@ -11,6 +11,7 @@ import {
   useCommentThreadUi,
   useCommentVoteActionTarget,
 } from '@/content/composables/comment-node';
+import { useProgressiveComments } from '@/content/composables/comment-rendering';
 import { useCommentCollapse } from '@/state/comment-collapse';
 import CommentBody from './CommentBody.vue';
 import CommentHeader from './CommentHeader.vue';
@@ -103,6 +104,11 @@ const {
 });
 
 useCommentCollapseRegistration(node, toggleCollapse);
+
+const visibleChildren = useProgressiveComments(
+  () => node.value.children,
+  () => !isCollapsed.value && !childrenInModal,
+);
 </script>
 
 <template>
@@ -171,7 +177,7 @@ useCommentCollapseRegistration(node, toggleCollapse);
         <button class="comment-node__line" type="button" title="Long press to collapse thread" />
         <div class="comment-node__children">
           <CommentNode
-            v-for="child in node.children"
+            v-for="child in visibleChildren"
             :key="child.id"
             :node="child"
             :depth="currentDepth + 1"

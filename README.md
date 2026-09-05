@@ -68,6 +68,16 @@ Design concepts playground:
 
 Production builds write extension assets to `dist/`. Package commands write browser-store ZIPs to `web-ext-artifacts/`.
 
+## Deferred Comment Sources
+
+On extreme item pages, [the item parser](src/parsers/item.ts) captures original comment rows for deferred threads without modifying the source DOM. [Item page state](src/state/item-page-state.ts) manages their lifetime:
+
+- Detach pending rows individually only after successful mounting and source-body cleanup. A shared source parent would retain other threads.
+- Keep rows outside Vue reactivity. Parse them directly when the user loads a thread, then replace them with a cached raw comment model.
+- Keep rows on parse failure so loading can be retried. Reuse the cached model on component remount.
+
+This avoids serializing and reparsing deferred HTML, but retains more DOM memory while threads remain unopened. Source rows must never be detached during initial parsing: a failed mount must leave the original page recoverable.
+
 ## Testing
 
 Tests run with Vitest in two lanes:

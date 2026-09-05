@@ -7,7 +7,9 @@ import {
   provideCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
+import { provideCommentRendering } from '@/content/composables/comment-rendering';
 import { useExtensionSettings } from '@/state/settings-context';
+import CommentList from './CommentList.vue';
 import CommentNode from './CommentNode.vue';
 import LazyCommentRoot from './LazyCommentRoot.vue';
 import ThreadNode from './ThreadNode.vue';
@@ -26,16 +28,21 @@ const collapseRegistry = provideCommentCollapseRegistry(settings.features.longPr
 
 provideCommentActionStateRegistry();
 useDelegatedCommentLongPress(treeRef, collapseRegistry);
+
+const { isRendering, whenIdle } = provideCommentRendering(props.comments);
+defineExpose({ whenIdle });
 </script>
 
 <template>
-  <div ref="tree" class="comment-tree">
-    <component
-      :is="variant === 'item' && comment.lazyThread ? LazyCommentRoot : rootComponent"
-      v-for="comment in comments"
-      :key="comment.id"
-      :node="comment"
-    />
+  <div ref="tree" class="comment-tree" :aria-busy="isRendering">
+    <CommentList v-slot="{ visibleComments }" :comments="comments">
+      <component
+        :is="variant === 'item' && comment.lazyThread ? LazyCommentRoot : rootComponent"
+        v-for="comment in visibleComments"
+        :key="comment.id"
+        :node="comment"
+      />
+    </CommentList>
   </div>
 </template>
 
@@ -44,5 +51,13 @@ useDelegatedCommentLongPress(treeRef, collapseRegistry);
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  // Keep completed roots searchable while skipping offscreen layout and paint.
+  :deep(> .comment-node),
+  :deep(> .lazy-comment-root) {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 240px;
+    overflow-clip-margin: 12px;
+  }
 }
 </style>

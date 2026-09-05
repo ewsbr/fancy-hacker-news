@@ -167,17 +167,24 @@ export function extractRichTextHtml(source: Element | null | undefined): string 
     return '';
   }
 
-  const clone = source.cloneNode(true) as Element;
-  if (shouldNormalizeCommentCodeBlocks(source)) {
-    normalizeCommentCodeBlocks(clone);
-  }
-
-  const html = clone.innerHTML;
+  const html = source.innerHTML;
   if (!html) {
     return '';
   }
 
-  if (QUOTED_HTML_PATTERN.test(html)) {
+  const hasQuotes = QUOTED_HTML_PATTERN.test(html);
+  const hasCode = shouldNormalizeCommentCodeBlocks(source) && source.querySelector('pre') !== null;
+  // Most comments need no normalization. Clone only when we must mutate, so
+  // parsing keeps the source intact without duplicating every comment body.
+  if (!hasQuotes && !hasCode) {
+    return html;
+  }
+
+  const clone = source.cloneNode(true) as Element;
+  if (hasCode) {
+    normalizeCommentCodeBlocks(clone);
+  }
+  if (hasQuotes) {
     normalizeQuotedContent(clone, clone.ownerDocument);
   }
 

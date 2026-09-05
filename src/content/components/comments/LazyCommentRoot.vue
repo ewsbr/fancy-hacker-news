@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import { MessageSquareMore } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
-import { parseCommentThreadHtml } from '@/parsers/item';
+import { computed, ref, shallowRef } from 'vue';
+import { createLogger } from '@/debug';
+import { loadDeferredCommentThread } from '@/state/item-page-state';
 import CommentNode from './CommentNode.vue';
 
 const props = defineProps<{
@@ -11,7 +12,10 @@ const props = defineProps<{
   inModal?: boolean;
 }>();
 
-const loadedRoot = ref<CommentNodeType | null>(null);
+const loadedRoot = shallowRef<CommentNodeType | null>(
+  props.node.lazyThread?.state.kind === 'loaded' ? props.node.lazyThread.state.root : null,
+);
+const logger = createLogger('lazy-comment-root');
 const isLoading = ref(false);
 const loadError = ref<string | null>(null);
 
@@ -20,7 +24,7 @@ const replyLabel = computed(() => {
   return `Load thread (${count} ${count === 1 ? 'reply' : 'replies'})`;
 });
 
-async function loadThread() {
+function loadThread() {
   if (!props.node.lazyThread || isLoading.value || loadedRoot.value) {
     return;
   }
@@ -29,14 +33,12 @@ async function loadThread() {
   loadError.value = null;
 
   try {
-    const parsedRoot = parseCommentThreadHtml(props.node.lazyThread.html);
-    if (!parsedRoot) {
-      loadError.value = 'Failed to load this thread.';
-      return;
+    loadedRoot.value = loadDeferredCommentThread(props.node.lazyThread);
+  } catch (error) {
+    if (!(error instanceof Error)) {
+      throw error;
     }
-
-    loadedRoot.value = parsedRoot;
-  } catch {
+    logger.error(`Failed to parse thread ${props.node.id}`, error);
     loadError.value = 'Failed to load this thread.';
   } finally {
     isLoading.value = false;

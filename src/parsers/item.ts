@@ -69,7 +69,9 @@ export interface ReplyForm {
 
 export interface DeferredCommentThread {
   totalCommentCount: number;
-  html: string;
+  // Source rows stay attached until takeover succeeds. Loading replaces them
+  // with a cached model so remounting does not need the original DOM again.
+  state: { kind: 'pending'; rows: readonly Element[] } | { kind: 'loaded'; root: CommentNode };
 }
 
 export interface ParseItemPageOptions {
@@ -155,7 +157,7 @@ function parseCommentRow(tr: Element): CommentNode {
   };
 }
 
-function buildCommentTree(comtrs: Element[]): CommentTreeBuildResult {
+function buildCommentTree(comtrs: readonly Element[]): CommentTreeBuildResult {
   return buildIndentedCommentTree(comtrs, parseCommentRow);
 }
 
@@ -196,10 +198,10 @@ function splitCommentRowsIntoRootSlices(
   return { slices, maxDepth, collapsedRows };
 }
 
-function createDeferredCommentThread(rows: Element[]): DeferredCommentThread {
+function createDeferredCommentThread(rows: readonly Element[]): DeferredCommentThread {
   return {
     totalCommentCount: rows.length,
-    html: rows.map(row => row.outerHTML).join(''),
+    state: { kind: 'pending', rows },
   };
 }
 
@@ -231,16 +233,8 @@ function buildExtremeCommentTree(
   };
 }
 
-export function parseCommentThreadRows(comtrs: Element[]): CommentNode[] {
+export function parseCommentThreadRows(comtrs: readonly Element[]): CommentNode[] {
   return annotateCommentDescendants(buildCommentTree(comtrs).comments);
-}
-
-export function parseCommentThreadHtml(html: string, doc: Document = document): CommentNode | null {
-  const tbody = doc.createElement('tbody');
-  tbody.innerHTML = html;
-  const rows = Array.from(tbody.querySelectorAll('tr.athing.comtr'));
-  const [root] = parseCommentThreadRows(rows);
-  return root ?? null;
 }
 
 export function parseItemPage(doc: Document, options?: ParseItemPageOptions): ParsedItemPage {

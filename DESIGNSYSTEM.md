@@ -169,6 +169,14 @@ Themes:
 - Mobile should prefer the compact control cluster over repeating long nav labels in the action row
 - Do not place comment navigation links next to vote/reply/edit action groups
 
+### Large Comment Trees
+
+- Share the initial component budget across roots and replies; continue mounting in short batches after the first paint
+- Keep mounted comments in the DOM for browser search and selection; do not recycle offscreen nodes
+- Apply `content-visibility: auto` at root boundaries to skip offscreen layout, with a remembered intrinsic height and room for focus/highlight overflow
+- Fragment targets and their ancestors bypass batching; final scrolling waits for queued replies to finish so the target does not move afterward
+- Threads above the parser's deferred-thread threshold retain their explicit `Load thread` control
+
 ### Hit Areas
 
 - Small controls should use enlarged invisible hit targets

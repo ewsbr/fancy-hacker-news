@@ -81,10 +81,24 @@ function normalizeNavHref(
   return hashIndex >= 0 ? href.slice(hashIndex) : href;
 }
 
-function findNavLink(navs: Element | null | undefined, label: string): string | null {
-  const link = Array.from(navs?.querySelectorAll('a') ?? [])
-    .find(anchor => textOf(anchor).toLowerCase() === label);
-  return hrefOf(link);
+function parseNavLinks(navs: Element | null | undefined, mode: ParseThreadCommentRowOptions['navLinkMode']): ParsedCommentNavLinks {
+  if (!navs) {
+    return { ...EMPTY_NAV_LINKS };
+  }
+  const links = new Map<string, string | null>();
+  for (const anchor of navs.querySelectorAll('a')) {
+    const label = textOf(anchor).toLowerCase();
+    if (!links.has(label)) {
+      links.set(label, normalizeNavHref(hrefOf(anchor), mode));
+    }
+  }
+  return {
+    root: links.get('root') ?? null,
+    parent: links.get('parent') ?? null,
+    prev: links.get('prev') ?? null,
+    next: links.get('next') ?? null,
+    context: links.get('context') ?? null,
+  };
 }
 
 function parseCollapsedCount(comhead: Element | null | undefined): number {
@@ -155,8 +169,8 @@ export function parseThreadCommentRow(
   const commentEl = tr.querySelector('.comment');
   const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
   const commentBody = parseCommentBody(commentEl ?? commtext);
-  const actions = parseCommentActions(commentEl, comhead?.querySelector('.navs'));
   const navs = comhead?.querySelector('.navs');
+  const actions = parseCommentActions(commentEl, navs);
   const navLinkMode = options.navLinkMode ?? 'preserve';
   const ageInfo = parseAge(comhead?.querySelector('.age'));
   const isCollapsed = tr.classList.contains('coll');
@@ -187,15 +201,7 @@ export function parseThreadCommentRow(
     editUrl: actions.editUrl,
     deleteUrl: actions.deleteUrl,
     replyLink: actions.replyLink,
-    navLinks: navs
-      ? {
-          root: normalizeNavHref(findNavLink(navs, 'root'), navLinkMode),
-          parent: normalizeNavHref(findNavLink(navs, 'parent'), navLinkMode),
-          prev: normalizeNavHref(findNavLink(navs, 'prev'), navLinkMode),
-          next: normalizeNavHref(findNavLink(navs, 'next'), navLinkMode),
-          context: normalizeNavHref(findNavLink(navs, 'context'), navLinkMode),
-        }
-      : { ...EMPTY_NAV_LINKS },
+    navLinks: parseNavLinks(navs, navLinkMode),
     onStory: options.includeOnStory ? parseStoryContext(comhead) : null,
   };
 }

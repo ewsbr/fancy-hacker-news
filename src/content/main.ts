@@ -26,7 +26,7 @@ import {
 } from '@/debug';
 import { parseHeader } from '@/parsers/header';
 import { makeNotFoundRoute, resolveRoute } from '@/router';
-import { makeItemPageReactive } from '@/state/item-page-state';
+import { detachDeferredCommentRows, makeItemPageReactive } from '@/state/item-page-state';
 import {
   applySettingsToHost,
   loadExtensionSettings,
@@ -171,6 +171,8 @@ async function mountApp() {
     clearDebugEntries();
     const timeline = createDebugTimeline('main');
     const t0 = performance.now();
+    // Extension storage I/O can run while we parse the source DOM.
+    const settingsReady = timeline.stepAsync('load-settings', loadSettingsForMount);
     const originalBodyChildrenCount = document.body.childElementCount;
     timeline.step('ensure-viewport', () => {
       ensureResponsiveViewport(document);
@@ -186,13 +188,13 @@ async function mountApp() {
       const resolved = resolveRoute(location);
       // HN sends HTTP 200 for all missing pages; the body is just "Unknown."
       // Detect this and use a dedicated page rather than falling through to StaticPage.
-      if (document.body.textContent?.trim() === 'Unknown.') {
+      if (!document.getElementById('hnmain') && document.body.textContent?.trim() === 'Unknown.') {
         return makeNotFoundRoute(location);
       }
       return resolved;
     });
     const parsedRoutePage = timeline.step(`parse-page:${route.page}`, () => parseRoutePage(route, document, location));
-    const settings = await timeline.stepAsync('load-settings', async () => loadSettingsForMount());
+    const settings = await settingsReady;
 
     if (isItemRoutePage(parsedRoutePage)) {
       timeline.step('prepare-item-hash-state', () => {
@@ -208,9 +210,7 @@ async function mountApp() {
       return makeReactive(parsedRoutePage.pageData);
     });
 
-    await timeline.stepAsync('prime-extension-fonts', async () => {
-      await primeExtensionFonts();
-    });
+    await timeline.stepAsync('prime-extension-fonts', primeExtensionFonts);
 
     // 2. Hide original HN content with one rule instead of mutating each body child.
     timeline.step('hide-original-dom', () => {
@@ -335,13 +335,18 @@ async function mountApp() {
       window.setTimeout(() => {
         timeline.step('cleanup-original-body', () => {
           cleanupOriginalBody(host);
+          if (isItemRoutePage(parsedRoutePage)) {
+            detachDeferredCommentRows(parsedRoutePage.pageData);
+          }
         }, () => ({ removedBodyChildren: originalBodyChildrenCount }));
       }, 0);
     })();
   } catch (e) {
     // On failure, restore original HN page.
-    // Remove the hide rule so the original DOM becomes visible again.
+    // Both the bootstrap style and a partially mounted host can obscure it.
     mainLogger.error('Failed to render', e);
+    document.getElementById('fancy-hn-root')?.remove();
+    document.getElementById('hn-anti-fouc')?.remove();
     document.getElementById('fancy-hn-hide-original')?.remove();
     hideOriginalStyle = null;
   }

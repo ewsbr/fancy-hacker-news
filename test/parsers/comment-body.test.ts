@@ -38,6 +38,7 @@ describe('comment body parsing', () => {
 
   it('dedents real comment fixtures that carry a shared leading indent in each code line', async () => {
     const doc = await loadFixtureDocument('comments/code-block-leading-indent.html');
+    const originalHtml = doc.documentElement.outerHTML;
     const parsed = parseCommentBody(doc.querySelector('.comment'));
 
     expect(parsed.html).toContain('<pre><code>[...]\n\n;; ANSWER SECTION:\ncanvas.ucdavis.edu. 1974 IN CNAME ucdavis-vanity.instructure.com.');
@@ -45,6 +46,7 @@ describe('comment body parsing', () => {
     expect(parsed.html).not.toContain('<code>    [...]');
     expect(parsed.html).not.toContain('\n    ;; ANSWER SECTION:');
     expect(parsed.html).not.toContain('\n    canvas.ucdavis.edu.');
+    expect(doc.documentElement.outerHTML).toBe(originalHtml);
   });
 
   it('preserves long linked URLs from HN comment bodies', () => {

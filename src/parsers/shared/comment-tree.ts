@@ -16,7 +16,7 @@ export interface CommentTreeMetrics<T> {
 }
 
 export function buildIndentedCommentTree<T extends ThreadTreeNode<T>>(
-  rows: Element[],
+  rows: readonly Element[],
   parseRow: (row: Element) => T,
 ): CommentTreeMetrics<T> {
   const comments: T[] = [];

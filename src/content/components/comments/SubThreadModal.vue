@@ -14,6 +14,7 @@ import {
   useCommentCollapseRegistry,
   useDelegatedCommentLongPress,
 } from '@/content/composables/comment-node';
+import { useCommentRenderCompletion } from '@/content/composables/comment-rendering';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { waitForAnimationFrames } from '@/content/utils/wait';
 import CommentNode from './CommentNode.vue';
@@ -30,12 +31,18 @@ const emit = defineEmits<{
 const bodyRef = useTemplateRef<HTMLElement>('body');
 const closeButtonRef = useTemplateRef<HTMLButtonElement>('closeButton');
 const collapseRegistry = useCommentCollapseRegistry();
+const whenCommentsRendered = useCommentRenderCompletion();
 
 useDelegatedCommentLongPress(bodyRef, collapseRegistry);
 
 async function scrollToTargetComment(targetId: string) {
   await nextTick();
+  await whenCommentsRendered();
   await waitForAnimationFrames(2);
+
+  if (props.scrollToId !== targetId) {
+    return;
+  }
 
   const target = bodyRef.value?.querySelector<HTMLElement>(`#${CSS.escape(targetId)}`) ?? null;
   if (!target) {
