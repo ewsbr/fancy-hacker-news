@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { FragmentLoadingTask } from '@/content/composables/comment-fragment-loading';
 import type { CommentNode as ParsedCommentNode, ParsedItemPage } from '@/parsers/item';
 import type { CommentFragmentState } from '@/state/fragment-state';
 import { useEventListener } from '@vueuse/core';
@@ -8,6 +9,7 @@ import CommentBody from '@/content/components/comments/CommentBody.vue';
 import CommentTree from '@/content/components/comments/CommentTree.vue';
 import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
+import FragmentLoading from '@/content/components/comments/FragmentLoading.vue';
 import OnStoryHeader from '@/content/components/comments/OnStoryHeader.vue';
 import CommentForm from '@/content/components/forms/CommentForm.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
@@ -16,6 +18,7 @@ import PollOptions from '@/content/components/stories/PollOptions.vue';
 import StoryDetail from '@/content/components/stories/StoryDetail.vue';
 import Badge from '@/content/components/ui/Badge.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
+import { provideCommentFragmentLoading } from '@/content/composables/comment-fragment-loading';
 import { useCurrentUser } from '@/content/composables/current-user';
 import {
   COMMENT_THREAD_ROOT_AUTHOR_KEY,
@@ -31,6 +34,7 @@ const commentsLogger = createLogger('comments');
 
 const pageData = inject<ParsedItemPage>('pageData');
 const commentTreeRef = useTemplateRef('commentTree');
+const fragmentLoading = provideCommentFragmentLoading();
 const currentUser = useCurrentUser();
 const commentItemDomId = computed(() => {
   if (!pageData || pageData.item.type !== 'comment') {
@@ -126,10 +130,12 @@ interface HashTargetMatch {
 
 async function waitForRenderedHashTarget(
   targetIds: string[],
+  isCurrent: () => boolean,
   attempts = 36,
   excludeModal = false,
 ): Promise<HashTargetMatch | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
+    if (!isCurrent()) return null;
     for (const targetId of targetIds) {
       const element = findRenderedHashTarget(targetId, excludeModal);
       if (element) {
@@ -152,7 +158,8 @@ function getMainThreadHashTargetCandidates(targetId: string, path: string[] | nu
 function scrollMainPageTarget(target: HTMLElement) {
   const scrollAnchor = getMainPageScrollAnchor(target);
   scrollAnchor.style.scrollMarginTop = '0px';
-  scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+  // Do not inherit the root's smooth scrolling: readiness requires a settled target.
+  scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
 }
 
 function logFragmentWarning(
@@ -183,20 +190,34 @@ function findCommentPath(
 
 async function syncHashPath() {
   const targetId = location.hash.slice(1) || null;
-  const navigationVersion = ++hashNavigationVersion.value;
+  const navigation = fragmentLoading.begin(targetId);
+  hashNavigationVersion.value += 1;
   hashTargetId.value = targetId;
   mainThreadHashTargetId.value = targetId;
 
   if (!pageData || !targetId) {
     hashPathIds.value = new Set();
     mainThreadHashTargetId.value = null;
+    navigation.finish();
     return;
   }
 
-  const path = findCommentPath(pageData.comments, targetId);
+  try {
+    await positionHashTarget(pageData, targetId, navigation);
+  } catch (error) {
+    if (!(error instanceof Error)) throw error;
+    commentsLogger.error('Failed to open linked comment', { targetId, error: error.message });
+  } finally {
+    navigation.finish();
+  }
+}
+
+async function positionHashTarget(page: ParsedItemPage, targetId: string, navigation: FragmentLoadingTask) {
+  const { isCurrent } = navigation;
+  const path = findCommentPath(page.comments, targetId);
   const nextHashPathIds = new Set(path ?? []);
 
-  if (pageData.item.type === 'comment' && pageData.item.id === targetId) {
+  if (page.item.type === 'comment' && page.item.id === targetId) {
     nextHashPathIds.add(targetId);
   }
 
@@ -206,28 +227,31 @@ async function syncHashPath() {
   // Replies mounted above a fragment can move it after an early scroll.
   await commentTreeRef.value?.whenIdle();
   await waitForLayoutToSettle();
-  if (navigationVersion !== hashNavigationVersion.value) {
+  if (!isCurrent()) {
     return;
   }
 
-  const target = await waitForRenderedHashTarget([targetId]);
+  const target = await waitForRenderedHashTarget([targetId], isCurrent);
   const mainThreadTarget = await waitForRenderedHashTarget(
     getMainThreadHashTargetCandidates(targetId, path),
+    isCurrent,
     36,
     true,
   );
 
-  if (navigationVersion !== hashNavigationVersion.value) {
+  if (!isCurrent()) {
     return;
   }
   mainThreadHashTargetId.value = mainThreadTarget?.targetId ?? null;
 
   if (mainThreadTarget) {
+    navigation.startPositioning();
     scrollMainPageTarget(mainThreadTarget.element);
     await waitForAnimationFrame();
-    if (navigationVersion === hashNavigationVersion.value) {
+    if (isCurrent()) {
       scrollMainPageTarget(mainThreadTarget.element);
     }
+    await waitForAnimationFrame();
     return;
   }
 
@@ -343,12 +367,24 @@ useEventListener(window, 'hashchange', () => {
       </div>
 
       <!-- Tree -->
-      <div v-if="totalCommentCount > 0" class="comments-page__comments-header">
-        {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
-      </div>
-      <CommentTree v-if="totalCommentCount > 0" ref="commentTree" :comments="pageData.comments" />
-      <div v-else class="comments-page__empty-state">
-        No comments yet.
+      <div class="comments-page__comments-region">
+        <div
+          :inert="fragmentLoading.isPending.value && fragmentLoading.isInitialNavigation.value"
+          :aria-busy="fragmentLoading.isPending.value"
+        >
+          <div v-if="totalCommentCount > 0" class="comments-page__comments-header">
+            {{ totalCommentCount }} {{ totalCommentCount === 1 ? 'comment' : 'comments' }}
+          </div>
+          <CommentTree v-if="totalCommentCount > 0" ref="commentTree" :comments="pageData.comments" />
+          <div v-else class="comments-page__empty-state">
+            No comments yet.
+          </div>
+        </div>
+        <FragmentLoading
+          v-if="fragmentLoading.isPending.value"
+          :cover="fragmentLoading.isInitialNavigation.value"
+          :show-indicator="fragmentLoading.showIndicator.value"
+        />
       </div>
     </div>
   </div>
@@ -360,6 +396,10 @@ useEventListener(window, 'hashchange', () => {
 
   &__container {
     padding-bottom: 8px;
+  }
+
+  &__comments-region {
+    position: relative;
   }
 
   &__comment-parent {

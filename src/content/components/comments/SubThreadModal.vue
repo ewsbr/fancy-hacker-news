@@ -9,7 +9,8 @@ import {
   DialogRoot,
   DialogTitle,
 } from 'reka-ui';
-import { nextTick, useTemplateRef, watch } from 'vue';
+import { inject, nextTick, useTemplateRef, watch } from 'vue';
+import { useCommentFragmentLoading } from '@/content/composables/comment-fragment-loading';
 import {
   useCommentCollapseRegistry,
   useDelegatedCommentLongPress,
@@ -17,7 +18,9 @@ import {
 import { useCommentRenderCompletion } from '@/content/composables/comment-rendering';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { waitForAnimationFrames } from '@/content/utils/wait';
+import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
 import CommentNode from './CommentNode.vue';
+import FragmentLoading from './FragmentLoading.vue';
 
 const props = defineProps<{
   node: CommentNodeType;
@@ -32,15 +35,17 @@ const bodyRef = useTemplateRef<HTMLElement>('body');
 const closeButtonRef = useTemplateRef<HTMLButtonElement>('closeButton');
 const collapseRegistry = useCommentCollapseRegistry();
 const whenCommentsRendered = useCommentRenderCompletion();
+const fragmentLoading = useCommentFragmentLoading();
+const fragmentState = inject(COMMENT_FRAGMENT_STATE_KEY, null);
 
 useDelegatedCommentLongPress(bodyRef, collapseRegistry);
 
-async function scrollToTargetComment(targetId: string) {
+async function scrollToTargetComment(targetId: string, isCurrent: () => boolean, startPositioning?: () => void) {
   await nextTick();
   await whenCommentsRendered();
   await waitForAnimationFrames(2);
 
-  if (props.scrollToId !== targetId) {
+  if (!isCurrent()) {
     return;
   }
 
@@ -50,11 +55,14 @@ async function scrollToTargetComment(targetId: string) {
   }
 
   const header = target.querySelector<HTMLElement>('.comment-node__header') ?? target;
-  header.scrollIntoView({ block: 'start' });
+  startPositioning?.();
+  header.scrollIntoView({ block: 'start', behavior: 'instant' });
+  await waitForAnimationFrames(1);
 }
 
 function onOpenChange(open: boolean) {
   if (!open) {
+    if (fragmentLoading?.isPending.value) fragmentLoading.cancel();
     emit('close');
   }
 }
@@ -65,25 +73,22 @@ function onOpenAutoFocus(event: Event) {
 }
 
 watch(
-  () => props.node.id,
-  async () => {
-    if (props.scrollToId) {
-      await scrollToTargetComment(props.scrollToId);
+  [() => props.node.id, () => props.scrollToId, () => fragmentState?.hashNavigationVersion.value],
+  async ([_nodeId, scrollToId], _previous, onCleanup) => {
+    if (!scrollToId) return;
+    const task = fragmentLoading?.track(scrollToId);
+    let active = true;
+    onCleanup(() => {
+      active = false;
+      task?.finish();
+    });
+    try {
+      await scrollToTargetComment(scrollToId, () => active && (task?.isCurrent() ?? true), task?.startPositioning);
+    } finally {
+      task?.finish();
     }
   },
-  { immediate: true },
-);
-
-watch(
-  () => props.scrollToId,
-  async (scrollToId) => {
-    if (!scrollToId) {
-      return;
-    }
-
-    await scrollToTargetComment(scrollToId);
-  },
-  { flush: 'post' },
+  { immediate: true, flush: 'post' },
 );
 </script>
 
@@ -107,8 +112,20 @@ watch(
               </button>
             </DialogClose>
           </div>
-          <div ref="body" class="sub-thread-modal__body">
-            <CommentNode :node="node" :depth="0" :in-modal="true" />
+          <div class="sub-thread-modal__body-region">
+            <div
+              ref="body"
+              class="sub-thread-modal__body"
+              :inert="fragmentLoading?.isPending.value && fragmentLoading.isInitialNavigation.value"
+              :aria-busy="fragmentLoading?.isPending.value ?? false"
+            >
+              <CommentNode :node="node" :depth="0" :in-modal="true" />
+            </div>
+            <FragmentLoading
+              v-if="fragmentLoading?.isPending.value"
+              :cover="fragmentLoading.isInitialNavigation.value"
+              :show-indicator="fragmentLoading.showIndicator.value"
+            />
           </div>
         </DialogContent>
       </DialogOverlay>
@@ -184,6 +201,14 @@ watch(
       color: var(--color-text);
       background: var(--color-border);
     }
+  }
+
+  &__body-region {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 
   &__body {

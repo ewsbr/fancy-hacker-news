@@ -140,14 +140,6 @@ function prepareInitialItemHashState(pageData: ParsedItemPage) {
   }
 }
 
-function resetInitialHashScroll() {
-  if (!location.hash) {
-    return;
-  }
-
-  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-}
-
 function isItemRoutePage(routePage: ParsedRoutePage): routePage is Extract<ParsedRoutePage, { route: { page: 'item' } }> {
   if (routePage.route.page !== 'item') {
     return false;
@@ -241,12 +233,6 @@ async function mountApp() {
     });
 
     const mountPoint = host;
-
-    if (route.page === 'item') {
-      timeline.step('reset-initial-hash-scroll', () => {
-        resetInitialHashScroll();
-      });
-    }
 
     // 4. Mount Vue app with parsed data
     // renderTime is a reactive ref so it can be updated after the first visible

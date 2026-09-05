@@ -177,6 +177,19 @@ Themes:
 - Fragment targets and their ancestors bypass batching; final scrolling waits for queued replies to finish so the target does not move afterward
 - Threads above the parser's deferred-thread threshold retain their explicit `Load thread` control
 
+### Fragment Loading
+
+- Normal page loads and background rendering do not show a loading indicator
+- Initial fragment navigation covers the comment area while it renders and positions the target; the story and site navigation stay visible
+- Start initial fragment loading at the top of the extension scroll container; suspend browser scroll restoration until positioning finishes or navigation is cancelled
+- Keep covered comments mounted and measurable, but inert. Never hide them with `display: none` or unmount them to show the cover
+- Page and mobile subthread positioning share one loading lifetime. Reveal comments only after both have finished their instant scrolls
+- Delay the `Loading comments` activity message to avoid flashing it on fast navigation; use the timing limits in `src/constants/comment-navigation.ts`
+- Later fragment changes use a non-blocking status indicator, without covering content or moving keyboard focus
+- Clearing the fragment, closing a pending modal, failed lookup, timeout, and page disposal must release their pending work. Stale navigation must never scroll or dismiss a newer navigation's indicator
+- Do not expire fragment navigation while the tab is hidden; rendering frames pause in background tabs
+- Loading uses theme tokens and respects reduced-motion preferences; modal close controls remain available above the cover
+
 ### Hit Areas
 
 - Small controls should use enlarged invisible hit targets
