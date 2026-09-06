@@ -155,28 +155,39 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     font-variant-numeric: tabular-nums;
     border-radius: 8px;
     background: transparent;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
 
     &:visited,
     &:focus {
       color: var(--color-text-muted);
     }
 
+    &:hover,
     &:active {
-      color: var(--color-accent-muted);
+      color: var(--color-text);
+    }
+
+    &:active {
       background: var(--color-row-hover);
+      box-shadow: var(--shadow-elevation), inset 0 0 0 1px var(--color-border);
       text-decoration: none;
-      transition-duration: 0s, 0s;
+      transition-duration: 0s, 0s, 0s;
     }
 
     @media (hover: none) {
       transition:
-        color 0.85s ease-out,
-        background-color 0.45s ease-out;
+        color 0.45s ease-out,
+        background-color 0.45s ease-out,
+        box-shadow 0.45s ease-out;
     }
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
-        color: var(--color-accent-muted);
+        background: var(--color-row-hover);
+        box-shadow: var(--shadow-elevation), inset 0 0 0 1px var(--color-border);
         text-decoration: none;
       }
     }
@@ -223,6 +234,14 @@ const commentRailCount = computed(() => props.story.commentCount ?? 0);
     &__comments {
       min-width: 34px;
     }
+  }
+}
+
+// Light theme has no data-theme attribute; its elevation shadow is faint on
+// paper, so deepen the hover wash for contrast. Other themes keep row-hover.
+@media (hover: hover) and (pointer: fine) {
+  #fancy-hn-root:not([data-theme]) .story-row__comments:hover {
+    background: var(--color-code-bg);
   }
 }
 </style>
