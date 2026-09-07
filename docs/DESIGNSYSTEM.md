@@ -12,22 +12,22 @@ Shared UI principles for Fancy Hacker News. Exact values belong in styles and co
 ## Layout and Responsiveness
 
 - Use readable content widths and let layouts adapt to available space.
-- Respect the selected content width through `--fhn-content-max-width`; presets live in [settings.ts](src/state/settings.ts).
-- Prefer flexible wrapping and existing responsive conventions over new component-specific breakpoints. See [AGENTS.md](AGENTS.md#responsive-rules) for project defaults.
+- Respect the selected content width through `--fhn-content-max-width`; presets live in [settings.ts](../src/state/settings.ts).
+- Prefer flexible wrapping and existing responsive conventions over new component-specific breakpoints. See [AGENTS.md](../AGENTS.md#responsive-rules) for project defaults.
 - On small screens, reduce surrounding chrome and give content and controls room to breathe.
 - Keep related content in one surface. Use attached pagination when `More` continues the same card or list; use standalone pagination for a separate surface.
 - Keep wrapped metadata and action groups visually distinct, without orphaned separators.
 
 ## Typography and Spacing
 
-- Use the shared font roles in [main.scss](src/styles/main.scss): body text for reading, title text for headings, and monospace for code and compact accents.
+- Use the shared font roles in [main.scss](../src/styles/main.scss): body text for reading, title text for headings, and monospace for code and compact accents.
 - Keep metadata legible and consistent across story and comment views. Adapt mobile density through spacing and hit areas before shrinking text.
 - Keep badges secondary to titles and consistent across views.
 - Use `rem` for typography and `px` for layout so larger text does not inflate the page scaffolding.
 
 ## Themes
 
-- Use the semantic tokens in [_theme-tokens.scss](src/styles/_theme-tokens.scss) for colors and shadows. Prefer existing tokens over local color derivations.
+- Use the semantic tokens in [_theme-tokens.scss](../src/styles/_theme-tokens.scss) for colors and shadows. Prefer existing tokens over local color derivations.
 - Keep text, controls, focus states, and loading indicators clear in every theme.
 - Keep extension styling scoped to `#fancy-hn-root`, with component styles in scoped SCSS.
 

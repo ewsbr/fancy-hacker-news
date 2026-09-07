@@ -4,12 +4,10 @@ Fancy Hacker News is a Manifest V3 browser extension for Chrome and Firefox that
 
 There is still no SPA routing and no custom backend.
 
----
-
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| --- | --- |
 | UI | Vue 3, Composition API, `<script setup lang="ts">` |
 | Language | TypeScript, strict mode |
 | Styling | Raw SCSS with global tokens/reset + scoped component styles |
@@ -18,8 +16,6 @@ There is still no SPA routing and no custom backend.
 | Package manager | pnpm |
 | Icons | `lucide-vue-next` |
 | UI primitives | `reka-ui` |
-
----
 
 ## Key Commands
 
@@ -35,18 +31,15 @@ pnpm concepts:dev      # run the design concepts playground
 
 Use Conventional Commits when making git commits.
 
----
-
 ## Primary Docs
 
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md) — development command reference, including Firefox Android launcher overrides
 - [README.md](README.md) — contributor overview and local build/load instructions
-- [EXTENSION.md](EXTENSION.md) — shared release description for AMO and Chrome; keep the store-specific copies in `marketplaces/` consistent with it
-- [DESIGNSYSTEM.md](DESIGNSYSTEM.md) — shared UI conventions
+- [Firefox release description](docs/marketplaces/EXTENSION-FIREFOX.md) and [Chrome release description](docs/marketplaces/EXTENSION-CHROME.md) — store release copy
+- [DESIGNSYSTEM.md](docs/DESIGNSYSTEM.md) — shared UI conventions
 - [test/fixtures/README.md](test/fixtures/README.md) — fixture categories and naming
 
-Update `DESIGNSYSTEM.md` whenever you materially change shared responsive behavior, attached pagination treatment, badge sizing, or tap-target conventions.
-
----
+Update `docs/DESIGNSYSTEM.md` whenever you materially change shared responsive behavior, attached pagination treatment, badge sizing, or tap-target conventions.
 
 ## Runtime Flow
 
@@ -61,39 +54,35 @@ Update `DESIGNSYSTEM.md` whenever you materially change shared responsive behavi
 
 `src/content/anti-fouc.ts` runs at `document_start` to reduce flash-of-unstyled-content before the main content script mounts.
 
----
-
 ## Important Files
 
 This is the shortest useful map of the codebase. Start here before drilling into subfolders.
 
 ```text
 src/
-  content/main.ts                     # parse -> hide -> mount -> cleanup
-  content/anti-fouc.ts                # document_start anti-FOUC bootstrap
-  content/route-page.ts               # route -> parser, typed data, page component
-  content/App.vue                     # render the selected page inside the shell
-  content/components/layout/AppShell.vue  # shared shell + search modal
-  content/composables/use-hn-actions.ts   # vote / flag against HN endpoints
-  content/pages/                      # page-level route components
-  parsers/                            # original DOM -> typed page models
-  router/index.ts                     # resolveRoute(location)
-  state/item-page-state.ts            # large item/comment performance helpers
-  state/settings.ts                  # validated settings, migration, local storage
-  state/settings-context.ts          # reactive settings and persistence
-  settings/                          # standalone extension options page
-  background/main.ts                 # open options page via validated messages
-  styles/main.scss                    # global styling entrypoint
-  styles/_theme-tokens.scss           # theme variables
+  content/main.ts                           # parse -> hide -> mount -> cleanup
+  content/anti-fouc.ts                      # document_start anti-FOUC bootstrap
+  content/route-page.ts                     # route -> parser, typed data, page component
+  content/App.vue                           # render the selected page inside the shell
+  content/components/layout/AppShell.vue    # shared shell + search modal
+  content/composables/use-hn-actions.ts     # vote / flag against HN endpoints
+  content/pages/                            # page-level route components
+  parsers/                                  # original DOM -> typed page models
+  router/index.ts                           # resolveRoute(location)
+  state/item-page-state.ts                  # large item/comment performance helpers
+  state/settings.ts                         # validated settings, migration, local storage
+  state/settings-context.ts                 # reactive settings and persistence
+  settings/                                 # standalone extension options page
+  background/main.ts                        # open options page via validated messages
+  styles/main.scss                          # global styling entrypoint
+  styles/_theme-tokens.scss                 # theme variables
 
-manifest.json                         # extension entrypoints and injected assets
-vite.config.ts                        # Vite targets, IIFE output, asset URL handling
-scripts/package-extension.mjs         # browser-specific manifests and ZIP staging
-test/fixtures/                        # real HN HTML snapshots for parser work
-test/                                 # Vitest coverage for parsers and content behavior
+manifest.json                               # extension entrypoints and injected assets
+vite.config.ts                              # Vite targets, IIFE output, asset URL handling
+scripts/package-extension.mjs               # browser-specific manifests and ZIP staging
+test/fixtures/                              # real HN HTML snapshots for parser work
+test/                                       # Vitest coverage for parsers and content behavior
 ```
-
----
 
 ## Where To Start
 
@@ -101,11 +90,9 @@ test/                                 # Vitest coverage for parsers and content 
 - Rendering or UX bug: start in `src/content/pages/` for page-level issues, then `src/content/components/` for shared UI.
 - Vote, flag, or other native action issues: inspect `src/content/composables/use-hn-actions.ts` first.
 - Search, chrome, or keyboard shortcut changes: inspect `src/content/components/layout/AppShell.vue` and related layout components.
-- Theme or spacing regressions: inspect `src/styles/main.scss`, `src/styles/_theme-tokens.scss`, and `DESIGNSYSTEM.md`.
+- Theme or spacing regressions: inspect `src/styles/main.scss`, `src/styles/_theme-tokens.scss`, and `docs/DESIGNSYSTEM.md`.
 - Build or asset loading issues: inspect `vite.config.ts` and `manifest.json`.
 - Settings issues: inspect `src/state/settings.ts`, `src/state/settings-context.ts`, and `src/settings/`.
-
----
 
 ## Architecture Rules
 
@@ -136,16 +123,11 @@ test/                                 # Vitest coverage for parsers and content 
 - If a local control should grow a bit with larger text, prefer bounded `clamp(...)` or `em` tied to the component's own font size, not unbounded root-`rem` spacing.
 - Keep content container widths in `px`; do not let global max-widths expand with root font size.
 
----
-
 ## Responsive Rules
 
 - `640px` is the primary mobile breakpoint.
 - `768px` is the primary medium/sidebar breakpoint.
-- Treat older values like `980`, `720`, `480`, and `380` as legacy or layout-specific, not new defaults.
-- When adding responsive behavior, first check whether `640px` or `768px` already expresses it cleanly.
-
----
+- The [footer](src/content/components/layout/SiteFooter.vue) and [user settings form](src/content/pages/UserPage.vue) also use layout-specific breakpoints; these are not project defaults.
 
 ## Themes
 
@@ -157,8 +139,6 @@ Theme state is applied through `data-theme` on `#fancy-hn-root`.
 - `amoled`
 
 Theme tokens live in `src/styles/_theme-tokens.scss` and are consumed by `src/styles/main.scss`.
-
----
 
 ## Parsers
 
@@ -174,10 +154,3 @@ Main parser groups:
 - `leaders.ts`, `lists.ts`, `top-colors.ts`, and `delete-confirm.ts` for special HN utility pages
 
 When parser behavior changes, update the relevant fixture-backed tests.
-
----
-
-## Files To Ignore
-
-- `dist/` — build output, not committed
-- `web-ext-artifacts/` — packaged browser artifacts
