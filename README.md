@@ -10,7 +10,7 @@
 
 A Chrome and Firefox extension that fully parses and re-renders Hacker News pages with Vue 3.
 
-No SPA routing. All behaviors are kept native: all actions go directly to HN.
+No SPA routing. All behaviors are kept native: actions go directly to HN.
 
 ![Redesigned frontpage](./images/image.png)
 

@@ -2,6 +2,12 @@
 
 All committed fixtures must live under one of the categorized folders in this directory. Do not add new snapshot files at the root.
 
+## Usage
+
+Use `loadFixtureDocument()` or `loadFixtureHtml()` from [test/helpers/load-fixture.ts](../helpers/load-fixture.ts), passing a path relative to this directory. Parser tests use isolated documents in the default Node environment; only tests that need browser globals should opt into jsdom. See [Testing](../../README.md#testing).
+
+Preserve the HN markup responsible for the behavior under test, including hidden field names and action URL parameters. Replace live credentials and CSRF tokens with inert fixture values before committing; assert that parsers preserve those values. Tests must not make live HN requests.
+
 ## Categories
 
 - `comments/`: flat comment-list pages, user comment collections, and comment-row fragments.

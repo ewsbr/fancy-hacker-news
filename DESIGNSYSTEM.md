@@ -1,226 +1,44 @@
 # Design System
 
-This file is the working UI contract for Fancy HackerNews. Use it to keep layout, typography, spacing, and interaction behavior consistent across pages and components.
+Shared UI principles for Fancy Hacker News. Exact values belong in styles and components; this guide records the conventions that should stay consistent across pages.
 
 ## Principles
 
-- Preserve Hacker News semantics, but not its visual density
-- Prefer readability over compactness, especially on mobile
-- Keep interactions native-looking and obvious
-- Avoid adding one-off breakpoints or component-local visual systems unless there is a strong reason
-- Reuse the same spacing and typography rhythm across story, comment, and form surfaces
+- Preserve Hacker News semantics and native links, forms, and actions.
+- Balance density and readability. Favor readability on small screens.
+- Reuse shared components, typography, spacing, and theme tokens.
+- Keep controls lightweight, recognizable, and accessible by keyboard and touch.
 
-## Breakpoints
+## Layout and Responsiveness
 
-### Canonical
+- Use readable content widths and let layouts adapt to available space.
+- Respect the selected content width through `--fhn-content-max-width`; presets live in [settings.ts](src/state/settings.ts).
+- Prefer flexible wrapping and existing responsive conventions over new component-specific breakpoints. See [AGENTS.md](AGENTS.md#responsive-rules) for project defaults.
+- On small screens, reduce surrounding chrome and give content and controls room to breathe.
+- Keep related content in one surface. Use attached pagination when `More` continues the same card or list; use standalone pagination for a separate surface.
+- Keep wrapped metadata and action groups visually distinct, without orphaned separators.
 
-- `max-width: 640px`
-  Primary mobile breakpoint. This is the default responsive cutoff for content density, tap targets, card edge treatment, comment metadata scaling, and compact layouts.
+## Typography and Spacing
 
-- `min-width: 641px`
-  Desktop counterpart when a component needs an explicit non-mobile branch.
+- Use the shared font roles in [main.scss](src/styles/main.scss): body text for reading, title text for headings, and monospace for code and compact accents.
+- Keep metadata legible and consistent across story and comment views. Adapt mobile density through spacing and hit areas before shrinking text.
+- Keep badges secondary to titles and consistent across views.
+- Use `rem` for typography and `px` for layout so larger text does not inflate the page scaffolding.
 
-### Secondary Layout Breakpoints
+## Themes
 
-- `max-width: 768px`
-  Navigation and medium-layout collapse point. Used for header/mobile nav and some footer stacking.
+- Use the semantic tokens in [_theme-tokens.scss](src/styles/_theme-tokens.scss) for colors and shadows. Prefer existing tokens over local color derivations.
+- Keep text, controls, focus states, and loading indicators clear in every theme.
+- Keep extension styling scoped to `#fancy-hn-root`, with component styles in scoped SCSS.
 
-- `min-width: 768px`
-  Sidebar / two-column layouts begin here, especially on the user page.
+## Interaction
 
-### Existing Legacy / Component-Specific Breakpoints
+- Reuse shared controls for pagination, search, metadata separators, and inline actions.
+- Use `reka-ui` for dialogs, menus, tooltips, and other focus-managed controls.
+- Give small icons generous hit areas without crowding adjacent controls.
+- Make hover, focus, active, and busy states clear without shifting layout. Respect reduced-motion preferences.
+- Keep comment navigation distinct from vote, reply, and edit actions.
+- Preserve browser search, text selection, and stable navigation in long comment threads.
+- Keep loading feedback unobtrusive. When positioning an initial comment target requires a cover, keep site navigation and modal close controls available.
 
-- `max-width: 980px`
-  Footer large-layout collapse
-- `max-width: 720px`
-  Footer grid reduction
-- `max-width: 480px`
-  Small form-field layout adjustments on the user page
-- `max-width: 380px`
-  Very narrow footer fallback
-
-### Standardization Rule
-
-- Default to `640px` for mobile behavior
-- Default to `768px` for medium / navigation / sidebar layout changes
-- Do not introduce new breakpoints unless the current component already uses one or the layout genuinely cannot be expressed with `640` and `768`
-- When touching older footer or profile code, prefer consolidating toward the existing values above rather than adding more
-
-## Typography
-
-Defined in [main.scss](/home/ews/WebstormProjects/hackernews/src/styles/main.scss).
-
-- Body font: `Atkinson Hyperlegible Next Variable`
-- Title/display font: `Manrope Variable`
-- Mono font: `JetBrains Mono Variable`
-
-### Type Roles
-
-- Body copy uses the body font with strong legibility and moderate line height
-- Standard reading text and standard text inputs should default to `1rem` / `16px`
-- Story titles and section headers use the title font
-- Badges, toggles, ranks, and compact metadata accents often use mono styling or high-weight uppercase treatment
-- Shared compact metadata for usernames, relative time, and inline story/item actions uses `0.875rem` type with a `1.25rem` line height and a `24px` minimum row height
-
-### Mobile Typography Direction
-
-- Small interactive glyph clusters such as `< # >` should have larger hit areas without visually bloating their container
-- Story title and story site badge may scale on mobile, but shared compact metadata should keep the same type size on desktop and mobile
-
-## Color Tokens
-
-Defined as CSS custom properties on `#fancy-hn-root` and theme variants in [main.scss](/home/ews/WebstormProjects/hackernews/src/styles/main.scss).
-
-Core tokens:
-
-- `--color-bg`
-- `--color-surface`
-- `--color-accent`
-- `--color-accent-contrast`
-- `--color-text`
-- `--color-text-muted`
-- `--color-border`
-- `--color-code-bg`
-- `--color-downvoted`
-- `--color-new-user`
-- `--color-danger`
-- `--shadow-elevation`
-- `--shadow-modal`
-
-Derived tokens:
-
-- Use aliases for obvious duplicates such as quote-border/accent and chrome-surface/surface where possible
-- Prefer explicitly authored theme colors over broad color mixing for shared UI tones; reserve `color-mix()` for special cases such as dynamic HN top-bar overrides
-- `--color-chrome-surface` and `--color-chrome-border` default to `surface` and `border`, with theme-specific overrides only when a shell surface must diverge
-
-Themes:
-
-- `light`
-- `dark`
-- `nord`
-- `amoled`
-
-## Layout
-
-### Root Shell
-
-- Main app width is typically capped around `1024px`
-- The content scripts ensure a responsive viewport meta tag is present before mobile layout detection, because older static HN pages omit it and otherwise render against a wide legacy viewport on mobile
-- Shared content surfaces use `.hn-content-card`
-- On mobile, cards usually lose side borders and corner radius to align flush with the viewport
-- When a `More` footer continues the same list surface, keep it inside that card shell with the attached pagination treatment instead of rendering a second bordered box below it
-
-### Common Page Widths
-
-- General content shell: `1024px`
-- User page: `800px`
-- Search modal: `560px`
-- Static/format pages: about `48rem`
-- Leaders/list pages: narrower fixed reading widths where appropriate
-
-## Spacing
-
-### General
-
-- Desktop metadata rows tend to use tight gaps
-- Mobile metadata rows should open up slightly in both `column-gap` and `row-gap`
-- Action rows should not visually collide with metadata rows; if they wrap, they should read as a second line rather than a continuation error
-
-### Separator Rule
-
-- `MetaSep` is the standard inline separator
-- Do not allow orphaned separators at the beginning of wrapped mobile action rows
-- If an action cluster wraps on mobile, prefer hiding separators and using flex gap instead
-
-## Components
-
-### Story Header
-
-- Title, site badge, badges, and metadata should feel like one system
-- On mobile, enlarge:
-  - story title
-  - site/domain badge
-  - spacing between metadata and action items
-- Story action rows on mobile should sit slightly lower than the score/byline line when wrapped
-- Inline story/item actions such as `hide`, `past`, `latest`, `favorite`, and comment-count links should render at semibold weight
-
-### Pagination
-
-- `Pagination` is the standard `More` footer treatment
-- Use the standalone variant when it is visually separate from the content above
-- Use the attached variant when it continues the same card/list surface so the footer reads as one connected component with the rows above it
-- Avoid stacking two fully bordered cards just to place `More` below a list
-
-### Comment Metadata
-
-- Desktop can be dense
-- Item comments and thread comments should use the same header layout and sizing rules
-- Comment metadata uses the same type size on desktop and mobile; mobile density changes should come from spacing and hit areas instead
-- The primary metadata row height is `24px`, and the collapse toggle should match that height
-- The collapse toggle should center within a single metadata row but remain top-aligned when the metadata wraps to two rows
-- Trailing icon controls should be rendered last
-- For mobile, compact icon clusters are acceptable; long text navigation links are not
-- Mobile comment action rows should also scale up primary actions like upvote and reply with larger text and larger invisible hit targets
-
-### Comment Navigation
-
-- `latest`, `root`, `parent`, and `context` are text-style metadata links when shown
-- `prev`, permalink `#`, and `next` are compact icon controls when rendered in the metadata tail
-- Mobile should prefer the compact control cluster over repeating long nav labels in the action row
-- Do not place comment navigation links next to vote/reply/edit action groups
-
-### Large Comment Trees
-
-- Share the initial component budget across roots and replies; continue mounting in short batches after the first paint
-- Keep mounted comments in the DOM for browser search and selection; do not recycle offscreen nodes
-- Apply `content-visibility: auto` at root boundaries to skip offscreen layout, with a remembered intrinsic height and room for focus/highlight overflow
-- Reserve the unmounted remainder of each root/reply list with one inert visual placeholder. Use the same subtree estimates for placeholders and offscreen root intrinsic heights
-- Estimate only inline content: collapsed comments reserve their header, deferred roots reserve their shell/control, and mobile subthread replies are estimated inside their modal. Estimates depend on text length and surface width; actual layout can still correct the scroll range
-- Fragment targets and their ancestors bypass batching; final scrolling waits for queued replies to finish so the target does not move afterward
-- Threads above the parser's deferred-thread threshold retain their explicit `Load thread` control
-
-### Fragment Loading
-
-- Normal page loads and background rendering do not show a loading indicator
-- Initial fragment navigation covers the comment area while it renders and positions the target; the story and site navigation stay visible
-- Start initial fragment loading at the top of the extension scroll container; suspend browser scroll restoration until positioning finishes or navigation is cancelled
-- Keep covered comments mounted and measurable, but inert. Never hide them with `display: none` or unmount them to show the cover
-- Page and mobile subthread positioning share one loading lifetime. Reveal comments only after both have finished their instant scrolls
-- Reserve a stable scrollbar gutter on the extension root and modal body. Hide scrollbars only under the initial loading cover, preserving programmatic scrolling; release the restriction on completion, cancellation, timeout, and disposal
-- Delay the `Loading comments` activity message to avoid flashing it on fast navigation; use the timing limits in `src/constants/comment-navigation.ts`
-- Later fragment changes use a non-blocking status indicator, without covering content or moving keyboard focus
-- Clearing the fragment, closing a pending modal, failed lookup, timeout, and page disposal must release their pending work. Stale navigation must never scroll or dismiss a newer navigation's indicator
-- Do not expire fragment navigation while the tab is hidden; rendering frames pause in background tabs
-- Loading uses theme tokens and respects reduced-motion preferences; modal close controls remain available above the cover
-
-### Hit Areas
-
-- Small controls should use enlarged invisible hit targets
-- Increase tap area first; increase visual footprint only when necessary
-- This is especially important for vote controls, fragment/permalink buttons, and compact nav arrows
-
-## Interaction Patterns
-
-- Native links and forms are preferred over custom client navigation
-- Inline controls should feel lightweight, not button-heavy
-- Pill-styled controls are acceptable sparingly; avoid placing multiple competing pill/button treatments in the same short action row
-- `SearchTrigger` is the standard search entry control; when it sits beside nearby navigation, the surrounding actions should usually be lighter inline links rather than a second competing pill/button
-- Hover/focus states generally shift toward `--color-accent` or full text color
-- Busy/active states should rely on opacity and accent color, not layout movement
-
-## Parser / UI Responsibility Boundary
-
-- Parsers should extract HN data faithfully
-- UI should interpret and present that data clearly
-- If HN itself emits inconsistent or buggy navigation markup, do not assume the extension should “correct” it unless there is a clear product decision to diverge
-
-## Documentation Rule For Future Changes
-
-If you change any of the following, update this file in the same task:
-
-- responsive breakpoints
-- typography scale
-- mobile metadata sizing
-- standard action-row behavior
-- badge styles
-- shared interaction hit-area rules
+Update this guide when shared UI conventions change. Record constraints and rationale; leave component-specific values in code.

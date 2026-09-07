@@ -1,6 +1,6 @@
 # Fancy HackerNews — Agent Guide
 
-Fancy HackerNews is a Manifest V3 browser extension for Chrome and Firefox that fully re-renders Hacker News pages with a Vue 3 app mounted into the live document body. Initial data always comes from the original HN DOM before the page is hidden. Interactive behavior stays native to Hacker News: links and forms keep pointing at HN, vote and flag actions use HN endpoints, and search opens Algolia in a new tab.
+Fancy Hacker News is a Manifest V3 browser extension for Chrome and Firefox that re-renders Hacker News pages with a Vue 3 app mounted into the live document body. Page data comes from the original HN DOM, including retained rows for deferred comment parsing. Links and forms keep pointing at HN, vote and flag actions use HN endpoints, and the search dialog opens Algolia results in a new tab.
 
 There is still no SPA routing and no custom backend.
 
@@ -13,7 +13,7 @@ There is still no SPA routing and no custom backend.
 | UI | Vue 3, Composition API, `<script setup lang="ts">` |
 | Language | TypeScript, strict mode |
 | Styling | Raw SCSS with global tokens/reset + scoped component styles |
-| Build | Vite 8, separate content and anti-FOUC targets |
+| Build | Vite, separate content, anti-FOUC, settings, and background targets |
 | Testing | Vitest with fixture-based parser and content tests |
 | Package manager | pnpm |
 | Icons | `lucide-vue-next` |
@@ -24,11 +24,12 @@ There is still no SPA routing and no custom backend.
 ## Key Commands
 
 ```bash
-pnpm dev               # build anti-FOUC script, then watch content script
-pnpm build             # build shared Firefox/Chromium content and anti-FOUC targets
+pnpm dev               # build other targets once, then watch content script
+pnpm build             # build all four targets for Firefox and Chromium
+pnpm check             # lint, typecheck, test, and build
 pnpm typecheck         # vue-tsc --noEmit
 pnpm test              # run Vitest once
-pnpm package           # build once and package both Firefox and Chrome zips
+pnpm package           # run quality checks, build, and package both browser ZIPs
 pnpm concepts:dev      # run the design concepts playground
 ```
 
@@ -38,9 +39,10 @@ Use Conventional Commits when making git commits.
 
 ## Primary Docs
 
-- `README.md` — contributor overview and local build/load instructions
-- `EXTENSION.md` — browser-facing feature summary and extension behavior
-- `DESIGNSYSTEM.md` — shared UI contract for breakpoints, spacing, typography, pagination, and tap targets
+- [README.md](README.md) — contributor overview and local build/load instructions
+- [EXTENSION.md](EXTENSION.md) — shared release description for AMO and Chrome; keep the store-specific copies in `marketplaces/` consistent with it
+- [DESIGNSYSTEM.md](DESIGNSYSTEM.md) — shared UI conventions
+- [test/fixtures/README.md](test/fixtures/README.md) — fixture categories and naming
 
 Update `DESIGNSYSTEM.md` whenever you materially change shared responsive behavior, attached pagination treatment, badge sizing, or tap-target conventions.
 
@@ -50,12 +52,12 @@ Update `DESIGNSYSTEM.md` whenever you materially change shared responsive behavi
 
 `src/content/main.ts` is the main entrypoint at `document_end`.
 
-1. Parse the original HN DOM with `parseHeader(document)` plus the page-specific parser chosen from `resolveRoute(location)`.
+1. Start loading extension settings, ensure a responsive viewport, and capture the mobile layout flag once. Parse the header and resolve the URL with `resolveRoute(location)`.
 2. Detect HN special cases such as the literal `Unknown.` body and map them to the dedicated `notfound` route.
-3. For item pages, pass parsed data through `makeItemPageReactive()` to avoid excessive deep reactivity work on large comment trees.
-4. Hide the original HN body, remove source assets that would interfere, create `#fancy-hn-root`, and apply any bootstrapped theme state.
+3. Use `src/content/route-page.ts` to select the parser and page component. For item pages, prepare the initial fragment target and call `makeItemPageReactive()` to keep comment trees out of deep reactivity.
+4. Prime extension fonts, hide the original HN content, remove interfering source assets, create `#fancy-hn-root`, and apply settings and the HN top-bar color.
 5. Mount the Vue app, provide parsed data and layout metadata, then render the page shell and route-specific page component.
-6. After first paint, strip the original HN DOM. If anything throws earlier, the original HN page must remain visible.
+6. After two animation frames, schedule source-body cleanup and detach retained deferred comment rows from their old parents. Mount failures remove the partial host and hiding styles to reveal the source body.
 
 `src/content/anti-fouc.ts` runs at `document_start` to reduce flash-of-unstyled-content before the main content script mounts.
 
@@ -69,18 +71,24 @@ This is the shortest useful map of the codebase. Start here before drilling into
 src/
   content/main.ts                     # parse -> hide -> mount -> cleanup
   content/anti-fouc.ts                # document_start anti-FOUC bootstrap
-  content/App.vue                     # route -> page selection
+  content/route-page.ts               # route -> parser, typed data, page component
+  content/App.vue                     # render the selected page inside the shell
   content/components/layout/AppShell.vue  # shared shell + search modal
   content/composables/use-hn-actions.ts   # vote / flag against HN endpoints
   content/pages/                      # page-level route components
   parsers/                            # original DOM -> typed page models
   router/index.ts                     # resolveRoute(location)
   state/item-page-state.ts            # large item/comment performance helpers
+  state/settings.ts                  # validated settings, migration, local storage
+  state/settings-context.ts          # reactive settings and persistence
+  settings/                          # standalone extension options page
+  background/main.ts                 # open options page via validated messages
   styles/main.scss                    # global styling entrypoint
   styles/_theme-tokens.scss           # theme variables
 
 manifest.json                         # extension entrypoints and injected assets
 vite.config.ts                        # Vite targets, IIFE output, asset URL handling
+scripts/package-extension.mjs         # browser-specific manifests and ZIP staging
 test/fixtures/                        # real HN HTML snapshots for parser work
 test/                                 # Vitest coverage for parsers and content behavior
 ```
@@ -95,23 +103,26 @@ test/                                 # Vitest coverage for parsers and content 
 - Search, chrome, or keyboard shortcut changes: inspect `src/content/components/layout/AppShell.vue` and related layout components.
 - Theme or spacing regressions: inspect `src/styles/main.scss`, `src/styles/_theme-tokens.scss`, and `DESIGNSYSTEM.md`.
 - Build or asset loading issues: inspect `vite.config.ts` and `manifest.json`.
+- Settings issues: inspect `src/state/settings.ts`, `src/state/settings-context.ts`, and `src/settings/`.
 
 ---
 
 ## Architecture Rules
 
-- Parse first. All page data must be derived from the original server-rendered HN DOM before the app hides it.
+- Capture source data first. Parse the original server-rendered HN DOM before takeover; deferred threads may retain source rows for later parsing. Do not detach those rows before successful source-body cleanup, because failure recovery still needs the source page.
 - No SPA navigation. `resolveRoute(location)` is a pure read of the current URL on page load.
 - No custom backend. Do not introduce client-side fetching for core page data.
 - Keep HN behavior native. Links and forms should continue targeting HN; vote and flag actions should continue using HN URLs/endpoints.
 - Preserve auth and CSRF data exactly. `auth=` params and hidden fields like `hmac` must be taken from the DOM, never fabricated.
 - Keep rendering isolated to `#fancy-hn-root`; do not leak styling back into the underlying HN page.
+- Target content-script portals at `#fancy-hn-root` through `src/content/utils/root-host.ts` so they inherit theme tokens and survive source-body cleanup.
 - SCSS is the styling system. Shared tokens live in `src/styles/`; component/page styling stays in scoped `lang="scss"` blocks.
 - Prefer existing theme tokens from `src/styles/_theme-tokens.scss` over local `color-mix()` usage. Use `color-mix()` only when a value genuinely needs runtime blending, not as the default way to derive nearby colors.
 - Use `reka-ui` for interactive UI primitives such as dropdowns, popovers, menus, dialogs, tooltips, and similar focus-managed controls. Do not hand-roll primitive behavior when a suitable `reka-ui` primitive exists.
 - Portaled `reka-ui` content does not inherit scoped SFC selectors on the portal root. Follow the existing shell/surface pattern: give the Reka content a lightweight shell class for positioning/z-index, then render a styled inner surface element inside it so scoped styles still apply.
 - Content CSS ships as a real stylesheet injected by `manifest.json`.
-- JS-hosted assets must resolve through `chrome.runtime.getURL(...)` as configured in `vite.config.ts`.
+- JS-hosted content-script assets must resolve through `chrome.runtime.getURL(...)` as configured in `vite.config.ts`. Settings-page assets use extension-relative URLs.
+- Keep settings validation, defaults, and migration in `src/state/settings.ts`. Persist preferences in `chrome.storage.local`; do not introduce HN-origin storage for extension settings.
 - Re-injection is guarded. If `#fancy-hn-root` already exists on reinjection, reload the page to restore the original DOM before reparsing.
 - Respect source quirks. If HN emits inconsistent or odd behavior, document it before changing parser or UI behavior.
 - Use fixtures, not live network requests, when adding parser coverage.
@@ -151,7 +162,7 @@ Theme tokens live in `src/styles/_theme-tokens.scss` and are consumed by `src/st
 
 ## Parsers
 
-Parsers are pure functions of the form `(doc: Document) => typed model`.
+Parsers read a supplied `Document` and return typed models; some accept explicit options. Keep them independent of browser globals and network access. Deferred item threads retain DOM rows until loaded; parsing must not mutate the source document.
 
 Main parser groups:
 
