@@ -1,3 +1,4 @@
+import { VOTE_LINK_SELECTOR } from '@/constants/hn-actions';
 import { attrOf, hrefOf, textOf } from './dom';
 
 const HN_ORIGIN = 'https://news.ycombinator.com';
@@ -33,7 +34,7 @@ const UNAVAILABLE_VOTE_STATE: VoteState = Object.freeze({ kind: 'unavailable' })
 const UNAVAILABLE_TOGGLE_ACTION: ToggleActionState = Object.freeze({ kind: 'unavailable' });
 
 function queryVoteLink(scope: ParentNode | null | undefined, how: 'up' | 'down'): HTMLAnchorElement | null {
-  return scope?.querySelector<HTMLAnchorElement>(`a[href^="vote?"][href*="how=${how}"]`) ?? null;
+  return scope?.querySelector<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=${how}"]`) ?? null;
 }
 
 function queryUnvoteLink(
@@ -45,7 +46,7 @@ function queryUnvoteLink(
   }
 
   if (itemId) {
-    return Array.from(scope.querySelectorAll<HTMLAnchorElement>('a[href^="vote?"][href*="how=un"]'))
+    return Array.from(scope.querySelectorAll<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=un"]`))
       .find((link) => {
         if (attrOf(link, 'id') === `un_${itemId}`) {
           return true;
@@ -55,7 +56,7 @@ function queryUnvoteLink(
       }) ?? null;
   }
 
-  return scope.querySelector<HTMLAnchorElement>('a[href^="vote?"][href*="how=un"]');
+  return scope.querySelector<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=un"]`);
 }
 
 function isNoseeVoteElement(element: Element | null): boolean {

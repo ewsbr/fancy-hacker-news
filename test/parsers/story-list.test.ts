@@ -13,6 +13,24 @@ function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): R
 }
 
 describe('story list fixtures', () => {
+  it('preserves authenticated votex links in stories and comments', async () => {
+    const doc = await loadFixtureDocument('stories/threads/native-action-endpoints.html');
+    const stories = parseStoryList(doc);
+    const item = parseItemPage(doc);
+
+    expect(stories.stories[0].voteState).toEqual({
+      kind: 'available',
+      upHref: 'votex?id=49627634&how=up&auth=fixture-story-auth&goto=news',
+      downHref: null,
+    });
+    expect(item.item.voteState).toEqual(stories.stories[0].voteState);
+    expect(item.comments[0].voteState).toEqual({
+      kind: 'available',
+      upHref: 'votex?id=49643384&how=up&auth=fixture-comment-auth&goto=item%3Fid%3D49627634#49643384',
+      downHref: null,
+    });
+  });
+
   it('parses the Hacker News header from the news fixture', async () => {
     const doc = await loadFixtureDocument('stories/news.html');
     const header = parseHeader(doc);
@@ -427,8 +445,9 @@ describe('story list fixtures', () => {
     }
   });
 
-  it('parses comment unvote links from wrapped item-page rows', async () => {
-    const rowHtml = await loadFixtureHtml('stories/threads/fragments/comment-unvote.html');
+  it.each(['vote', 'votex'])('parses %s comment unvote links from wrapped item-page rows', async (endpoint) => {
+    const rowHtml = (await loadFixtureHtml('stories/threads/fragments/comment-unvote.html'))
+      .replaceAll('vote?', `${endpoint}?`);
     const doc = parseHtmlDocument(`
       <table class="fatitem">
         <tr class="athing submission" id="999">
@@ -460,8 +479,8 @@ describe('story list fixtures', () => {
       voteState: {
         kind: 'active',
         direction: 'up',
-        upHref: expect.stringContaining('how=up'),
-        unvoteHref: expect.stringContaining('how=un'),
+        upHref: `${endpoint}?id=47652278&how=up&auth=fixtureauth&goto=item%3Fid%3D47649721#47652278`,
+        unvoteHref: `${endpoint}?id=47652278&how=un&auth=fixtureauth&goto=item%3Fid%3D47649721&js=t`,
       },
     });
   });

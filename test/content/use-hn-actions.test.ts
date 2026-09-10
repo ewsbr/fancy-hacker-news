@@ -29,20 +29,20 @@ describe('useHnActions', () => {
     vi.restoreAllMocks();
   });
 
-  it('submits upvotes with js=t and stores the derived unvote URL', async () => {
+  it.each(['vote', 'votex'])('submits %s upvotes with js=t and stores the derived unvote URL', async (endpoint) => {
     const { submitVote } = useHnActions();
     const target = {
       voteState: {
         kind: 'available' as const,
-        upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-        downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+        upHref: `${endpoint}?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123`,
+        downHref: `${endpoint}?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123`,
       },
     };
 
     await submitVote(target, 'up');
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://news.ycombinator.com/vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t',
+      `https://news.ycombinator.com/${endpoint}?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123&js=t`,
       expect.objectContaining({
         method: 'GET',
         credentials: 'include',
@@ -53,9 +53,9 @@ describe('useHnActions', () => {
     expect(target.voteState).toEqual({
       kind: 'active',
       direction: 'up',
-      unvoteHref: 'vote?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123',
-      upHref: 'vote?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123',
-      downHref: 'vote?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123',
+      unvoteHref: `${endpoint}?id=10&how=un&auth=voteauth&goto=item%3Fid%3D123`,
+      upHref: `${endpoint}?id=10&how=up&auth=voteauth&goto=item%3Fid%3D123`,
+      downHref: `${endpoint}?id=10&how=down&auth=voteauth&goto=item%3Fid%3D123`,
     });
   });
 
