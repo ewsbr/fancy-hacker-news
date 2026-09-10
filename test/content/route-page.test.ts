@@ -1,5 +1,5 @@
 import type { ParsedRoutePage } from '@/content/route-page';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import CommentsPage from '@/content/pages/CommentsPage.vue';
 import LoginPage from '@/content/pages/LoginPage.vue';
 import NewCommentsPage from '@/content/pages/NewCommentsPage.vue';
@@ -20,7 +20,6 @@ function makeLocation(path: string): Location {
 
 async function parseFixtureRoute(path: string, fixture: string) {
   const location = makeLocation(path);
-  vi.stubGlobal('location', location);
   const doc = await loadFixtureDocument(fixture);
   return parseRoutePage(resolveRoute(location), doc, location);
 }
@@ -77,10 +76,6 @@ function makeLargeItemDocument() {
 }
 
 describe('parseRoutePage', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   it('selects story and comment renderers for user collection tabs', async () => {
     const favoriteStories = await parseFixtureRoute('/favorites?id=cl3misch', 'stories/user/favorites-other.html');
     const upvotedStories = await parseFixtureRoute('/upvoted?id=cl3misch', 'stories/user/favorites-other.html');
@@ -95,16 +90,48 @@ describe('parseRoutePage', () => {
     expect(favoriteComments.pageData).toHaveProperty('comments');
   });
 
-  it('selects submit and reply fallback renderers from parsed page data', async () => {
+  it('selects submit fallback renderers from parsed page data', async () => {
     const submitPage = await parseFixtureRoute('/submit', 'misc/forms/submit.html');
     const submitLoginPage = await parseFixtureRoute('/submit', 'misc/auth/submit-nologin.html');
-    const replyPage = await parseFixtureRoute('/reply?id=47538487&goto=item%3Fid%3D47536761%2347538487', 'misc/forms/reply.html');
-    const replyLoginPage = await parseFixtureRoute('/reply?id=1&goto=item%3Fid%3D1', 'misc/auth/submit-nologin.html');
 
     expect(submitPage.component).toBe(SubmitPage);
     expect(submitLoginPage.component).toBe(LoginPage);
-    expect(replyPage.component).toBe(ReplyPage);
-    expect(replyLoginPage.component).toBe(LoginPage);
+  });
+
+  it.each(['reply', 'replyx'])('renders the native reply form at /%s with its return target intact', async (endpoint) => {
+    const page = await parseFixtureRoute(`/${endpoint}?id=47538487&goto=item%3Fid%3D47536761%2347538487`, 'misc/forms/reply.html');
+
+    expect(page.route).toEqual({
+      page: 'reply',
+      params: { id: '47538487', goto: 'item?id=47536761#47538487' },
+    });
+    expect(page.component).toBe(ReplyPage);
+    expect(page.pageData).toHaveProperty('replyForm', {
+      action: 'comment',
+      parentId: '47538487',
+      gotoUrl: 'item?id=47536761#47538487',
+      hmac: expect.any(String),
+    });
+  });
+
+  it.each([
+    { path: '/replyx?id=49643384', fixture: 'replyx-nologin', action: 'replyx', state: [{ name: 'id', value: '49643384' }] },
+    { path: '/reply?id=49643384', fixture: 'reply-nologin', action: '', state: [{ name: 'from-op', value: 'reply' }] },
+  ])('renders auth forms at $path with native submission state', async ({ path, fixture, action, state }) => {
+    const page = await parseFixtureRoute(path, `misc/auth/${fixture}.html`);
+
+    expect(page.component).toBe(LoginPage);
+    expect(page.pageData).toHaveProperty('forms', [
+      expect.objectContaining({ action, method: 'post', hiddenFields: state, submitLabel: 'login' }),
+      expect.objectContaining({ action, method: 'post', hiddenFields: [...state, { name: 'creating', value: 't' }], submitLabel: 'create account' }),
+    ]);
+  });
+
+  it('passes the resolved auth path to parsers of isolated documents', async () => {
+    const page = await parseFixtureRoute('/forgot', 'misc/auth/forgot.html');
+
+    expect(page.component).toBe(LoginPage);
+    expect(page.pageData).toMatchObject({ variant: 'forgot', title: 'Reset Password' });
   });
 
   it('keeps x validation pages on the static route while rendering the submit form', async () => {

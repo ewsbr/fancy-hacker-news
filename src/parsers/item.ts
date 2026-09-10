@@ -1,5 +1,6 @@
 import type { ToggleActionState, VoteState } from './shared/actions';
 import type { CommentPlaceholderKind } from './shared/body';
+import { FAVORITE_LINK_SELECTOR } from '@/constants/hn-actions';
 import { debugLog, debugMeasure } from '@/debug';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
 import { parseAge } from './shared/age';
@@ -305,7 +306,7 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
 
       parsedItem.hideAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="hide?"]')));
       parsedItem.pastUrl = hrefOf(subtext?.querySelector('a.hnpast'));
-      parsedItem.favoriteAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="fave?"]')));
+      parsedItem.favoriteAction = parseToggleActionState(hrefOf(subtext?.querySelector(FAVORITE_LINK_SELECTOR)));
       parsedItem.flagAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="flag?"]')));
 
       const toptext = fatitem.querySelector('.toptext');
@@ -330,7 +331,7 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
     const navs = comhead?.querySelector('.navs');
     parsedItem.parentLink = hrefOf(navs?.querySelector('a[href^="item?id="]'));
     parsedItem.contextLink = hrefOf(navs?.querySelector('a[href*="context"]'));
-    parsedItem.favoriteAction = parseToggleActionState(hrefOf(navs?.querySelector('a[href^="fave?"]')));
+    parsedItem.favoriteAction = parseToggleActionState(hrefOf(navs?.querySelector(FAVORITE_LINK_SELECTOR)));
     parsedItem.flagAction = parseToggleActionState(
       hrefOf(navs?.querySelector('a[href^="flag?"]'))
       || hrefOf(athing?.querySelector('.reply a[href^="flag?"]')),
@@ -369,7 +370,6 @@ export function parseItemPage(doc: Document, options?: ParseItemPageOptions): Pa
       } satisfies ReplyForm;
     }
 
-    fatitem.querySelector('div.reply a[href^="reply?"]');
     return null;
   });
 

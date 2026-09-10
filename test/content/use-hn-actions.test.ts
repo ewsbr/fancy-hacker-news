@@ -238,22 +238,22 @@ describe('useHnActions', () => {
     expect(target.isFlagged).toBe(true);
   });
 
-  it('toggles favorite links through the centralized no-redirect request', async () => {
+  it.each(['fave', 'favex'])('toggles %s links and submits undo to the same endpoint', async (endpoint) => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 302,
       type: 'basic',
-      url: 'https://news.ycombinator.com/fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+      url: `https://news.ycombinator.com/${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123`,
     });
     const { submitFavorite } = useHnActions();
     const target = {
-      favoriteAction: { kind: 'available' as const, href: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123' },
+      favoriteAction: { kind: 'available' as const, href: `${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123` },
     };
 
     await expect(submitFavorite(target)).resolves.toBe(true);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://news.ycombinator.com/fave?id=44&auth=favauth&goto=item%3Fid%3D123',
+      `https://news.ycombinator.com/${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123`,
       expect.objectContaining({
         redirect: 'manual',
       }),
@@ -261,7 +261,18 @@ describe('useHnActions', () => {
     expect(locationAssignMock).not.toHaveBeenCalled();
     expect(target.favoriteAction).toEqual({
       kind: 'active',
-      href: 'fave?id=44&auth=favauth&goto=item%3Fid%3D123&un=t',
+      href: `${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123&un=t`,
+    });
+
+    await expect(submitFavorite(target)).resolves.toBe(true);
+
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `https://news.ycombinator.com/${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123&un=t`,
+      expect.objectContaining({ redirect: 'manual' }),
+    );
+    expect(target.favoriteAction).toEqual({
+      kind: 'available',
+      href: `${endpoint}?id=44&auth=favauth&goto=item%3Fid%3D123`,
     });
   });
 

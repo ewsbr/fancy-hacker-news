@@ -64,8 +64,7 @@ function extractAuthMessage(doc: Document): string | null {
   return parts.length > 0 ? parts.join(' ') : null;
 }
 
-export function parseLoginPage(doc: Document): ParsedLoginPage {
-  const path = location.pathname;
+export function parseLoginPage(doc: Document, path = doc.location?.pathname ?? ''): ParsedLoginPage {
   // HN serves rate-limit responses as text/plain. Browsers represent those
   // documents as <body><pre>Sorry.</pre></body>, so the usual leading-text
   // extractor cannot see the message as a direct body text node.
@@ -95,7 +94,9 @@ export function parseLoginPage(doc: Document): ParsedLoginPage {
   const formEls = Array.from(context.querySelectorAll('form'));
 
   for (const form of formEls) {
-    const action = form.getAttribute('action') ?? 'login';
+    // An omitted action posts back to the current URL, including its query.
+    // HN uses this with from-op fields on unsuffixed action auth gates.
+    const action = form.getAttribute('action') ?? '';
     const method = form.getAttribute('method') ?? 'post';
 
     // Find previous <b> or text node for form title

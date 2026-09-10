@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parseLoginPage } from '@/parsers/login';
 import { parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
@@ -7,17 +7,12 @@ describe('login page parser', () => {
   it('recognizes HN\'s bare rate-limit response without discarding its message', async () => {
     const doc = await loadFixtureDocument('misc/auth/sorry.html');
 
-    vi.stubGlobal('location', new URL('https://news.ycombinator.com/login?goto=news'));
-    try {
-      const page = parseLoginPage(doc);
+    const page = parseLoginPage(doc);
 
-      expect(page.variant).toBe('rate-limited');
-      expect(page.title).toBe('Rate limited');
-      expect(page.authMessage).toBe('Sorry.');
-      expect(page.forms).toEqual([]);
-    } finally {
-      vi.unstubAllGlobals();
-    }
+    expect(page.variant).toBe('rate-limited');
+    expect(page.title).toBe('Rate limited');
+    expect(page.authMessage).toBe('Sorry.');
+    expect(page.forms).toEqual([]);
   });
 
   it('parses bare auth-gate messages from the source body', () => {
@@ -30,16 +25,11 @@ describe('login page parser', () => {
       </html>
     `);
 
-    vi.stubGlobal('location', new URL('https://news.ycombinator.com/fave?id=42009039'));
-    try {
-      const page = parseLoginPage(doc);
+    const page = parseLoginPage(doc);
 
-      expect(page.variant).toBe('auth-gate');
-      expect(page.title).toBe('Please log in.');
-      expect(page.authMessage).toBe('Please log in.');
-    } finally {
-      vi.unstubAllGlobals();
-    }
+    expect(page.variant).toBe('auth-gate');
+    expect(page.title).toBe('Please log in.');
+    expect(page.authMessage).toBe('Please log in.');
   });
 
   it('parses reply auth-gate messages from the source body', () => {
@@ -59,16 +49,11 @@ describe('login page parser', () => {
       </html>
     `);
 
-    vi.stubGlobal('location', new URL('https://news.ycombinator.com/reply?id=47633987&goto=item%3Fid%3D47633396%2347633987'));
-    try {
-      const page = parseLoginPage(doc);
+    const page = parseLoginPage(doc);
 
-      expect(page.variant).toBe('auth-gate');
-      expect(page.title).toBe('You have to be logged in to reply.');
-      expect(page.authMessage).toBe('You have to be logged in to reply.');
-      expect(page.forms[0]?.submitLabel).toBe('login');
-    } finally {
-      vi.unstubAllGlobals();
-    }
+    expect(page.variant).toBe('auth-gate');
+    expect(page.title).toBe('You have to be logged in to reply.');
+    expect(page.authMessage).toBe('You have to be logged in to reply.');
+    expect(page.forms[0]?.submitLabel).toBe('login');
   });
 });

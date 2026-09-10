@@ -130,12 +130,15 @@ const COMMENT_LISTS = new Set([
 
 const AUTH_PAGES = new Set([
   '/login',
+  '/loginx',
   '/comment',
   '/changepw',
   '/forgot',
   '/vote',
+  '/votex',
   '/hide',
   '/fave',
+  '/favex',
 ]);
 
 const STATIC_PAGES = new Set([
@@ -193,7 +196,7 @@ export function resolveRoute(loc: Location): RouteDescriptor {
   if (path === '/item') {
     return { page: 'item', params: { id: sp.get('id') ?? '' } };
   }
-  if (path === '/reply') {
+  if (path === '/reply' || path === '/replyx') {
     return { page: 'reply', params: { id: sp.get('id') ?? '', goto: sp.get('goto') ?? '' } };
   }
   if (path === '/user') {

@@ -1,5 +1,6 @@
 import type { ToggleActionState, VoteDirection, VoteState } from './actions';
 import type { CommentPlaceholderKind } from './body';
+import { REPLY_LINK_SELECTOR } from '@/constants/hn-actions';
 import { assert } from '@/utils/assert';
 import { parseInteger } from '@/utils/number';
 import { parseToggleActionState, parseVoteState } from './actions';
@@ -123,7 +124,7 @@ function parseCommentActions(
   const replyDiv = commentEl?.querySelector('.reply');
 
   return {
-    replyLink: hrefOf(replyDiv?.querySelector('a[href^="reply?"]')),
+    replyLink: hrefOf(replyDiv?.querySelector(REPLY_LINK_SELECTOR)),
     flagAction: parseToggleActionState(
       hrefOf(replyDiv?.querySelector('a[href^="flag?"]'))
       || hrefOf(navs?.querySelector('a[href^="flag?"]')),

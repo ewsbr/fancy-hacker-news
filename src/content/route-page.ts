@@ -116,14 +116,14 @@ function isSubmitPageData(pageData: StaticRouteData): pageData is ParsedSubmitPa
   return 'form' in pageData && 'warningMessage' in pageData;
 }
 
-function parseSubmitOrLoginPage(doc: Document): SubmitRouteData {
+function parseSubmitOrLoginPage(doc: Document, path: string): SubmitRouteData {
   const submitPage = parseSubmitPage(doc);
-  return submitPage.form ? submitPage : parseLoginPage(doc);
+  return submitPage.form ? submitPage : parseLoginPage(doc, path);
 }
 
-function parseReplyOrLoginPage(doc: Document): ReplyRouteData {
+function parseReplyOrLoginPage(doc: Document, path: string): ReplyRouteData {
   const replyPage = parseReplyPage(doc);
-  return replyPage.isLoggedOut ? parseLoginPage(doc) : replyPage;
+  return replyPage.isLoggedOut ? parseLoginPage(doc, path) : replyPage;
 }
 
 function parseStaticOrSubmitPage(doc: Document, location: Location): StaticRouteData {
@@ -166,7 +166,7 @@ const ROUTE_HANDLERS = {
     component: () => CommentsPage,
   },
   'login': {
-    parse: doc => parseLoginPage(doc),
+    parse: (doc, context) => parseLoginPage(doc, context.location.pathname),
     component: () => LoginPage,
   },
   'static': {
@@ -202,11 +202,11 @@ const ROUTE_HANDLERS = {
     component: getUserCollectionComponent,
   },
   'submit': {
-    parse: doc => parseSubmitOrLoginPage(doc),
+    parse: (doc, context) => parseSubmitOrLoginPage(doc, context.location.pathname),
     component: pageData => isLoginPageData(pageData) ? LoginPage : SubmitPage,
   },
   'reply': {
-    parse: doc => parseReplyOrLoginPage(doc),
+    parse: (doc, context) => parseReplyOrLoginPage(doc, context.location.pathname),
     component: pageData => isLoginPageData(pageData) ? LoginPage : ReplyPage,
   },
   'formatdoc': {

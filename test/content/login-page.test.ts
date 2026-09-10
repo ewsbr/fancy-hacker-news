@@ -3,9 +3,42 @@
 import type { ParsedLoginPage } from '@/parsers/login';
 import { describe, expect, it } from 'vitest';
 import LoginPage from '@/content/pages/LoginPage.vue';
+import { parseLoginPage } from '@/parsers/login';
+import { loadFixtureDocument } from '../helpers/load-fixture';
 import { mountComponent } from '../helpers/mount-component';
 
 describe('login page', () => {
+  it.each(['reply', 'replyx'])('preserves /%s auth form destinations and hidden fields when switching to registration', async (endpoint) => {
+    const previousUrl = window.location.href;
+    const path = `/${endpoint}?id=49643384`;
+    window.history.replaceState(null, '', path);
+    const doc = await loadFixtureDocument(`misc/auth/${endpoint}-nologin.html`);
+    const wrapper = mountComponent(LoginPage, {
+      global: { provide: { pageData: parseLoginPage(doc, path) } },
+    });
+
+    try {
+      const form = wrapper.get('form').element;
+      const expectedAction = `https://news.ycombinator.com/${endpoint === 'reply' ? 'reply?id=49643384' : 'replyx'}`;
+      expect(form.action).toBe(expectedAction);
+      const state = endpoint === 'reply' ? ['from-op', 'reply'] : ['id', '49643384'];
+      expect(Array.from(new FormData(form).entries())).toEqual([state, ['acct', ''], ['pw', '']]);
+
+      await wrapper.get('.login-footer__btn').trigger('click');
+
+      expect(Array.from(new FormData(wrapper.get('form').element).entries())).toEqual([
+        state,
+        ['creating', 't'],
+        ['acct', ''],
+        ['pw', ''],
+      ]);
+      expect(wrapper.get('form').element.action).toBe(expectedAction);
+    } finally {
+      wrapper.unmount();
+      window.history.replaceState(null, '', previousUrl);
+    }
+  });
+
   it('marks login credentials for password managers and toggles password visibility', async () => {
     const page: ParsedLoginPage = {
       variant: 'login',

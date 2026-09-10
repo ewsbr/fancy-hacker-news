@@ -13,22 +13,31 @@ function flattenComments(nodes: ReturnType<typeof parseItemPage>['comments']): R
 }
 
 describe('story list fixtures', () => {
-  it('preserves authenticated votex links in stories and comments', async () => {
-    const doc = await loadFixtureDocument('stories/threads/native-action-endpoints.html');
+  it.each(['', 'x'])('preserves native action links with suffix "%s" in stories and comments', async (suffix) => {
+    const html = await loadFixtureHtml('stories/threads/native-action-endpoints.html');
+    const doc = parseHtmlDocument(html
+      .replaceAll('votex?', `vote${suffix}?`)
+      .replaceAll('favex?', `fave${suffix}?`)
+      .replaceAll('replyx?', `reply${suffix}?`));
     const stories = parseStoryList(doc);
     const item = parseItemPage(doc);
 
     expect(stories.stories[0].voteState).toEqual({
       kind: 'available',
-      upHref: 'votex?id=49627634&how=up&auth=fixture-story-auth&goto=news',
+      upHref: `vote${suffix}?id=49627634&how=up&auth=fixture-story-auth&goto=news`,
       downHref: null,
     });
     expect(item.item.voteState).toEqual(stories.stories[0].voteState);
     expect(item.comments[0].voteState).toEqual({
       kind: 'available',
-      upHref: 'votex?id=49643384&how=up&auth=fixture-comment-auth&goto=item%3Fid%3D49627634#49643384',
+      upHref: `vote${suffix}?id=49643384&how=up&auth=fixture-comment-auth&goto=item%3Fid%3D49627634#49643384`,
       downHref: null,
     });
+    expect(item.item.favoriteAction).toEqual({
+      kind: 'available',
+      href: `fave${suffix}?id=49627634&auth=fixture-favorite-auth&goto=item%3Fid%3D49627634`,
+    });
+    expect(item.comments[0].replyLink).toBe(`reply${suffix}?id=49643384&goto=item%3Fid%3D49627634%2349643384`);
   });
 
   it('parses the Hacker News header from the news fixture', async () => {
