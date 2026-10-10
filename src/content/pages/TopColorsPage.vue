@@ -2,6 +2,7 @@
 import type { ParsedTopColorsPage } from '@/parsers/top-colors';
 import { Check } from 'lucide-vue-next';
 import { inject, ref } from 'vue';
+import { getRelativeLuminance } from '@/content/utils/logo-contrast';
 
 const page = inject<ParsedTopColorsPage>('pageData')!;
 
@@ -9,12 +10,7 @@ const copied = ref<string | null>(null);
 let copyTimer: ReturnType<typeof setTimeout> | null = null;
 
 function contrast(hex: string): 'dark' | 'light' {
-  const r = Number.parseInt(hex.slice(1, 3), 16) / 255;
-  const g = Number.parseInt(hex.slice(3, 5), 16) / 255;
-  const b = Number.parseInt(hex.slice(5, 7), 16) / 255;
-  const lin = (c: number) => c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-  const lum = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-  return lum > 0.35 ? 'dark' : 'light';
+  return getRelativeLuminance(hex)! > 0.35 ? 'dark' : 'light';
 }
 
 async function copy(hex: string) {

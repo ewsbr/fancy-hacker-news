@@ -2,7 +2,7 @@
 import type { VoteActionTarget } from '@/content/composables/use-hn-actions';
 import { Triangle } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
+import { useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 import { getVoteActionHref } from '@/parsers/shared/actions';
 
@@ -12,7 +12,6 @@ const props = defineProps<{
 
 const { isBusy, submitVote } = useHnActions();
 const currentUser = useCurrentUser();
-const canSubmitInBackground = canSubmitAuthActionInBackground(currentUser);
 
 const voteState = computed(() => props.voteTarget.voteState);
 const currentHref = computed(() => getVoteActionHref(voteState.value, voteState.value.kind === 'active' ? 'un' : 'up'));
@@ -40,7 +39,7 @@ const currentLabel = computed(() => {
 const currentDirection = computed(() => voteState.value.kind === 'active' ? 'un' : 'up');
 
 async function handleClick(event: MouseEvent) {
-  if (!currentHref.value || !canSubmitInBackground) {
+  if (!currentHref.value || !currentUser.isLoggedIn) {
     return;
   }
 

@@ -1,17 +1,6 @@
-import type { ToggleActionState, VoteDirection, VoteState } from '@/parsers/shared/actions';
+import type { ToggleActionState, VoteState } from '@/parsers/shared/actions';
 import { ref } from 'vue';
 import { getToggleActionHref, getVoteActionHref } from '@/parsers/shared/actions';
-import { assert } from '@/utils/assert';
-
-const HN_ORIGIN = 'https://news.ycombinator.com';
-
-function getActionBaseUrl(): string {
-  if (typeof window !== 'undefined' && window.location?.href) {
-    return window.location.href;
-  }
-
-  return HN_ORIGIN;
-}
 
 export type VoteSubmitDirection = 'up' | 'down' | 'un';
 
@@ -32,106 +21,39 @@ export interface HideActionTarget {
   hideAction: ToggleActionState;
 }
 
-function toAbsoluteUrl(href: string): URL {
-  const trimmedHref = href.trim();
-  assert(trimmedHref.length > 0, 'Expected action href to be non-empty');
-  return new URL(trimmedHref, getActionBaseUrl());
-}
-
 function toRelativeHref(url: URL): string {
-  const path = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
-  return `${path}${url.search}${url.hash}`;
+  return `${url.pathname.slice(1)}${url.search}${url.hash}`;
 }
 
-function buildVoteRequestHref(href: string): string {
-  const url = toAbsoluteUrl(href);
-  url.searchParams.set('js', 't');
-  return url.toString();
-}
-
-function isOkResponse(response: Response): boolean {
-  try {
-    return new URL(response.url).pathname === '/ok';
-  } catch {
-    return false;
+/** Flip HN's `un=t` toggle parameter, which switches an action between doing and undoing. */
+function toggleActionState(action: ToggleActionState): ToggleActionState {
+  if (action.kind !== 'available' && action.kind !== 'active') {
+    return action;
   }
-}
 
-function isManualRedirectResponse(response: Response): boolean {
-  return response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400);
-}
-
-function isActionSuccessResponse(response: Response): boolean {
-  return isManualRedirectResponse(response) || (response.ok && isOkResponse(response));
-}
-
-function buildUnvoteHref(href: string): string {
-  const url = toAbsoluteUrl(href);
-  url.searchParams.set('how', 'un');
-  return toRelativeHref(url);
-}
-
-function toggleActionHref(href: string): string {
-  const url = toAbsoluteUrl(href);
-
+  const url = new URL(action.href, window.location.href);
   if (url.searchParams.get('un') === 't') {
     url.searchParams.delete('un');
   } else {
     url.searchParams.set('un', 't');
   }
 
-  return toRelativeHref(url);
+  return { kind: action.kind === 'available' ? 'active' : 'available', href: toRelativeHref(url) };
 }
 
-function toggleActionState(action: ToggleActionState): ToggleActionState {
-  if (action.kind === 'available') {
-    return { kind: 'active', href: toggleActionHref(action.href) };
-  }
-
-  if (action.kind === 'active') {
-    return { kind: 'available', href: toggleActionHref(action.href) };
-  }
-
-  return action;
-}
-
-function makeActiveVoteState(
-  currentState: Extract<VoteState, { kind: 'available' | 'active' }>,
-  href: string,
-  direction: Exclude<VoteDirection, 'unknown'>,
-): VoteState {
-  return {
-    kind: 'active',
-    direction,
-    unvoteHref: buildUnvoteHref(href),
-    upHref: currentState.upHref,
-    downHref: currentState.downHref,
-  };
-}
-
-function makeAvailableVoteState(currentState: Extract<VoteState, { kind: 'active' }>): VoteState {
-  return {
-    kind: 'available',
-    upHref: currentState.upHref,
-    downHref: currentState.downHref,
-  };
-}
-
-async function sendActionRequest(href: string, appendJsParam = false): Promise<boolean> {
-  if (!href.trim()) {
-    return false;
-  }
-
+async function sendActionRequest(url: URL): Promise<boolean> {
   try {
-    const requestHref = appendJsParam ? buildVoteRequestHref(href) : toAbsoluteUrl(href).toString();
-    const response = await fetch(requestHref, {
+    const response = await fetch(url.toString(), {
       method: 'GET',
       credentials: 'include',
       cache: 'no-store',
       redirect: 'manual',
     });
 
-    return isActionSuccessResponse(response);
+    // HN answers successful actions with a redirect, or with /ok for js=t votes.
+    return response.type === 'opaqueredirect'
+      || (response.status >= 300 && response.status < 400)
+      || (response.ok && new URL(response.url).pathname === '/ok');
   } catch (error) {
     console.error('Fancy HN action failed', error);
     return false;
@@ -141,113 +63,69 @@ async function sendActionRequest(href: string, appendJsParam = false): Promise<b
 export function useHnActions() {
   const isBusy = ref(false);
 
-  async function submitVote(
-    target: VoteActionTarget,
-    direction: VoteSubmitDirection,
-  ): Promise<boolean> {
-    if (isBusy.value) {
-      return false;
-    }
-
-    const href = getVoteActionHref(target.voteState, direction);
-    if (href == null) {
+  async function runAction(href: string | null, onSuccess: () => void, configure?: (url: URL) => void) {
+    if (isBusy.value || !href) {
       return false;
     }
 
     isBusy.value = true;
-
     try {
-      const succeeded = await sendActionRequest(href, true);
-      if (!succeeded) {
-        return false;
+      const url = new URL(href, window.location.href);
+      configure?.(url);
+      const succeeded = await sendActionRequest(url);
+      if (succeeded) {
+        onSuccess();
       }
-
-      const currentState = target.voteState;
-      if (direction === 'un') {
-        if (currentState.kind === 'active') {
-          target.voteState = makeAvailableVoteState(currentState);
-        }
-        return true;
-      }
-
-      if (currentState.kind === 'available' || currentState.kind === 'active') {
-        target.voteState = makeActiveVoteState(currentState, href, direction);
-      }
-      return true;
+      return succeeded;
     } finally {
       isBusy.value = false;
     }
   }
 
-  async function submitFlag(target: FlagActionTarget): Promise<boolean> {
-    const href = getToggleActionHref(target.flagAction);
-    if (isBusy.value || href == null) {
-      return false;
-    }
+  function submitVote(target: VoteActionTarget, direction: VoteSubmitDirection) {
+    const href = getVoteActionHref(target.voteState, direction);
 
-    isBusy.value = true;
-
-    try {
-      const succeeded = await sendActionRequest(href);
-      if (!succeeded) {
-        return false;
+    return runAction(href, () => {
+      const { voteState } = target;
+      if (voteState.kind !== 'available' && voteState.kind !== 'active') {
+        return;
       }
 
+      if (direction === 'un') {
+        target.voteState = { kind: 'available', upHref: voteState.upHref, downHref: voteState.downHref };
+        return;
+      }
+
+      const unvoteUrl = new URL(href!, window.location.href);
+      unvoteUrl.searchParams.set('how', 'un');
+      target.voteState = {
+        kind: 'active',
+        direction,
+        unvoteHref: toRelativeHref(unvoteUrl),
+        upHref: voteState.upHref,
+        downHref: voteState.downHref,
+      };
+    }, url => url.searchParams.set('js', 't'));
+  }
+
+  function submitFlag(target: FlagActionTarget) {
+    return runAction(getToggleActionHref(target.flagAction), () => {
       target.flagAction = toggleActionState(target.flagAction);
       target.isFlagged = !target.isFlagged;
-      return true;
-    } finally {
-      isBusy.value = false;
-    }
+    });
   }
 
-  async function submitFavorite(target: FavoriteActionTarget): Promise<boolean> {
-    const href = getToggleActionHref(target.favoriteAction);
-    if (isBusy.value || href == null) {
-      return false;
-    }
-
-    isBusy.value = true;
-
-    try {
-      const succeeded = await sendActionRequest(href);
-      if (!succeeded) {
-        return false;
-      }
-
+  function submitFavorite(target: FavoriteActionTarget) {
+    return runAction(getToggleActionHref(target.favoriteAction), () => {
       target.favoriteAction = toggleActionState(target.favoriteAction);
-      return true;
-    } finally {
-      isBusy.value = false;
-    }
+    });
   }
 
-  async function submitHide(target: HideActionTarget): Promise<boolean> {
-    const href = getToggleActionHref(target.hideAction);
-    if (isBusy.value || href == null) {
-      return false;
-    }
-
-    isBusy.value = true;
-
-    try {
-      const succeeded = await sendActionRequest(href);
-      if (!succeeded) {
-        return false;
-      }
-
+  function submitHide(target: HideActionTarget) {
+    return runAction(getToggleActionHref(target.hideAction), () => {
       target.hideAction = toggleActionState(target.hideAction);
-      return true;
-    } finally {
-      isBusy.value = false;
-    }
+    });
   }
 
-  return {
-    isBusy,
-    submitVote,
-    submitFlag,
-    submitFavorite,
-    submitHide,
-  };
+  return { isBusy, submitVote, submitFlag, submitFavorite, submitHide };
 }

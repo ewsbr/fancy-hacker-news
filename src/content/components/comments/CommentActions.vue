@@ -4,7 +4,7 @@ import { Triangle } from 'lucide-vue-next';
 import { computed } from 'vue';
 import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
-import { canSubmitAuthActionInBackground, useCurrentUser } from '@/content/composables/current-user';
+import { useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
 import { getToggleActionHref } from '@/parsers/shared/actions';
 
@@ -18,7 +18,6 @@ const props = defineProps<{
 
 const { isBusy, submitVote } = useHnActions();
 const currentUser = useCurrentUser();
-const canSubmitVotesInBackground = canSubmitAuthActionInBackground(currentUser);
 const voteState = computed(() => props.voteTarget?.voteState);
 const upHref = computed(() => voteState.value?.kind === 'available' ? voteState.value.upHref : null);
 const downHref = computed(() => voteState.value?.kind === 'available' ? voteState.value.downHref : null);
@@ -56,7 +55,7 @@ const hasDeleteAction = computed(() => !!props.deleteUrl);
 const flagHref = computed(() => props.flagTarget ? getToggleActionHref(props.flagTarget.flagAction) : null);
 
 async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection) {
-  if (!props.voteTarget || !canSubmitVotesInBackground) {
+  if (!props.voteTarget || !currentUser.isLoggedIn) {
     return;
   }
 

@@ -1,7 +1,5 @@
 export function waitForAnimationFrame() {
-  return new Promise<void>((resolve) => {
-    requestAnimationFrame(() => resolve());
-  });
+  return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
 
 export async function waitForAnimationFrames(count: number) {
@@ -10,24 +8,11 @@ export async function waitForAnimationFrames(count: number) {
   }
 }
 
-export function waitForTimeout(ms: number) {
-  return new Promise<void>((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-}
-
-export async function waitForFonts(timeoutMs = 250) {
-  if (!('fonts' in document)) {
-    return;
-  }
-
+/** Two frames plus web fonts (bounded at 250ms) let layout-affecting work land. */
+export async function waitForLayoutToSettle() {
+  await waitForAnimationFrames(2);
   await Promise.race([
     document.fonts.ready,
-    waitForTimeout(timeoutMs),
+    new Promise(resolve => window.setTimeout(resolve, 250)),
   ]);
-}
-
-export async function waitForLayoutToSettle(options?: { frames?: number; fontTimeoutMs?: number }) {
-  await waitForAnimationFrames(options?.frames ?? 2);
-  await waitForFonts(options?.fontTimeoutMs ?? 250);
 }

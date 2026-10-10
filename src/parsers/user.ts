@@ -48,20 +48,9 @@ const TRAILING_URL_PUNCTUATION = /[),.;:!?]+$/;
 // eslint-disable-next-line no-control-regex
 const CONTROL_CHAR = /[\u0000-\u001F\u007F]/;
 
-function isUserCollectionHref(
-  href: string | null | undefined,
-  collection: 'favorites' | 'upvoted',
-): boolean {
-  if (!href) {
-    return false;
-  }
-
-  if (href.startsWith(`${collection}?`) || href.startsWith(`/${collection}?`)) {
-    return true;
-  }
-
+export function isUserCollectionHref(href: string | null, collection: 'favorites' | 'upvoted'): boolean {
   try {
-    return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
+    return href !== null && new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
   } catch {
     return false;
   }

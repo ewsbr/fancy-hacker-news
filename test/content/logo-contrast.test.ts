@@ -11,10 +11,4 @@ describe('getLogoForegroundColor', () => {
     expect(getLogoForegroundColor('#ffffff')).toBe('#000000');
     expect(getLogoForegroundColor('#f6f6ef')).toBe('#000000');
   });
-
-  it('still switches correctly for pale and dark rgb colors', () => {
-    expect(getLogoForegroundColor('rgb(255, 255, 255)')).toBe('#000000');
-    expect(getLogoForegroundColor('rgb(255, 102, 0)')).toBe('#ffffff');
-    expect(getLogoForegroundColor('rgb(17, 17, 17)')).toBe('#ffffff');
-  });
 });

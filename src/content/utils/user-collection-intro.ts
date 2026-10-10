@@ -1,3 +1,5 @@
+import { isUserCollectionHref } from '@/parsers/user';
+
 export interface UserCollectionLink {
   href: string;
   label: string;
@@ -9,77 +11,35 @@ export interface UserCollectionIntro {
   messages: string[];
 }
 
-function matchesUserCollectionHref(
-  href: string,
-  collection: 'favorites' | 'upvoted',
-): boolean {
-  if (href.startsWith(`${collection}?`) || href.startsWith(`/${collection}?`)) {
-    return true;
-  }
+const COLLECTION_LABELS: Record<string, string> = { submissions: 'Submissions', comments: 'Comments' };
 
-  try {
-    return new URL(href, 'https://news.ycombinator.com').pathname === `/${collection}`;
-  } catch {
-    return false;
-  }
-}
-
-function normalizeCollectionLabel(text: string): string {
-  const normalized = text.trim().toLowerCase();
-
-  if (normalized === 'submissions') {
-    return 'Submissions';
-  }
-
-  if (normalized === 'comments') {
-    return 'Comments';
-  }
-
-  return text.trim();
-}
-
-function getCollectionKind(href: string): UserCollectionLink['kind'] {
-  return href.includes('comments=t') ? 'comments' : 'stories';
-}
-
-export function parseUserCollectionIntro(
-  html: string | null | undefined,
-  doc: Document,
-): UserCollectionIntro | null {
-  if (!html?.trim()) {
+/** Recognize the favorites/upvoted tab switcher HN renders above user collections. */
+export function parseUserCollectionIntro(html: string | null, doc: Document): UserCollectionIntro | null {
+  if (!html) {
     return null;
   }
 
   const template = doc.createElement('template');
   template.innerHTML = html.trim();
 
-  const links = Array.from(template.content.querySelectorAll<HTMLAnchorElement>('a[href]'))
-    .map(link => ({
-      href: link.getAttribute('href') || '',
-      label: normalizeCollectionLabel(link.textContent || ''),
-      kind: getCollectionKind(link.getAttribute('href') || ''),
-    }))
-    .filter(link => link.href);
+  const links = Array.from(template.content.querySelectorAll('a[href]'), (link) => {
+    const href = link.getAttribute('href')!;
+    const label = link.textContent!.trim();
+    return {
+      href,
+      label: COLLECTION_LABELS[label.toLowerCase()] ?? label,
+      kind: href.includes('comments=t') ? 'comments' as const : 'stories' as const,
+    };
+  }).filter(link => link.href).slice(0, 2);
 
-  if (links.length < 2) {
-    return null;
-  }
-
-  const firstTwoLinks = links.slice(0, 2);
-  const isCollectionIntro = firstTwoLinks.every(link =>
-    matchesUserCollectionHref(link.href, 'favorites') || matchesUserCollectionHref(link.href, 'upvoted'),
-  );
-
+  const isCollectionIntro = links.length === 2 && links.every(link =>
+    isUserCollectionHref(link.href, 'favorites') || isUserCollectionHref(link.href, 'upvoted'));
   if (!isCollectionIntro) {
     return null;
   }
 
-  const messages = Array.from(template.content.querySelectorAll('p'))
-    .map(paragraph => paragraph.textContent?.trim() || '')
-    .filter(Boolean);
-
   return {
-    links: firstTwoLinks,
-    messages,
+    links,
+    messages: Array.from(template.content.querySelectorAll('p'), paragraph => paragraph.textContent!.trim()).filter(Boolean),
   };
 }
