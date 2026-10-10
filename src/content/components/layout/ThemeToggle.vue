@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue';
 import type { ThemeMetadata, ThemeName } from '@/state/theme-metadata';
 import { Palette } from 'lucide-vue-next';
 import {
@@ -10,12 +9,8 @@ import {
 } from 'reka-ui';
 import { computed, nextTick, ref } from 'vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
-import { useTheme } from '@/state/theme';
-import {
-  getThemeMetadata,
-
-  THEMES,
-} from '@/state/theme-metadata';
+import { updateExtensionSettings, useExtensionSettings } from '@/state/settings-context';
+import { getThemeMetadata, THEMES } from '@/state/theme-metadata';
 
 withDefaults(defineProps<{
   portalTo?: string;
@@ -23,31 +18,19 @@ withDefaults(defineProps<{
   portalTo: EXTENSION_ROOT_SELECTOR,
 });
 
-const { theme, setTheme } = useTheme();
+const settings = useExtensionSettings();
 const open = ref(false);
-const themeCardRefs = ref<Partial<Record<ThemeName, HTMLButtonElement | null>>>({});
+const themeCards: Partial<Record<ThemeName, HTMLButtonElement>> = {};
+const activeTheme = computed(() => getThemeMetadata(settings.theme));
 
-function select(name: ThemeName) {
-  setTheme(name);
+function select(theme: ThemeName) {
+  updateExtensionSettings(settings, { theme });
   open.value = false;
 }
 
 function onOpenAutoFocus(event: Event) {
   event.preventDefault();
-  void nextTick(() => {
-    const activeCard = themeCardRefs.value[theme.value];
-    const fallbackCard = THEMES
-      .map(item => themeCardRefs.value[item.name])
-      .find((card): card is HTMLButtonElement => card instanceof HTMLButtonElement);
-    (activeCard ?? fallbackCard)?.focus();
-  });
-}
-
-function setThemeCardRef(
-  name: ThemeName,
-  el: Element | ComponentPublicInstance | null,
-) {
-  themeCardRefs.value[name] = el instanceof HTMLButtonElement ? el : null;
+  void nextTick(() => themeCards[settings.theme]?.focus());
 }
 
 function swatchStyle(themeMetadata: ThemeMetadata) {
@@ -55,8 +38,6 @@ function swatchStyle(themeMetadata: ThemeMetadata) {
     background: `linear-gradient(135deg, ${themeMetadata.surface} 50%, ${themeMetadata.accent} 50%)`,
   };
 }
-
-const activeTheme = computed(() => getThemeMetadata(theme.value));
 </script>
 
 <template>
@@ -94,11 +75,11 @@ const activeTheme = computed(() => getThemeMetadata(theme.value));
             <button
               v-for="item in THEMES"
               :key="item.name"
-              :ref="el => setThemeCardRef(item.name, el)"
+              :ref="el => themeCards[item.name] = el as HTMLButtonElement"
               type="button"
               class="theme-toggle__card"
-              :class="{ 'theme-toggle__card--active': theme === item.name }"
-              :aria-pressed="theme === item.name"
+              :class="{ 'theme-toggle__card--active': settings.theme === item.name }"
+              :aria-pressed="settings.theme === item.name"
               :aria-label="item.label"
               @click="select(item.name)"
             >

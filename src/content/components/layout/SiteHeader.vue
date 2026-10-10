@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ParsedHeader } from '@/parsers/header';
+import type { OpenSettingsResponse } from '@/utils/extension-messages';
 import { useEventListener } from '@vueuse/core';
 import { ChevronDown, LogOut, Menu, Send, Settings, UserRound } from 'lucide-vue-next';
 import {
@@ -23,10 +24,7 @@ import {
 } from '@/content/utils/header-links';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 import { createLogger } from '@/debug';
-import {
-  makeOpenSettingsMessage,
-  openSettingsResponseSchema,
-} from '@/utils/extension-messages';
+import { OPEN_SETTINGS_MESSAGE } from '@/utils/extension-messages';
 
 const header = inject<ParsedHeader>('header')!;
 const currentUser = useCurrentUser();
@@ -80,54 +78,13 @@ function onDocumentPointerDown(event: PointerEvent) {
   closeNav();
 }
 
-function reportOpenSettingsError(error: unknown) {
-  if (error instanceof Error) {
-    headerLogger.warn('Failed to open settings page', { error: error.message });
-    return;
-  }
-
-  throw error;
-}
-
-function getChromeRuntimeErrorMessage(): string | null {
-  if (typeof chrome === 'undefined') {
-    return null;
-  }
-
-  return chrome.runtime?.lastError?.message ?? null;
-}
-
-function sendOpenSettingsMessage(): Promise<void> {
-  if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
-    return Promise.reject(new Error('Cannot open Fancy HN settings because chrome.runtime.sendMessage is unavailable.'));
-  }
-
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(makeOpenSettingsMessage(), (response: unknown) => {
-      const errorMessage = getChromeRuntimeErrorMessage();
-      if (errorMessage) {
-        reject(new Error(`Cannot open Fancy HN settings: ${errorMessage}`));
-        return;
-      }
-
-      const parsedResponse = openSettingsResponseSchema.safeParse(response);
-      if (!parsedResponse.success) {
-        reject(new Error('Cannot open Fancy HN settings because the background worker returned an invalid response.'));
-        return;
-      }
-
-      if (!parsedResponse.data.ok) {
-        reject(new Error(`Cannot open Fancy HN settings: ${parsedResponse.data.error}`));
-        return;
-      }
-
-      resolve();
-    });
-  });
-}
-
 function openSettingsPage() {
-  void sendOpenSettingsMessage().catch(reportOpenSettingsError);
+  chrome.runtime.sendMessage(OPEN_SETTINGS_MESSAGE, (response?: OpenSettingsResponse) => {
+    const error = chrome.runtime.lastError?.message ?? (response?.ok === false ? response.error : null);
+    if (error) {
+      headerLogger.warn('Failed to open settings page', error);
+    }
+  });
 }
 
 useEventListener(document, 'pointerdown', onDocumentPointerDown);

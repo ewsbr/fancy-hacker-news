@@ -66,14 +66,10 @@ describe('extension settings', () => {
     const resolved = resolveStoredSettings(
       { schemaVersion: SETTINGS_SCHEMA_VERSION, theme: 'dark' },
       null,
-      { systemTheme: 'light' },
+      'light',
     );
 
-    expect(resolved).toEqual({
-      settings: makeDefaultSettings({ systemTheme: 'light' }),
-      source: 'defaults',
-      shouldPersist: true,
-    });
+    expect(resolved).toEqual(makeDefaultSettings({ systemTheme: 'light' }));
   });
 
   it('defaults new-tab links off for stored settings from before the feature existed', () => {

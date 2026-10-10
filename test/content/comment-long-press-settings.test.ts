@@ -3,7 +3,7 @@
 import { mount } from '@vue/test-utils';
 import { onLongPress } from '@vueuse/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, reactive, ref } from 'vue';
 import {
   provideCommentCollapseRegistry,
   useCommentCollapseRegistry,
@@ -11,7 +11,6 @@ import {
 } from '@/content/composables/comment-node';
 import { makeDefaultSettings } from '@/state/settings';
 import {
-  createExtensionSettingsState,
   EXTENSION_SETTINGS_KEY,
   useExtensionSettings,
 } from '@/state/settings-context';
@@ -28,7 +27,7 @@ vi.mock('@vueuse/core', async () => {
 function mountHarness(longPressCommentCollapse: boolean) {
   let providedRegistry: unknown;
   let inheritedRegistry: unknown;
-  const settings = createExtensionSettingsState({
+  const settings = reactive({
     ...makeDefaultSettings({ systemTheme: 'light' }),
     features: {
       scrollToTop: true,

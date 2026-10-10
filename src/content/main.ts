@@ -17,7 +17,7 @@ import { parseHeader } from '@/parsers/header';
 import { resolveRoute } from '@/router';
 import { detachDeferredCommentRows, findCommentPath, makeItemPageReactive } from '@/state/item-page-state';
 import { applySettingsToHost, loadExtensionSettings, makeDefaultSettings } from '@/state/settings';
-import { createExtensionSettingsState, EXTENSION_SETTINGS_KEY } from '@/state/settings-context';
+import { EXTENSION_SETTINGS_KEY } from '@/state/settings-context';
 import { BOOTSTRAP_THEME_DATASET_KEY, isThemeName } from '@/state/theme-metadata';
 import App from './App.vue';
 import '@/styles/main.scss';
@@ -113,7 +113,7 @@ async function mountApp() {
     app.provide('pageComponent', parsedPage.component);
     app.provide('isMobileLayout', isMobileLayout);
     app.provide('renderTime', renderTime);
-    app.provide(EXTENSION_SETTINGS_KEY, createExtensionSettingsState(settings));
+    app.provide(EXTENSION_SETTINGS_KEY, reactive(settings));
     app.mount(host);
     debugStep('mount');
 

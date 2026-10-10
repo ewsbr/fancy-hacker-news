@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { makeOpenSettingsMessage } from '@/utils/extension-messages';
+import { OPEN_SETTINGS_MESSAGE } from '@/utils/extension-messages';
 
 type RuntimeMessageListener = (
   message: unknown,
@@ -33,7 +33,7 @@ describe('background open settings message', () => {
 
     const sendResponse = vi.fn();
     const keepsChannelOpen = listeners[0]?.(
-      makeOpenSettingsMessage(),
+      OPEN_SETTINGS_MESSAGE,
       {},
       sendResponse,
     );

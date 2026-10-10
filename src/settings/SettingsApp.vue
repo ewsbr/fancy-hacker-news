@@ -6,23 +6,13 @@ import {
   ExternalLink,
   ListCollapse,
 } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 import logoDarkUrl from '@/assets/logo-dark.svg';
 import logoLightUrl from '@/assets/logo-light.svg';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
-import {
-  applySettingsToRootHost,
-  CONTENT_WIDTH_PRESETS,
-  loadExtensionSettings,
-} from '@/state/settings';
-import {
-  replaceExtensionSettingsState,
-  updateExtensionSettings,
-  useExtensionSettings,
-} from '@/state/settings-context';
-import {
-  getThemeMetadata,
-} from '@/state/theme-metadata';
+import { CONTENT_WIDTH_PRESETS } from '@/state/settings';
+import { updateExtensionSettings, useExtensionSettings } from '@/state/settings-context';
+import { getThemeMetadata } from '@/state/theme-metadata';
 import FeatureSwitch from './components/FeatureSwitch.vue';
 
 interface FeatureOption {
@@ -31,8 +21,9 @@ interface FeatureOption {
   icon: Component;
 }
 
+defineProps<{ loadError: string | null }>();
+
 const settings = useExtensionSettings();
-const loadError = ref<string | null>(null);
 
 const featureOptions = [
   {
@@ -66,21 +57,6 @@ function setFeature(feature: keyof FeatureSettings, enabled: boolean) {
     },
   });
 }
-
-onMounted(async () => {
-  try {
-    const storedSettings = await loadExtensionSettings();
-    replaceExtensionSettingsState(settings, storedSettings);
-    applySettingsToRootHost(settings);
-  } catch (error) {
-    if (error instanceof Error) {
-      loadError.value = error.message;
-      return;
-    }
-
-    throw error;
-  }
-});
 </script>
 
 <template>

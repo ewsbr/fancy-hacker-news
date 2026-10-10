@@ -12,6 +12,7 @@ export default defineConfig(configEnv => mergeConfig(
         },
       },
       include: ['test/**/*.test.ts'],
+      setupFiles: ['test/setup.ts'],
     },
   }),
 ));

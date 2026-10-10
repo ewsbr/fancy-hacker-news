@@ -2,17 +2,15 @@
 
 import type { Story } from '@/parsers/story-list';
 import { describe, expect, it } from 'vitest';
+import { reactive } from 'vue';
 import RichText from '@/content/components/shared/RichText.vue';
 import StoryRow from '@/content/components/stories/StoryRow.vue';
 import { makeDefaultSettings } from '@/state/settings';
-import {
-  createExtensionSettingsState,
-  EXTENSION_SETTINGS_KEY,
-} from '@/state/settings-context';
+import { EXTENSION_SETTINGS_KEY } from '@/state/settings-context';
 import { mountComponent } from '../helpers/mount-component';
 
 function makeSettings(openLinksInNewTab: boolean) {
-  return createExtensionSettingsState({
+  return reactive({
     ...makeDefaultSettings({ systemTheme: 'light' }),
     features: {
       scrollToTop: true,

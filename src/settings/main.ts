@@ -1,25 +1,24 @@
-import { createApp } from 'vue';
+import { createApp, reactive } from 'vue';
 import { loadExtensionFonts } from '@/content/utils/load-extension-fonts';
-import {
-  applySettingsToHost,
-  makeDefaultSettings,
-} from '@/state/settings';
-import {
-  createExtensionSettingsState,
-  EXTENSION_SETTINGS_KEY,
-} from '@/state/settings-context';
+import { getExtensionRootHost } from '@/content/utils/root-host';
+import { applySettingsToHost, loadExtensionSettings, makeDefaultSettings } from '@/state/settings';
+import { EXTENSION_SETTINGS_KEY } from '@/state/settings-context';
 import SettingsApp from './SettingsApp.vue';
 
 loadExtensionFonts();
 
-const host = document.getElementById('fancy-hn-root');
-if (!(host instanceof HTMLElement)) {
-  throw new TypeError('Expected #fancy-hn-root to exist before mounting settings.');
-}
+const host = getExtensionRootHost()!;
+let loadError: string | null = null;
 
-const settings = createExtensionSettingsState(makeDefaultSettings());
-applySettingsToHost(host, settings);
-
-createApp(SettingsApp)
-  .provide(EXTENSION_SETTINGS_KEY, settings)
-  .mount(host);
+void loadExtensionSettings()
+  .catch((error: Error) => {
+    loadError = error.message;
+    return makeDefaultSettings();
+  })
+  .then((storedSettings) => {
+    const settings = reactive(storedSettings);
+    applySettingsToHost(host, settings);
+    createApp(SettingsApp, { loadError })
+      .provide(EXTENSION_SETTINGS_KEY, settings)
+      .mount(host);
+  });

@@ -2,13 +2,11 @@
 
 import type { ParsedHeader } from '@/parsers/header';
 import { afterEach, describe, expect, it } from 'vitest';
+import { reactive } from 'vue';
 import AppShell from '@/content/components/layout/AppShell.vue';
 import ScrollToTopButton from '@/content/components/layout/ScrollToTopButton.vue';
 import { makeDefaultSettings } from '@/state/settings';
-import {
-  createExtensionSettingsState,
-  EXTENSION_SETTINGS_KEY,
-} from '@/state/settings-context';
+import { EXTENSION_SETTINGS_KEY } from '@/state/settings-context';
 import { mountComponent } from '../helpers/mount-component';
 
 const header: ParsedHeader = {
@@ -24,7 +22,7 @@ const header: ParsedHeader = {
 };
 
 function mountShell(scrollToTop: boolean) {
-  const settings = createExtensionSettingsState({
+  const settings = reactive({
     ...makeDefaultSettings({ systemTheme: 'light' }),
     features: {
       scrollToTop,

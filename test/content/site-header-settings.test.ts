@@ -3,7 +3,7 @@
 import type { ParsedHeader } from '@/parsers/header';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import SiteHeader from '@/content/components/layout/SiteHeader.vue';
-import { makeOpenSettingsMessage } from '@/utils/extension-messages';
+import { OPEN_SETTINGS_MESSAGE } from '@/utils/extension-messages';
 import { mountComponent } from '../helpers/mount-component';
 
 const header: ParsedHeader = {
@@ -56,6 +56,6 @@ describe('siteHeader settings', () => {
 
     await settingsButton.trigger('click');
 
-    expect(sendMessage).toHaveBeenCalledWith(makeOpenSettingsMessage(), expect.any(Function));
+    expect(sendMessage).toHaveBeenCalledWith(OPEN_SETTINGS_MESSAGE, expect.any(Function));
   });
 });
