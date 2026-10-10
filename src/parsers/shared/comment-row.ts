@@ -23,7 +23,7 @@ export interface ParsedCommentStoryContext {
   link: string;
 }
 
-export interface ParsedCommentRowCommon {
+export interface ParsedThreadCommentRow {
   id: string;
   author: string;
   authorIsNew: boolean;
@@ -38,9 +38,6 @@ export interface ParsedCommentRowCommon {
   isFlagged: boolean;
   isDeleted: boolean;
   voteState: VoteState;
-}
-
-export interface ParsedThreadCommentRow extends ParsedCommentRowCommon {
   indent: number;
   isCollapsed: boolean;
   collapsedCount: number;

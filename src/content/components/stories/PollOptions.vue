@@ -7,46 +7,11 @@ const props = defineProps<{
   options: PollOption[];
 }>();
 
-function comparePollOptions(left: PollOption, right: PollOption): number {
-  const leftScore = left.score;
-  const rightScore = right.score;
-
-  if (leftScore != null && rightScore != null && leftScore !== rightScore) {
-    return rightScore - leftScore;
-  }
-
-  if (leftScore != null && rightScore == null) {
-    return -1;
-  }
-
-  if (leftScore == null && rightScore != null) {
-    return 1;
-  }
-
-  return left.text.localeCompare(right.text, undefined, { sensitivity: 'base' });
-}
-
-const displayedOptions = computed(() => [...props.options].sort(comparePollOptions));
-
-const maxScore = computed(() => {
-  let max = 0;
-  for (const opt of displayedOptions.value) {
-    if (opt.score != null && opt.score > max) {
-      max = opt.score;
-    }
-  }
-  return max || 1;
-});
-
-const totalVotes = computed(() => {
-  let sum = 0;
-  for (const opt of displayedOptions.value) {
-    if (opt.score != null) {
-      sum += opt.score;
-    }
-  }
-  return sum;
-});
+// Highest score first; options without a score sort last, then alphabetically.
+const displayedOptions = computed(() => [...props.options].sort((left, right) =>
+  (right.score ?? -1) - (left.score ?? -1) || left.text.localeCompare(right.text, undefined, { sensitivity: 'base' })));
+const maxScore = computed(() => Math.max(1, ...props.options.map(option => option.score ?? 0)));
+const totalVotes = computed(() => props.options.reduce((sum, option) => sum + (option.score ?? 0), 0));
 </script>
 
 <template>

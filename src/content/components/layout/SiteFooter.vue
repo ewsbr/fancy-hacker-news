@@ -8,11 +8,11 @@ import {
   Twitter,
   Youtube,
 } from 'lucide-vue-next';
-import { inject, ref } from 'vue';
+import { inject } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import SearchTrigger from '@/content/components/layout/SearchTrigger.vue';
 
-const renderTime = inject<Ref<number>>('renderTime', ref(0));
+const renderTime = inject<Ref<number>>('renderTime')!;
 
 interface FooterLink {
   text: string;

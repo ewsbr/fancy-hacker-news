@@ -30,7 +30,7 @@ const COMMENT_LONG_PRESS_INTERACTIVE_SELECTOR = [
 ].join(',');
 
 export type CommentRenderableNode = CommentNodeType | ThreadEntry;
-export type CommentRootVariant = 'default' | 'thread';
+type CommentRootVariant = 'default' | 'thread';
 
 interface CommentDisplayContextOptions {
   node: Ref<CommentRenderableNode>;

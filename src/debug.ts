@@ -4,7 +4,7 @@ type DebugDetails = Record<string, unknown>;
 const debugSteps: DebugDetails[] = [];
 let lastStepAt = performance.now();
 
-export function isDebugMode(): boolean {
+function isDebugMode(): boolean {
   return new URLSearchParams(location.search).get('debug') === '1';
 }
 

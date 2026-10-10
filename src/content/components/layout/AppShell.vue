@@ -12,9 +12,7 @@ const searchOpen = ref(false);
 const settings = useExtensionSettings();
 
 function openSearch() {
-  if (!searchOpen.value) {
-    searchOpen.value = true;
-  }
+  searchOpen.value = true;
 }
 
 provide('openSearch', openSearch);

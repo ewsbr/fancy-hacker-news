@@ -5,7 +5,7 @@ export interface HeaderLinkGroup {
   links: NavLink[];
 }
 
-export const primaryNavLabels = ['new', 'threads', 'past', 'best', 'ask'];
+const primaryNavLabels = ['new', 'threads', 'past', 'best', 'ask'];
 
 const communityOverflowLabels = new Set(['comments', 'jobs', 'whoishiring']);
 const discoveryOverflowLabels = new Set([

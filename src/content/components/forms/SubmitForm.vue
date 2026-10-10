@@ -4,7 +4,7 @@ import { HelpCircle, Send } from 'lucide-vue-next';
 import Tooltip from '@/content/components/ui/Tooltip.vue';
 
 const props = withDefaults(defineProps<{
-  form: NonNullable<ParsedSubmitPage['form']>;
+  form: ParsedSubmitPage['form'];
   modelValue: Record<string, string>;
   placeholders: Record<string, string>;
   variant?: 'default' | 'utility';
@@ -40,14 +40,9 @@ function getFieldMeta(name: string) {
 }
 
 function handleFieldInput(name: string, event: Event) {
-  const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
-  if (!target) {
-    return;
-  }
-
   emit('update:modelValue', {
     ...props.modelValue,
-    [name]: target.value,
+    [name]: (event.target as HTMLInputElement | HTMLTextAreaElement).value,
   });
 }
 </script>
