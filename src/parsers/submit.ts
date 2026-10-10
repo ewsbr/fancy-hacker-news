@@ -7,28 +7,21 @@ export interface SubmitField {
 }
 
 export interface ParsedSubmitPage {
-  /**
-   * null when the user is not logged in (the page shows a login prompt instead).
-   */
   form: {
     action: string;
     fnid: string;
     fnop: string;
     fields: SubmitField[];
     bookmarkletHref: string | null;
-  } | null;
-  isLoggedOut: boolean;
+  };
   warningMessage: string | null;
 }
 
+/** Text HN renders before the form, such as validation errors on /x. */
 function extractWarningMessage(form: HTMLFormElement): string | null {
-  const container = form.closest('#bigbox > td') ?? form.parentElement;
-  if (!container) {
-    return null;
-  }
-
+  const container = form.closest('#bigbox > td') ?? form.parentElement!;
   const parts: string[] = [];
-  for (const node of Array.from(container.childNodes)) {
+  for (const node of container.childNodes) {
     if (node === form) {
       break;
     }
@@ -39,48 +32,29 @@ function extractWarningMessage(form: HTMLFormElement): string | null {
     }
   }
 
-  return parts.length > 0 ? parts.join(' ') : null;
+  return parts.join(' ') || null;
 }
 
-export function parseSubmitPage(doc: Document): ParsedSubmitPage {
+/** Returns null when HN shows a login prompt instead of the submit form. */
+export function parseSubmitPage(doc: Document): ParsedSubmitPage | null {
   const form = doc.querySelector<HTMLFormElement>('form[action="/r"]');
-
   if (!form) {
-    return { form: null, isLoggedOut: true, warningMessage: null };
+    return null;
   }
 
-  const fnid = attrOf(form.querySelector('input[name="fnid"]'), 'value') || '';
-  const fnop = attrOf(form.querySelector('input[name="fnop"]'), 'value') || '';
-  const bookmarkletHref = attrOf(form.querySelector('a[href]'), 'href') || null;
-  const warningMessage = extractWarningMessage(form);
-
-  // Collect visible user-editable fields (exclude hidden fields and submit button)
-  const fields: SubmitField[] = [];
-  form.querySelectorAll('input, textarea').forEach((el) => {
-    const type = (el.getAttribute('type') || (el.tagName === 'TEXTAREA' ? 'textarea' : 'text')).toLowerCase();
-    if (type === 'hidden' || type === 'submit') {
-      return;
-    }
-    const name = el.getAttribute('name');
-    if (!name) {
-      return;
-    }
-    fields.push({
-      name,
-      value: (el as HTMLInputElement | HTMLTextAreaElement).value || '',
-      type,
-    });
-  });
+  // Visible user-editable fields, excluding hidden fields and the submit button.
+  const fields = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[name], textarea[name]'))
+    .map(el => ({ name: el.name, value: el.value, type: el.type.toLowerCase() }))
+    .filter(field => field.type !== 'hidden' && field.type !== 'submit');
 
   return {
     form: {
-      action: attrOf(form, 'action') || '/r',
-      fnid,
-      fnop,
+      action: '/r',
+      fnid: attrOf(form.querySelector('input[name="fnid"]'), 'value') || '',
+      fnop: attrOf(form.querySelector('input[name="fnop"]'), 'value') || '',
       fields,
-      bookmarkletHref,
+      bookmarkletHref: attrOf(form.querySelector('a[href]'), 'href') || null,
     },
-    isLoggedOut: false,
-    warningMessage,
+    warningMessage: extractWarningMessage(form),
   };
 }

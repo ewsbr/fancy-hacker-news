@@ -46,8 +46,6 @@ export interface ItemDetail {
   ageLink: string;
   bodyHtml: string | null;
   placeholderKind: CommentPlaceholderKind | null;
-  parentLink: string | null;
-  contextLink: string | null;
   storyTitle: string | null;
   storyLink: string | null;
   voteState: VoteState;
@@ -198,8 +196,6 @@ function parseRootItem(fatitem: Element): ItemDetail {
       ageLink: age.link,
       bodyHtml: extractRichTextHtml(fatitem.querySelector('.toptext')) || null,
       placeholderKind: null,
-      parentLink: null,
-      contextLink: null,
       storyTitle: null,
       storyLink: null,
       voteState,
@@ -234,8 +230,6 @@ function parseRootItem(fatitem: Element): ItemDetail {
     ageLink: age.link,
     bodyHtml: body.html || null,
     placeholderKind: body.placeholderKind,
-    parentLink: hrefOf(navs?.querySelector('a[href^="item?id="]')),
-    contextLink: hrefOf(navs?.querySelector('a[href*="context"]')),
     storyTitle: textOf(onStory),
     storyLink: hrefOf(onStory),
     voteState,

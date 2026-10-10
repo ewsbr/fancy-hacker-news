@@ -27,6 +27,13 @@ function makePublicUserDocument(aboutHtml: string): Document {
   `);
 }
 
+function getAboutText(page: ReturnType<typeof parseUserPage>): string {
+  return page.aboutBlocks
+    .map(block => block.segments.map(segment => segment.text).join('').trim())
+    .filter(Boolean)
+    .join('\n\n');
+}
+
 function getAboutLinks(page: ReturnType<typeof parseUserPage>): Array<{ text: string; href: string }> {
   return page.aboutBlocks.flatMap(block =>
     block.segments.flatMap(segment =>
@@ -42,7 +49,7 @@ describe('parseUserPage', () => {
     );
     const page = parseUserPage(doc);
 
-    expect(page.about).toBe(
+    expect(getAboutText(page)).toBe(
       '[ my public key: https://example.invalid/sample-key; my proof: https://example.invalid/sample-proof ]',
     );
     expect(getAboutLinks(page)).toEqual([
@@ -55,7 +62,7 @@ describe('parseUserPage', () => {
     const doc = makePublicUserDocument('Software person<p>Based somewhere</p><p>https://example.invalid/profile</p>');
     const page = parseUserPage(doc);
 
-    expect(page.about).toBe('Software person\n\nBased somewhere\n\nhttps://example.invalid/profile');
+    expect(getAboutText(page)).toBe('Software person\n\nBased somewhere\n\nhttps://example.invalid/profile');
     expect(page.aboutBlocks.at(-1)).toEqual({
       segments: [
         {
@@ -82,8 +89,8 @@ describe('parseUserPage', () => {
     expect(serialized).not.toContain('alert');
     expect(serialized).not.toContain('javascript:');
     expect(serialized).not.toContain('onerror');
-    expect(page.about).toContain('bad link');
-    expect(page.about).toContain('control link');
+    expect(getAboutText(page)).toContain('bad link');
+    expect(getAboutText(page)).toContain('control link');
     expect(getAboutLinks(page)).toEqual([
       { text: 'safe link', href: 'https://example.com/safe' },
       { text: 'www.example.org', href: 'https://www.example.org' },

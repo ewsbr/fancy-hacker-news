@@ -17,7 +17,6 @@ function makeHeader(user: ParsedHeader['user']): ParsedHeader {
     topBarColor: '#ff6600',
     hasCustomTopBarColor: false,
     hasMemorialBar: false,
-    memorialBarColor: null,
   };
 }
 

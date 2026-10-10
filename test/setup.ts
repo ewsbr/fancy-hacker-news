@@ -14,7 +14,6 @@ const header: ParsedHeader = {
   topBarColor: '#ff6600',
   hasCustomTopBarColor: false,
   hasMemorialBar: false,
-  memorialBarColor: null,
 };
 
 // The content script always provides settings and the parsed header; give mounted test components the same.

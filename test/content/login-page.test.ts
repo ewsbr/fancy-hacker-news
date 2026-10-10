@@ -46,7 +46,6 @@ describe('login page', () => {
       authMessage: null,
       forms: [
         {
-          title: null,
           action: 'login',
           method: 'post',
           visibleFields: [
@@ -57,7 +56,6 @@ describe('login page', () => {
           submitLabel: 'login',
         },
         {
-          title: null,
           action: 'login',
           method: 'post',
           visibleFields: [
@@ -108,7 +106,6 @@ describe('login page', () => {
       title: 'Change Password',
       authMessage: null,
       forms: [{
-        title: null,
         action: 'changepw',
         method: 'post',
         visibleFields: [

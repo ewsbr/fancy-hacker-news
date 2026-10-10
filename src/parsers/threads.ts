@@ -1,7 +1,7 @@
 import type { CommentNode } from './item';
 import { parseThreadCommentRow } from './shared/comment-row';
 import { buildCommentTree } from './shared/comment-tree';
-import { findMoreLink } from './shared/pagination';
+import { findMoreLink } from './shared/list-page';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
   onStory: { title: string; link: string } | null;

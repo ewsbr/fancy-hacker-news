@@ -1,71 +1,54 @@
 import { parseAge } from './shared/age';
 import { extractRichTextHtml } from './shared/body';
-import { attrOf, textOf } from './shared/dom';
+import { attrOf, hrefOf, textOf } from './shared/dom';
 
 export interface ParsedReplyPage {
-  isLoggedOut: boolean;
   parent: {
     author: string;
     age: string;
     ageLink: string;
     bodyHtml: string;
-    parentLink: string | null;
     contextLink: string | null;
-    onStory: {
-      title: string;
-      link: string;
-    } | null;
-  } | null;
+    onStory: { title: string; link: string } | null;
+  };
   replyForm: {
     action: string;
     hmac: string;
     parentId: string;
     gotoUrl: string;
-  } | null;
+  };
 }
 
-export function parseReplyPage(doc: Document): ParsedReplyPage {
+/** Returns null when HN shows a login prompt instead of the reply form. */
+export function parseReplyPage(doc: Document): ParsedReplyPage | null {
   const fatitem = doc.querySelector('table.fatitem');
-
   if (!fatitem) {
-    return { isLoggedOut: true, parent: null, replyForm: null };
+    return null;
   }
 
-  // Parent comment
-  const parentTr = fatitem?.querySelector('tr.athing');
+  const parentTr = fatitem.querySelector('tr.athing');
   const comhead = parentTr?.querySelector('span.comhead');
-  const authorEl = comhead?.querySelector('a.hnuser');
-  const ageInfo = parseAge(comhead?.querySelector('span.age'));
-  const commtext = parentTr?.querySelector('div.commtext');
-  const navs = comhead?.querySelector('span.navs') ?? null;
-  const onStoryLink = navs?.querySelector<HTMLAnchorElement>('span.onstory a') ?? null;
-  const navLinks = Array.from(navs?.querySelectorAll<HTMLAnchorElement>('a') ?? []);
-  const parentLink = navLinks.find(link => link.textContent?.trim() === 'parent') ?? null;
-  const contextLink = navLinks.find(link => link.textContent?.trim() === 'context') ?? null;
+  const age = parseAge(comhead?.querySelector('span.age'));
+  const navs = comhead?.querySelector('span.navs');
+  const onStoryLink = navs?.querySelector('span.onstory a');
+  const contextLink = Array.from(navs?.querySelectorAll('a') ?? []).find(link => textOf(link) === 'context');
+  const form = fatitem.querySelector('form[action="comment"]');
+  const inputValue = (name: string) => attrOf(form?.querySelector(`input[name="${name}"]`), 'value') || '';
 
-  const parent = {
-    author: textOf(authorEl),
-    age: ageInfo.text,
-    ageLink: ageInfo.link,
-    bodyHtml: extractRichTextHtml(commtext),
-    parentLink: attrOf(parentLink, 'href') || null,
-    contextLink: attrOf(contextLink, 'href') || null,
-    onStory: onStoryLink
-      ? {
-          title: textOf(onStoryLink),
-          link: attrOf(onStoryLink, 'href') || '',
-        }
-      : null,
+  return {
+    parent: {
+      author: textOf(comhead?.querySelector('a.hnuser')),
+      age: age.text,
+      ageLink: age.link,
+      bodyHtml: extractRichTextHtml(parentTr?.querySelector('div.commtext')),
+      contextLink: hrefOf(contextLink) || null,
+      onStory: onStoryLink ? { title: textOf(onStoryLink), link: hrefOf(onStoryLink) || '' } : null,
+    },
+    replyForm: {
+      action: 'comment',
+      hmac: inputValue('hmac'),
+      parentId: inputValue('parent'),
+      gotoUrl: inputValue('goto'),
+    },
   };
-
-  // Reply form
-  const form = fatitem?.querySelector<HTMLFormElement>('form[action="comment"]');
-  const replyForm = {
-    action: attrOf(form, 'action') || 'comment',
-    hmac: attrOf(form?.querySelector('input[name="hmac"]'), 'value') || '',
-    parentId: attrOf(form?.querySelector('input[name="parent"]'), 'value') || '',
-    gotoUrl: attrOf(form?.querySelector('input[name="goto"]'), 'value') || '',
-  };
-
-  return { isLoggedOut: false, parent, replyForm };
 }

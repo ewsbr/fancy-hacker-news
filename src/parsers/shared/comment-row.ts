@@ -58,48 +58,15 @@ export interface ParseThreadCommentRowOptions {
   preferredVoteDirection?: VoteDirection;
 }
 
-const EMPTY_NAV_LINKS: ParsedCommentNavLinks = Object.freeze({
-  root: null,
-  parent: null,
-  prev: null,
-  next: null,
-  context: null,
-});
-
-function normalizeNavHref(
-  href: string | null,
-  mode: ParseThreadCommentRowOptions['navLinkMode'],
-): string | null {
-  if (!href) {
-    return null;
-  }
-
-  if (mode !== 'hash') {
-    return href;
-  }
-
-  const hashIndex = href.indexOf('#');
-  return hashIndex >= 0 ? href.slice(hashIndex) : href;
-}
-
 function parseNavLinks(navs: Element | null | undefined, mode: ParseThreadCommentRowOptions['navLinkMode']): ParsedCommentNavLinks {
-  if (!navs) {
-    return { ...EMPTY_NAV_LINKS };
-  }
-  const links = new Map<string, string | null>();
-  for (const anchor of navs.querySelectorAll('a')) {
-    const label = textOf(anchor).toLowerCase();
-    if (!links.has(label)) {
-      links.set(label, normalizeNavHref(hrefOf(anchor), mode));
-    }
-  }
-  return {
-    root: links.get('root') ?? null,
-    parent: links.get('parent') ?? null,
-    prev: links.get('prev') ?? null,
-    next: links.get('next') ?? null,
-    context: links.get('context') ?? null,
+  const anchors = Array.from(navs?.querySelectorAll('a') ?? []);
+  const find = (label: string) => {
+    const href = hrefOf(anchors.find(anchor => textOf(anchor).toLowerCase() === label));
+    // Item pages link within the current document, so keep only the fragment.
+    return (mode === 'hash' && href?.includes('#') ? href.slice(href.indexOf('#')) : href) || null;
   };
+
+  return { root: find('root'), parent: find('parent'), prev: find('prev'), next: find('next'), context: find('context') };
 }
 
 function parseCollapsedCount(comhead: Element | null | undefined): number {
@@ -108,13 +75,7 @@ function parseCollapsedCount(comhead: Element | null | undefined): number {
     return 0;
   }
 
-  const toggMatch = togg.textContent?.match(/(\d+)\s+more/);
-  const collapsedCount = parseInteger(toggMatch?.[1]);
-  if (collapsedCount !== null) {
-    return collapsedCount;
-  }
-
-  return parseInteger(attrOf(togg, 'n')) ?? 0;
+  return parseInteger(togg.textContent?.match(/(\d+)\s+more/)?.[1]) ?? parseInteger(attrOf(togg, 'n')) ?? 0;
 }
 
 function parseCommentActions(
@@ -137,25 +98,12 @@ function parseCommentActions(
 }
 
 export function parseCommentIndent(tr: Element): number {
-  const indentSrc = attrOf(tr.querySelector('td.ind'), 'indent');
-  return parseInteger(indentSrc) ?? 0;
+  return parseInteger(attrOf(tr.querySelector('td.ind'), 'indent')) ?? 0;
 }
 
-export function parseStoryContext(scope: ParentNode | null | undefined): ParsedCommentStoryContext | null {
-  const onStoryLink = scope?.querySelector?.('span.onstory a[href^="item?id="]') ?? null;
-  if (!onStoryLink) {
-    return null;
-  }
-
-  const link = hrefOf(onStoryLink);
-  if (!link) {
-    return null;
-  }
-
-  return {
-    title: attrOf(onStoryLink, 'title') || textOf(onStoryLink),
-    link,
-  };
+function parseStoryContext(scope: ParentNode | null | undefined): ParsedCommentStoryContext | null {
+  const onStoryLink = scope?.querySelector('span.onstory a[href^="item?id="]');
+  return onStoryLink ? { title: attrOf(onStoryLink, 'title') || textOf(onStoryLink), link: hrefOf(onStoryLink)! } : null;
 }
 
 export function parseThreadCommentRow(
@@ -172,7 +120,6 @@ export function parseThreadCommentRow(
   const commentBody = parseCommentBody(commentEl ?? commtext);
   const navs = comhead?.querySelector('.navs');
   const actions = parseCommentActions(commentEl, navs);
-  const navLinkMode = options.navLinkMode ?? 'preserve';
   const ageInfo = parseAge(comhead?.querySelector('.age'));
   const isCollapsed = tr.classList.contains('coll');
 
@@ -202,7 +149,7 @@ export function parseThreadCommentRow(
     editUrl: actions.editUrl,
     deleteUrl: actions.deleteUrl,
     replyLink: actions.replyLink,
-    navLinks: parseNavLinks(navs, navLinkMode),
+    navLinks: parseNavLinks(navs, options.navLinkMode),
     onStory: options.includeOnStory ? parseStoryContext(comhead) : null,
   };
 }

@@ -81,13 +81,14 @@ const SUBMIT_PLACEHOLDERS = [
 ] as const;
 
 function buildPlaceholderSeed(pageData: ParsedSubmitPage): string {
-  const formFields = pageData.form?.fields.map(field => `${field.name}:${field.type}:${field.value}`).join('|') ?? '';
+  const { form } = pageData;
+  const formFields = form.fields.map(field => `${field.name}:${field.type}:${field.value}`).join('|');
 
   return [
-    pageData.form?.action ?? '',
-    pageData.form?.fnid ?? '',
-    pageData.form?.fnop ?? '',
-    pageData.form?.bookmarkletHref ?? '',
+    form.action,
+    form.fnid,
+    form.fnop,
+    form.bookmarkletHref ?? '',
     pageData.warningMessage ?? '',
     formFields,
   ].join('::');
@@ -103,7 +104,7 @@ const formPlaceholders = {
 };
 
 const draft = ref<Record<string, string>>(
-  Object.fromEntries((pageData.form?.fields ?? []).map(field => [field.name, field.value])),
+  Object.fromEntries(pageData.form.fields.map(field => [field.name, field.value])),
 );
 const hasDraftInput = computed(() => Object.values(draft.value).some(value => value.trim().length > 0));
 
@@ -145,64 +146,62 @@ const previewStory = computed<Story>(() => ({
 
 <template>
   <div class="submit-page">
-    <template v-if="pageData.form">
-      <section class="submit-page__stack">
-        <p class="submit-page__section-label">
-          Submit
+    <section class="submit-page__stack">
+      <p class="submit-page__section-label">
+        Submit
+      </p>
+
+      <header class="submit-page__header">
+        <h1 class="submit-page__title">
+          Submit a link or start a discussion
+        </h1>
+        <p class="submit-page__lede">
+          On-Topic: Anything that good hackers would find interesting. That includes more than hacking and startups. If you had to reduce it to a sentence, the answer might be: anything that gratifies one's intellectual curiosity.
+        </p>
+        <p class="submit-page__lede">
+          Off-Topic: Most stories about politics, or crime, or sports, or celebrities, unless they're evidence of some interesting new phenomenon. If they'd cover it on TV news, it's probably off-topic.
         </p>
 
-        <header class="submit-page__header">
-          <h1 class="submit-page__title">
-            Submit a link or start a discussion
-          </h1>
-          <p class="submit-page__lede">
-            On-Topic: Anything that good hackers would find interesting. That includes more than hacking and startups. If you had to reduce it to a sentence, the answer might be: anything that gratifies one's intellectual curiosity.
-          </p>
-          <p class="submit-page__lede">
-            Off-Topic: Most stories about politics, or crime, or sports, or celebrities, unless they're evidence of some interesting new phenomenon. If they'd cover it on TV news, it's probably off-topic.
-          </p>
+        <div class="submit-page__utility-links">
+          <a href="newsguidelines.html" class="submit-page__utility-link">guidelines</a>
+          <template v-if="pageData.form.bookmarkletHref">
+            <span class="submit-page__utility-sep">/</span>
+            <a
+              :href="pageData.form.bookmarkletHref"
+              class="submit-page__utility-link"
+              rel="nofollow"
+            >
+              bookmarklet
+            </a>
+          </template>
+        </div>
+      </header>
 
-          <div class="submit-page__utility-links">
-            <a href="newsguidelines.html" class="submit-page__utility-link">guidelines</a>
-            <template v-if="pageData.form.bookmarkletHref">
-              <span class="submit-page__utility-sep">/</span>
-              <a
-                :href="pageData.form.bookmarkletHref"
-                class="submit-page__utility-link"
-                rel="nofollow"
-              >
-                bookmarklet
-              </a>
-            </template>
-          </div>
-        </header>
+      <NoticeBanner
+        v-if="pageData.warningMessage"
+        :message="pageData.warningMessage"
+        role="alert"
+        class="submit-page__notice"
+      />
 
-        <NoticeBanner
-          v-if="pageData.warningMessage"
-          :message="pageData.warningMessage"
-          role="alert"
-          class="submit-page__notice"
-        />
-
-        <section class="submit-page__preview" aria-label="front page preview">
-          <div class="submit-page__preview-head">
-            <span class="submit-page__preview-label">Preview</span>
-          </div>
-          <div class="submit-page__preview-card">
-            <StoryRow :story="previewStory" />
-          </div>
-        </section>
-
-        <section class="submit-page__form-shell">
-          <SubmitForm
-            v-model="draft"
-            :form="pageData.form"
-            :placeholders="formPlaceholders"
-            variant="utility"
-          />
-        </section>
+      <section class="submit-page__preview" aria-label="front page preview">
+        <div class="submit-page__preview-head">
+          <span class="submit-page__preview-label">Preview</span>
+        </div>
+        <div class="submit-page__preview-card">
+          <StoryRow :story="previewStory" />
+        </div>
       </section>
-    </template>
+
+      <section class="submit-page__form-shell">
+        <SubmitForm
+          v-model="draft"
+          :form="pageData.form"
+          :placeholders="formPlaceholders"
+          variant="utility"
+        />
+      </section>
+    </section>
   </div>
 </template>
 

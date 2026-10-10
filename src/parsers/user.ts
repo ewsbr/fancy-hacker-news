@@ -40,8 +40,6 @@ export interface ParsedUserPage {
   favoritesCommentsLink: string | null;
 }
 
-const TEXT_NODE = 3;
-const ELEMENT_NODE = 1;
 const URL_PATTERN = /\b(?:https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
 const UNSAFE_TEXT_CONTAINERS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT']);
 const TRAILING_URL_PUNCTUATION = /[),.;:!?]+$/;
@@ -112,11 +110,11 @@ function linkifyText(text: string): UserAboutSegment[] {
 }
 
 function aboutSegmentsFromNode(node: Node): UserAboutSegment[] {
-  if (node.nodeType === TEXT_NODE) {
+  if (node.nodeType === node.TEXT_NODE) {
     return linkifyText(node.textContent ?? '');
   }
 
-  if (node.nodeType !== ELEMENT_NODE) {
+  if (node.nodeType !== node.ELEMENT_NODE) {
     return [];
   }
 
@@ -157,7 +155,7 @@ function parseUserAboutBlocks(aboutCell: Element | null | undefined): UserAboutB
   };
 
   for (const child of Array.from(aboutCell.childNodes)) {
-    if (child.nodeType === ELEMENT_NODE) {
+    if (child.nodeType === child.ELEMENT_NODE) {
       const element = child as Element;
       if (element.tagName === 'P' || element.tagName === 'BR') {
         flushCurrent();
@@ -180,155 +178,64 @@ function parseUserAboutBlocks(aboutCell: Element | null | undefined): UserAboutB
   return blocks;
 }
 
-function stringifyUserAboutBlocks(blocks: UserAboutBlock[]): string | null {
-  const about = blocks
-    .map(block => block.segments.map(segment => segment.text).join('').trim())
-    .filter(Boolean)
-    .join('\n\n');
-
-  return about || null;
+function withCommentsParam(href: string): string {
+  const url = new URL(href, 'https://news.ycombinator.com');
+  url.searchParams.set('comments', 't');
+  return /^https?:\/\//.test(href) ? url.toString() : `${url.pathname}${url.search}`.slice(href.startsWith('/') ? 0 : 1);
 }
 
-function withCommentsParam(href: string | null | undefined): string | null {
-  if (!href) {
-    return null;
-  }
+/** Collection tab links, preferring the profile's own links over derived ones. */
+function findCollectionLinks(bigbox: Element | null, collection: 'favorites' | 'upvoted') {
+  const hrefs = Array.from(bigbox?.querySelectorAll('a[href]') ?? [], link => link.getAttribute('href')!)
+    .filter(href => isUserCollectionHref(href, collection));
+  const link = hrefs.find(href => !href.includes('comments=t')) ?? null;
+  const commentsLink = hrefs.find(href => href.includes('comments=t')) ?? null;
+  return { link, commentsLink };
+}
 
-  try {
-    const url = new URL(href, 'https://news.ycombinator.com');
-    url.searchParams.set('comments', 't');
-
-    if (/^https?:\/\//.test(href)) {
-      return url.toString();
-    }
-
-    return href.startsWith('/') ? `${url.pathname}${url.search}` : `${url.pathname}${url.search}`.replace(/^\//, '');
-  } catch {
-    return href.includes('?') ? `${href}&comments=t` : `${href}?comments=t`;
-  }
+function findValueCell(bigbox: Element | null, label: string): Element | null {
+  return Array.from(bigbox?.querySelectorAll('td') ?? []).find(td => textOf(td) === label)?.nextElementSibling ?? null;
 }
 
 export function parseUserPage(doc: Document): ParsedUserPage {
   const form = doc.querySelector<HTMLFormElement>('form.profileform[action="/xuser"]');
-  const isOwnProfile = form !== null;
-
-  // Scope all profile queries to #bigbox to avoid matching header nav elements
+  // Scope all profile queries to #bigbox to avoid matching header nav elements.
   const bigbox = doc.getElementById('bigbox');
-
-  // Username
-  const usernameEl = bigbox?.querySelector('a.hnuser');
-  const username = textOf(usernameEl);
-
-  // Karma — find <td>karma:</td> then read the adjacent td
-  let karma = 0;
-  bigbox?.querySelectorAll('td').forEach((td) => {
-    if (td.textContent?.trim() === 'karma:') {
-      const next = td.nextElementSibling;
-      if (next) {
-        karma = Number.parseInt(next.textContent?.trim() || '0', 10) || 0;
-      }
-    }
-  });
-
-  // Created
-  const createdLinkEl = bigbox?.querySelector<HTMLAnchorElement>('a[href^="front?day="]') ?? null;
-  const created = textOf(createdLinkEl);
-  const createdLink = hrefOf(createdLinkEl) || '';
-
-  // About — own profile exposes a textarea; other profile is plain HTML in td
-  let about: string | null = null;
-  let aboutBlocks: UserAboutBlock[] = [];
-  if (isOwnProfile) {
-    const textarea = form!.querySelector<HTMLTextAreaElement>('textarea[name="about"]');
-    about = textarea?.value ?? null;
-  } else {
-    bigbox?.querySelectorAll('td').forEach((td) => {
-      if (td.textContent?.trim() === 'about:') {
-        const next = td.nextElementSibling;
-        aboutBlocks = parseUserAboutBlocks(next);
-        about = stringifyUserAboutBlocks(aboutBlocks);
-      }
-    });
-  }
-
-  // Email (own profile only)
-  const emailInput = form?.querySelector<HTMLInputElement>('input[name="email"]');
-  const email = emailInput?.value ?? null;
-
-  // Preferences (own profile only)
-  let preferences: UserPreferences | null = null;
-  if (isOwnProfile && form) {
-    preferences = {
-      showDead: form.querySelector<HTMLSelectElement>('select[name="showd"]')?.value ?? null,
-      noprocrast: form.querySelector<HTMLSelectElement>('select[name="nopro"]')?.value ?? null,
-      maxVisit: form.querySelector<HTMLInputElement>('input[name="maxv"]')?.value ?? null,
-      minAway: form.querySelector<HTMLInputElement>('input[name="mina"]')?.value ?? null,
-      delay: form.querySelector<HTMLInputElement>('input[name="delay"]')?.value ?? null,
-    };
-  }
-
-  // Edit form credentials
-  const editForm = isOwnProfile && form
-    ? {
-        action: attrOf(form, 'action') || '/xuser',
-        hmac: attrOf(form.querySelector('input[name="hmac"]'), 'value') || '',
-        userId: attrOf(form.querySelector('input[name="id"]'), 'value') || '',
-      }
-    : null;
-
-  // Change password link
-  const changePwLink = hrefOf(bigbox?.querySelector('a[href^="changepw"]'));
-
-  // Submissions / threads links
-  const submissionsLink
-    = hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`;
-  const threadsLink
-    = hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`;
-
-  // Upvoted links (submissions and comments variants; only present on own profile)
-  const upvotedLinks = bigbox
-    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href]')).filter(el =>
-        isUserCollectionHref(attrOf(el, 'href'), 'upvoted'),
-      )
-    : [];
-  const upvotedLink
-    = hrefOf(upvotedLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
-  const upvotedCommentsLink
-    = hrefOf(upvotedLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t'))) ?? null;
-
-  // Favorites links
-  const favLinks = bigbox
-    ? Array.from(bigbox.querySelectorAll<HTMLAnchorElement>('a[href]')).filter(el =>
-        isUserCollectionHref(attrOf(el, 'href'), 'favorites'),
-      )
-    : [];
-  const favoritesLink
-    = hrefOf(favLinks.find(el => !(attrOf(el, 'href') || '').includes('comments=t')))
-      || `favorites?id=${username}`;
-  const favoritesCommentsLink
-    = hrefOf(favLinks.find(el => (attrOf(el, 'href') || '').includes('comments=t')))
-      ?? withCommentsParam(favoritesLink);
-
-  const normalizedUpvotedLink = upvotedLink ?? null;
-  const normalizedUpvotedCommentsLink = upvotedCommentsLink ?? withCommentsParam(normalizedUpvotedLink);
+  const username = textOf(bigbox?.querySelector('a.hnuser'));
+  const createdLinkEl = bigbox?.querySelector('a[href^="front?day="]');
+  const favorites = findCollectionLinks(bigbox, 'favorites');
+  const upvoted = findCollectionLinks(bigbox, 'upvoted');
+  const favoritesLink = favorites.link ?? `favorites?id=${username}`;
+  const formValue = (selector: string) => form?.querySelector<HTMLInputElement | HTMLSelectElement>(selector)?.value ?? null;
 
   return {
     username,
-    created,
-    createdLink,
-    karma,
-    about,
-    aboutBlocks,
-    email,
-    isOwnProfile,
-    preferences,
-    editForm,
-    changePwLink,
-    submissionsLink,
-    threadsLink,
-    upvotedLink: normalizedUpvotedLink,
-    upvotedCommentsLink: normalizedUpvotedCommentsLink,
+    created: textOf(createdLinkEl),
+    createdLink: hrefOf(createdLinkEl) || '',
+    karma: Number.parseInt(textOf(findValueCell(bigbox, 'karma:')) || '0', 10) || 0,
+    // Own profiles expose an editable textarea; others show linkified HTML.
+    about: form ? formValue('textarea[name="about"]') : null,
+    aboutBlocks: form ? [] : parseUserAboutBlocks(findValueCell(bigbox, 'about:')),
+    email: formValue('input[name="email"]'),
+    isOwnProfile: form !== null,
+    preferences: form && {
+      showDead: formValue('select[name="showd"]'),
+      noprocrast: formValue('select[name="nopro"]'),
+      maxVisit: formValue('input[name="maxv"]'),
+      minAway: formValue('input[name="mina"]'),
+      delay: formValue('input[name="delay"]'),
+    },
+    editForm: form && {
+      action: '/xuser',
+      hmac: attrOf(form.querySelector('input[name="hmac"]'), 'value') || '',
+      userId: attrOf(form.querySelector('input[name="id"]'), 'value') || '',
+    },
+    changePwLink: hrefOf(bigbox?.querySelector('a[href^="changepw"]')),
+    submissionsLink: hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`,
+    threadsLink: hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`,
+    upvotedLink: upvoted.link,
+    upvotedCommentsLink: upvoted.commentsLink ?? (upvoted.link && withCommentsParam(upvoted.link)),
     favoritesLink,
-    favoritesCommentsLink,
+    favoritesCommentsLink: favorites.commentsLink ?? withCommentsParam(favoritesLink),
   };
 }

@@ -49,7 +49,6 @@ describe('stories page', () => {
       introHtml: null,
       stories: [],
       moreLink: null,
-      startRank: 1,
     }, {
       page: 'stories',
       params: {

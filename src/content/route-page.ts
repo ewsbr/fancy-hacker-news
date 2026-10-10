@@ -57,21 +57,21 @@ export function parseRoutePage(route: RouteDescriptor, doc: Document, location: 
     case 'static': {
       // HN renders submit validation errors at /x.
       const submitPage = location.pathname === '/x' ? parseSubmitPage(doc) : null;
-      return submitPage?.form
+      return submitPage
         ? { pageData: submitPage, component: SubmitPage }
         : { pageData: parseStaticPage(doc), component: StaticPage };
     }
     case 'submit': {
       const submitPage = parseSubmitPage(doc);
-      return submitPage.form
+      return submitPage
         ? { pageData: submitPage, component: SubmitPage }
         : { pageData: parseLoginPage(doc, location.pathname), component: LoginPage };
     }
     case 'reply': {
       const replyPage = parseReplyPage(doc);
-      return replyPage.isLoggedOut
-        ? { pageData: parseLoginPage(doc, location.pathname), component: LoginPage }
-        : { pageData: replyPage, component: ReplyPage };
+      return replyPage
+        ? { pageData: replyPage, component: ReplyPage }
+        : { pageData: parseLoginPage(doc, location.pathname), component: LoginPage };
     }
     case 'user':
       return { pageData: parseUserPage(doc), component: UserPage };

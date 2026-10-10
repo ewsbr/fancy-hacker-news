@@ -28,53 +28,38 @@ export interface ParsedDeleteConfirmPage {
 }
 
 export function parseDeleteConfirmPage(doc: Document): ParsedDeleteConfirmPage {
-  const bigbox = doc.querySelector('#bigbox table');
-
-  // Item row
-  const athing = bigbox?.querySelector('tr.athing');
+  const athing = doc.querySelector('#bigbox table tr.athing');
   const comhead = athing?.querySelector('span.comhead');
   const authorEl = comhead?.querySelector('a.hnuser');
-  const ageInfo = parseAge(comhead?.querySelector('span.age'));
-  const commtext = athing?.querySelector('div.commtext');
-  const scoreEl = comhead?.querySelector('span.score');
-
+  const age = parseAge(comhead?.querySelector('span.age'));
   const navs = comhead?.querySelector('span.navs');
-  const navsLinks = navs ? Array.from(navs.querySelectorAll('a')) : [];
-  const parentAnchor = navsLinks.find(a => textOf(a) === 'parent') ?? null;
-  const contextAnchor = navsLinks.find(a => textOf(a) === 'context') ?? null;
-  const onstoryAnchor = navs?.querySelector('span.onstory a') ?? null;
+  const navLink = (label: string) => hrefOf(Array.from(navs?.querySelectorAll('a') ?? []).find(a => textOf(a) === label));
+  const onstoryAnchor = navs?.querySelector('span.onstory a');
 
   const item = athing
     ? {
         id: athing.id,
         author: textOf(authorEl),
         isNewUser: isNewUser(authorEl),
-        age: ageInfo.text,
-        ageLink: ageInfo.link,
-        score: parseScore(textOf(scoreEl)),
-        bodyHtml: extractRichTextHtml(commtext),
-        parentLink: hrefOf(parentAnchor),
-        contextLink: hrefOf(contextAnchor),
+        age: age.text,
+        ageLink: age.link,
+        score: parseScore(textOf(comhead?.querySelector('span.score'))),
+        bodyHtml: extractRichTextHtml(athing.querySelector('div.commtext')),
+        parentLink: navLink('parent'),
+        contextLink: navLink('context'),
         storyTitle: onstoryAnchor ? textOf(onstoryAnchor) : null,
-        storyLink: onstoryAnchor ? hrefOf(onstoryAnchor) : null,
+        storyLink: hrefOf(onstoryAnchor),
       }
     : null;
 
-  // Confirm / delete form
-  const form = doc.querySelector<HTMLFormElement>('form[action="/xdelete"]');
-  const deleteForm = form
-    ? {
-        action: attrOf(form, 'action') || '/xdelete',
-        id: attrOf(form.querySelector('input[name="id"]'), 'value') || '',
-        gotoUrl: attrOf(form.querySelector('input[name="goto"]'), 'value') || '',
-        hmac: attrOf(form.querySelector('input[name="hmac"]'), 'value') || '',
-      }
-    : null;
+  const form = doc.querySelector('form[action="/xdelete"]');
+  const inputValue = (name: string) => attrOf(form?.querySelector(`input[name="${name}"]`), 'value') || '';
+  const deleteForm = form && { action: '/xdelete', id: inputValue('id'), gotoUrl: inputValue('goto'), hmac: inputValue('hmac') };
 
-  const errorMessage
-    = item === null && deleteForm === null
-      ? (doc.body?.textContent?.trim() || null)
-      : null;
-
-  return { errorMessage, item, deleteForm };
+  return {
+    // Some delete-confirm responses are a bare error message without the item or form.
+    errorMessage: !item && !deleteForm ? doc.body.textContent!.trim() || null : null,
+    item,
+    deleteForm,
+  };
 }

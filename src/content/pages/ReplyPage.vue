@@ -12,52 +12,45 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
 
 <template>
   <div class="reply-page">
-    <template v-if="pageData.isLoggedOut">
-      <div class="reply-page__message hn-content-card hn-empty-state">
-        You have to <a href="login?goto=reply">log in</a> to reply.
+    <section class="reply-page__card hn-content-card">
+      <OnStoryHeader
+        v-if="pageData.parent.onStory"
+        label="replying in"
+        :href="pageData.parent.onStory.link"
+        :title="pageData.parent.onStory.title"
+        block
+      />
+
+      <div class="reply-page__section reply-page__section--parent">
+        <a
+          v-if="pageData.parent.contextLink"
+          :href="pageData.parent.contextLink"
+          class="reply-page__back-link"
+        >
+          <ArrowLeft :size="14" class="reply-page__back-icon" />
+          back to context
+        </a>
+
+        <div class="reply-page__parent-meta">
+          <a :href="`user?id=${pageData.parent.author}`" class="reply-page__parent-author">{{ pageData.parent.author }}</a>
+          <MetaSep />
+          <a :href="pageData.parent.ageLink" class="reply-page__parent-age">{{ pageData.parent.age }}</a>
+        </div>
+
+        <div class="reply-page__parent-body">
+          <CommentBody :html="pageData.parent.bodyHtml" :gray-level="null" />
+        </div>
       </div>
-    </template>
-    <template v-else-if="pageData.parent && pageData.replyForm">
-      <section class="reply-page__card hn-content-card">
-        <OnStoryHeader
-          v-if="pageData.parent.onStory"
-          label="replying in"
-          :href="pageData.parent.onStory.link"
-          :title="pageData.parent.onStory.title"
-          block
+
+      <div class="reply-page__section reply-page__section--composer">
+        <CommentForm
+          :form="{ ...pageData.replyForm, submitLabel: 'reply' }"
+          :autofocus="true"
+          placeholder="Write your reply..."
+          :rows="8"
         />
-
-        <div class="reply-page__section reply-page__section--parent">
-          <a
-            v-if="pageData.parent.contextLink"
-            :href="pageData.parent.contextLink"
-            class="reply-page__back-link"
-          >
-            <ArrowLeft :size="14" class="reply-page__back-icon" />
-            back to context
-          </a>
-
-          <div class="reply-page__parent-meta">
-            <a :href="`user?id=${pageData.parent.author}`" class="reply-page__parent-author">{{ pageData.parent.author }}</a>
-            <MetaSep />
-            <a :href="pageData.parent.ageLink" class="reply-page__parent-age">{{ pageData.parent.age }}</a>
-          </div>
-
-          <div class="reply-page__parent-body">
-            <CommentBody :html="pageData.parent.bodyHtml" :gray-level="null" />
-          </div>
-        </div>
-
-        <div class="reply-page__section reply-page__section--composer">
-          <CommentForm
-            :form="{ ...pageData.replyForm, submitLabel: 'reply' }"
-            :autofocus="true"
-            placeholder="Write your reply..."
-            :rows="8"
-          />
-        </div>
-      </section>
-    </template>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -66,16 +59,6 @@ const pageData = inject<ParsedReplyPage>('pageData')!;
   padding: 20px 0 48px;
   max-width: 800px;
   margin: 0 auto;
-
-  &__message {
-    padding: 16px 18px;
-
-    a {
-      color: var(--color-text);
-      text-decoration: underline;
-      &:hover { color: var(--color-accent); }
-    }
-  }
 
   &__card {
     overflow: hidden;

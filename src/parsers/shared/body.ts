@@ -9,8 +9,6 @@ export interface ParsedCommentBody {
 
 const QUOTED_HTML_PATTERN = /(?:^|<p\b[^>]*>)\s*(?:&gt;|>)/i;
 const QUOTED_TEXT_PATTERN = /^\s*>\s?/;
-const TEXT_NODE = 3;
-const ELEMENT_NODE = 1;
 const INLINE_TAGS = new Set(['I', 'B', 'EM', 'STRONG', 'A', 'CODE', 'SPAN', 'U', 'S', 'FONT']);
 const COMMENT_RICH_TEXT_CLASS_NAMES = new Set(['comment', 'commtext']);
 
@@ -27,10 +25,10 @@ function detectCommentPlaceholder(text: string): CommentPlaceholderKind | null {
 
 function getFirstLeafText(node: Node): Text | null {
   for (const child of Array.from(node.childNodes)) {
-    if (child.nodeType === TEXT_NODE && (child.textContent || '').trim()) {
+    if (child.nodeType === child.TEXT_NODE && (child.textContent || '').trim()) {
       return child as Text;
     }
-    if (child.nodeType === ELEMENT_NODE) {
+    if (child.nodeType === child.ELEMENT_NODE) {
       const found = getFirstLeafText(child);
       if (found) {
         return found;
@@ -41,10 +39,10 @@ function getFirstLeafText(node: Node): Text | null {
 }
 
 function isInlineNode(node: Node): boolean {
-  if (node.nodeType === TEXT_NODE) {
+  if (node.nodeType === node.TEXT_NODE) {
     return true;
   }
-  if (node.nodeType === ELEMENT_NODE) {
+  if (node.nodeType === node.ELEMENT_NODE) {
     return INLINE_TAGS.has((node as Element).nodeName);
   }
   return false;
@@ -71,7 +69,7 @@ function normalizeQuotedContent(container: Element, doc: Document): void {
   while (index < nodes.length) {
     const node = nodes[index];
 
-    if (node.nodeType === TEXT_NODE && QUOTED_TEXT_PATTERN.test(node.textContent || '')) {
+    if (node.nodeType === node.TEXT_NODE && QUOTED_TEXT_PATTERN.test(node.textContent || '')) {
       const paragraph = doc.createElement('p');
       const stripped = (node.textContent || '').replace(QUOTED_TEXT_PATTERN, '');
       if (stripped) {

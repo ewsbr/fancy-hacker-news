@@ -11,7 +11,6 @@ describe('header parser', () => {
     expect(header.topBarColor).toBe('#ff6600');
     expect(header.hasCustomTopBarColor).toBe(false);
     expect(header.hasMemorialBar).toBe(false);
-    expect(header.memorialBarColor).toBeNull();
   });
 
   it('detects the memorial strip and preserves a custom top bar color', () => {
@@ -48,7 +47,6 @@ describe('header parser', () => {
     expect(header.topBarColor).toBe('#2faced');
     expect(header.hasCustomTopBarColor).toBe(true);
     expect(header.hasMemorialBar).toBe(true);
-    expect(header.memorialBarColor).toBe('#000000');
   });
 
   it('supports query param overrides for top bar and memorial bar testing', () => {
@@ -83,7 +81,6 @@ describe('header parser', () => {
     expect(header.topBarColor).toBe('#2faced');
     expect(header.hasCustomTopBarColor).toBe(true);
     expect(header.hasMemorialBar).toBe(true);
-    expect(header.memorialBarColor).toBe('#000000');
   });
 
   it('supports disabling a source memorial strip via query param', () => {
@@ -119,6 +116,5 @@ describe('header parser', () => {
     const header = parseHeader(doc);
 
     expect(header.hasMemorialBar).toBe(false);
-    expect(header.memorialBarColor).toBeNull();
   });
 });

@@ -20,7 +20,6 @@ describe('vote button', () => {
       topBarColor: '#ff6600',
       hasCustomTopBarColor: false,
       hasMemorialBar: false,
-      memorialBarColor: null,
     };
   }
 

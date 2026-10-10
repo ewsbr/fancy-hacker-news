@@ -1,5 +1,5 @@
 import { VOTE_LINK_SELECTOR } from '@/constants/hn-actions';
-import { attrOf, hrefOf, textOf } from './dom';
+import { hrefOf, textOf } from './dom';
 
 const HN_ORIGIN = 'https://news.ycombinator.com';
 
@@ -20,8 +20,7 @@ export type VoteState
 export type ToggleActionState
   = | { kind: 'unavailable' }
     | { kind: 'available'; href: string }
-    | { kind: 'active'; href: string }
-    | { kind: 'disabled-active' };
+    | { kind: 'active'; href: string };
 
 export interface ParseVoteStateOptions {
   itemId?: string | null;
@@ -30,72 +29,32 @@ export interface ParseVoteStateOptions {
   preferredDirection?: VoteDirection;
 }
 
-const UNAVAILABLE_VOTE_STATE: VoteState = Object.freeze({ kind: 'unavailable' });
-const UNAVAILABLE_TOGGLE_ACTION: ToggleActionState = Object.freeze({ kind: 'unavailable' });
-
 function queryVoteLink(scope: ParentNode | null | undefined, how: 'up' | 'down'): HTMLAnchorElement | null {
   return scope?.querySelector<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=${how}"]`) ?? null;
 }
 
-function queryUnvoteLink(
-  scope: ParentNode | null | undefined,
-  itemId: string | null | undefined,
-): HTMLAnchorElement | null {
-  if (!scope) {
-    return null;
+function queryUnvoteLink(scope: ParentNode | null | undefined, itemId: string | null | undefined): HTMLAnchorElement | null {
+  const links = Array.from(scope?.querySelectorAll<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=un"]`) ?? []);
+  if (!itemId) {
+    return links[0] ?? null;
   }
 
-  if (itemId) {
-    return Array.from(scope.querySelectorAll<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=un"]`))
-      .find((link) => {
-        if (attrOf(link, 'id') === `un_${itemId}`) {
-          return true;
-        }
-
-        return attrOf(link.closest('[id]'), 'id') === `unv_${itemId}`;
-      }) ?? null;
-  }
-
-  return scope.querySelector<HTMLAnchorElement>(`${VOTE_LINK_SELECTOR}[href*="how=un"]`);
+  return links.find(link => link.id === `un_${itemId}` || link.closest('[id]')?.id === `unv_${itemId}`) ?? null;
 }
 
-function isNoseeVoteElement(element: Element | null): boolean {
-  if (!element) {
-    return false;
-  }
-
-  return element.classList.contains('nosee')
-    || element.closest('td.votelinks')?.classList.contains('nosee') === true;
+function isNoseeVoteElement(element: Element): boolean {
+  return element.classList.contains('nosee') || element.closest('td.votelinks')?.classList.contains('nosee') === true;
 }
 
-function isUnParamHref(href: string): boolean {
-  try {
-    return new URL(href, HN_ORIGIN).searchParams.get('un') === 't';
-  } catch {
-    return href.includes('un=t');
-  }
-}
-
-function parseUnvoteDirection(
-  link: Element,
-  preferredDirection: VoteDirection | null | undefined,
-): VoteDirection {
+function parseUnvoteDirection(link: Element, preferredDirection: VoteDirection | undefined): VoteDirection {
   const label = textOf(link).toLowerCase();
-  if (label === 'unvote') {
-    return 'up';
-  }
-
-  if (label === 'undown') {
-    return 'down';
-  }
-
-  return preferredDirection ?? 'unknown';
+  return label === 'unvote' ? 'up' : label === 'undown' ? 'down' : preferredDirection ?? 'unknown';
 }
 
 function inferHiddenVoteDirection(
   upHref: string | null,
   downHref: string | null,
-  preferredDirection: VoteDirection | null | undefined,
+  preferredDirection: VoteDirection | undefined,
 ): VoteDirection {
   if (upHref && !downHref) {
     return 'up';
@@ -116,10 +75,9 @@ export function parseVoteState(
   const downLink = queryVoteLink(voteScope, 'down');
   const upHref = hrefOf(upLink);
   const downHref = hrefOf(downLink);
-  const unvoteScopes = options.unvoteScopes ?? [voteScope];
-  const unvoteLink = unvoteScopes
+  const unvoteLink = (options.unvoteScopes ?? [voteScope])
     .map(scope => queryUnvoteLink(scope, options.itemId))
-    .find((link): link is HTMLAnchorElement => link !== null);
+    .find(link => link !== null);
   const unvoteHref = hrefOf(unvoteLink);
 
   if (unvoteLink && unvoteHref) {
@@ -133,18 +91,12 @@ export function parseVoteState(
   }
 
   if (!upHref && !downHref) {
-    return UNAVAILABLE_VOTE_STATE;
+    return { kind: 'unavailable' };
   }
 
-  const voteLinks = [upLink, downLink].filter((link): link is HTMLAnchorElement => link !== null);
-  const hasHiddenVoteLink = voteLinks.some(link => isNoseeVoteElement(link));
-  const hasVisibleVoteLink = voteLinks.some(link => !isNoseeVoteElement(link));
-
-  if (hasVisibleVoteLink || options.isCollapsed) {
-    return { kind: 'available', upHref, downHref };
-  }
-
-  if (hasHiddenVoteLink) {
+  // HN hides spent vote links with `nosee`; collapsed rows still expose them.
+  const isSpent = [upLink, downLink].every(link => !link || isNoseeVoteElement(link));
+  if (isSpent && !options.isCollapsed) {
     return {
       kind: 'disabled-active',
       direction: inferHiddenVoteDirection(upHref, downHref, options.preferredDirection),
@@ -157,11 +109,11 @@ export function parseVoteState(
 }
 
 export function parseToggleActionState(href: string | null): ToggleActionState {
-  if (href == null || href.trim() === '') {
-    return UNAVAILABLE_TOGGLE_ACTION;
+  if (!href?.trim()) {
+    return { kind: 'unavailable' };
   }
 
-  return isUnParamHref(href)
+  return new URL(href, HN_ORIGIN).searchParams.get('un') === 't'
     ? { kind: 'active', href }
     : { kind: 'available', href };
 }

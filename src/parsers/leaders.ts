@@ -1,44 +1,22 @@
 /**
  * Parse the HN leaders/leaderboard page (/leaders).
  */
-
-export interface LeaderEntry {
-  rank: number;
-  username: string;
-  karma: number | null; // null = hidden (top 10)
-}
+import { parseInteger } from '@/utils/number';
+import { textOf } from './shared/dom';
 
 export interface ParsedLeadersPage {
-  entries: LeaderEntry[];
+  /** karma is null when HN hides it (top 10). */
+  entries: { rank: number; username: string; karma: number | null }[];
 }
 
 export function parseLeadersPage(doc: Document): ParsedLeadersPage {
-  const rows = doc.querySelectorAll('tr.athing');
-  const entries: LeaderEntry[] = [];
-
-  for (const row of rows) {
+  const entries = Array.from(doc.querySelectorAll('tr.athing'), (row) => {
     const tds = row.querySelectorAll('td');
-    if (tds.length < 2) {
-      continue;
-    }
-
-    const rankText = tds[0].textContent?.trim().replace('.', '') ?? '';
-    const rank = Number.parseInt(rankText, 10);
-    if (Number.isNaN(rank)) {
-      continue;
-    }
-
-    const userLink = tds[1].querySelector('a.hnuser');
-    const username = userLink?.textContent?.trim() ?? '';
-    if (!username) {
-      continue;
-    }
-
-    const karmaText = tds[2]?.textContent?.trim() ?? '';
-    const karma = karmaText === '' ? null : Number.parseInt(karmaText.replace(/,/g, ''), 10);
-
-    entries.push({ rank, username, karma: Number.isNaN(karma as number) ? null : karma });
-  }
+    const rank = parseInteger(textOf(tds[0]).replace('.', ''));
+    const username = textOf(tds[1]?.querySelector('a.hnuser'));
+    const karma = parseInteger(textOf(tds[2]).replace(/,/g, ''));
+    return rank !== null && username ? { rank, username, karma } : null;
+  }).filter(entry => entry !== null);
 
   return { entries };
 }

@@ -19,8 +19,6 @@ function buildItemPage(): ParsedItemPage {
       ageLink: 'item?id=story-1',
       bodyHtml: null,
       placeholderKind: null,
-      parentLink: null,
-      contextLink: null,
       storyTitle: null,
       storyLink: null,
       voteState: { kind: 'available', upHref: 'vote?id=story-1&how=up', downHref: null },

@@ -62,8 +62,6 @@ describe('story list fixtures', () => {
     const storyList = parseStoryList(doc);
     const firstStory = storyList.stories[0];
     const lastStory = storyList.stories[storyList.stories.length - 1];
-
-    expect(storyList.startRank).toBe(1);
     expect(storyList.introHtml).toBeNull();
     expect(storyList.stories).toHaveLength(30);
     expect(storyList.moreLink).toBe('?p=2');

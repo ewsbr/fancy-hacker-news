@@ -18,7 +18,6 @@ const header: ParsedHeader = {
   topBarColor: '#ff6600',
   hasCustomTopBarColor: false,
   hasMemorialBar: false,
-  memorialBarColor: null,
 };
 
 describe('siteHeader settings', () => {

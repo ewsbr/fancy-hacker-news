@@ -6,21 +6,18 @@ export interface ParsedStaticPage {
   contentHtml: string;
 }
 
-const TEXT_NODE = 3;
-const ELEMENT_NODE = 1;
-
 function isStandaloneLegacyHeadingParagraph(paragraph: Element): boolean {
   let boldCount = 0;
 
   for (const node of Array.from(paragraph.childNodes)) {
-    if (node.nodeType === TEXT_NODE) {
+    if (node.nodeType === node.TEXT_NODE) {
       if (node.textContent?.trim()) {
         return false;
       }
       continue;
     }
 
-    if (node.nodeType !== ELEMENT_NODE) {
+    if (node.nodeType !== node.ELEMENT_NODE) {
       return false;
     }
 
@@ -41,17 +38,12 @@ function isStandaloneLegacyHeadingParagraph(paragraph: Element): boolean {
 }
 
 function extractBodyFallbackHtml(doc: Document): string {
-  const body = doc.body;
-  if (!body) {
-    return '';
-  }
-
-  const clone = body.cloneNode(true) as HTMLElement;
+  const clone = doc.body.cloneNode(true) as HTMLElement;
   clone.querySelectorAll('script, style, link[rel="stylesheet"], noscript').forEach(el => el.remove());
   return clone.innerHTML.trim();
 }
 
-function normalizeBookmarkletMarkup(contentEl: Element): void {
+function normalizeBookmarkletMarkup(contentEl: Element): Element {
   for (const link of Array.from(contentEl.querySelectorAll('a[href^="javascript:"]'))) {
     const href = link.getAttribute('href') ?? '';
     if (!href.includes('submitlink?u=')) {
@@ -61,11 +53,10 @@ function normalizeBookmarkletMarkup(contentEl: Element): void {
     link.classList.add('hn-bookmarklet-link');
     link.removeAttribute('style');
 
-    const centeredContainer = link.closest('center');
-    if (centeredContainer) {
-      centeredContainer.classList.add('hn-bookmarklet-cta');
-    }
+    link.closest('center')?.classList.add('hn-bookmarklet-cta');
   }
+
+  return contentEl;
 }
 
 /**
@@ -73,8 +64,7 @@ function normalizeBookmarkletMarkup(contentEl: Element): void {
  * that use a legacy table layout with <b> tags as section headers.
  */
 function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
-  const clone = contentEl.cloneNode(true) as Element;
-  normalizeBookmarkletMarkup(clone);
+  const clone = normalizeBookmarkletMarkup(contentEl.cloneNode(true) as Element);
 
   // Remove the YC banner image (the old pages had a 500px header image).
   clone.querySelector('a > img')?.parentElement?.remove();
@@ -104,8 +94,8 @@ function normalizeLegacyHtml(contentEl: Element, doc: Document): string {
         ? Array.from(source.children).find(child => child.tagName === 'B') ?? source
         : source;
 
-    if ((sourceBold as HTMLElement).id) {
-      heading.id = (sourceBold as HTMLElement).id;
+    if (sourceBold.id) {
+      heading.id = sourceBold.id;
     }
 
     heading.textContent = sourceBold.textContent ?? '';
@@ -132,21 +122,16 @@ export function parseStaticPage(doc: Document): ParsedStaticPage {
     if (bigboxTd) {
       // Some pages (formatdoc, newsfaq) nest their text inside span.admin > table > td.
       const innerTd = bigboxTd.querySelector('span.admin td');
-      const clone = (innerTd ?? bigboxTd).cloneNode(true) as Element;
-      normalizeBookmarkletMarkup(clone);
-      return { contentHtml: clone.innerHTML };
+      return { contentHtml: normalizeBookmarkletMarkup((innerTd ?? bigboxTd).cloneNode(true) as Element).innerHTML };
     }
 
     // Fallback: last TD in the hnmain rows (original behaviour).
     const tds = mainTable.querySelectorAll(':scope > tbody > tr > td, :scope > tr > td');
-    const contentTd = tds.length > 1 ? tds[tds.length - 1] : null;
-    if (!contentTd) {
+    if (tds.length < 2) {
       return { contentHtml: '' };
     }
 
-    const clone = contentTd.cloneNode(true) as Element;
-    normalizeBookmarkletMarkup(clone);
-    return { contentHtml: clone.innerHTML };
+    return { contentHtml: normalizeBookmarkletMarkup(tds[tds.length - 1].cloneNode(true) as Element).innerHTML };
   }
 
   // Legacy format (e.g. newsguidelines.html) — no #hnmain, plain center/table layout.

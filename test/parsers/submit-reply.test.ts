@@ -6,9 +6,8 @@ import { loadFixtureDocument } from '../helpers/load-fixture';
 describe('submit and reply parsers', () => {
   it('parses the submit form fields and bookmarklet link', async () => {
     const doc = await loadFixtureDocument('misc/forms/submit.html');
-    const page = parseSubmitPage(doc);
+    const page = parseSubmitPage(doc)!;
 
-    expect(page.isLoggedOut).toBe(false);
     expect(page.warningMessage).toBeNull();
     expect(page.form).toMatchObject({
       action: '/r',
@@ -23,9 +22,8 @@ describe('submit and reply parsers', () => {
 
   it('parses submit validation warnings from x pages', async () => {
     const doc = await loadFixtureDocument('stories/x.html');
-    const page = parseSubmitPage(doc);
+    const page = parseSubmitPage(doc)!;
 
-    expect(page.isLoggedOut).toBe(false);
     expect(page.warningMessage).toBe('That\'s not a valid title.');
     expect(page.form).toMatchObject({
       action: '/r',
@@ -40,14 +38,12 @@ describe('submit and reply parsers', () => {
 
   it('parses reply-page parent context links and story context', async () => {
     const doc = await loadFixtureDocument('misc/forms/reply.html');
-    const page = parseReplyPage(doc);
+    const page = parseReplyPage(doc)!;
 
-    expect(page.isLoggedOut).toBe(false);
     expect(page.parent).toMatchObject({
       author: 'jeremyjh',
       age: '3 minutes ago',
       ageLink: 'item?id=47538487',
-      parentLink: 'item?id=47537374',
       contextLink: 'item?id=47536761#47538487',
       onStory: {
         title: 'Show HN: I put an AI agent on a $7/month VPS with ...',

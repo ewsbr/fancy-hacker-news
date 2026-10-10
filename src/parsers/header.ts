@@ -23,48 +23,26 @@ export interface ParsedHeader {
   topBarColor: string;
   hasCustomTopBarColor: boolean;
   hasMemorialBar: boolean;
-  memorialBarColor: string | null;
 }
 
-export const DEFAULT_TOP_BAR_COLOR = '#ff6600';
+const DEFAULT_TOP_BAR_COLOR = '#ff6600';
 const MEMORIAL_BAR_COLOR = '#000000';
 const HEADER_TEST_TOP_BAR_COLOR_PARAM = 'fhTopBarColor';
 const HEADER_TEST_MEMORIAL_BAR_PARAM = 'fhMemorialBar';
 
-function normalizeColor(color: string | null | undefined): string | null {
+function normalizeColor(color: string | null): string | null {
   const value = color?.trim();
-
-  if (!value) {
-    return null;
-  }
-
-  if (/^#[0-9a-f]{3}$/i.test(value) || /^#[0-9a-f]{6}$/i.test(value)) {
-    return value.toLowerCase();
-  }
-
-  if (/^[0-9a-f]{3}$/i.test(value) || /^[0-9a-f]{6}$/i.test(value)) {
-    return `#${value.toLowerCase()}`;
-  }
-
-  return value;
+  const hex = value?.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i)?.[1];
+  return hex ? `#${hex.toLowerCase()}` : value || null;
 }
 
 function parseBooleanOverride(value: string | null): boolean | null {
-  if (value === null) {
-    return null;
-  }
-
-  const normalizedValue = value.trim().toLowerCase();
-
+  const normalizedValue = value?.trim().toLowerCase() ?? '';
   if (['1', 'true', 'yes', 'on'].includes(normalizedValue)) {
     return true;
   }
 
-  if (['0', 'false', 'no', 'off'].includes(normalizedValue)) {
-    return false;
-  }
-
-  return null;
+  return ['0', 'false', 'no', 'off'].includes(normalizedValue) ? false : null;
 }
 
 export function parseHeader(doc: Document): ParsedHeader {
@@ -86,54 +64,36 @@ export function parseHeader(doc: Document): ParsedHeader {
   const navCell = headerRow?.cells[1] ?? null;
   const authCell = headerRow && headerRow.cells.length >= 3 ? headerRow.cells[headerRow.cells.length - 1] : null;
 
-  // First header content cell contains site name + nav links
-  const navSpan = navCell?.querySelector('span.pagetop') ?? null;
-  const navLinks: NavLink[] = [];
-
-  if (navSpan) {
-    const links = navSpan.querySelectorAll('a');
-    const currentOp = doc.documentElement.getAttribute('op') ?? '';
-
-    for (const a of links) {
-      const label = textOf(a);
-      const href = hrefOf(a) ?? '';
-      // Active link matches the `op` attribute on <html>
-      const active = href === currentOp || href.startsWith(`${currentOp}?`);
-      navLinks.push({ label, href, active });
-    }
-  }
+  // First header content cell contains site name + nav links. The active link
+  // matches the `op` attribute on <html>.
+  const currentOp = doc.documentElement.getAttribute('op') ?? '';
+  const navLinks = Array.from(navCell?.querySelector('span.pagetop')?.querySelectorAll('a') ?? [], (a): NavLink => {
+    const href = hrefOf(a) ?? '';
+    return { label: textOf(a), href, active: href === currentOp || href.startsWith(`${currentOp}?`) };
+  });
 
   // The top-right auth cell is optional on some HN pages.
   const authSpan = authCell?.querySelector('span.pagetop') ?? authCell;
-  const meLink = authSpan?.querySelector('a#me[href^="user?id="]') ?? null;
-  const karmaSpan = authSpan?.querySelector('span#karma') ?? null;
-  const loginLink = authSpan?.querySelector('a[href^="login"]') ?? null;
-  const logoutLink = authSpan?.querySelector('a#logout[href^="logout?auth="]') ?? null;
+  const meLink = authSpan?.querySelector('a#me[href^="user?id="]');
+  const karmaSpan = authSpan?.querySelector('span#karma');
   const searchParams = new URLSearchParams(doc.location?.search ?? '');
   const topBarColorOverride = normalizeColor(searchParams.get(HEADER_TEST_TOP_BAR_COLOR_PARAM));
   const memorialBarEnabledOverride = parseBooleanOverride(searchParams.get(HEADER_TEST_MEMORIAL_BAR_PARAM));
 
-  const user: HeaderUser | null = meLink
-    ? {
-        name: textOf(meLink),
-        karma: karmaSpan ? Number(textOf(karmaSpan)) : 0,
-      }
-    : null;
+  const user: HeaderUser | null = meLink ? { name: textOf(meLink), karma: karmaSpan ? Number(textOf(karmaSpan)) : 0 } : null;
 
   const topBarColor = topBarColorOverride ?? normalizeColor(attrOf(headerCell, 'bgcolor')) ?? DEFAULT_TOP_BAR_COLOR;
   const hasCustomTopBarColor = topBarColorOverride !== null || topBarColor !== DEFAULT_TOP_BAR_COLOR;
   const hasMemorialBar = memorialBarEnabledOverride ?? firstRowLooksLikeMemorialBar;
-  const memorialBarColor = hasMemorialBar ? MEMORIAL_BAR_COLOR : null;
 
   return {
     navLinks,
-    hasAuthControls: !!authCell && authSpan !== null && textOf(authSpan).length > 0,
+    hasAuthControls: textOf(authSpan).length > 0,
     user,
-    loginUrl: loginLink ? hrefOf(loginLink) : null,
-    logoutUrl: logoutLink ? hrefOf(logoutLink) : null,
+    loginUrl: hrefOf(authSpan?.querySelector('a[href^="login"]')),
+    logoutUrl: hrefOf(authSpan?.querySelector('a#logout[href^="logout?auth="]')),
     topBarColor,
     hasCustomTopBarColor,
     hasMemorialBar,
-    memorialBarColor,
   };
 }
