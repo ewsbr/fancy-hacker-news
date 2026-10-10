@@ -156,7 +156,10 @@ const previewStory = computed<Story>(() => ({
             Submit a link or start a discussion
           </h1>
           <p class="submit-page__lede">
-            Share something that gratifies intellectual curiosity. Prefer original sources, plain titles, and posts that are not mainly promotional. Avoid politics.
+            On-Topic: Anything that good hackers would find interesting. That includes more than hacking and startups. If you had to reduce it to a sentence, the answer might be: anything that gratifies one's intellectual curiosity.
+          </p>
+          <p class="submit-page__lede">
+            Off-Topic: Most stories about politics, or crime, or sports, or celebrities, unless they're evidence of some interesting new phenomenon. If they'd cover it on TV news, it's probably off-topic.
           </p>
 
           <div class="submit-page__utility-links">
