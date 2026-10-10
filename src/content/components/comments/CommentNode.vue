@@ -51,7 +51,6 @@ const {
 } = toRefs(props);
 
 const {
-  latestUrl,
   nodeOnStory,
   originalPosterTitle,
   resolvedThreadAuthor,
@@ -140,7 +139,6 @@ const placeholderHeight = useCommentPlaceholderHeight(
           class="comment-node__header"
           :node="node"
           :is-collapsed="isCollapsed"
-          :latest-url="latestUrl"
           :is-flagged="flagTarget?.isFlagged ?? node.isFlagged"
           :original-poster-title="originalPosterTitle"
           @toggle="toggleCollapse"

@@ -6,7 +6,6 @@ import FlagButton from '@/content/components/comments/FlagButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 import { useCurrentUser } from '@/content/composables/current-user';
 import { useHnActions } from '@/content/composables/use-hn-actions';
-import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
   voteTarget?: VoteActionTarget | null;
@@ -52,7 +51,6 @@ const hasVoteActions = computed(() => {
 const hasReplyAction = computed(() => !!props.replyLink);
 const hasEditAction = computed(() => !!props.editUrl);
 const hasDeleteAction = computed(() => !!props.deleteUrl);
-const flagHref = computed(() => props.flagTarget ? getToggleActionHref(props.flagTarget.flagAction) : null);
 
 async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection) {
   if (!props.voteTarget || !currentUser.isLoggedIn) {
@@ -134,9 +132,9 @@ async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection
       <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction" />
       <a :href="deleteUrl" class="comment-actions__link comment-actions__link--delete">delete</a>
     </template>
-    <template v-if="flagHref">
+    <template v-if="flagTarget">
       <MetaSep v-if="hasVoteActions || hasReplyAction || hasEditAction || hasDeleteAction" />
-      <FlagButton :href="flagHref" :flag-target="flagTarget" />
+      <FlagButton :flag-target="flagTarget" />
     </template>
   </div>
 </template>
@@ -199,10 +197,6 @@ async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection
       color: var(--color-accent);
     }
 
-    &--hidden {
-      display: none;
-    }
-
     &--down {
       .lucide {
         transform: rotate(180deg);
@@ -218,11 +212,6 @@ async function handleVoteClick(event: MouseEvent, direction: VoteSubmitDirection
       cursor: default;
       pointer-events: none;
     }
-  }
-
-  &__unvote-slot {
-    display: inline-flex;
-    align-items: center;
   }
 
   &__link {

@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<Props>(), {
   platformModifier: false,
 });
 
-const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
+const isMac = /mac/i.test(navigator.platform);
 
 const renderedLabel = computed(() => {
   const parts = [...props.keys];

@@ -16,6 +16,11 @@ export interface UserPreferences {
   delay: string | null;
 }
 
+export interface UserCollectionLinks {
+  link: string;
+  commentsLink: string;
+}
+
 export interface ParsedUserPage {
   username: string;
   created: string;
@@ -34,10 +39,9 @@ export interface ParsedUserPage {
   changePwLink: string | null;
   submissionsLink: string;
   threadsLink: string;
-  upvotedLink: string | null;
-  upvotedCommentsLink: string | null;
-  favoritesLink: string;
-  favoritesCommentsLink: string | null;
+  favorites: UserCollectionLinks;
+  /** Only present on your own profile. */
+  upvoted: UserCollectionLinks | null;
 }
 
 const URL_PATTERN = /\b(?:https?:\/\/[^\s<>"']+|www\.[^\s<>"']+)/gi;
@@ -185,12 +189,11 @@ function withCommentsParam(href: string): string {
 }
 
 /** Collection tab links, preferring the profile's own links over derived ones. */
-function findCollectionLinks(bigbox: Element | null, collection: 'favorites' | 'upvoted') {
+function findCollectionLinks(bigbox: Element | null, collection: 'favorites' | 'upvoted', fallback?: string): UserCollectionLinks | null {
   const hrefs = Array.from(bigbox?.querySelectorAll('a[href]') ?? [], link => link.getAttribute('href')!)
     .filter(href => isUserCollectionHref(href, collection));
-  const link = hrefs.find(href => !href.includes('comments=t')) ?? null;
-  const commentsLink = hrefs.find(href => href.includes('comments=t')) ?? null;
-  return { link, commentsLink };
+  const link = hrefs.find(href => !href.includes('comments=t')) ?? fallback;
+  return link ? { link, commentsLink: hrefs.find(href => href.includes('comments=t')) ?? withCommentsParam(link) } : null;
 }
 
 function findValueCell(bigbox: Element | null, label: string): Element | null {
@@ -203,9 +206,6 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   const bigbox = doc.getElementById('bigbox');
   const username = textOf(bigbox?.querySelector('a.hnuser'));
   const createdLinkEl = bigbox?.querySelector('a[href^="front?day="]');
-  const favorites = findCollectionLinks(bigbox, 'favorites');
-  const upvoted = findCollectionLinks(bigbox, 'upvoted');
-  const favoritesLink = favorites.link ?? `favorites?id=${username}`;
   const formValue = (selector: string) => form?.querySelector<HTMLInputElement | HTMLSelectElement>(selector)?.value ?? null;
 
   return {
@@ -233,9 +233,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
     changePwLink: hrefOf(bigbox?.querySelector('a[href^="changepw"]')),
     submissionsLink: hrefOf(bigbox?.querySelector('a[href^="submitted?id="]')) || `submitted?id=${username}`,
     threadsLink: hrefOf(bigbox?.querySelector('a[href^="threads?id="]')) || `threads?id=${username}`,
-    upvotedLink: upvoted.link,
-    upvotedCommentsLink: upvoted.commentsLink ?? (upvoted.link && withCommentsParam(upvoted.link)),
-    favoritesLink,
-    favoritesCommentsLink: favorites.commentsLink ?? withCommentsParam(favoritesLink),
+    favorites: findCollectionLinks(bigbox, 'favorites', `favorites?id=${username}`)!,
+    upvoted: findCollectionLinks(bigbox, 'upvoted'),
   };
 }

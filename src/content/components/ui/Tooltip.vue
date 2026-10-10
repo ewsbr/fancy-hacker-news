@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import { TooltipArrow, TooltipContent, TooltipPortal, TooltipRoot, TooltipTrigger } from 'reka-ui';
-import { computed } from 'vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
 
-const props = withDefaults(defineProps<{
+defineProps<{
   content: string;
-  position?: 'top' | 'right';
-}>(), {
-  position: 'top',
-});
-
-const side = computed(() => props.position === 'right' ? 'right' : 'top');
+}>();
 </script>
 
 <template>
@@ -22,7 +16,7 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
     <TooltipPortal defer :to="EXTENSION_ROOT_SELECTOR">
       <TooltipContent
         class="tooltip__content-shell"
-        :side="side"
+        side="top"
         align="center"
         :side-offset="10"
         :collision-padding="12"
@@ -30,7 +24,7 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
       >
         <div class="tooltip__surface">
           <div class="tooltip__body">
-            {{ props.content }}
+            {{ content }}
           </div>
 
           <TooltipArrow
@@ -132,14 +126,6 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
   transform: translateY(-2px);
 }
 
-:deep(.tooltip__content-shell[data-side='right']) .tooltip__surface {
-  animation-name: tooltip-enter-right;
-}
-
-:deep(.tooltip__content-shell[data-side='right']) .tooltip__arrow {
-  transform: translateX(-2px);
-}
-
 @keyframes tooltip-enter {
   from {
     opacity: 0;
@@ -161,18 +147,6 @@ const side = computed(() => props.position === 'right' ? 'right' : 'top');
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes tooltip-enter-right {
-  from {
-    opacity: 0;
-    transform: translateX(-4px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
   }
 }
 </style>

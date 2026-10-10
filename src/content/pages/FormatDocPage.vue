@@ -5,7 +5,7 @@ import { computed, inject } from 'vue';
 const page = inject<ParsedStaticPage>('pageData')!;
 
 const contentHtml = computed(() =>
-  (page.contentHtml ?? '')
+  page.contentHtml
     .replace(/<br\s*\/?>/gi, '')
     .replace(/<p[^>]*>\s*<\/p>/gi, ''),
 );

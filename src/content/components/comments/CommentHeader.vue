@@ -1,38 +1,16 @@
 <script setup lang="ts">
+import type { CommentRenderableNode } from '@/content/composables/comment-node';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { computed } from 'vue';
 import CommentUserMeta from '@/content/components/comments/CommentUserMeta.vue';
 import FragmentLinkButton from '@/content/components/shared/FragmentLinkButton.vue';
 import MetaSep from '@/content/components/ui/MetaSep.vue';
 
-interface CommentHeaderNode {
-  id: string;
-  collapsedCount: number;
-  grayLevel?: string | null;
-  author: string;
-  authorIsNew?: boolean;
-  score?: number | null;
-  ageLink: string;
-  age: string;
-  ageTimestamp?: string | null;
-  isDeleted?: boolean;
-  isDead?: boolean;
-  isFlagged?: boolean;
-  navLinks: {
-    root?: string | null;
-    parent?: string | null;
-    context?: string | null;
-    prev?: string | null;
-    next?: string | null;
-  };
-}
-
 const props = defineProps<{
-  node: CommentHeaderNode;
+  node: CommentRenderableNode;
   isCollapsed: boolean;
-  latestUrl?: string | null;
-  isFlagged?: boolean;
-  originalPosterTitle?: string | null;
+  isFlagged: boolean;
+  originalPosterTitle: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -51,8 +29,8 @@ const DOWNVOTE_LABELS: Record<string, string> = {
   cdd: '9/9',
 };
 
-const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel.toLowerCase()] || null : null;
-const isFlagged = computed(() => props.isFlagged ?? props.node.isFlagged ?? false);
+const downvoteOpacity = props.node.grayLevel ? DOWNVOTE_LABELS[props.node.grayLevel] ?? null : null;
+const latestUrl = computed(() => `latest?id=${encodeURIComponent(props.node.id)}`);
 </script>
 
 <template>
@@ -82,9 +60,9 @@ const isFlagged = computed(() => props.isFlagged ?? props.node.isFlagged ?? fals
         />
       </div>
 
-      <div v-if="!node.isDeleted && !isCollapsed && (latestUrl || node.navLinks.root || node.navLinks.parent || node.navLinks.context)" class="comment-header__nav">
+      <div v-if="!node.isDeleted && !isCollapsed" class="comment-header__nav">
         <MetaSep />
-        <a v-if="latestUrl" :href="latestUrl" class="comment-header__nav-link" title="Latest">latest</a>
+        <a :href="latestUrl" class="comment-header__nav-link" title="Latest">latest</a>
         <a v-if="node.navLinks.root" :href="node.navLinks.root" class="comment-header__nav-link" title="Root">root</a>
         <a v-if="node.navLinks.parent" :href="node.navLinks.parent" class="comment-header__nav-link" title="Parent">parent</a>
         <a v-if="node.navLinks.context" :href="node.navLinks.context" class="comment-header__nav-link" title="Context">context</a>

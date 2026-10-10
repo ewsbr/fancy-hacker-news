@@ -21,6 +21,10 @@ const header: ParsedHeader = {
 };
 
 function mountShell(scrollToTop: boolean) {
+  const root = document.createElement('div');
+  root.id = 'fancy-hn-root';
+  document.body.append(root);
+
   const settings = reactive({
     ...makeDefaultSettings({ systemTheme: 'light' }),
     features: {

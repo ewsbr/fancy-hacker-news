@@ -37,12 +37,12 @@ const closeButtonRef = useTemplateRef<HTMLButtonElement>('closeButton');
 const collapseRegistry = useCommentCollapseRegistry();
 const whenCommentsRendered = useCommentRenderCompletion();
 const fragmentLoading = useCommentFragmentLoading();
-const fragmentState = inject(COMMENT_FRAGMENT_STATE_KEY, null);
+const fragmentState = inject(COMMENT_FRAGMENT_STATE_KEY)!;
 provideCommentHeightEstimates(bodyRef, { inModal: true });
 
 useDelegatedCommentLongPress(bodyRef, collapseRegistry);
 
-async function scrollToTargetComment(targetId: string, isCurrent: () => boolean, startPositioning?: () => void) {
+async function scrollToTargetComment(targetId: string, isCurrent: () => boolean, startPositioning: () => void) {
   await nextTick();
   await whenCommentsRendered();
   await waitForAnimationFrames(2);
@@ -57,14 +57,14 @@ async function scrollToTargetComment(targetId: string, isCurrent: () => boolean,
   }
 
   const header = target.querySelector<HTMLElement>('.comment-node__header') ?? target;
-  startPositioning?.();
+  startPositioning();
   header.scrollIntoView({ block: 'start', behavior: 'instant' });
   await waitForAnimationFrames(1);
 }
 
 function onOpenChange(open: boolean) {
   if (!open) {
-    if (fragmentLoading?.isPending.value) fragmentLoading.cancel();
+    if (fragmentLoading.isPending.value) fragmentLoading.cancel();
     emit('close');
   }
 }
@@ -75,19 +75,19 @@ function onOpenAutoFocus(event: Event) {
 }
 
 watch(
-  [() => props.node.id, () => props.scrollToId, () => fragmentState?.hashNavigationVersion.value],
+  [() => props.node.id, () => props.scrollToId, () => fragmentState.hashNavigationVersion.value],
   async ([_nodeId, scrollToId], _previous, onCleanup) => {
     if (!scrollToId) return;
-    const task = fragmentLoading?.track(scrollToId);
+    const task = fragmentLoading.track(scrollToId);
     let active = true;
     onCleanup(() => {
       active = false;
-      task?.finish();
+      task.finish();
     });
     try {
-      await scrollToTargetComment(scrollToId, () => active && (task?.isCurrent() ?? true), task?.startPositioning);
+      await scrollToTargetComment(scrollToId, () => active && task.isCurrent(), task.startPositioning);
     } finally {
-      task?.finish();
+      task.finish();
     }
   },
   { immediate: true, flush: 'post' },
@@ -118,13 +118,13 @@ watch(
             <div
               ref="body"
               class="sub-thread-modal__body"
-              :inert="fragmentLoading?.isPending.value && fragmentLoading.isInitialNavigation.value"
-              :aria-busy="fragmentLoading?.isPending.value ?? false"
+              :inert="fragmentLoading.isPending.value && fragmentLoading.isInitialNavigation.value"
+              :aria-busy="fragmentLoading.isPending.value"
             >
               <CommentNode :node="node" :depth="0" :in-modal="true" />
             </div>
             <FragmentLoading
-              v-if="fragmentLoading?.isPending.value"
+              v-if="fragmentLoading.isPending.value"
               :cover="fragmentLoading.isInitialNavigation.value"
               :show-indicator="fragmentLoading.showIndicator.value"
             />

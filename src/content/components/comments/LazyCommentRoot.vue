@@ -1,68 +1,42 @@
 <script setup lang="ts">
 import type { CommentNode as CommentNodeType } from '@/parsers/item';
 import { MessageSquareMore } from 'lucide-vue-next';
-import { computed, ref, shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 import { createLogger } from '@/debug';
 import { loadDeferredCommentThread } from '@/state/item-page-state';
 import CommentNode from './CommentNode.vue';
 
 const props = defineProps<{
   node: CommentNodeType;
-  depth?: number;
-  inModal?: boolean;
 }>();
 
-const loadedRoot = shallowRef<CommentNodeType | null>(
-  props.node.lazyThread?.state.kind === 'loaded' ? props.node.lazyThread.state.root : null,
-);
 const logger = createLogger('lazy-comment-root');
-const isLoading = ref(false);
+const loadedRoot = shallowRef(props.node.lazyThread?.state.kind === 'loaded' ? props.node.lazyThread.state.root : null);
 const loadError = ref<string | null>(null);
-
-const replyLabel = computed(() => {
-  const count = props.node.descendantCount;
-  return `Load thread (${count} ${count === 1 ? 'reply' : 'replies'})`;
-});
+const replyLabel = `Load thread (${props.node.descendantCount} ${props.node.descendantCount === 1 ? 'reply' : 'replies'})`;
 
 function loadThread() {
-  if (!props.node.lazyThread || isLoading.value || loadedRoot.value) {
-    return;
-  }
-
-  isLoading.value = true;
   loadError.value = null;
-
   try {
-    loadedRoot.value = loadDeferredCommentThread(props.node.lazyThread);
+    loadedRoot.value = loadDeferredCommentThread(props.node.lazyThread!);
   } catch (error) {
-    if (!(error instanceof Error)) {
-      throw error;
-    }
     logger.error(`Failed to parse thread ${props.node.id}`, error);
     loadError.value = 'Failed to load this thread.';
-  } finally {
-    isLoading.value = false;
   }
 }
 </script>
 
 <template>
   <div class="lazy-comment-root">
-    <CommentNode
-      v-if="loadedRoot"
-      :node="loadedRoot"
-      :depth="depth"
-      :in-modal="inModal"
-    />
+    <CommentNode v-if="loadedRoot" :node="loadedRoot" />
 
     <template v-else>
-      <CommentNode :node="node" :depth="depth" :in-modal="inModal" />
+      <CommentNode :node="node" />
 
       <div class="lazy-comment-root__load-row">
         <button
           type="button"
           class="lazy-comment-root__thread-btn"
-          :disabled="isLoading"
           @click="loadThread"
         >
           <MessageSquareMore :size="13" aria-hidden="true" class="lazy-comment-root__icon" />

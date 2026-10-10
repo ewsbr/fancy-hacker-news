@@ -134,5 +134,5 @@ export function provideCommentFragmentLoading() {
 }
 
 export function useCommentFragmentLoading() {
-  return inject(FRAGMENT_LOADING_KEY, null);
+  return inject(FRAGMENT_LOADING_KEY)!;
 }

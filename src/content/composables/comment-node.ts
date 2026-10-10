@@ -68,8 +68,8 @@ interface CommentCollapseRegistry {
 }
 
 interface CommentActionStateRegistry {
-  getVoteTarget: (node: CommentRenderableNode) => VoteActionTarget | null;
-  getFlagTarget: (node: CommentRenderableNode) => FlagActionTarget | null;
+  getVoteTarget: (node: CommentRenderableNode) => VoteActionTarget;
+  getFlagTarget: (node: CommentRenderableNode) => FlagActionTarget;
 }
 
 const COMMENT_COLLAPSE_REGISTRY_KEY = Symbol('comment-collapse-registry');
@@ -141,77 +141,43 @@ export function provideCommentCollapseRegistry(longPressCommentCollapse: boolean
   return registry;
 }
 
-function createCommentVoteTarget(node: CommentRenderableNode): VoteActionTarget {
-  return reactive({
-    voteState: node.voteState,
-  });
-}
-
-function createCommentFlagTarget(node: CommentRenderableNode): FlagActionTarget {
-  return reactive({
-    flagAction: node.flagAction,
-    isFlagged: node.isFlagged,
-  });
-}
-
+/**
+ * One reactive action target per comment id, so duplicated renders of a comment
+ * (main thread and mobile modal) share vote and flag state.
+ */
 export function provideCommentActionStateRegistry(): CommentActionStateRegistry {
   const voteTargets = new Map<string, VoteActionTarget>();
   const flagTargets = new Map<string, FlagActionTarget>();
 
   const registry: CommentActionStateRegistry = {
     getVoteTarget(node) {
-      if (node.voteState.kind === 'unavailable') {
-        return null;
+      if (!voteTargets.has(node.id)) {
+        voteTargets.set(node.id, reactive({ voteState: node.voteState }));
       }
-
-      const currentTarget = voteTargets.get(node.id);
-      if (currentTarget) {
-        return currentTarget;
-      }
-
-      const target = createCommentVoteTarget(node);
-      voteTargets.set(node.id, target);
-      return target;
+      return voteTargets.get(node.id)!;
     },
     getFlagTarget(node) {
-      if (node.flagAction.kind !== 'available' && node.flagAction.kind !== 'active') {
-        return null;
+      if (!flagTargets.has(node.id)) {
+        flagTargets.set(node.id, reactive({ flagAction: node.flagAction, isFlagged: node.isFlagged }));
       }
-
-      const currentTarget = flagTargets.get(node.id);
-      if (currentTarget) {
-        return currentTarget;
-      }
-
-      const target = createCommentFlagTarget(node);
-      flagTargets.set(node.id, target);
-      return target;
+      return flagTargets.get(node.id)!;
     },
   };
 
   provide(COMMENT_ACTION_STATE_REGISTRY_KEY, registry);
-
   return registry;
 }
 
+function useCommentActionStateRegistry() {
+  return inject<CommentActionStateRegistry>(COMMENT_ACTION_STATE_REGISTRY_KEY)!;
+}
+
 export function useCommentVoteActionTarget(node: Ref<CommentRenderableNode>): VoteActionTarget | null {
-  if (node.value.voteState.kind === 'unavailable') {
-    return null;
-  }
-
-  const registry = inject<CommentActionStateRegistry | null>(COMMENT_ACTION_STATE_REGISTRY_KEY, null);
-
-  return registry?.getVoteTarget(node.value) ?? createCommentVoteTarget(node.value);
+  return node.value.voteState.kind === 'unavailable' ? null : useCommentActionStateRegistry().getVoteTarget(node.value);
 }
 
 export function useCommentFlagActionTarget(node: Ref<CommentRenderableNode>): FlagActionTarget | null {
-  if (node.value.flagAction.kind !== 'available' && node.value.flagAction.kind !== 'active') {
-    return null;
-  }
-
-  const registry = inject<CommentActionStateRegistry | null>(COMMENT_ACTION_STATE_REGISTRY_KEY, null);
-
-  return registry?.getFlagTarget(node.value) ?? createCommentFlagTarget(node.value);
+  return node.value.flagAction.kind === 'unavailable' ? null : useCommentActionStateRegistry().getFlagTarget(node.value);
 }
 
 export function useCommentCollapseRegistry(): CommentCollapseRegistry | null {
@@ -292,7 +258,6 @@ export function useCommentDisplayContext({
   const threadRootAuthor = inject(COMMENT_THREAD_ROOT_AUTHOR_KEY, null);
   const storyAuthor = inject(COMMENT_THREAD_STORY_AUTHOR_KEY, null);
 
-  const latestUrl = computed(() => `latest?id=${encodeURIComponent(node.value.id)}`);
   const resolvedThreadAuthor = computed(() => threadAuthor.value
     ?? threadRootAuthor
     ?? (showLocalThreadAuthor.value ? node.value.author : null));
@@ -320,7 +285,6 @@ export function useCommentDisplayContext({
   });
 
   return {
-    latestUrl,
     nodeOnStory,
     originalPosterTitle,
     resolvedThreadAuthor,

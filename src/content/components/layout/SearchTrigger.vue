@@ -9,14 +9,14 @@ withDefaults(defineProps<{
   variant: 'default',
 });
 
-const openSearch = inject<() => void>('openSearch');
+const openSearch = inject<() => void>('openSearch')!;
 </script>
 
 <template>
   <button
     type="button"
     class="search-trigger" :class="[`search-trigger--${variant}`]"
-    @click="openSearch?.()"
+    @click="openSearch()"
   >
     <Search :size="14" class="search-trigger__icon" aria-hidden="true" />
     <span class="search-trigger__placeholder">Search HN…</span>

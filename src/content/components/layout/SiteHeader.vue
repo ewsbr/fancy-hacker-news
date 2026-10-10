@@ -10,7 +10,7 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
 } from 'reka-ui';
-import { computed, inject, ref, shallowRef } from 'vue';
+import { inject, ref, shallowRef } from 'vue';
 import YLogo from '@/assets/ycombinator.svg';
 import HeaderMoreDropdown from '@/content/components/layout/HeaderMoreDropdown.vue';
 import ThemeToggle from '@/content/components/layout/ThemeToggle.vue';
@@ -33,18 +33,14 @@ const navToggle = shallowRef<HTMLElement | null>(null);
 const navMenu = shallowRef<HTMLElement | null>(null);
 const headerLogger = createLogger('site-header');
 
-const visibleNavLinks = computed(() => createVisibleNavLinks(header.navLinks, isCurrentHref));
-
-const primaryNavLinks = computed(() => createPrimaryNavLinks(visibleNavLinks.value));
-
-const submitNavLink = computed(() => visibleNavLinks.value.find(link => link.label.toLowerCase() === 'submit'));
-
-const overflowNavGroups = computed(() => createOverflowNavGroups(visibleNavLinks.value));
-
-const hasNavLinks = computed(() => primaryNavLinks.value.length > 0 || overflowNavGroups.value.length > 0);
-const effectiveTopBarColor = computed(() => header.topBarColor);
-const showHeaderAccent = computed(() => header.hasCustomTopBarColor && !header.hasMemorialBar);
-const useBlackLogo = computed(() => header.hasCustomTopBarColor || header.hasMemorialBar);
+// The parsed header is static, so the derived navigation is computed once.
+const visibleNavLinks = createVisibleNavLinks(header.navLinks, isCurrentHref);
+const primaryNavLinks = createPrimaryNavLinks(visibleNavLinks);
+const submitNavLink = visibleNavLinks.find(link => link.label.toLowerCase() === 'submit');
+const overflowNavGroups = createOverflowNavGroups(visibleNavLinks);
+const hasNavLinks = primaryNavLinks.length > 0 || overflowNavGroups.length > 0;
+const showHeaderAccent = header.hasCustomTopBarColor && !header.hasMemorialBar;
+const useBlackLogo = header.hasCustomTopBarColor || header.hasMemorialBar;
 
 function isCurrentHref(href: string) {
   const currentOp = document.documentElement.getAttribute('op') ?? '';
@@ -62,20 +58,10 @@ function closeNav() {
 }
 
 function onDocumentPointerDown(event: PointerEvent) {
-  if (!navOpen.value || window.innerWidth > 768) {
-    return;
+  const target = event.target as Node;
+  if (navOpen.value && window.innerWidth <= 768 && !navToggle.value?.contains(target) && !navMenu.value?.contains(target)) {
+    closeNav();
   }
-
-  const target = event.target;
-  if (!(target instanceof Node)) {
-    return;
-  }
-
-  if (navToggle.value?.contains(target) || navMenu.value?.contains(target)) {
-    return;
-  }
-
-  closeNav();
 }
 
 function openSettingsPage() {
@@ -94,7 +80,7 @@ useEventListener(document, 'pointerdown', onDocumentPointerDown);
   <header
     class="site-header"
     :style="{
-      '--site-header-bar-color': effectiveTopBarColor,
+      '--site-header-bar-color': header.topBarColor,
     }"
   >
     <div v-if="showHeaderAccent" class="site-header__accent" aria-hidden="true" />

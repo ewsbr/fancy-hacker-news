@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
 import { ArrowBigDownDash, ArrowBigUpDash } from 'lucide-vue-next';
-import { computed, onMounted, ref, shallowRef } from 'vue';
+import { computed, ref } from 'vue';
+import { getExtensionRootHost } from '@/content/utils/root-host';
 
 const SHOW_AFTER_SCROLL_TOP = 280;
 
-const scrollContainer = shallowRef<HTMLElement | null>(null);
-const currentScrollTop = ref(0);
+const scrollContainer = getExtensionRootHost()!;
+const currentScrollTop = ref(scrollContainer.scrollTop);
 const savedReturnScrollTop = ref<number | null>(null);
 const restoreArmed = ref(false);
 
@@ -28,7 +29,7 @@ const buttonLabel = computed(() => (
 ));
 
 function syncScrollState() {
-  const nextScrollTop = scrollContainer.value?.scrollTop ?? 0;
+  const nextScrollTop = scrollContainer.scrollTop;
   currentScrollTop.value = nextScrollTop;
 
   if (savedReturnScrollTop.value == null) {
@@ -47,14 +48,14 @@ function syncScrollState() {
 }
 
 function scrollToTop() {
-  const nextReturnScrollTop = scrollContainer.value?.scrollTop ?? 0;
+  const nextReturnScrollTop = scrollContainer.scrollTop;
 
   if (nextReturnScrollTop > SHOW_AFTER_SCROLL_TOP) {
     savedReturnScrollTop.value = nextReturnScrollTop;
   }
 
   restoreArmed.value = false;
-  scrollContainer.value?.scrollTo({
+  scrollContainer.scrollTo({
     top: 0,
     left: 0,
     behavior: 'smooth',
@@ -70,7 +71,7 @@ function returnToSavedPosition() {
 
   savedReturnScrollTop.value = null;
   restoreArmed.value = false;
-  scrollContainer.value?.scrollTo({
+  scrollContainer.scrollTo({
     top: nextScrollTop,
     left: 0,
     behavior: 'smooth',
@@ -85,11 +86,6 @@ function handleButtonClick() {
 
   scrollToTop();
 }
-
-onMounted(() => {
-  scrollContainer.value = document.getElementById('fancy-hn-root');
-  syncScrollState();
-});
 
 useEventListener(scrollContainer, 'scroll', syncScrollState, { passive: true });
 </script>

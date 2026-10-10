@@ -213,7 +213,6 @@ useEventListener(window, 'hashchange', () => {
                   <MetaSep class="comments-page__comment-meta-actions-sep" />
                   <template v-if="itemFavoriteHref">
                     <InlineActionLink
-                      :href="itemFavoriteHref"
                       action="favorite"
                       :favorite-target="pageData.item"
                       class="comments-page__comment-action"
@@ -221,7 +220,7 @@ useEventListener(window, 'hashchange', () => {
                     <MetaSep />
                   </template>
                   <template v-if="itemFlagHref">
-                    <FlagButton :href="itemFlagHref" :flag-target="pageData.item" />
+                    <FlagButton :flag-target="pageData.item" />
                     <MetaSep />
                   </template>
                   <a :href="latestUrl" class="comments-page__comment-action">latest</a>
@@ -305,11 +304,6 @@ useEventListener(window, 'hashchange', () => {
     align-items: flex-start;
     gap: 0.4rem;
     padding: 0.75rem 0.75rem 1rem;
-  }
-
-  &__comment-vote {
-    padding-top: 0.15rem;
-    flex-shrink: 0;
   }
 
   &__comment-content {

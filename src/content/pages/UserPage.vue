@@ -5,6 +5,10 @@ import { inject } from 'vue';
 import Tooltip from '@/content/components/ui/Tooltip.vue';
 
 const user = inject<ParsedUserPage>('pageData')!;
+const collections = [
+  { label: 'Favorites', icon: Star, links: user.favorites },
+  ...(user.upvoted ? [{ label: 'Upvoted', icon: ArrowUp, links: user.upvoted }] : []),
+];
 </script>
 
 <template>
@@ -32,7 +36,7 @@ const user = inject<ParsedUserPage>('pageData')!;
           <h2 class="user-page__section-title">
             <span>about</span>
           </h2>
-          <template v-if="user.isOwnProfile && user.editForm">
+          <template v-if="user.editForm">
             <textarea v-model="user.about" name="about" form="profileform" class="user-page__textarea" rows="4" />
             <a href="formatdoc" class="user-page__help" target="_blank">Formatting help</a>
           </template>
@@ -54,7 +58,7 @@ const user = inject<ParsedUserPage>('pageData')!;
         </section>
 
         <!-- Settings -->
-        <section v-if="user.isOwnProfile && user.editForm" class="user-page__section">
+        <section v-if="user.editForm && user.preferences" class="user-page__section">
           <h2 class="user-page__section-title">
             <span>settings</span>
           </h2>
@@ -78,7 +82,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <select name="showd" form="profileform" class="user-page__input" :value="user.preferences?.showDead">
+              <select name="showd" form="profileform" class="user-page__input" :value="user.preferences.showDead">
                 <option value="yes">
                   yes
                 </option>
@@ -94,7 +98,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <select name="nopro" form="profileform" class="user-page__input" :value="user.preferences?.noprocrast">
+              <select name="nopro" form="profileform" class="user-page__input" :value="user.preferences.noprocrast">
                 <option value="yes">
                   yes
                 </option>
@@ -110,7 +114,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="maxv" form="profileform" :value="user.preferences?.maxVisit" class="user-page__input user-page__input--short">
+              <input type="text" name="maxv" form="profileform" :value="user.preferences.maxVisit" class="user-page__input user-page__input--short">
             </div>
             <div class="user-page__field">
               <span class="user-page__label">
@@ -119,7 +123,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="mina" form="profileform" :value="user.preferences?.minAway" class="user-page__input user-page__input--short">
+              <input type="text" name="mina" form="profileform" :value="user.preferences.minAway" class="user-page__input user-page__input--short">
             </div>
             <div class="user-page__field">
               <span class="user-page__label">
@@ -128,7 +132,7 @@ const user = inject<ParsedUserPage>('pageData')!;
                   <HelpCircle :size="11" class="user-page__label-help" />
                 </Tooltip>
               </span>
-              <input type="text" name="delay" form="profileform" :value="user.preferences?.delay" class="user-page__input user-page__input--short">
+              <input type="text" name="delay" form="profileform" :value="user.preferences.delay" class="user-page__input user-page__input--short">
             </div>
           </div>
 
@@ -161,37 +165,17 @@ const user = inject<ParsedUserPage>('pageData')!;
               Comments
             </a>
 
-            <template v-if="user.favoritesLink">
-              <div class="user-page__group">
-                <div class="user-page__group-header">
-                  <Star :size="14" class="user-page__link-icon" />
-                  Favorites
-                </div>
-                <div class="user-page__group-items">
-                  <a :href="user.favoritesLink" class="user-page__sublink">Stories</a>
-                  <template v-if="user.favoritesCommentsLink">
-                    <span class="user-page__sep">/</span>
-                    <a :href="user.favoritesCommentsLink" class="user-page__sublink">Comments</a>
-                  </template>
-                </div>
+            <div v-for="collection in collections" :key="collection.label" class="user-page__group">
+              <div class="user-page__group-header">
+                <component :is="collection.icon" :size="14" class="user-page__link-icon" />
+                {{ collection.label }}
               </div>
-            </template>
-
-            <template v-if="user.upvotedLink">
-              <div class="user-page__group">
-                <div class="user-page__group-header">
-                  <ArrowUp :size="14" class="user-page__link-icon" />
-                  Upvoted
-                </div>
-                <div class="user-page__group-items">
-                  <a :href="user.upvotedLink" class="user-page__sublink">Stories</a>
-                  <template v-if="user.upvotedCommentsLink">
-                    <span class="user-page__sep">/</span>
-                    <a :href="user.upvotedCommentsLink" class="user-page__sublink">Comments</a>
-                  </template>
-                </div>
+              <div class="user-page__group-items">
+                <a :href="collection.links.link" class="user-page__sublink">Stories</a>
+                <span class="user-page__sep">/</span>
+                <a :href="collection.links.commentsLink" class="user-page__sublink">Comments</a>
               </div>
-            </template>
+            </div>
           </div>
         </section>
       </div>

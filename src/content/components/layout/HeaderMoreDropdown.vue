@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NavLink } from '@/parsers/header';
+import type { HeaderLinkGroup } from '@/content/utils/header-links';
 import { ChevronDown } from 'lucide-vue-next';
 import {
   AccordionContent,
@@ -17,11 +17,6 @@ import {
 } from 'reka-ui';
 import { computed, ref } from 'vue';
 import { EXTENSION_ROOT_SELECTOR } from '@/content/utils/root-host';
-
-interface HeaderLinkGroup {
-  label: string;
-  links: NavLink[];
-}
 
 const props = defineProps<{
   groups: HeaderLinkGroup[];

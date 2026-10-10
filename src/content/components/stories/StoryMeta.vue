@@ -34,7 +34,6 @@ const hideHref = computed(() => getToggleActionHref(props.story.hideAction));
       <MetaSep v-if="hideHref" />
       <InlineActionLink
         v-if="hideHref"
-        :href="hideHref"
         action="hide"
         :hide-target="story"
         class="story-meta__action"

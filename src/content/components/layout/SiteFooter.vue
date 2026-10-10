@@ -177,11 +177,6 @@ const socialLinks = [
       opacity: 0.9;
     }
 
-    .site-footer__copyright {
-      color: #f5f5ee;
-      opacity: 0.6;
-    }
-
     .site-footer__social-link {
       color: #f5f5ee;
       opacity: 0.8;

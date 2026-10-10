@@ -65,7 +65,6 @@ const flagHref = computed(() => getToggleActionHref(props.item.flagAction));
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
                   <InlineActionLink
-                    :href="hideHref"
                     action="hide"
                     :hide-target="item"
                     class="story-detail__action"
@@ -91,7 +90,6 @@ const flagHref = computed(() => getToggleActionHref(props.item.flagAction));
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
                   <InlineActionLink
-                    :href="favoriteHref"
                     action="favorite"
                     :favorite-target="item"
                     class="story-detail__action"
@@ -102,7 +100,7 @@ const flagHref = computed(() => getToggleActionHref(props.item.flagAction));
               <template v-if="flagHref">
                 <span class="story-detail__action-item">
                   <MetaSep class="story-detail__action-sep" />
-                  <FlagButton :href="flagHref" :flag-target="item" />
+                  <FlagButton :flag-target="item" />
                 </span>
               </template>
             </div>

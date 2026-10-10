@@ -5,52 +5,22 @@ import { useHnActions } from '@/content/composables/use-hn-actions';
 import { getToggleActionHref } from '@/parsers/shared/actions';
 
 const props = defineProps<{
-  href?: string | null;
   action: 'favorite' | 'hide';
-  favoriteTarget?: FavoriteActionTarget | null;
-  hideTarget?: HideActionTarget | null;
-  activeLabel?: string;
-  inactiveLabel?: string;
+  favoriteTarget?: FavoriteActionTarget;
+  hideTarget?: HideActionTarget;
 }>();
 
 const { isBusy, submitFavorite, submitHide } = useHnActions();
-
-const actionState = computed(() => {
-  if (props.action === 'favorite') {
-    return props.favoriteTarget?.favoriteAction ?? null;
-  }
-
-  return props.hideTarget?.hideAction ?? null;
-});
-
-const actionHref = computed(() => {
-  return actionState.value ? getToggleActionHref(actionState.value) : (props.href ?? null);
-});
-
-const isActive = computed(() => actionState.value?.kind === 'active' || actionHref.value?.includes('un=t') === true);
-
+const actionState = computed(() => props.action === 'favorite' ? props.favoriteTarget!.favoriteAction : props.hideTarget!.hideAction);
+const actionHref = computed(() => getToggleActionHref(actionState.value));
 const label = computed(() => {
-  if (props.action === 'hide') {
-    return isActive.value ? (props.activeLabel ?? 'unhide') : (props.inactiveLabel ?? 'hide');
-  }
-
-  if (isActive.value) {
-    return props.activeLabel ?? 'un-favorite';
-  }
-
-  return props.inactiveLabel ?? 'favorite';
+  const isActive = actionState.value.kind === 'active';
+  return props.action === 'hide' ? (isActive ? 'unhide' : 'hide') : (isActive ? 'un-favorite' : 'favorite');
 });
 
-async function handleClick(event: MouseEvent) {
-  const hasTarget = props.action === 'favorite' ? props.favoriteTarget != null : props.hideTarget != null;
-  if (!hasTarget) {
-    return;
-  }
-
+function handleClick(event: MouseEvent) {
   event.preventDefault();
-  await (props.action === 'favorite'
-    ? submitFavorite(props.favoriteTarget!)
-    : submitHide(props.hideTarget!));
+  void (props.action === 'favorite' ? submitFavorite(props.favoriteTarget!) : submitHide(props.hideTarget!));
 }
 </script>
 

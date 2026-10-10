@@ -101,10 +101,10 @@ describe('parseUserPage', () => {
     const doc = await loadFixtureDocument('misc/user/profile-auth.html');
     const page = parseUserPage(doc);
 
-    expect(page.favoritesLink).toBe('favorites?id=ewsbr');
-    expect(page.favoritesCommentsLink).toBe('favorites?id=ewsbr&comments=t');
-    expect(page.upvotedLink).toBe('upvoted?id=ewsbr');
-    expect(page.upvotedCommentsLink).toBe('upvoted?id=ewsbr&comments=t');
+    expect(page.favorites.link).toBe('favorites?id=ewsbr');
+    expect(page.favorites.commentsLink).toBe('favorites?id=ewsbr&comments=t');
+    expect(page.upvoted?.link).toBe('upvoted?id=ewsbr');
+    expect(page.upvoted?.commentsLink).toBe('upvoted?id=ewsbr&comments=t');
   });
 
   it('accepts leading-slash and absolute collection URLs', async () => {
@@ -120,10 +120,10 @@ describe('parseUserPage', () => {
 
     const page = parseUserPage(doc);
 
-    expect(page.favoritesLink).toBe('/favorites?id=ewsbr');
-    expect(page.favoritesCommentsLink).toBe('https://news.ycombinator.com/favorites?id=ewsbr&comments=t');
-    expect(page.upvotedLink).toBe('/upvoted?id=ewsbr');
-    expect(page.upvotedCommentsLink).toBe('https://news.ycombinator.com/upvoted?id=ewsbr&comments=t');
+    expect(page.favorites.link).toBe('/favorites?id=ewsbr');
+    expect(page.favorites.commentsLink).toBe('https://news.ycombinator.com/favorites?id=ewsbr&comments=t');
+    expect(page.upvoted?.link).toBe('/upvoted?id=ewsbr');
+    expect(page.upvoted?.commentsLink).toBe('https://news.ycombinator.com/upvoted?id=ewsbr&comments=t');
   });
 
   it('builds missing comments links from the base collection href', async () => {
@@ -138,9 +138,9 @@ describe('parseUserPage', () => {
 
     const page = parseUserPage(doc);
 
-    expect(page.favoritesLink).toBe('favorites?id=ewsbr');
-    expect(page.favoritesCommentsLink).toBe('favorites?id=ewsbr&comments=t');
-    expect(page.upvotedLink).toBe('upvoted?id=ewsbr');
-    expect(page.upvotedCommentsLink).toBe('upvoted?id=ewsbr&comments=t');
+    expect(page.favorites.link).toBe('favorites?id=ewsbr');
+    expect(page.favorites.commentsLink).toBe('favorites?id=ewsbr&comments=t');
+    expect(page.upvoted?.link).toBe('upvoted?id=ewsbr');
+    expect(page.upvoted?.commentsLink).toBe('upvoted?id=ewsbr&comments=t');
   });
 });

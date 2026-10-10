@@ -146,8 +146,5 @@ async function handleClick(event: MouseEvent) {
     pointer-events: none;
   }
 
-  &--hidden {
-    display: none;
-  }
 }
 </style>

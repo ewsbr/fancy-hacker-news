@@ -2,11 +2,11 @@
 
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { isReactive, reactive } from 'vue';
+import { defineComponent, h, isReactive, reactive } from 'vue';
 import LazyCommentRoot from '@/content/components/comments/LazyCommentRoot.vue';
+import { provideCommentActionStateRegistry } from '@/content/composables/comment-node';
 import { parseItemPage } from '@/parsers/item';
 import { detachDeferredCommentRows, loadDeferredCommentThread, makeItemPageReactive } from '@/state/item-page-state';
-import { assertDefined } from '@/utils/assert';
 import { loadFixtureDocument } from '../helpers/load-fixture';
 
 describe('deferred comment source ownership', () => {
@@ -43,7 +43,7 @@ describe('deferred comment source ownership', () => {
   it('keeps rows available for retry if parsing fails, including a load before cleanup', async () => {
     const doc = await loadFixtureDocument('stories/threads/story.html');
     const page = parseItemPage(doc, { extremeThreadCommentThreshold: 0 });
-    const thread = assertDefined(page.comments.find(node => node.lazyThread)?.lazyThread, 'Fixture must have replies');
+    const thread = page.comments.find(node => node.lazyThread)!.lazyThread!;
     const pending = thread.state;
     if (pending.kind !== 'pending') throw new Error('Expected source rows');
     const row = pending.rows[1];
@@ -64,19 +64,23 @@ describe('deferred comment source ownership', () => {
   it('reuses the loaded model when the component remounts after source release', async () => {
     const doc = await loadFixtureDocument('stories/threads/story.html');
     const page = makeItemPageReactive(parseItemPage(doc, { extremeThreadCommentThreshold: 0 }));
-    const node = assertDefined(page.comments.find(node => node.lazyThread), 'Fixture must have replies');
+    const node = page.comments.find(node => node.lazyThread)!;
     doc.body.replaceChildren();
     detachDeferredCommentRows(page);
 
-    const options = { props: { node } };
-    const wrapper = mount(LazyCommentRoot, options);
+    // Comment roots render inside CommentTree, which provides shared action state.
+    const TreeHost = defineComponent(() => {
+      provideCommentActionStateRegistry();
+      return () => h(LazyCommentRoot, { node });
+    });
+    const wrapper = mount(TreeHost);
     await wrapper.get('.lazy-comment-root__thread-btn').trigger('click');
     const loadedCount = wrapper.findAll('.comment-node').length;
     expect(loadedCount).toBeGreaterThan(1);
     expect(wrapper.find('.lazy-comment-root__thread-btn').exists()).toBe(false);
     wrapper.unmount();
 
-    const remounted = mount(LazyCommentRoot, options);
+    const remounted = mount(TreeHost);
     expect(remounted.findAll('.comment-node')).toHaveLength(loadedCount);
     expect(remounted.find('.lazy-comment-root__thread-btn').exists()).toBe(false);
     remounted.unmount();
