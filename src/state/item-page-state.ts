@@ -52,3 +52,18 @@ export function makeItemPageReactive(pageData: ParsedItemPage): ParsedItemPage {
     comments: pageData.comments,
   }) as ParsedItemPage;
 }
+
+export function findCommentPath(nodes: CommentNode[], targetId: string): CommentNode[] | null {
+  for (const node of nodes) {
+    if (node.id === targetId) {
+      return [node];
+    }
+
+    const childPath = findCommentPath(node.children, targetId);
+    if (childPath) {
+      return [node, ...childPath];
+    }
+  }
+
+  return null;
+}

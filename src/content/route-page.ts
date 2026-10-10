@@ -1,18 +1,5 @@
 import type { Component } from 'vue';
-import type { ParsedDeleteConfirmPage } from '@/parsers/delete-confirm';
-import type { ParsedItemPage } from '@/parsers/item';
-import type { ParsedLeadersPage } from '@/parsers/leaders';
-import type { ParsedListsPage } from '@/parsers/lists';
-import type { ParsedLoginPage } from '@/parsers/login';
-import type { ParsedNewComments } from '@/parsers/new-comments';
-import type { ParsedReplyPage } from '@/parsers/reply';
-import type { ParsedStaticPage } from '@/parsers/static';
-import type { ParsedStoryList } from '@/parsers/story-list';
-import type { ParsedSubmitPage } from '@/parsers/submit';
-import type { ParsedThreadsPage } from '@/parsers/threads';
-import type { ParsedTopColorsPage } from '@/parsers/top-colors';
-import type { ParsedUserPage } from '@/parsers/user';
-import type { PageName, RouteDescriptor, RouteForPage } from '@/router';
+import type { RouteDescriptor } from '@/router';
 import CommentsPage from '@/content/pages/CommentsPage.vue';
 import DeleteConfirmPage from '@/content/pages/DeleteConfirmPage.vue';
 import FormatDocPage from '@/content/pages/FormatDocPage.vue';
@@ -42,207 +29,67 @@ import { parseThreadsPage } from '@/parsers/threads';
 import { parseTopColorsPage } from '@/parsers/top-colors';
 import { parseUserPage } from '@/parsers/user';
 
-interface RoutePageDataByPage {
-  'stories': ParsedStoryList;
-  'item': ParsedItemPage;
-  'login': ParsedLoginPage;
-  'static': ParsedStaticPage | ParsedSubmitPage;
-  'user': ParsedUserPage;
-  'threads': ParsedThreadsPage;
-  'newcomments': ParsedNewComments;
-  'submitted': ParsedStoryList;
-  'hidden': ParsedStoryList;
-  'favorites': ParsedStoryList | ParsedNewComments;
-  'upvoted': ParsedStoryList | ParsedNewComments;
-  'submit': ParsedSubmitPage | ParsedLoginPage;
-  'reply': ParsedReplyPage | ParsedLoginPage;
-  'formatdoc': ParsedStaticPage;
-  'leaders': ParsedLeadersPage;
-  'lists': ParsedListsPage;
-  'topcolors': ParsedTopColorsPage;
-  'delete-confirm': ParsedDeleteConfirmPage;
-  'notfound': null;
+export interface ParsedRoutePage {
+  pageData: object | null;
+  component: Component;
 }
-
-export type RoutePageData = RoutePageDataByPage[PageName];
-
-export type ParsedRoutePage = {
-  [Page in PageName]: {
-    route: RouteForPage<Page>;
-    pageData: RoutePageDataByPage[Page];
-    component: Component;
-  }
-}[PageName];
-
-interface RouteParseContext<Route extends RouteDescriptor> {
-  route: Route;
-  location: Location;
-}
-
-interface RouteHandler<Page extends PageName> {
-  parse: (doc: Document, context: RouteParseContext<RouteForPage<Page>>) => RoutePageDataByPage[Page];
-  component: (pageData: RoutePageDataByPage[Page], context: RouteParseContext<RouteForPage<Page>>) => Component;
-}
-
-type RouteHandlerTable = {
-  [Page in PageName]: RouteHandler<Page>;
-};
-
-interface RuntimeRouteHandler {
-  parse: (doc: Document, context: RouteParseContext<RouteDescriptor>) => RoutePageData;
-  component: (pageData: RoutePageData, context: RouteParseContext<RouteDescriptor>) => Component;
-}
-
-const UPVOTED_PARSER_OPTIONS = { preferredVoteDirection: 'up' as const };
-
-type UserCollectionRoute = RouteForPage<'favorites'> | RouteForPage<'upvoted'>;
-type SubmitRouteData = RoutePageDataByPage['submit'];
-type ReplyRouteData = RoutePageDataByPage['reply'];
-type StaticRouteData = RoutePageDataByPage['static'];
-
-function isLoginPageData(pageData: SubmitRouteData | ReplyRouteData): pageData is ParsedLoginPage {
-  if (!('variant' in pageData)) {
-    return false;
-  }
-
-  return 'forms' in pageData && 'title' in pageData;
-}
-
-function isSubmitPageData(pageData: StaticRouteData): pageData is ParsedSubmitPage {
-  if (!('isLoggedOut' in pageData)) {
-    return false;
-  }
-
-  return 'form' in pageData && 'warningMessage' in pageData;
-}
-
-function parseSubmitOrLoginPage(doc: Document, path: string): SubmitRouteData {
-  const submitPage = parseSubmitPage(doc);
-  return submitPage.form ? submitPage : parseLoginPage(doc, path);
-}
-
-function parseReplyOrLoginPage(doc: Document, path: string): ReplyRouteData {
-  const replyPage = parseReplyPage(doc);
-  return replyPage.isLoggedOut ? parseLoginPage(doc, path) : replyPage;
-}
-
-function parseStaticOrSubmitPage(doc: Document, location: Location): StaticRouteData {
-  if (location.pathname === '/x') {
-    const submitPage = parseSubmitPage(doc);
-    if (submitPage.form) {
-      return submitPage;
-    }
-  }
-
-  return parseStaticPage(doc);
-}
-
-function parseUserCollectionPage(
-  doc: Document,
-  context: RouteParseContext<UserCollectionRoute>,
-): ParsedStoryList | ParsedNewComments {
-  const parserOptions = context.route.page === 'upvoted' ? UPVOTED_PARSER_OPTIONS : undefined;
-  return context.route.params.comments === 't'
-    ? parseNewComments(doc, parserOptions)
-    : parseStoryList(doc, parserOptions);
-}
-
-function getUserCollectionComponent(
-  _pageData: ParsedStoryList | ParsedNewComments,
-  context: RouteParseContext<UserCollectionRoute>,
-): Component {
-  return context.route.params.comments === 't' ? NewCommentsPage : StoriesPage;
-}
-
-const ROUTE_HANDLERS = {
-  'stories': {
-    parse: doc => parseStoryList(doc),
-    component: () => StoriesPage,
-  },
-  'item': {
-    parse: (doc, context) => parseItemPage(doc, {
-      initialHashTargetId: context.location.hash.slice(1) || null,
-    }),
-    component: () => CommentsPage,
-  },
-  'login': {
-    parse: (doc, context) => parseLoginPage(doc, context.location.pathname),
-    component: () => LoginPage,
-  },
-  'static': {
-    parse: (doc, context) => parseStaticOrSubmitPage(doc, context.location),
-    component: pageData => isSubmitPageData(pageData) ? SubmitPage : StaticPage,
-  },
-  'user': {
-    parse: doc => parseUserPage(doc),
-    component: () => UserPage,
-  },
-  'threads': {
-    parse: doc => parseThreadsPage(doc),
-    component: () => ThreadsPage,
-  },
-  'newcomments': {
-    parse: doc => parseNewComments(doc),
-    component: () => NewCommentsPage,
-  },
-  'submitted': {
-    parse: doc => parseStoryList(doc),
-    component: () => StoriesPage,
-  },
-  'hidden': {
-    parse: doc => parseStoryList(doc),
-    component: () => StoriesPage,
-  },
-  'favorites': {
-    parse: parseUserCollectionPage,
-    component: getUserCollectionComponent,
-  },
-  'upvoted': {
-    parse: parseUserCollectionPage,
-    component: getUserCollectionComponent,
-  },
-  'submit': {
-    parse: (doc, context) => parseSubmitOrLoginPage(doc, context.location.pathname),
-    component: pageData => isLoginPageData(pageData) ? LoginPage : SubmitPage,
-  },
-  'reply': {
-    parse: (doc, context) => parseReplyOrLoginPage(doc, context.location.pathname),
-    component: pageData => isLoginPageData(pageData) ? LoginPage : ReplyPage,
-  },
-  'formatdoc': {
-    parse: doc => parseStaticPage(doc),
-    component: () => FormatDocPage,
-  },
-  'leaders': {
-    parse: doc => parseLeadersPage(doc),
-    component: () => LeadersPage,
-  },
-  'lists': {
-    parse: doc => parseListsPage(doc),
-    component: () => ListsPage,
-  },
-  'topcolors': {
-    parse: doc => parseTopColorsPage(doc),
-    component: () => TopColorsPage,
-  },
-  'delete-confirm': {
-    parse: doc => parseDeleteConfirmPage(doc),
-    component: () => DeleteConfirmPage,
-  },
-  'notfound': {
-    parse: () => null,
-    component: () => NotFoundPage,
-  },
-} satisfies RouteHandlerTable;
 
 export function parseRoutePage(route: RouteDescriptor, doc: Document, location: Location): ParsedRoutePage {
-  const context = { route, location };
-  const handler = ROUTE_HANDLERS[route.page] as unknown as RuntimeRouteHandler;
-  const pageData = handler.parse(doc, context);
-
-  return {
-    route,
-    pageData,
-    component: handler.component(pageData, context),
-  } as ParsedRoutePage;
+  switch (route.page) {
+    case 'stories':
+    case 'submitted':
+    case 'hidden':
+      return { pageData: parseStoryList(doc), component: StoriesPage };
+    case 'favorites':
+    case 'upvoted': {
+      const options = route.page === 'upvoted' ? { preferredVoteDirection: 'up' as const } : undefined;
+      return route.params.comments === 't'
+        ? { pageData: parseNewComments(doc, options), component: NewCommentsPage }
+        : { pageData: parseStoryList(doc, options), component: StoriesPage };
+    }
+    case 'item':
+      return {
+        pageData: parseItemPage(doc, { initialHashTargetId: location.hash.slice(1) || null }),
+        component: CommentsPage,
+      };
+    case 'login':
+      return { pageData: parseLoginPage(doc, location.pathname), component: LoginPage };
+    case 'static': {
+      // HN renders submit validation errors at /x.
+      const submitPage = location.pathname === '/x' ? parseSubmitPage(doc) : null;
+      return submitPage?.form
+        ? { pageData: submitPage, component: SubmitPage }
+        : { pageData: parseStaticPage(doc), component: StaticPage };
+    }
+    case 'submit': {
+      const submitPage = parseSubmitPage(doc);
+      return submitPage.form
+        ? { pageData: submitPage, component: SubmitPage }
+        : { pageData: parseLoginPage(doc, location.pathname), component: LoginPage };
+    }
+    case 'reply': {
+      const replyPage = parseReplyPage(doc);
+      return replyPage.isLoggedOut
+        ? { pageData: parseLoginPage(doc, location.pathname), component: LoginPage }
+        : { pageData: replyPage, component: ReplyPage };
+    }
+    case 'user':
+      return { pageData: parseUserPage(doc), component: UserPage };
+    case 'threads':
+      return { pageData: parseThreadsPage(doc), component: ThreadsPage };
+    case 'newcomments':
+      return { pageData: parseNewComments(doc), component: NewCommentsPage };
+    case 'formatdoc':
+      return { pageData: parseStaticPage(doc), component: FormatDocPage };
+    case 'leaders':
+      return { pageData: parseLeadersPage(doc), component: LeadersPage };
+    case 'lists':
+      return { pageData: parseListsPage(doc), component: ListsPage };
+    case 'topcolors':
+      return { pageData: parseTopColorsPage(doc), component: TopColorsPage };
+    case 'delete-confirm':
+      return { pageData: parseDeleteConfirmPage(doc), component: DeleteConfirmPage };
+    case 'notfound':
+      return { pageData: null, component: NotFoundPage };
+  }
 }

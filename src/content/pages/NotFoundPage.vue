@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import type { RouteDescriptor } from '@/router';
-import { inject } from 'vue';
 import SearchTrigger from '@/content/components/layout/SearchTrigger.vue';
 
-const route = inject<RouteDescriptor>('route')!;
-
-const requestedPath = route.params.path ?? location.pathname + location.search;
+const requestedPath = location.pathname + location.search;
 const requestedUrl = `https://news.ycombinator.com${requestedPath}`;
 const responseDate = new Date().toUTCString();
 </script>

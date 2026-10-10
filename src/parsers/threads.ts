@@ -1,6 +1,6 @@
 import type { CommentNode } from './item';
 import { parseThreadCommentRow } from './shared/comment-row';
-import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
+import { buildCommentTree } from './shared/comment-tree';
 import { findMoreLink } from './shared/pagination';
 
 export interface ThreadEntry extends Omit<CommentNode, 'children'> {
@@ -16,27 +16,13 @@ export interface ParsedThreadsPage {
 
 export function parseThreadsPage(doc: Document): ParsedThreadsPage {
   // Extract from title: "j0rg3's comments | Hacker News"
-  const titleMatch = doc.title?.match(/^(.+?)'s comments/);
-  const username = titleMatch ? titleMatch[1] : '';
-
-  const comtrs = Array.from(doc.querySelectorAll<HTMLTableRowElement>('tr.athing.comtr'));
-
-  const { comments: threads } = buildIndentedCommentTree(comtrs, (tr) => {
-    const row = parseThreadCommentRow(tr, {
-      navLinkMode: 'preserve',
-      includeOnStory: true,
-    });
-
-    return {
-      ...row,
-      descendantCount: 0,
-      expandForHash: false,
-      onStory: row.onStory,
-      children: [],
-    } satisfies ThreadEntry;
-  });
-
-  annotateDescendantCounts(threads);
+  const username = doc.title.match(/^(.+?)'s comments/)?.[1] ?? '';
+  const threads = buildCommentTree(doc.querySelectorAll('tr.athing.comtr'), tr => ({
+    ...parseThreadCommentRow(tr, { includeOnStory: true }),
+    descendantCount: 0,
+    expandForHash: false,
+    children: [],
+  } satisfies ThreadEntry));
 
   return { username, threads, moreLink: findMoreLink(doc) };
 }

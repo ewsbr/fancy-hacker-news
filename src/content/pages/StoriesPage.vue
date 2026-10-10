@@ -10,14 +10,14 @@ import Pagination from '@/content/components/ui/Pagination.vue';
 import { getStoryListEmptyMessage } from '@/content/utils/empty-states';
 import { parseUserCollectionIntro } from '@/content/utils/user-collection-intro';
 
-const storyList = inject<ParsedStoryList>('pageData') as ParsedStoryList;
+const storyList = inject<ParsedStoryList>('pageData')!;
 const route = inject<RouteDescriptor>('route')!;
 const emptyMessage = getStoryListEmptyMessage(route);
-const collectionIntro = parseUserCollectionIntro(storyList?.introHtml, document);
+const collectionIntro = parseUserCollectionIntro(storyList.introHtml, document);
 const activeCollectionKind = route.params.comments === 't' ? 'comments' : 'stories';
-const showTopNotice = Boolean(storyList?.introHtml) && !collectionIntro;
-const showListCard = Boolean(collectionIntro) || Boolean(storyList?.stories?.length);
-const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.messages.length;
+const showTopNotice = Boolean(storyList.introHtml) && !collectionIntro;
+const showListCard = Boolean(collectionIntro) || Boolean(storyList.stories.length);
+const showFallbackMessage = !storyList.stories.length && !collectionIntro?.messages.length;
 </script>
 
 <template>
@@ -37,7 +37,7 @@ const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.mes
         />
 
         <StoryRow
-          v-for="story in storyList?.stories ?? []"
+          v-for="story in storyList.stories"
           :key="story.id"
           :story="story"
         />
@@ -47,7 +47,7 @@ const showFallbackMessage = !storyList?.stories?.length && !collectionIntro?.mes
         </div>
       </div>
 
-      <Pagination :href="storyList?.moreLink ?? null" attached />
+      <Pagination :href="storyList.moreLink" attached />
     </div>
     <div v-else class="stories-page__empty-state hn-content-card hn-empty-state">
       {{ emptyMessage }}

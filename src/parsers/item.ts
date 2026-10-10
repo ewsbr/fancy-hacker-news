@@ -1,13 +1,13 @@
 import type { ToggleActionState, VoteState } from './shared/actions';
 import type { CommentPlaceholderKind } from './shared/body';
 import { FAVORITE_LINK_SELECTOR } from '@/constants/hn-actions';
-import { debugLog, debugMeasure } from '@/debug';
+import { assert } from '@/utils/assert';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
 import { parseAge } from './shared/age';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
 import { isNewUser } from './shared/comment';
 import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
-import { annotateDescendantCounts, buildIndentedCommentTree } from './shared/comment-tree';
+import { buildCommentTree } from './shared/comment-tree';
 import {
   attrOf,
   hrefOf,
@@ -115,17 +115,6 @@ export interface CommentNode {
   lazyThread?: DeferredCommentThread | null;
 }
 
-interface CommentTreeBuildResult {
-  comments: CommentNode[];
-  maxDepth: number;
-  collapsedRows: number;
-}
-
-interface CommentThreadSlice {
-  rows: Element[];
-  containsTarget: boolean;
-}
-
 function findPollOptionsTable(fatitem: Element): Element | null {
   const toptextRow = fatitem.querySelector('.toptext')?.closest('tr');
   let currentRow = toptextRow?.nextElementSibling;
@@ -147,10 +136,8 @@ function findPollOptionsTable(fatitem: Element): Element | null {
 }
 
 function parseCommentRow(tr: Element): CommentNode {
-  const row = parseThreadCommentRow(tr, { navLinkMode: 'hash' });
-
   return {
-    ...row,
+    ...parseThreadCommentRow(tr, { navLinkMode: 'hash' }),
     descendantCount: 0,
     expandForHash: false,
     children: [],
@@ -158,283 +145,156 @@ function parseCommentRow(tr: Element): CommentNode {
   };
 }
 
-function buildCommentTree(comtrs: readonly Element[]): CommentTreeBuildResult {
-  return buildIndentedCommentTree(comtrs, parseCommentRow);
+export function parseCommentThreadRows(comtrs: Iterable<Element>): CommentNode[] {
+  return buildCommentTree(comtrs, parseCommentRow);
 }
 
-function annotateCommentDescendants(comments: CommentNode[]): CommentNode[] {
-  return annotateDescendantCounts(comments);
-}
-
-function splitCommentRowsIntoRootSlices(
-  comtrs: Element[],
-  targetId: string | null | undefined,
-): { slices: CommentThreadSlice[]; maxDepth: number; collapsedRows: number } {
-  const slices: CommentThreadSlice[] = [];
-  let currentSlice: CommentThreadSlice | null = null;
-  let maxDepth = 0;
-  let collapsedRows = 0;
-
+/** Split rows into root threads; only the thread holding the hash target is parsed now. */
+function buildDeferredCommentTree(comtrs: Element[], targetId: string | null | undefined): CommentNode[] {
+  const slices: Element[][] = [];
   for (const tr of comtrs) {
-    const indent = parseCommentIndent(tr);
-    maxDepth = Math.max(maxDepth, indent);
-    if (tr.classList.contains('coll')) {
-      collapsedRows += 1;
+    if (slices.length === 0 || parseCommentIndent(tr) === 0) {
+      slices.push([]);
     }
-
-    if (!currentSlice || indent === 0) {
-      currentSlice = {
-        rows: [],
-        containsTarget: false,
-      };
-      slices.push(currentSlice);
-    }
-
-    currentSlice.rows.push(tr);
-    if (targetId && attrOf(tr, 'id') === targetId) {
-      currentSlice.containsTarget = true;
-    }
+    slices[slices.length - 1].push(tr);
   }
 
-  return { slices, maxDepth, collapsedRows };
-}
-
-function createDeferredCommentThread(rows: readonly Element[]): DeferredCommentThread {
-  return {
-    totalCommentCount: rows.length,
-    state: { kind: 'pending', rows },
-  };
-}
-
-function createRootShell(rows: Element[]): CommentNode {
-  const shell = parseCommentRow(rows[0]);
-  shell.children = [];
-  shell.descendantCount = Math.max(0, rows.length - 1);
-  shell.lazyThread = rows.length > 1 ? createDeferredCommentThread(rows) : null;
-  return shell;
-}
-
-function buildExtremeCommentTree(
-  comtrs: Element[],
-  targetId: string | null | undefined,
-): CommentTreeBuildResult {
-  const { slices, maxDepth, collapsedRows } = splitCommentRowsIntoRootSlices(comtrs, targetId);
-  const comments = slices.map((slice) => {
-    if (slice.containsTarget) {
-      return parseCommentThreadRows(slice.rows)[0] ?? createRootShell(slice.rows);
+  return slices.map((rows) => {
+    if (targetId && rows.some(tr => tr.id === targetId)) {
+      return parseCommentThreadRows(rows)[0];
     }
 
-    return createRootShell(slice.rows);
+    const shell = parseCommentRow(rows[0]);
+    shell.descendantCount = rows.length - 1;
+    shell.lazyThread = rows.length > 1 ? { totalCommentCount: rows.length, state: { kind: 'pending', rows } } : null;
+    return shell;
   });
-
-  return {
-    comments,
-    maxDepth,
-    collapsedRows,
-  };
 }
 
-export function parseCommentThreadRows(comtrs: readonly Element[]): CommentNode[] {
-  return annotateCommentDescendants(buildCommentTree(comtrs).comments);
-}
+function parseRootItem(fatitem: Element): ItemDetail {
+  const athing = fatitem.querySelector('tr.athing');
+  const id = athing?.id ?? '';
+  const voteState = parseVoteState(athing, { itemId: id, unvoteScopes: [fatitem] });
 
-export function parseItemPage(doc: Document, options?: ParseItemPageOptions): ParsedItemPage {
-  const fatitem = debugMeasure('item:find-fatitem', () => doc.querySelector('table.fatitem'));
-  if (!fatitem) {
-    throw new Error('Failed to find fatitem table');
-  }
+  if (athing?.classList.contains('submission')) {
+    const titleline = athing.querySelector('.titleline');
+    const primaryLink = titleline?.querySelector('a');
+    const titleStatus = parseStoryTitleStatus(titleline);
+    const subtext = fatitem.querySelectorAll('tr')[1]?.querySelector('.subtext');
+    const authorEl = subtext?.querySelector('a.hnuser');
+    const age = parseAge(subtext?.querySelector('.age'));
 
-  const item = debugMeasure('item:parse-root-item', () => {
-    const athing = fatitem.querySelector('tr.athing');
-    const id = attrOf(athing, 'id') || '';
-    const isStory = athing?.classList.contains('submission');
-
-    const parsedItem: ItemDetail = {
+    return {
       id,
-      type: isStory ? 'story' : 'comment',
-      title: null,
-      url: null,
-      site: null,
-      score: null,
-      author: '',
-      authorIsNew: false,
-      age: '',
-      ageTimestamp: '',
-      ageLink: '',
-      bodyHtml: null,
+      type: 'story',
+      title: titleStatus.cleanText || textOf(primaryLink) || (titleStatus.isDeleted ? '[deleted]' : null),
+      url: hrefOf(primaryLink),
+      site: textOf(titleline?.querySelector('.sitestr')),
+      score: parseScore(textOf(subtext?.querySelector('.score'))),
+      author: textOf(authorEl),
+      authorIsNew: isNewUser(authorEl),
+      age: age.text,
+      ageTimestamp: age.timestamp,
+      ageLink: age.link,
+      bodyHtml: extractRichTextHtml(fatitem.querySelector('.toptext')) || null,
       placeholderKind: null,
       parentLink: null,
       contextLink: null,
       storyTitle: null,
       storyLink: null,
-      voteState: { kind: 'unavailable' },
-      hideAction: { kind: 'unavailable' },
-      pastUrl: null,
-      favoriteAction: { kind: 'unavailable' },
-      flagAction: { kind: 'unavailable' },
-      isDead: false,
-      isFlagged: false,
-      isDeleted: false,
+      voteState,
+      hideAction: parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="hide?"]'))),
+      pastUrl: hrefOf(subtext?.querySelector('a.hnpast')),
+      favoriteAction: parseToggleActionState(hrefOf(subtext?.querySelector(FAVORITE_LINK_SELECTOR))),
+      flagAction: parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="flag?"]'))),
+      isDead: titleStatus.isDead,
+      isFlagged: titleStatus.isFlagged,
+      isDeleted: titleStatus.isDeleted,
     };
+  }
 
-    parsedItem.voteState = parseVoteState(athing, {
-      itemId: id,
-      unvoteScopes: [fatitem],
-    });
+  const comhead = athing?.querySelector('.comhead');
+  const navs = comhead?.querySelector('.navs');
+  const onStory = navs?.querySelector('.onstory a');
+  const authorEl = comhead?.querySelector('a.hnuser');
+  const age = parseAge(comhead?.querySelector('.age'));
+  const body = parseCommentBody(athing?.querySelector('.comment') ?? athing?.querySelector('.commtext'));
 
-    if (isStory) {
-      const titleline = athing?.querySelector('.titleline');
-      const primaryLink = titleline?.querySelector('a');
-      const titleStatus = parseStoryTitleStatus(titleline);
-      parsedItem.title = titleStatus.cleanText || textOf(primaryLink) || (titleStatus.isDeleted ? '[deleted]' : null);
-      parsedItem.url = hrefOf(primaryLink);
-      parsedItem.site = textOf(titleline?.querySelector('.sitestr'));
-      parsedItem.isDead = titleStatus.isDead;
-      parsedItem.isFlagged = titleStatus.isFlagged;
-      parsedItem.isDeleted = titleStatus.isDeleted;
-
-      const subtext = fatitem.querySelectorAll('tr')[1]?.querySelector('.subtext');
-      parsedItem.score = parseScore(textOf(subtext?.querySelector('.score')));
-      const authorEl = subtext?.querySelector('a.hnuser');
-      parsedItem.author = textOf(authorEl);
-      parsedItem.authorIsNew = isNewUser(authorEl);
-
-      const ageInfo = parseAge(subtext?.querySelector('.age'));
-      parsedItem.age = ageInfo.text;
-      parsedItem.ageTimestamp = ageInfo.timestamp;
-      parsedItem.ageLink = ageInfo.link;
-
-      parsedItem.hideAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="hide?"]')));
-      parsedItem.pastUrl = hrefOf(subtext?.querySelector('a.hnpast'));
-      parsedItem.favoriteAction = parseToggleActionState(hrefOf(subtext?.querySelector(FAVORITE_LINK_SELECTOR)));
-      parsedItem.flagAction = parseToggleActionState(hrefOf(subtext?.querySelector('a[href^="flag?"]')));
-
-      const toptext = fatitem.querySelector('.toptext');
-      const bodyHtml = extractRichTextHtml(toptext);
-      if (bodyHtml) {
-        parsedItem.bodyHtml = bodyHtml;
-      }
-
-      return parsedItem;
-    }
-
-    const comhead = athing?.querySelector('.comhead');
-    const authorEl = comhead?.querySelector('a.hnuser');
-    parsedItem.author = textOf(authorEl);
-    parsedItem.authorIsNew = isNewUser(authorEl);
-
-    const ageInfo = parseAge(comhead?.querySelector('.age'));
-    parsedItem.age = ageInfo.text;
-    parsedItem.ageTimestamp = ageInfo.timestamp;
-    parsedItem.ageLink = ageInfo.link;
-
-    const navs = comhead?.querySelector('.navs');
-    parsedItem.parentLink = hrefOf(navs?.querySelector('a[href^="item?id="]'));
-    parsedItem.contextLink = hrefOf(navs?.querySelector('a[href*="context"]'));
-    parsedItem.favoriteAction = parseToggleActionState(hrefOf(navs?.querySelector(FAVORITE_LINK_SELECTOR)));
-    parsedItem.flagAction = parseToggleActionState(
+  return {
+    id,
+    type: 'comment',
+    title: null,
+    url: null,
+    site: null,
+    score: null,
+    author: textOf(authorEl),
+    authorIsNew: isNewUser(authorEl),
+    age: age.text,
+    ageTimestamp: age.timestamp,
+    ageLink: age.link,
+    bodyHtml: body.html || null,
+    placeholderKind: body.placeholderKind,
+    parentLink: hrefOf(navs?.querySelector('a[href^="item?id="]')),
+    contextLink: hrefOf(navs?.querySelector('a[href*="context"]')),
+    storyTitle: textOf(onStory),
+    storyLink: hrefOf(onStory),
+    voteState,
+    hideAction: { kind: 'unavailable' },
+    pastUrl: null,
+    favoriteAction: parseToggleActionState(hrefOf(navs?.querySelector(FAVORITE_LINK_SELECTOR))),
+    flagAction: parseToggleActionState(
       hrefOf(navs?.querySelector('a[href^="flag?"]'))
       || hrefOf(athing?.querySelector('.reply a[href^="flag?"]')),
-    );
-    parsedItem.isDead = comhead?.textContent?.includes('[dead]') || false;
-    parsedItem.isFlagged = comhead?.textContent?.includes('[flagged]') || false;
+    ),
+    isDead: comhead?.textContent?.includes('[dead]') ?? false,
+    isFlagged: (comhead?.textContent?.includes('[flagged]') ?? false) || body.placeholderKind === 'flagged',
+    isDeleted: body.placeholderKind === 'deleted',
+  };
+}
 
-    const onStory = navs?.querySelector('.onstory a');
-    parsedItem.storyTitle = textOf(onStory);
-    parsedItem.storyLink = hrefOf(onStory);
-
-    const commentEl = athing?.querySelector('.comment');
-    const commtext = commentEl?.querySelector('.commtext') ?? athing?.querySelector('.commtext');
-    const commentBody = parseCommentBody(commentEl ?? commtext);
-    const bodyHtml = commentBody.html;
-    if (bodyHtml) {
-      parsedItem.bodyHtml = bodyHtml;
-    }
-    parsedItem.placeholderKind = commentBody.placeholderKind;
-    parsedItem.isDeleted = commentBody.placeholderKind === 'deleted';
-    parsedItem.isFlagged = parsedItem.isFlagged || commentBody.placeholderKind === 'flagged';
-
-    return parsedItem;
-  }, () => ({ itemType: fatitem.querySelector('tr.athing')?.classList.contains('submission') ? 'story' : 'comment' }));
-
-  // Parse reply form
-  const replyForm = debugMeasure('item:parse-reply-form', () => {
-    const formEl = fatitem.querySelector('form[action="comment"]');
-    if (formEl) {
-      return {
-        action: attrOf(formEl, 'action') || 'comment',
-        hmac: attrOf(formEl.querySelector('input[name="hmac"]'), 'value') || '',
-        parentId: attrOf(formEl.querySelector('input[name="parent"]'), 'value') || '',
-        gotoUrl: attrOf(formEl.querySelector('input[name="goto"]'), 'value') || '',
-        submitLabel: attrOf(formEl.querySelector('input[type="submit"]'), 'value') || 'reply',
-      } satisfies ReplyForm;
-    }
-
+function parseReplyForm(fatitem: Element): ReplyForm | null {
+  const formEl = fatitem.querySelector('form[action="comment"]');
+  if (!formEl) {
     return null;
-  });
+  }
 
-  // Parse poll options
-  // Poll options live inside fatitem as tr.athing rows that are NOT .submission and NOT .comtr
-  const pollOptions: PollOption[] = debugMeasure('item:parse-poll', () => {
-    const options: PollOption[] = [];
-    const pollTable = findPollOptionsTable(fatitem);
-    const pollRows = pollTable?.querySelectorAll('tr.athing') ?? [];
+  const inputValue = (selector: string) => attrOf(formEl.querySelector(selector), 'value') || '';
+  return {
+    action: 'comment',
+    hmac: inputValue('input[name="hmac"]'),
+    parentId: inputValue('input[name="parent"]'),
+    gotoUrl: inputValue('input[name="goto"]'),
+    submitLabel: inputValue('input[type="submit"]') || 'reply',
+  };
+}
 
-    for (const row of pollRows) {
-      const id = attrOf(row, 'id') || '';
-      const commentTd = row.querySelector('td.comment');
-      if (!commentTd) {
-        continue;
-      }
+// Poll options are tr.athing rows in a table after the toptext; each score is in the following row.
+function parsePollOptions(fatitem: Element): PollOption[] {
+  const rows = findPollOptionsTable(fatitem)?.querySelectorAll('tr.athing') ?? [];
 
-      const text = commentTd.textContent?.trim() || '';
-      const voteState = parseVoteState(row, {
-        itemId: id,
-        unvoteScopes: [row, row.nextElementSibling],
-      });
+  return Array.from(rows, row => [row, row.querySelector('td.comment')] as const)
+    .filter(([, commentTd]) => commentTd)
+    .map(([row, commentTd]) => ({
+      id: row.id,
+      text: textOf(commentTd),
+      score: parseScore(textOf(row.nextElementSibling?.querySelector('.score'))),
+      voteState: parseVoteState(row, { itemId: row.id, unvoteScopes: [row, row.nextElementSibling] }),
+    }));
+}
 
-      // Score is in the next sibling tr's td.default span.score
-      const nextRow = row.nextElementSibling;
-      const scoreText = textOf(nextRow?.querySelector('.score'));
-      const score = parseScore(scoreText);
+export function parseItemPage(doc: Document, options: ParseItemPageOptions = {}): ParsedItemPage {
+  const fatitem = doc.querySelector('table.fatitem');
+  assert(fatitem, 'Failed to find fatitem table');
 
-      options.push({ id, text, score, voteState });
-    }
-    return options;
-  }, () => ({}));
+  const comtrs = Array.from(doc.querySelector('table.comment-tree')?.querySelectorAll('tr.athing.comtr') ?? []);
+  const comments = comtrs.length > (options.extremeThreadCommentThreshold ?? EXTREME_THREAD_COMMENT_THRESHOLD)
+    ? buildDeferredCommentTree(comtrs, options.initialHashTargetId)
+    : parseCommentThreadRows(comtrs);
 
-  // Parse comment tree
-  const comtrs = debugMeasure('item:collect-comment-rows', () => {
-    const commentTreeEl = doc.querySelector('table.comment-tree');
-    return commentTreeEl ? Array.from(commentTreeEl.querySelectorAll('tr.athing.comtr')) : [];
-  }, () => ({ rowCount: doc.querySelectorAll('table.comment-tree tr.athing.comtr').length }));
-
-  let comments: CommentNode[] = [];
-  let maxDepth = 0;
-  let collapsedRows = 0;
-  const extremeThreadCommentThreshold = options?.extremeThreadCommentThreshold ?? EXTREME_THREAD_COMMENT_THRESHOLD;
-
-  debugMeasure('item:build-comment-tree', () => {
-    const result = comtrs.length > extremeThreadCommentThreshold
-      ? buildExtremeCommentTree(comtrs, options?.initialHashTargetId)
-      : buildCommentTree(comtrs);
-
-    comments = result.comments;
-    maxDepth = result.maxDepth;
-    collapsedRows = result.collapsedRows;
-  }, () => ({ rowCount: comtrs.length, maxDepth, collapsedRows }));
-
-  debugMeasure('item:annotate-descendants', () => {
-    annotateCommentDescendants(comments.filter(comment => !comment.lazyThread));
-  }, () => ({ rootCount: comments.length }));
-
-  debugLog('item:summary', {
-    itemType: item.type,
-    commentCount: comtrs.length,
-    rootCount: comments.length,
-    maxDepth,
-    collapsedRows,
-  });
-
-  return { item, pollOptions, comments, replyForm };
+  return {
+    item: parseRootItem(fatitem),
+    pollOptions: parsePollOptions(fatitem),
+    comments,
+    replyForm: parseReplyForm(fatitem),
+  };
 }

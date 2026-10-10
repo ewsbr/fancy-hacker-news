@@ -7,15 +7,15 @@ import {
 } from '@/content/utils/empty-states';
 
 function makeRoute(page: PageName, params: RouteDescriptor['params'] = {}): RouteDescriptor {
-  return { page, params } as RouteDescriptor;
+  return { page, params };
 }
 
 describe('empty state messaging', () => {
   it('uses route-specific story list messages for user lists', () => {
-    expect(getStoryListEmptyMessage(makeRoute('favorites', { id: 'ewsbr' }))).toBe('No favorite stories yet.');
-    expect(getStoryListEmptyMessage(makeRoute('upvoted', { id: 'ewsbr' }))).toBe('No upvoted stories yet.');
-    expect(getStoryListEmptyMessage(makeRoute('submitted', { id: 'ewsbr' }))).toBe('No submitted stories yet.');
-    expect(getStoryListEmptyMessage(makeRoute('hidden', { id: 'ewsbr' }))).toBe('No hidden stories.');
+    expect(getStoryListEmptyMessage(makeRoute('favorites'))).toBe('No favorite stories yet.');
+    expect(getStoryListEmptyMessage(makeRoute('upvoted'))).toBe('No upvoted stories yet.');
+    expect(getStoryListEmptyMessage(makeRoute('submitted'))).toBe('No submitted stories yet.');
+    expect(getStoryListEmptyMessage(makeRoute('hidden'))).toBe('No hidden stories.');
   });
 
   it('uses route-specific story list messages for special feeds', () => {
@@ -25,8 +25,8 @@ describe('empty state messaging', () => {
   });
 
   it('uses route-specific comment list messages', () => {
-    expect(getCommentListEmptyMessage(makeRoute('favorites', { id: 'ewsbr', comments: 't' }))).toBe('No favorite comments yet.');
-    expect(getCommentListEmptyMessage(makeRoute('upvoted', { id: 'ewsbr', comments: 't' }))).toBe('No upvoted comments yet.');
+    expect(getCommentListEmptyMessage(makeRoute('favorites', { comments: 't' }))).toBe('No favorite comments yet.');
+    expect(getCommentListEmptyMessage(makeRoute('upvoted', { comments: 't' }))).toBe('No upvoted comments yet.');
     expect(getCommentListEmptyMessage(makeRoute('newcomments'))).toBe('No comments found.');
   });
 

@@ -1,36 +1,24 @@
-export interface ThreadTreeNode<T> {
+interface CommentTreeNode<T> {
   indent: number;
-  isCollapsed: boolean;
-  children: T[];
-}
-
-export interface DescendantAnnotatedNode<T> {
   descendantCount: number;
   children: T[];
 }
 
-export interface CommentTreeMetrics<T> {
-  comments: T[];
-  maxDepth: number;
-  collapsedRows: number;
+function countDescendants<T extends CommentTreeNode<T>>(node: T): number {
+  node.descendantCount = node.children.reduce((total, child) => total + 1 + countDescendants(child), 0);
+  return node.descendantCount;
 }
 
-export function buildIndentedCommentTree<T extends ThreadTreeNode<T>>(
-  rows: readonly Element[],
+/** Nest flat HN rows by indent and annotate each node's descendant count. */
+export function buildCommentTree<T extends CommentTreeNode<T>>(
+  rows: Iterable<Element>,
   parseRow: (row: Element) => T,
-): CommentTreeMetrics<T> {
-  const comments: T[] = [];
-  const stack: { depth: number; children: T[] }[] = [{ depth: -1, children: comments }];
-  let maxDepth = 0;
-  let collapsedRows = 0;
+): T[] {
+  const roots: T[] = [];
+  const stack: { depth: number; children: T[] }[] = [{ depth: -1, children: roots }];
 
   for (const row of rows) {
     const node = parseRow(row);
-    maxDepth = Math.max(maxDepth, node.indent);
-    if (node.isCollapsed) {
-      collapsedRows += 1;
-    }
-
     while (stack.length > 1 && stack[stack.length - 1].depth >= node.indent) {
       stack.pop();
     }
@@ -39,28 +27,6 @@ export function buildIndentedCommentTree<T extends ThreadTreeNode<T>>(
     stack.push({ depth: node.indent, children: node.children });
   }
 
-  return {
-    comments,
-    maxDepth,
-    collapsedRows,
-  };
-}
-
-function countDescendants<T extends DescendantAnnotatedNode<T>>(node: T): number {
-  let total = 0;
-
-  for (const child of node.children) {
-    total += 1 + countDescendants(child);
-  }
-
-  node.descendantCount = total;
-  return total;
-}
-
-export function annotateDescendantCounts<T extends DescendantAnnotatedNode<T>>(nodes: T[]): T[] {
-  for (const node of nodes) {
-    countDescendants(node);
-  }
-
-  return nodes;
+  roots.forEach(countDescendants);
+  return roots;
 }

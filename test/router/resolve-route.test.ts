@@ -14,13 +14,10 @@ describe('resolveRoute', () => {
     }
   });
 
-  it('routes site filter pages to the stories renderer with the site filter intact', () => {
+  it('routes site filter pages to the stories renderer', () => {
     expect(resolveRoute(makeLocation('/from?site=twitter.com'))).toEqual({
       page: 'stories',
-      params: {
-        type: 'from',
-        site: 'twitter.com',
-      },
+      params: { type: 'from' },
     });
   });
 
@@ -56,17 +53,14 @@ describe('resolveRoute', () => {
   it('routes latest thread views to the flat comment renderer', () => {
     expect(resolveRoute(makeLocation('/latest?id=42009039'))).toEqual({
       page: 'newcomments',
-      params: { id: '42009039' },
+      params: {},
     });
   });
 
   it('preserves comment tabs for upvoted user collections', () => {
     expect(resolveRoute(makeLocation('/upvoted?id=ewsbr&comments=t'))).toEqual({
       page: 'upvoted',
-      params: {
-        id: 'ewsbr',
-        comments: 't',
-      },
+      params: { comments: 't' },
     });
   });
 

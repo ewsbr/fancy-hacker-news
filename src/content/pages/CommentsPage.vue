@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FragmentLoadingTask } from '@/content/composables/comment-fragment-loading';
-import type { CommentNode as ParsedCommentNode, ParsedItemPage } from '@/parsers/item';
-import type { CommentFragmentState } from '@/state/fragment-state';
+import type { ParsedItemPage } from '@/parsers/item';
 import { useEventListener } from '@vueuse/core';
 import { computed, inject, nextTick, onMounted, provide, ref, shallowRef, useTemplateRef } from 'vue';
 import CommentActions from '@/content/components/comments/CommentActions.vue';
@@ -25,117 +24,61 @@ import {
   COMMENT_THREAD_STORY_AUTHOR_KEY,
   getOriginalPosterTitle,
 } from '@/content/utils/comment-badges';
+import { getExtensionRootHost } from '@/content/utils/root-host';
 import { waitForAnimationFrame, waitForLayoutToSettle } from '@/content/utils/wait';
-import { createLogger, debugLog } from '@/debug';
+import { createLogger } from '@/debug';
 import { getToggleActionHref } from '@/parsers/shared/actions';
 import { COMMENT_FRAGMENT_STATE_KEY } from '@/state/fragment-state';
+import { findCommentPath } from '@/state/item-page-state';
 
 const commentsLogger = createLogger('comments');
 
-const pageData = inject<ParsedItemPage>('pageData');
+const pageData = inject<ParsedItemPage>('pageData')!;
 const commentTreeRef = useTemplateRef('commentTree');
 const fragmentLoading = provideCommentFragmentLoading();
 const currentUser = useCurrentUser();
-const commentItemDomId = computed(() => {
-  if (!pageData || pageData.item.type !== 'comment') {
+const isCommentItem = pageData.item.type === 'comment';
+
+const latestUrl = `latest?id=${encodeURIComponent(pageData.item.id)}`;
+const itemFavoriteHref = computed(() => getToggleActionHref(pageData.item.favoriteAction));
+const itemFlagHref = computed(() => getToggleActionHref(pageData.item.flagAction));
+const loginUrl = currentUser.loginUrl ?? 'login';
+const commentItemOriginalPosterTitle = isCommentItem
+  ? getOriginalPosterTitle({ author: pageData.item.author, threadAuthor: pageData.item.author })
+  : null;
+const totalCommentCount = pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
+
+function getStoryReplyState(): 'dead' | 'login' | 'unavailable' | null {
+  if (pageData.item.type !== 'story' || pageData.replyForm) {
     return null;
   }
-
-  return pageData.item.id;
-});
-
-const latestUrl = computed(() => pageData ? `latest?id=${encodeURIComponent(pageData.item.id)}` : null);
-const itemFavoriteHref = computed(() => pageData ? getToggleActionHref(pageData.item.favoriteAction) : null);
-const itemFlagHref = computed(() => pageData ? getToggleActionHref(pageData.item.flagAction) : null);
-const loginUrl = computed(() => currentUser.loginUrl ?? 'login');
-const commentItemOriginalPosterTitle = computed(() => {
-  if (!pageData || pageData.item.type !== 'comment') {
-    return null;
-  }
-
-  return getOriginalPosterTitle({
-    author: pageData.item.author,
-    threadAuthor: pageData.item.author,
-  });
-});
-
-const totalCommentCount = computed(() => {
-  if (!pageData) {
-    return 0;
-  }
-  return pageData.comments.reduce((sum, c) => sum + 1 + c.descendantCount, 0);
-});
-
-const storyReplyState = computed<'dead' | 'login' | 'unavailable' | null>(() => {
-  if (!pageData || pageData.item.type !== 'story' || pageData.replyForm) {
-    return null;
-  }
-
   if (pageData.item.isDead) {
     return 'dead';
   }
-
-  if (!currentUser.isLoggedIn) {
-    return 'login';
-  }
-
-  return 'unavailable';
-});
+  return currentUser.isLoggedIn ? 'unavailable' : 'login';
+}
+const storyReplyState = getStoryReplyState();
 
 const hashPathIds = shallowRef(new Set<string>());
 const hashTargetId = ref<string | null>(null);
 const mainThreadHashTargetId = ref<string | null>(null);
 const hashNavigationVersion = ref(0);
 
-const fragmentState: CommentFragmentState = {
-  hashPathIds,
-  hashTargetId,
-  mainThreadHashTargetId,
-  hashNavigationVersion,
-};
+provide(COMMENT_FRAGMENT_STATE_KEY, { hashPathIds, hashTargetId, mainThreadHashTargetId, hashNavigationVersion });
+provide(COMMENT_THREAD_STORY_AUTHOR_KEY, pageData.item.type === 'story' ? pageData.item.author : null);
+provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, isCommentItem ? pageData.item.author : null);
 
-provide(COMMENT_FRAGMENT_STATE_KEY, fragmentState);
-provide(COMMENT_THREAD_STORY_AUTHOR_KEY, pageData?.item.type === 'story' ? pageData.item.author : null);
-provide(COMMENT_THREAD_ROOT_AUTHOR_KEY, pageData?.item.type === 'comment' ? pageData.item.author : null);
-
-function getModernRoot(): HTMLElement | null {
-  return document.getElementById('fancy-hn-root');
-}
-
-function findRenderedHashTarget(targetId: string, excludeModal = false): HTMLElement | null {
-  const selector = `#${CSS.escape(targetId)}`;
-
-  const matches = getModernRoot()?.querySelectorAll<HTMLElement>(selector) ?? [];
-  for (const match of matches) {
-    if (excludeModal && match.closest('.sub-thread-modal')) {
-      continue;
-    }
-
-    return match;
-  }
-
-  return null;
-}
-
-function getMainPageScrollAnchor(target: HTMLElement): HTMLElement {
-  return target.querySelector<HTMLElement>('.comment-node__header')
-    ?? target.querySelector<HTMLElement>('.comments-page__comment-meta')
-    ?? target;
-}
-
-interface HashTargetMatch {
-  element: HTMLElement;
-  targetId: string;
+function findRenderedHashTarget(targetId: string, excludeModal: boolean): HTMLElement | null {
+  const matches = getExtensionRootHost()?.querySelectorAll<HTMLElement>(`#${CSS.escape(targetId)}`) ?? [];
+  return Array.from(matches).find(match => !excludeModal || !match.closest('.sub-thread-modal')) ?? null;
 }
 
 async function waitForRenderedHashTarget(
   targetIds: string[],
   isCurrent: () => boolean,
-  attempts = 36,
   excludeModal = false,
-): Promise<HashTargetMatch | null> {
-  for (let attempt = 0; attempt < attempts; attempt += 1) {
-    if (!isCurrent()) return null;
+): Promise<{ element: HTMLElement; targetId: string } | null> {
+  for (let attempt = 0; attempt < 36 && isCurrent(); attempt += 1) {
     for (const targetId of targetIds) {
       const element = findRenderedHashTarget(targetId, excludeModal);
       if (element) {
@@ -149,43 +92,13 @@ async function waitForRenderedHashTarget(
   return null;
 }
 
-function getMainThreadHashTargetCandidates(targetId: string, path: string[] | null): string[] {
-  const candidates = [targetId, ...(path ? [...path].reverse() : [])];
-
-  return [...new Set(candidates)];
-}
-
 function scrollMainPageTarget(target: HTMLElement) {
-  const scrollAnchor = getMainPageScrollAnchor(target);
+  const scrollAnchor = target.querySelector<HTMLElement>('.comment-node__header')
+    ?? target.querySelector<HTMLElement>('.comments-page__comment-meta')
+    ?? target;
   scrollAnchor.style.scrollMarginTop = '0px';
   // Do not inherit the root's smooth scrolling: readiness requires a settled target.
   scrollAnchor.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
-}
-
-function logFragmentWarning(
-  reason: string,
-  details: Record<string, unknown>,
-) {
-  commentsLogger.warn(`Fragment scroll warning: ${reason}`, details);
-  debugLog(`fragment:${reason}`, details);
-}
-
-function findCommentPath(
-  nodes: ParsedCommentNode[],
-  targetId: string,
-): string[] | null {
-  for (const node of nodes) {
-    if (node.id === targetId) {
-      return [node.id];
-    }
-
-    const childPath = findCommentPath(node.children, targetId);
-    if (childPath) {
-      return [node.id, ...childPath];
-    }
-  }
-
-  return null;
 }
 
 async function syncHashPath() {
@@ -195,29 +108,27 @@ async function syncHashPath() {
   hashTargetId.value = targetId;
   mainThreadHashTargetId.value = targetId;
 
-  if (!pageData || !targetId) {
+  if (!targetId) {
     hashPathIds.value = new Set();
-    mainThreadHashTargetId.value = null;
     navigation.finish();
     return;
   }
 
   try {
-    await positionHashTarget(pageData, targetId, navigation);
+    await positionHashTarget(targetId, navigation);
   } catch (error) {
-    if (!(error instanceof Error)) throw error;
-    commentsLogger.error('Failed to open linked comment', { targetId, error: error.message });
+    commentsLogger.error('Failed to open linked comment', { targetId }, error);
   } finally {
     navigation.finish();
   }
 }
 
-async function positionHashTarget(page: ParsedItemPage, targetId: string, navigation: FragmentLoadingTask) {
+async function positionHashTarget(targetId: string, navigation: FragmentLoadingTask) {
   const { isCurrent } = navigation;
-  const path = findCommentPath(page.comments, targetId);
-  const nextHashPathIds = new Set(path ?? []);
+  const path = findCommentPath(pageData.comments, targetId)?.map(node => node.id) ?? null;
+  const nextHashPathIds = new Set(path);
 
-  if (page.item.type === 'comment' && page.item.id === targetId) {
+  if (isCommentItem && pageData.item.id === targetId) {
     nextHashPathIds.add(targetId);
   }
 
@@ -232,12 +143,8 @@ async function positionHashTarget(page: ParsedItemPage, targetId: string, naviga
   }
 
   const target = await waitForRenderedHashTarget([targetId], isCurrent);
-  const mainThreadTarget = await waitForRenderedHashTarget(
-    getMainThreadHashTargetCandidates(targetId, path),
-    isCurrent,
-    36,
-    true,
-  );
+  // The deepest rendered ancestor stands in for targets that live in a modal.
+  const mainThreadTarget = await waitForRenderedHashTarget(path ? [...path].reverse() : [targetId], isCurrent, true);
 
   if (!isCurrent()) {
     return;
@@ -255,24 +162,12 @@ async function positionHashTarget(page: ParsedItemPage, targetId: string, naviga
     return;
   }
 
-  if (!target) {
-    logFragmentWarning('target-not-found', {
-      targetId,
-      pathLength: path?.length ?? 0,
-      readyState: document.readyState,
-      isMobile: window.matchMedia('(max-width: 640px)').matches,
-      domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
-      scrollY: Math.round(window.scrollY),
-    });
-    return;
-  }
-
-  logFragmentWarning('main-thread-target-not-found', {
+  commentsLogger.warn(`Fragment scroll warning: ${target ? 'main-thread-target-not-found' : 'target-not-found'}`, {
     targetId,
     pathLength: path?.length ?? 0,
     readyState: document.readyState,
     isMobile: window.matchMedia('(max-width: 640px)').matches,
-    domCommentCount: getModernRoot()?.querySelectorAll('.comment-node').length ?? 0,
+    domCommentCount: getExtensionRootHost()?.querySelectorAll('.comment-node').length ?? 0,
     scrollY: Math.round(window.scrollY),
   });
 }
@@ -287,7 +182,7 @@ useEventListener(window, 'hashchange', () => {
 </script>
 
 <template>
-  <div v-if="pageData" class="comments-page">
+  <div class="comments-page">
     <div class="comments-page__container hn-content-card">
       <template v-if="pageData.item.type === 'story'">
         <StoryDetail :item="pageData.item" />
@@ -295,7 +190,7 @@ useEventListener(window, 'hashchange', () => {
       </template>
 
       <template v-else-if="pageData.item.type === 'comment'">
-        <div :id="commentItemDomId || undefined" class="comments-page__comment-parent">
+        <div :id="pageData.item.id" class="comments-page__comment-parent">
           <!-- Thread context header -->
           <OnStoryHeader v-if="pageData.item.storyTitle" :block="true" label="thread" :href="pageData.item.storyLink || ''" :title="pageData.item.storyTitle" />
 
@@ -323,16 +218,14 @@ useEventListener(window, 'hashchange', () => {
                       :favorite-target="pageData.item"
                       class="comments-page__comment-action"
                     />
-                    <MetaSep v-if="itemFlagHref || latestUrl" />
+                    <MetaSep />
                   </template>
                   <template v-if="itemFlagHref">
                     <FlagButton :href="itemFlagHref" :flag-target="pageData.item" />
-                    <MetaSep v-if="latestUrl" />
-                  </template>
-                  <template v-if="latestUrl">
-                    <a :href="latestUrl" class="comments-page__comment-action">latest</a>
                     <MetaSep />
                   </template>
+                  <a :href="latestUrl" class="comments-page__comment-action">latest</a>
+                  <MetaSep />
                   <FragmentLinkButton :target-id="pageData.item.id" />
                 </div>
               </div>

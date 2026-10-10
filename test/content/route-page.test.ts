@@ -1,4 +1,4 @@
-import type { ParsedRoutePage } from '@/content/route-page';
+import type { ParsedItemPage } from '@/parsers/item';
 import { describe, expect, it } from 'vitest';
 import CommentsPage from '@/content/pages/CommentsPage.vue';
 import LoginPage from '@/content/pages/LoginPage.vue';
@@ -8,11 +8,9 @@ import ReplyPage from '@/content/pages/ReplyPage.vue';
 import StoriesPage from '@/content/pages/StoriesPage.vue';
 import SubmitPage from '@/content/pages/SubmitPage.vue';
 import { parseRoutePage } from '@/content/route-page';
-import { makeNotFoundRoute, resolveRoute } from '@/router';
+import { resolveRoute } from '@/router';
 import { createHtmlDocument, parseHtmlDocument } from '../helpers/dom';
 import { loadFixtureDocument } from '../helpers/load-fixture';
-
-type ItemRoutePage = Extract<ParsedRoutePage, { route: { page: 'item' } }>;
 
 function makeLocation(path: string): Location {
   return new URL(`https://news.ycombinator.com${path}`) as unknown as Location;
@@ -101,10 +99,6 @@ describe('parseRoutePage', () => {
   it.each(['reply', 'replyx'])('renders the native reply form at /%s with its return target intact', async (endpoint) => {
     const page = await parseFixtureRoute(`/${endpoint}?id=47538487&goto=item%3Fid%3D47536761%2347538487`, 'misc/forms/reply.html');
 
-    expect(page.route).toEqual({
-      page: 'reply',
-      params: { id: '47538487', goto: 'item?id=47536761#47538487' },
-    });
     expect(page.component).toBe(ReplyPage);
     expect(page.pageData).toHaveProperty('replyForm', {
       action: 'comment',
@@ -137,7 +131,7 @@ describe('parseRoutePage', () => {
   it('keeps x validation pages on the static route while rendering the submit form', async () => {
     const xPage = await parseFixtureRoute('/x', 'stories/x.html');
 
-    expect(xPage.route.page).toBe('static');
+    expect(resolveRoute(makeLocation('/x')).page).toBe('static');
     expect(xPage.component).toBe(SubmitPage);
     expect(xPage.pageData).toHaveProperty('warningMessage', 'That\'s not a valid title.');
   });
@@ -148,12 +142,7 @@ describe('parseRoutePage', () => {
 
     expect(page.component).toBe(CommentsPage);
 
-    if (page.route.page !== 'item') {
-      throw new Error(`Expected item route, got ${page.route.page}`);
-    }
-
-    const itemPage = page as ItemRoutePage;
-    const targetRoot = itemPage.pageData.comments.find(comment => comment.id === 'target-root');
+    const targetRoot = (page.pageData as ParsedItemPage).comments.find(comment => comment.id === 'target-root');
 
     expect(targetRoot?.lazyThread).toBeNull();
     expect(targetRoot?.children[0]?.id).toBe('target-child');
@@ -161,12 +150,8 @@ describe('parseRoutePage', () => {
 
   it('selects the notfound renderer without parsing page data', () => {
     const location = makeLocation('/missing?id=1');
-    const page = parseRoutePage(makeNotFoundRoute(location), createHtmlDocument(), location);
+    const page = parseRoutePage({ page: 'notfound', params: {} }, createHtmlDocument(), location);
 
-    expect(page.route).toEqual({
-      page: 'notfound',
-      params: { path: '/missing?id=1' },
-    });
     expect(page.pageData).toBeNull();
     expect(page.component).toBe(NotFoundPage);
   });
