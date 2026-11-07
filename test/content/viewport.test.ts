@@ -16,6 +16,15 @@ describe('viewport helpers', () => {
     expect(doc.head.querySelectorAll('meta[name="viewport"]')).toHaveLength(1);
   });
 
+  it('creates the head when it does not exist yet', () => {
+    const doc = parseHtmlDocument('<!doctype html><html></html>');
+    doc.head.remove();
+
+    const viewport = ensureResponsiveViewport(doc);
+
+    expect(doc.head.firstElementChild).toBe(viewport);
+  });
+
   it('preserves an existing viewport meta tag', () => {
     const doc = parseHtmlDocument(`
       <!doctype html>
