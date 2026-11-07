@@ -6,11 +6,11 @@
 
 <p><strong>A fancy Hacker News UI with themes and quality-of-life improvements.</strong></p>
 
+A Chrome and Firefox extension that parses and re-renders Hacker News pages with Vue 3. Compatible with Firefox for Android.
+
+There's no SPA routing and no backend. Links, forms and actions still go straight to HN.
+
 </div>
-
-A Chrome and Firefox extension that fully parses and re-renders Hacker News pages with Vue 3.
-
-No SPA routing. All behaviors are kept native: actions go directly to HN.
 
 ![Redesigned frontpage](./images/image.png)
 
