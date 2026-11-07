@@ -5,6 +5,7 @@
   "description": "A fancy redesign of Hacker News with theme support.",
 
   "permissions": ["storage"],
+  "host_permissions": ["https://news.ycombinator.com/*"],
 
   "background": {
     "scripts": ["dist/background/background.js"],

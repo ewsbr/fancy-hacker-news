@@ -3,3 +3,5 @@
 export const VOTE_LINK_SELECTOR = 'a:is([href^="vote?"], [href^="votex?"])';
 export const FAVORITE_LINK_SELECTOR = 'a:is([href^="fave?"], [href^="favex?"])';
 export const REPLY_LINK_SELECTOR = 'a:is([href^="reply?"], [href^="replyx?"])';
+
+export const HN_ORIGIN = 'https://news.ycombinator.com';

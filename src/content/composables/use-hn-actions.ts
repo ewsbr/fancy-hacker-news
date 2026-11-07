@@ -1,6 +1,10 @@
 import type { ToggleActionState, VoteState } from '@/parsers/shared/actions';
+import type { RequestHnActionResponse } from '@/utils/extension-messages';
+import type { HnActionResult } from '@/utils/hn-action-request';
 import { ref } from 'vue';
 import { getToggleActionHref, getVoteActionHref } from '@/parsers/shared/actions';
+import { makeRequestHnActionMessage } from '@/utils/extension-messages';
+import { requestHnAction } from '@/utils/hn-action-request';
 
 export type VoteSubmitDirection = 'up' | 'down' | 'un';
 
@@ -41,23 +45,41 @@ function toggleActionState(action: ToggleActionState): ToggleActionState {
   return { kind: action.kind === 'available' ? 'active' : 'available', href: toRelativeHref(url) };
 }
 
-async function sendActionRequest(url: URL): Promise<boolean> {
-  try {
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      credentials: 'include',
-      cache: 'no-store',
-      redirect: 'manual',
-    });
+function requestHnActionInBackground(url: string): Promise<HnActionResult> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(makeRequestHnActionMessage(url), (response?: RequestHnActionResponse) => {
+      if (chrome.runtime.lastError || !response?.ok) {
+        console.warn('Fancy HN background action failed', chrome.runtime.lastError?.message ?? response);
+        resolve('rejected');
+        return;
+      }
 
-    // HN answers successful actions with a redirect, or with /ok for js=t votes.
-    return response.type === 'opaqueredirect'
-      || (response.status >= 300 && response.status < 400)
-      || (response.ok && new URL(response.url).pathname === '/ok');
+      resolve(response.result);
+    });
+  });
+}
+
+async function sendActionRequest(requestUrl: URL, nativeUrl: URL): Promise<boolean> {
+  try {
+    if (await requestHnAction(requestUrl.toString()) === 'accepted') {
+      return true;
+    }
   } catch (error) {
     console.error('Fancy HN action failed', error);
     return false;
   }
+
+  // After Back, Firefox for Android restores HN from cache but sends its requests without the session cookie. HN then
+  // answers every action with its login page. Observed on 2026-11-07 with and without the extension. A refresh fixes
+  // it. Whether background requests carry the cookie is unverified, so a native navigation is the last resort.
+  if (await requestHnActionInBackground(requestUrl.toString()) === 'accepted') {
+    return true;
+  }
+
+  if (nativeUrl.searchParams.has('goto')) {
+    window.location.assign(nativeUrl.toString());
+  }
+  return false;
 }
 
 export function useHnActions() {
@@ -70,9 +92,10 @@ export function useHnActions() {
 
     isBusy.value = true;
     try {
-      const url = new URL(href, window.location.href);
-      configure?.(url);
-      const succeeded = await sendActionRequest(url);
+      const nativeUrl = new URL(href, window.location.href);
+      const requestUrl = new URL(nativeUrl);
+      configure?.(requestUrl);
+      const succeeded = await sendActionRequest(requestUrl, nativeUrl);
       if (succeeded) {
         onSuccess();
       }

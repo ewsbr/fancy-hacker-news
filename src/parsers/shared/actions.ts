@@ -1,7 +1,5 @@
-import { VOTE_LINK_SELECTOR } from '@/constants/hn-actions';
+import { HN_ORIGIN, VOTE_LINK_SELECTOR } from '@/constants/hn-actions';
 import { hrefOf, textOf } from './dom';
-
-const HN_ORIGIN = 'https://news.ycombinator.com';
 
 export type VoteDirection = 'up' | 'down' | 'unknown';
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useHnActions } from '@/content/composables/use-hn-actions';
+import { makeRequestHnActionMessage } from '@/utils/extension-messages';
 import { loadFixtureHtml } from '../helpers/load-fixture';
 
 describe('useHnActions', () => {
@@ -90,52 +91,74 @@ describe('useHnActions', () => {
     });
   });
 
-  it('fails closed without navigating when a js vote returns the logged-out form', async () => {
+  function stubBackgroundResponse(response: unknown) {
+    const sendMessage = vi.fn((_message: unknown, callback: (response: unknown) => void) => {
+      callback(response);
+    });
+    vi.stubGlobal('chrome', { runtime: { sendMessage } });
+    return sendMessage;
+  }
+
+  async function mockLoggedOutVoteResponse() {
     const loggedOutVoteHtml = await loadFixtureHtml('misc/auth/vote-nologin.html');
     fetchMock.mockResolvedValueOnce({
       ok: true,
+      status: 200,
+      type: 'basic',
       url: 'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
       text: vi.fn().mockResolvedValue(loggedOutVoteHtml),
     });
-    const { submitVote } = useHnActions();
-    const target = {
+  }
+
+  function makeLoggedOutVoteTarget() {
+    return {
       voteState: {
         kind: 'available' as const,
         upHref: 'vote?id=47558997&how=up&goto=news',
         downHref: null,
       },
     };
+  }
+
+  it('retries a vote HN rejected through the background script', async () => {
+    await mockLoggedOutVoteResponse();
+    const sendMessage = stubBackgroundResponse({ ok: true, result: 'accepted' });
+    const { submitVote } = useHnActions();
+    const target = makeLoggedOutVoteTarget();
+
+    await expect(submitVote(target, 'up')).resolves.toBe(true);
+
+    expect(sendMessage).toHaveBeenCalledWith(
+      makeRequestHnActionMessage('https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t'),
+      expect.any(Function),
+    );
+    expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(target.voteState.kind).toBe('active');
+  });
+
+  it('navigates to the native vote URL when the background request is rejected too', async () => {
+    await mockLoggedOutVoteResponse();
+    stubBackgroundResponse({ ok: true, result: 'rejected' });
+    const { submitVote } = useHnActions();
+    const target = makeLoggedOutVoteTarget();
 
     await expect(submitVote(target, 'up')).resolves.toBe(false);
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      'https://news.ycombinator.com/vote?id=47558997&how=up&goto=news&js=t',
-      expect.any(Object),
-    );
-    expect(locationAssignMock).not.toHaveBeenCalled();
+    expect(locationAssignMock).toHaveBeenCalledWith('https://news.ycombinator.com/vote?id=47558997&how=up&goto=news');
     expect(target.voteState.kind).toBe('available');
   });
 
-  it('fails closed for vote responses that do not resolve to HN ok', async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      type: 'basic',
-      url: 'https://news.ycombinator.com/vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123&js=t',
-    });
+  it('neither retries nor navigates when the request does not reach HN', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    fetchMock.mockRejectedValueOnce(new TypeError('NetworkError when attempting to fetch resource.'));
+    const sendMessage = stubBackgroundResponse({ ok: true, result: 'accepted' });
     const { submitVote } = useHnActions();
-    const target = {
-      voteState: {
-        kind: 'available' as const,
-        upHref: 'vote?id=10&how=up&auth=bad&goto=item%3Fid%3D123',
-        downHref: null,
-      },
-    };
+    const target = makeLoggedOutVoteTarget();
 
     await expect(submitVote(target, 'up')).resolves.toBe(false);
 
+    expect(sendMessage).not.toHaveBeenCalled();
     expect(locationAssignMock).not.toHaveBeenCalled();
-    expect(target.voteState.kind).toBe('available');
   });
 
   it('clears the stored unvote link after unvoting', async () => {
