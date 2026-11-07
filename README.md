@@ -4,7 +4,7 @@
 
 <h1>Fancy Hacker News</h1>
 
-<p><strong>A fancy redesign of Hacker News with theme support.</strong></p>
+<p><strong>A fancy Hacker News UI with themes and quality-of-life improvements.</strong></p>
 
 </div>
 

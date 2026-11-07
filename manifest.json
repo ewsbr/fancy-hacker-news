@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Fancy Hacker News",
   "version": "1.7.0",
-  "description": "A fancy redesign of Hacker News with theme support.",
+  "description": "A fancy Hacker News UI with themes and quality-of-life improvements.",
 
   "permissions": ["storage"],
   "host_permissions": ["https://news.ycombinator.com/*"],
