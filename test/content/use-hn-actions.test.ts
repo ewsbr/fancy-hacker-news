@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useHnActions } from '@/content/composables/use-hn-actions';
 import { makeRequestHnActionMessage } from '@/utils/extension-messages';
 import { loadFixtureHtml } from '../helpers/load-fixture';
 
@@ -7,7 +6,11 @@ describe('useHnActions', () => {
   let fetchMock: ReturnType<typeof vi.fn>;
   let locationAssignMock: ReturnType<typeof vi.fn>;
 
-  beforeEach(() => {
+  let useHnActions: typeof import('@/content/composables/use-hn-actions').useHnActions;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    ({ useHnActions } = await import('@/content/composables/use-hn-actions'));
     locationAssignMock = vi.fn();
     vi.stubGlobal('window', {
       location: {
@@ -146,6 +149,19 @@ describe('useHnActions', () => {
 
     expect(locationAssignMock).toHaveBeenCalledWith('https://news.ycombinator.com/vote?id=47558997&how=up&goto=news');
     expect(target.voteState.kind).toBe('available');
+  });
+
+  it('sends later actions from a page HN rejected straight to the background script', async () => {
+    await mockLoggedOutVoteResponse();
+    const sendMessage = stubBackgroundResponse({ ok: true, result: 'accepted' });
+    const { submitVote } = useHnActions();
+    await submitVote(makeLoggedOutVoteTarget(), 'up');
+
+    fetchMock.mockClear();
+    await expect(submitVote(makeLoggedOutVoteTarget(), 'up')).resolves.toBe(true);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(sendMessage).toHaveBeenCalledTimes(2);
   });
 
   it('neither retries nor navigates when the request does not reach HN', async () => {

@@ -59,19 +59,24 @@ function requestHnActionInBackground(url: string): Promise<HnActionResult> {
   });
 }
 
+let isPageSessionDropped = false;
+
 async function sendActionRequest(requestUrl: URL, nativeUrl: URL): Promise<boolean> {
-  try {
-    if (await requestHnAction(requestUrl.toString()) === 'accepted') {
-      return true;
+  if (!isPageSessionDropped) {
+    try {
+      if (await requestHnAction(requestUrl.toString()) === 'accepted') {
+        return true;
+      }
+    } catch (error) {
+      console.error('Fancy HN action failed', error);
+      return false;
     }
-  } catch (error) {
-    console.error('Fancy HN action failed', error);
-    return false;
   }
 
-  // After Back, Firefox for Android restores HN from cache but sends its requests without the session cookie. HN then
-  // answers every action with its login page. Observed on 2026-11-07 with and without the extension. A refresh fixes
-  // it. Whether background requests carry the cookie is unverified, so a native navigation is the last resort.
+  // After Back, Firefox for Android restores HN from cache but sends the page's requests without the session cookie
+  // until it reloads. HN then answers every action with its login page. The background script's requests still carry
+  // the cookie. Both were observed in Firefox for Android in November 2026, with and without the extension.
+  isPageSessionDropped = true;
   if (await requestHnActionInBackground(requestUrl.toString()) === 'accepted') {
     return true;
   }
