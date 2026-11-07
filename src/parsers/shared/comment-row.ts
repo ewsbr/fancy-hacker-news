@@ -6,9 +6,10 @@ import { parseInteger } from '@/utils/number';
 import { parseToggleActionState, parseVoteState } from './actions';
 import { parseAge } from './age';
 import { parseCommentBody } from './body';
-import { isNewUser, parseGrayLevel } from './comment';
+import { parseGrayLevel } from './comment';
 import { attrOf, hrefOf, textOf } from './dom';
 import { parseScore } from './score';
+import { findUserLink, isNewUser } from './user-link';
 
 export interface ParsedCommentNavLinks {
   root: string | null;
@@ -111,7 +112,7 @@ export function parseThreadCommentRow(
   assert(id, 'Expected comment row to have an id');
 
   const comhead = tr.querySelector('.comhead');
-  const authorEl = comhead?.querySelector('a.hnuser');
+  const authorEl = findUserLink(comhead);
   const commentEl = tr.querySelector('.comment');
   const commtext = commentEl?.querySelector('.commtext') ?? tr.querySelector('.commtext');
   const commentBody = parseCommentBody(commentEl ?? commtext);

@@ -40,6 +40,23 @@ describe('story list fixtures', () => {
     expect(item.comments[0].replyLink).toBe(`reply${suffix}?id=49643384&goto=item%3Fid%3D49627634%2349643384`);
   });
 
+  it('parses authors from user links without the hnuser class', async () => {
+    const stories = parseStoryList(await loadFixtureDocument('stories/news-plain-user-links.html')).stories;
+    const item = parseItemPage(await loadFixtureDocument('stories/threads/story-plain-user-links.html'));
+    const comments = flattenComments(item.comments);
+    const newComments = parseNewComments(await loadFixtureDocument('comments/newcomments-plain-user-links.html')).comments;
+
+    expect(stories[0].author).toBe('srean');
+    expect(stories.every(story => story.author)).toBe(true);
+    expect(item.item.author).toBeTruthy();
+    expect(comments.length).toBeGreaterThan(0);
+    expect(comments.every(comment => comment.author)).toBe(true);
+    expect(comments.find(comment => comment.author === 'uptrails')?.authorIsNew).toBe(true);
+    expect(newComments.every(comment => comment.author)).toBe(true);
+    expect(newComments.find(comment => comment.author === 'wolfinterval')?.authorIsNew).toBe(true);
+    expect(newComments.filter(comment => comment.authorIsNew)).toHaveLength(1);
+  });
+
   it('parses the Hacker News header from the news fixture', async () => {
     const doc = await loadFixtureDocument('stories/news.html');
     const header = parseHeader(doc);

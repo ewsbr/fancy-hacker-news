@@ -5,7 +5,6 @@ import { assert } from '@/utils/assert';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
 import { parseAge } from './shared/age';
 import { extractRichTextHtml, parseCommentBody } from './shared/body';
-import { isNewUser } from './shared/comment';
 import { parseCommentIndent, parseThreadCommentRow } from './shared/comment-row';
 import { buildCommentTree } from './shared/comment-tree';
 import {
@@ -15,6 +14,7 @@ import {
 } from './shared/dom';
 import { parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
+import { findUserLink, isNewUser } from './shared/user-link';
 
 const EXTREME_THREAD_COMMENT_THRESHOLD = 1000;
 
@@ -179,7 +179,7 @@ function parseRootItem(fatitem: Element): ItemDetail {
     const primaryLink = titleline?.querySelector('a');
     const titleStatus = parseStoryTitleStatus(titleline);
     const subtext = fatitem.querySelectorAll('tr')[1]?.querySelector('.subtext');
-    const authorEl = subtext?.querySelector('a.hnuser');
+    const authorEl = findUserLink(subtext);
     const age = parseAge(subtext?.querySelector('.age'));
 
     return {
@@ -212,7 +212,7 @@ function parseRootItem(fatitem: Element): ItemDetail {
   const comhead = athing?.querySelector('.comhead');
   const navs = comhead?.querySelector('.navs');
   const onStory = navs?.querySelector('.onstory a');
-  const authorEl = comhead?.querySelector('a.hnuser');
+  const authorEl = findUserLink(comhead);
   const age = parseAge(comhead?.querySelector('.age'));
   const body = parseCommentBody(athing?.querySelector('.comment') ?? athing?.querySelector('.commtext'));
 

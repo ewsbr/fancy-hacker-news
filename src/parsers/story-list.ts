@@ -2,7 +2,6 @@ import type { ToggleActionState, VoteDirection, VoteState } from './shared/actio
 import { parseInteger } from '@/utils/number';
 import { parseToggleActionState, parseVoteState } from './shared/actions';
 import { parseAge } from './shared/age';
-import { isNewUser } from './shared/comment';
 import {
   hrefOf,
   textOf,
@@ -10,6 +9,7 @@ import {
 import { findMoreLink, parseIntroHtml } from './shared/list-page';
 import { parseCommentCount, parseScore } from './shared/score';
 import { parseStoryTitleStatus } from './shared/status';
+import { findUserLink, isNewUser } from './shared/user-link';
 
 export interface Story {
   id: string;
@@ -53,7 +53,7 @@ export function parseStoryList(doc: Document, options: ParseStoryListOptions = {
     const subtextTd = row.nextElementSibling?.querySelector('td.subtext');
     const sublineEl = subtextTd?.querySelector('span.subline');
     const age = parseAge((sublineEl ?? subtextTd)?.querySelector('span.age'));
-    const authorEl = sublineEl?.querySelector('a.hnuser');
+    const authorEl = findUserLink(sublineEl);
     // The last item link in the subline is the comments/discuss link.
     const commentAnchor = Array.from(sublineEl?.querySelectorAll('a[href^="item?id="]') ?? []).pop();
 

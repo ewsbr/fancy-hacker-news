@@ -1,4 +1,5 @@
 import { attrOf, hrefOf, textOf } from './shared/dom';
+import { findUserLink } from './shared/user-link';
 
 export type UserAboutSegment
   = | { type: 'text'; text: string }
@@ -204,7 +205,7 @@ export function parseUserPage(doc: Document): ParsedUserPage {
   const form = doc.querySelector<HTMLFormElement>('form.profileform[action="/xuser"]');
   // Scope all profile queries to #bigbox to avoid matching header nav elements.
   const bigbox = doc.getElementById('bigbox');
-  const username = textOf(bigbox?.querySelector('a.hnuser'));
+  const username = textOf(findUserLink(bigbox));
   const createdLinkEl = bigbox?.querySelector('a[href^="front?day="]');
   const formValue = (selector: string) => form?.querySelector<HTMLInputElement | HTMLSelectElement>(selector)?.value ?? null;
 

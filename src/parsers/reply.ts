@@ -1,6 +1,7 @@
 import { parseAge } from './shared/age';
 import { extractRichTextHtml } from './shared/body';
 import { attrOf, hrefOf, textOf } from './shared/dom';
+import { findUserLink } from './shared/user-link';
 
 export interface ParsedReplyPage {
   parent: {
@@ -37,7 +38,7 @@ export function parseReplyPage(doc: Document): ParsedReplyPage | null {
 
   return {
     parent: {
-      author: textOf(comhead?.querySelector('a.hnuser')),
+      author: textOf(findUserLink(comhead)),
       age: age.text,
       ageLink: age.link,
       bodyHtml: extractRichTextHtml(parentTr?.querySelector('div.commtext')),

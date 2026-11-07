@@ -1,8 +1,8 @@
 import { parseAge } from './shared/age';
 import { extractRichTextHtml } from './shared/body';
-import { isNewUser } from './shared/comment';
 import { attrOf, hrefOf, textOf } from './shared/dom';
 import { parseScore } from './shared/score';
+import { findUserLink, isNewUser } from './shared/user-link';
 
 export interface ParsedDeleteConfirmPage {
   errorMessage: string | null;
@@ -30,7 +30,7 @@ export interface ParsedDeleteConfirmPage {
 export function parseDeleteConfirmPage(doc: Document): ParsedDeleteConfirmPage {
   const athing = doc.querySelector('#bigbox table tr.athing');
   const comhead = athing?.querySelector('span.comhead');
-  const authorEl = comhead?.querySelector('a.hnuser');
+  const authorEl = findUserLink(comhead);
   const age = parseAge(comhead?.querySelector('span.age'));
   const navs = comhead?.querySelector('span.navs');
   const navLink = (label: string) => hrefOf(Array.from(navs?.querySelectorAll('a') ?? []).find(a => textOf(a) === label));
