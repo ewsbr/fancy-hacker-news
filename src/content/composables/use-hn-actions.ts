@@ -75,15 +75,13 @@ async function sendActionRequest(requestUrl: URL, nativeUrl: URL): Promise<boole
 
   // After Back, Firefox for Android restores HN from cache but sends the page's requests without the session cookie
   // until it reloads. HN then answers every action with its login page. The background script's requests still carry
-  // the cookie. Both were observed in Firefox for Android in November 2026, with and without the extension.
+  // the cookie. Observed in Firefox for Android in November 2026. The cookie loss also happens without the extension.
   isPageSessionDropped = true;
   if (await requestHnActionInBackground(requestUrl.toString()) === 'accepted') {
     return true;
   }
 
-  if (nativeUrl.searchParams.has('goto')) {
-    window.location.assign(nativeUrl.toString());
-  }
+  window.location.assign(nativeUrl.toString());
   return false;
 }
 

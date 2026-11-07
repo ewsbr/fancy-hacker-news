@@ -315,6 +315,25 @@ describe('useHnActions', () => {
     });
   });
 
+  it('navigates to a favorite link without goto when HN rejects it in both contexts', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      type: 'basic',
+      url: 'https://news.ycombinator.com/fave?id=44&auth=favauth',
+    });
+    stubBackgroundResponse({ ok: true, result: 'rejected' });
+    const { submitFavorite } = useHnActions();
+    const target = {
+      favoriteAction: { kind: 'available' as const, href: 'fave?id=44&auth=favauth' },
+    };
+
+    await expect(submitFavorite(target)).resolves.toBe(false);
+
+    expect(locationAssignMock).toHaveBeenCalledWith('https://news.ycombinator.com/fave?id=44&auth=favauth');
+    expect(target.favoriteAction.kind).toBe('available');
+  });
+
   it('toggles hide links through the centralized no-redirect request', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
